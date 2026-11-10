@@ -1,0 +1,1749 @@
+{
+  "audit_script_sha256": "3b0914eb961614547b2e940abb533ccbd5fe5307fe80e6429e262b70bb060e8e",
+  "cases": [
+    {
+      "artifacts": {
+        "after.json.gz": "93742886d5742a77fbefd3956b0d8d89ddfae099298af09cb5ec8d0618bb2c72",
+        "before.json.gz": "154dabc2b7526d961c3fa27b990cf97955ecdb0396d019c84005f069314f7234"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02295093348393885,
+          "rms_angstrom": 0.00204998768279667
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.02973982044577873,
+          "rms_angstrom": 0.005161856055019719
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 1,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4826.845886230469,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.4711410340659303,
+              "ca_volume_angstrom3": 2.3523522335509126,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3864.3890533447266,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "9dfbf73c8c5df465b31ca4036d7b42f70a153b183a7ab4187671f3f2d3214930",
+        "before.json.gz": "154dabc2b7526d961c3fa27b990cf97955ecdb0396d019c84005f069314f7234"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02802799944347716,
+          "rms_angstrom": 0.0023662465445907273
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.03707250546983285,
+          "rms_angstrom": 0.006308012284673481
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 2,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4826.9334716796875,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.4691246826387574,
+              "ca_volume_angstrom3": 2.354316980765654,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3864.3890533447266,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "d651eb48652c4a8d4d61102e05c66070bc1ad91e50a507882c15c181634c4343",
+        "before.json.gz": "11f46f65bee58b689c21ab675479c1a8f04a41cb9706ac461baebd13892fe8e3"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02461875527927456,
+          "rms_angstrom": 0.0021034589556383626
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.03255995966093241,
+          "rms_angstrom": 0.005551908979192899
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 1,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4826.816904561377,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.4704489618428624,
+              "ca_volume_angstrom3": 2.3527256378837444,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3864.388058391726,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "d651eb48652c4a8d4d61102e05c66070bc1ad91e50a507882c15c181634c4343",
+        "before.json.gz": "11f46f65bee58b689c21ab675479c1a8f04a41cb9706ac461baebd13892fe8e3"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02461875527927456,
+          "rms_angstrom": 0.0021034589556383626
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.03255995966093241,
+          "rms_angstrom": 0.005551908979192899
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 2,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4826.816904561377,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.4704489618428624,
+              "ca_volume_angstrom3": 2.3527256378837444,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3864.388058391726,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "35d98c8752dc333fa39c00ec9c409ee027106e7ba2509b52d0a32eb2caca6df7",
+        "before.json.gz": "aba64f2953a93c39135b7856e61e76eb427784b7c17d75e3a424c43ea10936cd"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.015097978742400714,
+          "rms_angstrom": 0.001305719653026987
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.017465967975466005,
+          "rms_angstrom": 0.002748894732998075
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 1,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4786.545196533203,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.4859715699131937,
+              "ca_volume_angstrom3": 2.306361713992221,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3831.076416015625,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "132b92b759389e0aa810455a8a1cdca5eb2764e6f961ff8624bc8644a5670b43",
+        "before.json.gz": "aba64f2953a93c39135b7856e61e76eb427784b7c17d75e3a424c43ea10936cd"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.03832582132556114,
+          "rms_angstrom": 0.003209724476136934
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.0428096017902639,
+          "rms_angstrom": 0.006785991317193165
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 2,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4786.029586791992,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.485264179320677,
+              "ca_volume_angstrom3": 2.2903636281071513,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3831.076416015625,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "8392e6b7bdc35e1b7934b8c71b4b7abf6d49930fbcfd4ad180643ac3c0296cfe",
+        "before.json.gz": "4a0286709d98c01cd4ab9a09ca71ce373f0a91dee0f2198cfc5b17dfafbda2a7"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.03797186439185152,
+          "rms_angstrom": 0.003187070386963601
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.04217548278364067,
+          "rms_angstrom": 0.006709641318884845
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 1,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4786.033717685199,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.485273526763337,
+              "ca_volume_angstrom3": 2.2906598513122263,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3831.0745301311395,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "8392e6b7bdc35e1b7934b8c71b4b7abf6d49930fbcfd4ad180643ac3c0296cfe",
+        "before.json.gz": "4a0286709d98c01cd4ab9a09ca71ce373f0a91dee0f2198cfc5b17dfafbda2a7"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.03797186439185152,
+          "rms_angstrom": 0.003187070386963601
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.04217548278364067,
+          "rms_angstrom": 0.006709641318884845
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 2,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -4786.033717685199,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 2.485273526763337,
+              "ca_volume_angstrom3": 2.2906598513122263,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        },
+        "before": {
+          "energy_kj_mol": -3831.0745301311395,
+          "stereo": {
+            "atom_count": 642,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 42,
+            "target": {
+              "beta_volume_angstrom3": 0.1983892885655522,
+              "ca_volume_angstrom3": 0.8131107802635412,
+              "residue": [
+                "A",
+                "2",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 6
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "0305f6772aafcc043f9602d24dd6e6f7a0c415689d0483d8af716c8077db923a",
+        "before.json.gz": "120255c3e3e5718577f2863bd12dd02b67fb7194ffc353b2b28410fb86338d9d"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.026416442144725563,
+          "rms_angstrom": 0.0020727107816305664
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.032218213619885167,
+          "rms_angstrom": 0.003655191631912158
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 1,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7133.796157836914,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.498309303043984,
+              "ca_volume_angstrom3": 2.468763097345281,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.631072998047,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "5c1149e93e81955469e69653d4ffaf8549ddce3a1d4fc5bc5fffec19fa93cc2b",
+        "before.json.gz": "120255c3e3e5718577f2863bd12dd02b67fb7194ffc353b2b28410fb86338d9d"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.05592683367466226,
+          "rms_angstrom": 0.003745704580333549
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.17683940993485212,
+          "rms_angstrom": 0.010233423720035299
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 2,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.5555419921875,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.501700402000288,
+              "ca_volume_angstrom3": 2.479335898851554,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.631072998047,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "78871002aa1993ffcdf1d2af5406f1cf09c5a0769c9c765e4e1a77d384056c9c",
+        "before.json.gz": "e8713fb2c7531edc73594ce54a58d833d5a11da2356bd94489081e519d6f0c58"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.10359366892022337,
+          "rms_angstrom": 0.007457725860623022
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.18453670135508077,
+          "rms_angstrom": 0.015062826629210881
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 1,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.760181309811,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4846639369433388,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.635883611928,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "78871002aa1993ffcdf1d2af5406f1cf09c5a0769c9c765e4e1a77d384056c9c",
+        "before.json.gz": "e8713fb2c7531edc73594ce54a58d833d5a11da2356bd94489081e519d6f0c58"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.10359366892022337,
+          "rms_angstrom": 0.007457725860623022
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.18453670135508077,
+          "rms_angstrom": 0.015062826629210881
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 2,
+      "seed": 1,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.760181309811,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4846639369433388,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.635883611928,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "34d7020f3a4f2ad1c479d045f79748c4a65d5bf49902b7f183b52d8dd334ef49",
+        "before.json.gz": "120255c3e3e5718577f2863bd12dd02b67fb7194ffc353b2b28410fb86338d9d"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.023898806895987564,
+          "rms_angstrom": 0.001778696823943256
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.0761877269047084,
+          "rms_angstrom": 0.004534795552320644
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 1,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.001953125,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4913592831885345,
+              "ca_volume_angstrom3": 2.475216129604142,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.631072998047,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "6a38e8c97a0020c1539aba5a7c17cf29550b0bf976c8bc24f92a3cf91cfad33f",
+        "before.json.gz": "120255c3e3e5718577f2863bd12dd02b67fb7194ffc353b2b28410fb86338d9d"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.021960212472010923,
+          "rms_angstrom": 0.0019820996910408562
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.16437368711103303,
+          "rms_angstrom": 0.008423514744883348
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "captured",
+      "platform": "OpenCL",
+      "repeat": 2,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7133.589538574219,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4946265627002404,
+              "ca_volume_angstrom3": 2.4721705257674578,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.631072998047,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "78871002aa1993ffcdf1d2af5406f1cf09c5a0769c9c765e4e1a77d384056c9c",
+        "before.json.gz": "e8713fb2c7531edc73594ce54a58d833d5a11da2356bd94489081e519d6f0c58"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.05259372549955853,
+          "rms_angstrom": 0.0035178150307464944
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.07728270929965934,
+          "rms_angstrom": 0.007265476953074984
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 1,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.760181309811,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4846639369433388,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.635883611928,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "artifacts": {
+        "after.json.gz": "78871002aa1993ffcdf1d2af5406f1cf09c5a0769c9c765e4e1a77d384056c9c",
+        "before.json.gz": "e8713fb2c7531edc73594ce54a58d833d5a11da2356bd94489081e519d6f0c58"
+      },
+      "endpoint_delta_vs_captured_phase": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.05259372549955853,
+          "rms_angstrom": 0.0035178150307464944
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.07728270929965934,
+          "rms_angstrom": 0.007265476953074984
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "mode": "Reference",
+      "platform": "Reference",
+      "repeat": 2,
+      "seed": 2,
+      "settings": {
+        "max_iterations": 1000,
+        "tolerance_kj_mol_nm": 10
+      },
+      "states": {
+        "after": {
+          "energy_kj_mol": -7134.760181309811,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.4846639369433388,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        },
+        "before": {
+          "energy_kj_mol": -4710.635883611928,
+          "stereo": {
+            "atom_count": 947,
+            "negative_ca": [],
+            "negative_thr_beta": [],
+            "protein_ca_centres": 53,
+            "target": {
+              "beta_volume_angstrom3": 2.963813309989784,
+              "ca_volume_angstrom3": 0.25919317365421185,
+              "residue": [
+                "A",
+                "27",
+                "",
+                "THR"
+              ],
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "thr_beta_centres": 2
+          }
+        }
+      },
+      "status": "completed"
+    }
+  ],
+  "cross_platform_pairs": [
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.0019807930769433824,
+          "rms_angstrom": 0.0001710724647940871
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.0037795062850222577,
+          "rms_angstrom": 0.0005842238369255376
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02294509145811218,
+          "rms_angstrom": 0.0019348910635970727
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.024731842220519693,
+          "rms_angstrom": 0.00402672496690108
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "seed": 2
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.07969227701726374,
+          "rms_angstrom": 0.005632822042548582
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.2067320159058885,
+          "rms_angstrom": 0.013847800188161456
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.06967804385699279,
+          "rms_angstrom": 0.0047682993464139446
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.10552928378257334,
+          "rms_angstrom": 0.009639716968702338
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "seed": 2
+    }
+  ],
+  "full_causal_attribution": false,
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "b77489d0768b180e9d1c18c8d0eab330d6742b853f432ee0beea6d4a7a15c356",
+  "production_changed": false,
+  "profile_selected": false,
+  "repeated_starts": [
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.005183347020360675,
+          "rms_angstrom": 0.0004156313748366541
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.00733302501043674,
+          "rms_angstrom": 0.001220754617638422
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "mode": "captured",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "mode": "Reference",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.02329311735560635,
+          "rms_angstrom": 0.0019587848830796496
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.025367298992984014,
+          "rms_angstrom": 0.0041041335778748906
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "mode": "captured",
+      "seed": 2
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "mode": "Reference",
+      "seed": 2
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.030307472136161587,
+          "rms_angstrom": 0.0021886692205992362
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.20061992902513753,
+          "rms_angstrom": 0.010413072807760977
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "mode": "captured",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "mode": "Reference",
+      "seed": 1
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.005301078483820129,
+          "rms_angstrom": 0.0009219252939827468
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 0.09005989832278277,
+          "rms_angstrom": 0.004848806216700699
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "mode": "captured",
+      "seed": 2
+    },
+    {
+      "delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "mode": "Reference",
+      "seed": 2
+    }
+  ],
+  "run_sha256": "d79237456e4c3bd8fc1b5d2924f0d5994c8bcb647d0c43951d2554b221ae0672",
+  "schema": "dvbfixer.legacy-start-replay-audit.v1",
+  "summary": {
+    "completed": 16,
+    "enrolled": 16
+  }
+}

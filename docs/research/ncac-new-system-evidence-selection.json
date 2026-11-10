@@ -1,0 +1,1384 @@
+{
+  "schema": "dvbfixer.prospective-ncac-selection.v1",
+  "cases": {
+    "1PGB-THR2-CB-OG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "evaluated",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5342922758131188,
+                  "minimum_nonbonded_clearance_angstrom": -0.479144630224118
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5348148620000024,
+                  "minimum_nonbonded_clearance_angstrom": -0.47899914412884703
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5342922758131188,
+                  "minimum_nonbonded_clearance_angstrom": -0.33968700045518285
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5348148620000024,
+                  "minimum_nonbonded_clearance_angstrom": -0.3397309153483594
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5342922758131188,
+                  "minimum_nonbonded_clearance_angstrom": -0.467778858449305
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5348148620000024,
+                  "minimum_nonbonded_clearance_angstrom": -0.468287019505492
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 0,
+            "total_score": 10.672553376845563
+          },
+          "context_coordinates_identical": true
+        },
+        "ncac": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4301485996853236,
+                  "minimum_nonbonded_clearance_angstrom": -0.3562659417778393
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4290972270000033,
+                  "minimum_nonbonded_clearance_angstrom": -0.3566010777421895
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4301485996853236,
+                  "minimum_nonbonded_clearance_angstrom": -0.2921818291034659
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4290972270000033,
+                  "minimum_nonbonded_clearance_angstrom": -0.2921282473441573
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4301485996853236,
+                  "minimum_nonbonded_clearance_angstrom": -0.364083542117263
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4290972270000033,
+                  "minimum_nonbonded_clearance_angstrom": -0.36449361720321916
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 0,
+            "total_score": 10.954124870493892
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "anchor-policy.json": "38e7810e1ffbd94f64c942dcc61820da0da0af69aa1daab594b389a7a648e719",
+        "input.pdb": "43031a6366b097c082f8e91f7d6b9063e740f785c3807031ac8d068d24c1b5ac",
+        "ncac-proposals.json": "4fa2a9743883e449bbb020769b6b50e00ddda09704e1b92b4fe9375db1fe5395",
+        "ncac-trace/event-0000.json.gz": "66ea7b34c3720ac09d46a069784082e790ca9b82d89c9d39ba559c5cf258594a",
+        "ncac-trace/event-0001.json.gz": "66ea7b34c3720ac09d46a069784082e790ca9b82d89c9d39ba559c5cf258594a",
+        "ncac-trace/event-0002.json.gz": "66ea7b34c3720ac09d46a069784082e790ca9b82d89c9d39ba559c5cf258594a",
+        "ncac-trace/event-0003.json.gz": "66ea7b34c3720ac09d46a069784082e790ca9b82d89c9d39ba559c5cf258594a",
+        "ncac-trace/event-0004.json.gz": "66ea7b34c3720ac09d46a069784082e790ca9b82d89c9d39ba559c5cf258594a",
+        "ncac-trace/evidence.json": "faca60c002e9b85373946cb911b0ce3c81001b028a9c7b9c6653738327e42374",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "43031a6366b097c082f8e91f7d6b9063e740f785c3807031ac8d068d24c1b5ac",
+        "own-attempts.json": "4261caa0158ee67586e2205361206878bb5ff3da397faccbbe2184a97681b565",
+        "result.json": "a58be3e47f3c8920d7ba3655c33b3e0dd4b473a8814f11d5320e348a5c312348",
+        "stock-proposal.json": "eec4b9e73892eff338d35bc3b5a9da17475078d7cc2da38d6a8a5eb5bf6a426e",
+        "stock-proposal.pdb": "fb9ceddb2aa0c018581ce05cc0ecf4cff6a90cff03af03ba5cd8be57aaf190ee",
+        "stock-seed-1.json": "bb06a8a1d584942f120576ca214a75f7b93d577be3aebdd3d0a5313582aa9d97",
+        "stock-seed-2.json": "778be7a2009b6e5a0aa947fdea9327c45d067453111ecd0104cce6309437b667",
+        "stock-seed-3.json": "6583f6f57b4b229fb5301d2ac0719eb79e83b85e19d72bbb99c3dd45d04f09f0",
+        "stock-seed-4.json": "6fc2a579cb168668334f441e8cc6966b12277365f3700c36902e5ccb762b6bd9",
+        "stock-seed-5.json": "dc186457b883d9385850d2ec27702c3e4606508b7fb62a0b60dfbf0533d4d14a",
+        "stock.log": "9f32b4c4354e43b16960c864f9b2266c6189a7a872f089277d9b5b97c0de1080"
+      },
+      "stock": {
+        "common_accepted": false,
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_length:CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='18', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):OE2"
+            ],
+            "ca_volume_angstrom3": -0.37266213249363245,
+            "minimum_nonbonded_clearance_angstrom": -0.798347211137167
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_length:CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='18', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):OE2"
+            ],
+            "ca_volume_angstrom3": -0.3718819819999997,
+            "minimum_nonbonded_clearance_angstrom": -0.7984259994370033
+          },
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        }
+      }
+    },
+    "1PGB-THR11-CB-OG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "evaluated",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262379329920479,
+                  "minimum_nonbonded_clearance_angstrom": -0.5748230343296754
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262120309999999,
+                  "minimum_nonbonded_clearance_angstrom": -0.5745497703905662
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262379329920479,
+                  "minimum_nonbonded_clearance_angstrom": -0.3322318427658493
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262120309999999,
+                  "minimum_nonbonded_clearance_angstrom": -0.33232883963939486
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262379329920479,
+                  "minimum_nonbonded_clearance_angstrom": -0.43961486069144207
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.262120309999999,
+                  "minimum_nonbonded_clearance_angstrom": -0.43982842256093835
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 1,
+            "total_score": 8.36618765808526
+          },
+          "context_coordinates_identical": true
+        },
+        "ncac": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494512425512264,
+                  "minimum_nonbonded_clearance_angstrom": -0.37466404516623397
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494619859999997,
+                  "minimum_nonbonded_clearance_angstrom": -0.3747386889724713
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494512425512264,
+                  "minimum_nonbonded_clearance_angstrom": -0.28086499498077044
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494619859999997,
+                  "minimum_nonbonded_clearance_angstrom": -0.2804530648598935
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494512425512264,
+                  "minimum_nonbonded_clearance_angstrom": -0.36583038956044756
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3494619859999997,
+                  "minimum_nonbonded_clearance_angstrom": -0.36554646210522423
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 1,
+            "total_score": 8.60633114377844
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "anchor-policy.json": "61fe635fa6d8764c890f09197dc4b6d9143f67f82aa0033ff090c96a9fe04cd2",
+        "input.pdb": "1640e13d1e38a5201b4b8ed7672f850c42e2b621e098b2ca28a45d17ea0c4095",
+        "ncac-proposals.json": "3daef9bd822e2bd6fae8cbefe4531e1e0933493d4c7716b88f3623bfe8af96e5",
+        "ncac-trace/event-0000.json.gz": "2e73dccaf2c034c53e34601b46c20be4c7f266ae1bb36a0dda26858736bb3807",
+        "ncac-trace/event-0001.json.gz": "2e73dccaf2c034c53e34601b46c20be4c7f266ae1bb36a0dda26858736bb3807",
+        "ncac-trace/event-0002.json.gz": "2e73dccaf2c034c53e34601b46c20be4c7f266ae1bb36a0dda26858736bb3807",
+        "ncac-trace/event-0003.json.gz": "2e73dccaf2c034c53e34601b46c20be4c7f266ae1bb36a0dda26858736bb3807",
+        "ncac-trace/event-0004.json.gz": "2e73dccaf2c034c53e34601b46c20be4c7f266ae1bb36a0dda26858736bb3807",
+        "ncac-trace/evidence.json": "d0ce62fb10e77657d3ed5808415f64e29df1ea5b592b7b03ef5b4729316d771b",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "1640e13d1e38a5201b4b8ed7672f850c42e2b621e098b2ca28a45d17ea0c4095",
+        "own-attempts.json": "0ee51ece20afe7d4d7fb27e95d3b9fbb329e0a07356ca136698ef2081d09b979",
+        "result.json": "6302394d0cca128e5c15193ef2bd49ea58286ea500a423bbd54e941bc9b9f78a",
+        "stock-proposal.json": "398f9d820c7d2163549a49e5160e22eaf71423509c3607db07fb83fd5d18c150",
+        "stock-proposal.pdb": "d1e95f9610b2df269e7ad6fad04d25ad73251b9e3a13433b5440756dafe72cc3",
+        "stock-seed-1.json": "61a9d38bdd3fcd547837b0523c89586711d0ec37bc7b70934e2817780c49ceff",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "common_accepted": false,
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_length:CA-CB"
+            ],
+            "ca_volume_angstrom3": 2.7616534195060796,
+            "minimum_nonbonded_clearance_angstrom": -0.293063822835691
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_length:CA-CB"
+            ],
+            "ca_volume_angstrom3": 2.7614247659999984,
+            "minimum_nonbonded_clearance_angstrom": -0.29295084667195703
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        }
+      }
+    },
+    "1PGB-VAL21-CB-CG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "evaluated",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.567924235774432,
+                  "minimum_nonbonded_clearance_angstrom": -0.4584525320161861
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5672324799999986,
+                  "minimum_nonbonded_clearance_angstrom": -0.45872459636979857
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.567924235774432,
+                  "minimum_nonbonded_clearance_angstrom": -0.4669365126206335
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5672324799999986,
+                  "minimum_nonbonded_clearance_angstrom": -0.4671583745452601
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.567924235774432,
+                  "minimum_nonbonded_clearance_angstrom": -0.4669365126206335
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5672324799999986,
+                  "minimum_nonbonded_clearance_angstrom": -0.4671583745452601
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 2,
+            "total_score": 8.552600328521827
+          },
+          "context_coordinates_identical": true
+        },
+        "ncac": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3792280087221274,
+                  "minimum_nonbonded_clearance_angstrom": -0.4584485622807657
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3793421520000004,
+                  "minimum_nonbonded_clearance_angstrom": -0.4589372669050391
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3792280087221274,
+                  "minimum_nonbonded_clearance_angstrom": -0.3561224942444077
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3793421520000004,
+                  "minimum_nonbonded_clearance_angstrom": -0.3565518839972248
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3792280087221274,
+                  "minimum_nonbonded_clearance_angstrom": -0.5170596399830356
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3793421520000004,
+                  "minimum_nonbonded_clearance_angstrom": -0.5172044817573336
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 0,
+            "total_score": 8.370325356252884
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "anchor-policy.json": "1158ee39e78748137bb5a80e2970a95165197aacc16e4738df0b6e3382e29da4",
+        "input.pdb": "b551446e41b05900d4d78133c4c9db98787410fe3dc4b9224a259776a4adda55",
+        "ncac-proposals.json": "5f7d1683cbc61284a0a8b2cc98eb09e99c0b237c9532692924fdc08b0649a007",
+        "ncac-trace/event-0000.json.gz": "232d7a4343f95e3e97eea2154bfde05a8ac3827951d21aedd35d12c11609a9ff",
+        "ncac-trace/event-0001.json.gz": "232d7a4343f95e3e97eea2154bfde05a8ac3827951d21aedd35d12c11609a9ff",
+        "ncac-trace/event-0002.json.gz": "232d7a4343f95e3e97eea2154bfde05a8ac3827951d21aedd35d12c11609a9ff",
+        "ncac-trace/event-0003.json.gz": "232d7a4343f95e3e97eea2154bfde05a8ac3827951d21aedd35d12c11609a9ff",
+        "ncac-trace/event-0004.json.gz": "232d7a4343f95e3e97eea2154bfde05a8ac3827951d21aedd35d12c11609a9ff",
+        "ncac-trace/evidence.json": "1d2f343bcff8937734ade8061a8c72855c953fe178b46e4a75f6406c16f62030",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "b551446e41b05900d4d78133c4c9db98787410fe3dc4b9224a259776a4adda55",
+        "own-attempts.json": "48f8ba73917edecd7d7d9be95697a561911f0ce0e0ce8fc7c3c37f7cf8b40c76",
+        "result.json": "ea4b8b395e16237a980cb0803113a64be465eb959e79c4d29e601b3f7d225ddb",
+        "stock-proposal.json": "5a4cb71acf36bb91706a13412ea715930956ac7e37813903b45a0394d3e69cc5",
+        "stock-proposal.pdb": "6c370b2cf5c45a3e06b842e44b1facc6b0ed6aef3236941ecf6a3b5d50c93fcc",
+        "stock-seed-1.json": "8cff00161e7d390e0bf00ca580a4453275476c55f969d3c3bae23b656f8235f4",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "common_accepted": true,
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4758388532534124,
+            "minimum_nonbonded_clearance_angstrom": -0.42480312657302166
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.476415252000003,
+            "minimum_nonbonded_clearance_angstrom": -0.4248213499018205
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        }
+      }
+    },
+    "1PGB-VAL29-CB-CG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "evaluated",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.475763400944329,
+                  "minimum_nonbonded_clearance_angstrom": -0.39669004028414845
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.474777430000002,
+                  "minimum_nonbonded_clearance_angstrom": -0.396506700523537
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.475763400944329,
+                  "minimum_nonbonded_clearance_angstrom": -0.4937926762012639
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.474777430000002,
+                  "minimum_nonbonded_clearance_angstrom": -0.49396765331147563
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.475763400944329,
+                  "minimum_nonbonded_clearance_angstrom": -0.4937926762012639
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.474777430000002,
+                  "minimum_nonbonded_clearance_angstrom": -0.49396765331147563
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 2,
+            "total_score": 11.12214742051085
+          },
+          "context_coordinates_identical": true
+        },
+        "ncac": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3503455687995296,
+                  "minimum_nonbonded_clearance_angstrom": -0.46324439425027286
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3507986100000005,
+                  "minimum_nonbonded_clearance_angstrom": -0.46270090048697865
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3503455687995296,
+                  "minimum_nonbonded_clearance_angstrom": -0.33896274557991557
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3507986100000005,
+                  "minimum_nonbonded_clearance_angstrom": -0.33890226890267394
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3503455687995296,
+                  "minimum_nonbonded_clearance_angstrom": -0.5363461161432936
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3507986100000005,
+                  "minimum_nonbonded_clearance_angstrom": -0.5361518895025159
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selected",
+            "selected_index": 0,
+            "total_score": 11.064062218578492
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "anchor-policy.json": "b970482999acb3d957b2e01a1350ce8b96e650fbd0280b9ebd23f4eb9505ad65",
+        "input.pdb": "fb4620410ab6159596716f49bd177d4fa12a22bde8fd32906b7ddaed91db0e6b",
+        "ncac-proposals.json": "2203c61f7d569ba4f295f3bff9489af214ce5810da65d701a87be21c142ba754",
+        "ncac-trace/event-0000.json.gz": "d06d81a7881760eafa6fa140a9a7554ad4deb38a94826916ce387fa36a9bcc26",
+        "ncac-trace/event-0001.json.gz": "d06d81a7881760eafa6fa140a9a7554ad4deb38a94826916ce387fa36a9bcc26",
+        "ncac-trace/event-0002.json.gz": "d06d81a7881760eafa6fa140a9a7554ad4deb38a94826916ce387fa36a9bcc26",
+        "ncac-trace/event-0003.json.gz": "d06d81a7881760eafa6fa140a9a7554ad4deb38a94826916ce387fa36a9bcc26",
+        "ncac-trace/event-0004.json.gz": "d06d81a7881760eafa6fa140a9a7554ad4deb38a94826916ce387fa36a9bcc26",
+        "ncac-trace/evidence.json": "5da054b57d8d77f6981a969d0f3f5288d62fabe50d4a7c9cfab6c022a985f1a2",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "fb4620410ab6159596716f49bd177d4fa12a22bde8fd32906b7ddaed91db0e6b",
+        "own-attempts.json": "2b02c601840d12f7dfe569709348e19b6649379bfe456518c00d6f631be199c8",
+        "result.json": "6353e5776dbee3d5abcb2ef12eb57767989fa9a89aef2b88f81c9795cda33263",
+        "stock-proposal.json": "35153c27b61f9a3fecf5a1dd106a272ec84f1323ebee5a026d33226480912b59",
+        "stock-proposal.pdb": "9b57711e2fc8461019e55041fb89caa964fd32d651a9ba58db7821a7d7b7ac6b",
+        "stock-seed-1.json": "db77c4a89ab9e4268ae91fa2359e295e78172c3f54a413f2a7e78383df5783b1",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "common_accepted": true,
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6804922714215245,
+            "minimum_nonbonded_clearance_angstrom": -0.3779187076869932
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.680006125000003,
+            "minimum_nonbonded_clearance_angstrom": -0.37789659343032955
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        }
+      }
+    },
+    "1BPI-THR11-CB-OG1-CG2": {
+      "status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "retained_files": {
+        "input.pdb": "25a4c2ce75a89549d7bc9e6251026085167fac60d85f92a36dfa8642fa825ce3",
+        "result.json": "dbaeb33f5b19778649ec2513e65652dae40018dbfe38db55415b02825bfe7d04"
+      }
+    },
+    "1BPI-THR32-CB-OG1-CG2": {
+      "status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "retained_files": {
+        "input.pdb": "11e0c54fa0f5b03388664b15c6f945601d1fdb17dfd374c6773325c8e74cb6ba",
+        "result.json": "dbaeb33f5b19778649ec2513e65652dae40018dbfe38db55415b02825bfe7d04"
+      }
+    },
+    "1BPI-VAL34-CB-CG1-CG2": {
+      "status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "retained_files": {
+        "input.pdb": "4d08329578bb0b313e65965df244e19d9a67da98b9ab61ffa1d364a99d9a236f",
+        "result.json": "dbaeb33f5b19778649ec2513e65652dae40018dbfe38db55415b02825bfe7d04"
+      }
+    },
+    "1CSP-VAL6-CB-CG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "execution_or_protocol_blocker",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='42', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.4439579474871342,
+                  "minimum_nonbonded_clearance_angstrom": -1.1708520038337922
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='42', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.44376381600001,
+                  "minimum_nonbonded_clearance_angstrom": -1.1711129850574988
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='42', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.4439579474871342,
+                  "minimum_nonbonded_clearance_angstrom": -1.1708520038337922
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='42', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.44376381600001,
+                  "minimum_nonbonded_clearance_angstrom": -1.1711129850574988
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4439579474871342,
+                  "minimum_nonbonded_clearance_angstrom": -0.4599341643171653
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.44376381600001,
+                  "minimum_nonbonded_clearance_angstrom": -0.46028113589071395
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selection_blocked_incomplete_scores",
+            "selected_index": null
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "input.pdb": "74ec23e94f51a50ee64f759f15dec5ee2cecb6c9ae99d92de3866b3508d8234a",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "74ec23e94f51a50ee64f759f15dec5ee2cecb6c9ae99d92de3866b3508d8234a",
+        "own-attempts.json": "0af83b71924968b5b43ec08b0b7d909802a804c3bab0119991b3f53cd2497765",
+        "result.json": "bdac7e73eea04ca26cc6966f39dea8818af41c01d79f4f98fb106ee506e3c0b2",
+        "stock-seed-1.json": "79c79a52394143bca9432f6389e5b1540a4b9baee7c6d3403297beaeee4983f9",
+        "stock-seed-2.json": "1fdb314c466b8042faf19217cd3a98c8c133a2a7fff9aec34cccb68960c814fc",
+        "stock-seed-3.json": "0cd05009bdd208d82e2d5b4284131d68f2003ee67cc226ab45006ca472fdc141",
+        "stock-seed-4.json": "22877a5a36bead90f6334b0a75845709400520bcc3aa908f2db846c362b8ba6c",
+        "stock-seed-5.json": "1b22a023e3c9b834c1393ebce2755eb3430dd05fb422125ac0c6427a53e0e399",
+        "stock.log": "9f32b4c4354e43b16960c864f9b2266c6189a7a872f089277d9b5b97c0de1080"
+      },
+      "stock": {
+        "status": "execution_blocker",
+        "error_type": "ValueError",
+        "error": "template rebuilt unrequested nonterminal heavy atoms"
+      },
+      "ncac_blocker": {
+        "status": "admitted",
+        "ncac_status": "execution_or_protocol_blocker",
+        "stock": {
+          "status": "execution_blocker",
+          "error_type": "ValueError",
+          "error": "template rebuilt unrequested nonterminal heavy atoms"
+        },
+        "error_type": "ValueError",
+        "error": "unexpected overlay anchors/order; no silent fallback"
+      }
+    },
+    "1CSP-VAL20-CB-CG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "execution_or_protocol_blocker",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='49', insertion_code='', alternate_location='', occurrence=1):CZ"
+                  ],
+                  "ca_volume_angstrom3": 2.599367907631673,
+                  "minimum_nonbonded_clearance_angstrom": -0.73081255861397
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='49', insertion_code='', alternate_location='', occurrence=1):CZ"
+                  ],
+                  "ca_volume_angstrom3": 2.5995833480000003,
+                  "minimum_nonbonded_clearance_angstrom": -0.7305626060909387
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.599367907631673,
+                  "minimum_nonbonded_clearance_angstrom": -0.51342364968919
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5995833480000003,
+                  "minimum_nonbonded_clearance_angstrom": -0.5136607960948192
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='49', insertion_code='', alternate_location='', occurrence=1):CZ"
+                  ],
+                  "ca_volume_angstrom3": 2.599367907631673,
+                  "minimum_nonbonded_clearance_angstrom": -0.73081255861397
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='49', insertion_code='', alternate_location='', occurrence=1):CZ"
+                  ],
+                  "ca_volume_angstrom3": 2.5995833480000003,
+                  "minimum_nonbonded_clearance_angstrom": -0.7305626060909387
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selection_blocked_incomplete_scores",
+            "selected_index": null
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "input.pdb": "5fbfdb30a886e8ba5ec330edcaca2e887e4355e395b473d58f5fa9e7b61329cd",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "5fbfdb30a886e8ba5ec330edcaca2e887e4355e395b473d58f5fa9e7b61329cd",
+        "own-attempts.json": "8ed6a81356720c1c086166b4cbf1a150e82ab0386075deffa83b8cf154a53bd3",
+        "result.json": "bdac7e73eea04ca26cc6966f39dea8818af41c01d79f4f98fb106ee506e3c0b2",
+        "stock-seed-1.json": "344f1ac15345348783d60a963d21e518627d2dc5e9eabeef384f62a00c4bbee4",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "status": "execution_blocker",
+        "error_type": "ValueError",
+        "error": "template rebuilt unrequested nonterminal heavy atoms"
+      },
+      "ncac_blocker": {
+        "status": "admitted",
+        "ncac_status": "execution_or_protocol_blocker",
+        "stock": {
+          "status": "execution_blocker",
+          "error_type": "ValueError",
+          "error": "template rebuilt unrequested nonterminal heavy atoms"
+        },
+        "error_type": "ValueError",
+        "error": "unexpected overlay anchors/order; no silent fallback"
+      }
+    },
+    "1CSP-THR40-CB-OG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "execution_or_protocol_blocker",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CE2"
+                  ],
+                  "ca_volume_angstrom3": 2.6477067011558573,
+                  "minimum_nonbonded_clearance_angstrom": -0.6483179439600024
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CE2"
+                  ],
+                  "ca_volume_angstrom3": 2.64726951000001,
+                  "minimum_nonbonded_clearance_angstrom": -0.6484273294343812
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CD2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CE2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='39', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.6477067011558573,
+                  "minimum_nonbonded_clearance_angstrom": -0.9170370138245292
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CD2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='38', insertion_code='', alternate_location='', occurrence=1):CE2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='39', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": 2.64726951000001,
+                  "minimum_nonbonded_clearance_angstrom": -0.9174255298178879
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.6477067011558573,
+                  "minimum_nonbonded_clearance_angstrom": -0.5036931968736607
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.64726951000001,
+                  "minimum_nonbonded_clearance_angstrom": -0.5036087971408283
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selection_blocked_incomplete_scores",
+            "selected_index": null
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "input.pdb": "f5d5f79d3b2815067f731af9cb189b7dfeea257905dbf3f76defa22ba360c163",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "f5d5f79d3b2815067f731af9cb189b7dfeea257905dbf3f76defa22ba360c163",
+        "own-attempts.json": "144b3248a584cc3ad3985b5760ba192a296e98ddb4f4032a85af7bb6951415ed",
+        "result.json": "bdac7e73eea04ca26cc6966f39dea8818af41c01d79f4f98fb106ee506e3c0b2",
+        "stock-seed-1.json": "3aae6addaaf9427bc932008943e66319871c858a95162c28023e79f47098549e",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "status": "execution_blocker",
+        "error_type": "ValueError",
+        "error": "template rebuilt unrequested nonterminal heavy atoms"
+      },
+      "ncac_blocker": {
+        "status": "admitted",
+        "ncac_status": "execution_or_protocol_blocker",
+        "stock": {
+          "status": "execution_blocker",
+          "error_type": "ValueError",
+          "error": "template rebuilt unrequested nonterminal heavy atoms"
+        },
+        "error_type": "ValueError",
+        "error": "unexpected overlay anchors/order; no silent fallback"
+      }
+    },
+    "1CSP-THR64-CB-OG1-CG2": {
+      "status": "admitted",
+      "ncac_status": "execution_or_protocol_blocker",
+      "methods": {
+        "baseline": {
+          "candidates": [
+            {
+              "index": 0,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5266343644211147,
+                  "minimum_nonbonded_clearance_angstrom": -0.4486383840759749
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5259088130000045,
+                  "minimum_nonbonded_clearance_angstrom": -0.4483599474190614
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 1,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5266343644211147,
+                  "minimum_nonbonded_clearance_angstrom": -0.36543897686062743
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5259088130000045,
+                  "minimum_nonbonded_clearance_angstrom": -0.36567083187660265
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            },
+            {
+              "index": 2,
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5266343644211147,
+                  "minimum_nonbonded_clearance_angstrom": -0.49498768265136883
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5259088130000045,
+                  "minimum_nonbonded_clearance_angstrom": -0.4951707451211518
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              }
+            }
+          ],
+          "selection": {
+            "status": "selection_blocked_incomplete_scores",
+            "selected_index": null
+          },
+          "context_coordinates_identical": true
+        }
+      },
+      "retained_files": {
+        "input.pdb": "0d4edccf186a1048a347e619b4af064455c73ca78427fd6b3be230b2c20807bf",
+        "ncac-trace/helper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ncac-trace/input.pdb": "0d4edccf186a1048a347e619b4af064455c73ca78427fd6b3be230b2c20807bf",
+        "own-attempts.json": "589a49107902cbb0a293fa471e3fd1293fa7a7c766990c75e707a8c92c13e91a",
+        "result.json": "bdac7e73eea04ca26cc6966f39dea8818af41c01d79f4f98fb106ee506e3c0b2",
+        "stock-seed-1.json": "7d6ee15bed20dda1b58484a8cedf7d1b843c6ff8a51f4684b7d68e30f6d8296c",
+        "stock.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stock": {
+        "status": "execution_blocker",
+        "error_type": "ValueError",
+        "error": "template rebuilt unrequested nonterminal heavy atoms"
+      },
+      "ncac_blocker": {
+        "status": "admitted",
+        "ncac_status": "execution_or_protocol_blocker",
+        "stock": {
+          "status": "execution_blocker",
+          "error_type": "ValueError",
+          "error": "template rebuilt unrequested nonterminal heavy atoms"
+        },
+        "error_type": "ValueError",
+        "error": "unexpected overlay anchors/order; no silent fallback"
+      }
+    }
+  },
+  "native_coordinates_read": false,
+  "validated_snapshots": 30,
+  "stage_snapshots": 20,
+  "ncac_seed_states": 4,
+  "used_ncac_fits": 8,
+  "mask_plan_sha256": "e955d51e53ad5e8fc32fe831334f9037f48a0220d77921ac4c8e1a53d3f2290b",
+  "score_statuses": {
+    "scored": 24,
+    "import_contract_blocker": 6
+  },
+  "science_run_sha256": "8f9670e31fcd7ad39e45b569272cffee70dc4414aa98208a061dfcff15057067",
+  "score_run_sha256": "ef105f112007cd6f971aa46c29ce23e089c062f60687da29b37653ff62df7d54",
+  "audit_script_sha256": "bacfcde26abee7bfd634132ab5cc83a32b36f4ddf3982bcb3da0f2c109fba007"
+}

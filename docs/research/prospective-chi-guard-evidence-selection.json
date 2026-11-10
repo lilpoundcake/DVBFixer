@@ -1,0 +1,3225 @@
+{
+  "arm_order": [
+    "stock",
+    "own",
+    "mean_prior",
+    "mean_fixed",
+    "mean_c",
+    "mean_guard"
+  ],
+  "audit_script_sha256": "b29c0f5e92217b71c6f5f21aeb22008f7d3db87662851acc2b5d6fd23added2d",
+  "cases": {
+    "1CRN-THR1-CB-OG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "reason": "phi/psi require unambiguous explicit observed peptide neighbours",
+          "selected_index": null,
+          "status": "not_executed"
+        },
+        "mean_fixed": {
+          "reason": "phi/psi require unambiguous explicit observed peptide neighbours",
+          "selected_index": null,
+          "status": "not_executed"
+        },
+        "mean_guard": {
+          "reason": "phi/psi require unambiguous explicit observed peptide neighbours",
+          "selected_index": null,
+          "status": "not_executed"
+        },
+        "mean_prior": {
+          "reason": "phi/psi require unambiguous explicit observed peptide neighbours",
+          "selected_index": null,
+          "status": "not_executed"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.646903246022008,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.46397586418173864
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6483707199999964,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4640100477011151
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": false,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.646903246022008,
+                  "findings": [
+                    "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.6271662359900709
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.6483707199999964,
+                  "findings": [
+                    "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.6276928056319195
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": false,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.646903246022008,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='35', insertion_code='', alternate_location='', occurrence=1):CG1",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.8375966796021268
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.6483707199999964,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='35', insertion_code='', alternate_location='', occurrence=1):CG1",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.8377854840506045
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 1,
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": -0.40346299842359334,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.808968417118114
+            },
+            "rdkit_target_cip": {
+              "CA": "R",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": -0.40439564599999556,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.8087574884907496
+            }
+          },
+          "selected_index": null,
+          "status": "empty_geometry_pool"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.5242766579181524,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.35257245753556044
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.524139731999998,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.35279062091230795
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": false,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": false,
+                "ca_volume_angstrom3": 2.5242766579181524,
+                "findings": [
+                  "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                ],
+                "minimum_nonbonded_clearance_angstrom": -0.700881340946717
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": false,
+                "ca_volume_angstrom3": 2.524139731999998,
+                "findings": [
+                  "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                ],
+                "minimum_nonbonded_clearance_angstrom": -0.7007994955540875
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": false,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": false,
+                "ca_volume_angstrom3": 2.5242766579181524,
+                "findings": [
+                  "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                ],
+                "minimum_nonbonded_clearance_angstrom": -0.8825072297724004
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": false,
+                "ca_volume_angstrom3": 2.524139731999998,
+                "findings": [
+                  "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+                ],
+                "minimum_nonbonded_clearance_angstrom": -0.8827039126375109
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 1,
+        "selected_index": 0,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1CRN-THR2-CB-OG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2609840458821966
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.26068065258242146
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.6110091460033273,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.69521020624361,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.26545772433570103
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2654866729019487
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 3.78810699646298,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.692149738001994,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.36830701883098094
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.368372714201167
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.4466001440143434,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -21.431005051225718,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_fixed": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.518420346321091,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.29561090632658815
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2952215468517958
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.518420346321091,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5758058739844407
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5758891197259604
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.518420346321091,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3571681794778718
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3567292266378934
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_guard": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2609840458821966
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.26068065258242146
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.2609840458821966
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.26068065258242146
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.761432380553568e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 1.6110091460033273,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.6110091460033273,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.69521020624361,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.26148831344038714
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2618402680044476
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.26545772433570103
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.2654866729019487
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "continue",
+                  "gradient_maximum_per_degree": 0.0077148697195289755,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 3.78810699646298,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                },
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.26148831344038714
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.2618402680044476
+                    }
+                  },
+                  "cycle": 2,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 7.961289036403903e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 3.794909087765331,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 3.794909087765331,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.69369174852573,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.36830701883098094
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.5179607299999973,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.368372714201167
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.36830701883098094
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.5179607299999973,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.368372714201167
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.973541970215825e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 1.4466001440143434,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.4466001440143434,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -21.431005051225718,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_prior": {
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.633708645663915,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.46752086349010735
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.634027078999999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.467619738164915
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.633708645663915,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3384176064238027
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.634027078999999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.33801786959044544
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.633708645663915,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5440983893999971
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.634027078999999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5436448865679133
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.8129409522822347,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "bond_angle:OG1-CB-CG2",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.7063359243058183
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.813109587999998,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "bond_angle:OG1-CB-CG2",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.7064448108995172
+            }
+          },
+          "selected_index": null,
+          "status": "empty_geometry_pool"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.518420346321091,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.3530133635391892
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.5179607299999973,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.35341174426211674
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.518420346321091,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.2876644338879537
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.5179607299999973,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.2873921162214683
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.518420346321091,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5221561894287805
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.5179607299999973,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5221068569315253
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 3,
+        "selected_index": 1,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1CRN-VAL15-CB-CG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.54696502874926
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5465736385881623
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.7823978980934683,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -15.531283238915243,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4236603532841663
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4243407453137378
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.012683642401624621,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.04518968607274,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5583671392186986
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5582009842965221
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.34899167320194885,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -13.684799271362955,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_fixed": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4942577057529447,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3983769308922891
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3988886941490588
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4942577057529447,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4268160638236207
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4266700485818933
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4942577057529447,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5243091233738439
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5245410409356996
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_guard": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.54696502874926
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5465736385881623
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.54696502874926
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.5465736385881623
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 2.0085456048812732e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.7823978980934683,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.7823978980934683,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -15.531283238915243,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4236603532841663
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4243407453137378
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.4236603532841663
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.4243407453137378
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 2.4474927732560845e-06,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.012683642401624621,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.012683642401624621,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -22.04518968607274,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5583671392186986
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4938718000000004,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.5582009842965221
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.5583671392186986
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4938718000000004,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.5582009842965221
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 1.1386433613247458e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.34899167320194885,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.34899167320194885,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -13.684799271362955,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_prior": {
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": false,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.6791552165399874,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.7429021918288281
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.678866944,
+                  "findings": [
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.7434320118357338
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": false,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.6791552165399874,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.7429021918288281
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": false,
+                  "ca_volume_angstrom3": 2.678866944,
+                  "findings": [
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "minimum_nonbonded_clearance_angstrom": -0.7434320118357338
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6791552165399874,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4615111064858466
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.678866944,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4614054379686876
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 1,
+          "selected_index": 2,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.564532597381217,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4253795845188133
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5639169760000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42556492758708897
+            }
+          },
+          "selected_index": 0,
+          "status": "selected"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4942577057529447,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.45697677527575253
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4938718000000004,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.45690061329896636
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4942577057529447,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5585098787067693
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4938718000000004,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5586398214446808
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4942577057529447,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5094635490024899
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4938718000000004,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5089640265122952
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 3,
+        "selected_index": 0,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1CRN-VAL8-CB-CG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.389847235000091
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.38984601722768986
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.1454134420014154,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -20.599916329664218,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4545407021461032
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.45452244958478705
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.005439602272179682,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -23.694535714757258,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.31410832141872547
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3139501026038398
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.2054727880709566,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -18.480575363971475,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_fixed": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.44016100759999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3512216161741084
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3508171586472546
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.44016100759999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4534696297001273
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4533167798353346
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.44016100759999,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3000501312266457
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.30035647210844507
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_guard": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.389847235000091
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.38984601722768986
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.389847235000091
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.38984601722768986
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.824252061713291e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.1454134420014154,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.1454134420014154,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -20.599916329664218,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4545407021461032
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.45452244958478705
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.4545407021461032
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.45452244958478705
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 6.6257243073755e-07,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.005439602272179682,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.005439602272179682,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -23.694535714757258,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.31410832141872547
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4400133960000043,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3139501026038398
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.31410832141872547
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4400133960000043,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.3139501026038398
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.821867694131542e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.2054727880709566,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.2054727880709566,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": -18.480575363971475,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_prior": {
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608385477912593,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.48056059469114865
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608113564000002,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4810739330898326
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608385477912593,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.48056059469114865
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608113564000002,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4810739330898326
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608385477912593,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.47808749712801246
+                },
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.608113564000002,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.47763777056984225
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 2,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4726305241343507,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.43052101363188955
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.471536444000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4307532941838601
+            }
+          },
+          "selected_index": 0,
+          "status": "selected"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.44016100759999,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.4615203462223918
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4400133960000043,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.4614260261140264
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.44016100759999,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.34255247555303736
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4400133960000043,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.34230348901402685
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.44016100759999,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.5091116570385394
+              },
+              "rdkit_target_cip": {
+                "CA": "S"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4400133960000043,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.509088552030692
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 3,
+        "selected_index": 0,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1ENH-THR27-CB-OG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.22059197911399697
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.22061206243673737
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.668972226473228,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 17.99261662289974,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.28240219676354217
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2825752615339723
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.664244422803256,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 19.392958913986128,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.35803680824369044
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.35809697721968936
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.9974648242951969,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 22.182019429991847,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_fixed": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.409354029672582,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.17569889464776955
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.17595055887720412
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.409354029672582,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.25517839300487166
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2552923824304436
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.409354029672582,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.37349333912788873
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3734960763283337
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_guard": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.22059197911399697
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.22061206243673737
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.22059197911399697
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.22061206243673737
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 4.217943133175614e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 1.668972226473228,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.668972226473228,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 17.99261662289974,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.28240219676354217
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2825752615339723
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.28240219676354217
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.2825752615339723
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 6.801977810391579e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 1.664244422803256,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.664244422803256,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 19.392958913986128,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.35803680824369044
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4104626780000022,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.35809697721968936
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.35803680824369044
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4104626780000022,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.35809697721968936
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 3.602522809677044e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.9974648242951969,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.9974648242951969,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 22.182019429991847,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "mean_prior": {
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6325101462364566,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.438402687824647
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6332142180000067,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4385503549781564
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6325101462364566,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.34387822054017914
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6332142180000067,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.34426257208260624
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6325101462364566,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.45889986539309024
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6332142180000067,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4585712655241867
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": -0.260084838971523,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.909494268260405
+            },
+            "rdkit_target_cip": {
+              "CA": "R",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": -0.25955705799999107,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.909863679184479
+            }
+          },
+          "selected_index": null,
+          "status": "empty_geometry_pool"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.409354029672582,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.324792970041913
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4104626780000022,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.32514227971439436
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.409354029672582,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.2122144781524138
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4104626780000022,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.21226696663417477
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.409354029672582,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.21162236634472542
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4104626780000022,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.2119251161302853
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 3,
+        "selected_index": 1,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1ENH-THR6-CB-OG1-CG2": {
+      "arms": {
+        "mean_c": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2374373050302312
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.23689031065910315
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.2827428686210825,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 19.238992693967624,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.40022333536393395
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.40057105435051277
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.735733925984272,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 17.993785299407143,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.346450583931766
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3467630134623878
+                }
+              },
+              "cycles": [],
+              "guard_decision": null,
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.19828122405454063,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 31.478874033613536,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_fixed": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406207249003917,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.273542380175003
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.27326554761765864
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406207249003917,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.38322890846907676
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3829574083218481
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406207249003917,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.40747945857656154
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4074824538800117
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_guard": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.2374373050302312
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.23689031065910315
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.2374373050302312
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.23689031065910315
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 8.322759942000409e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.2827428686210825,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 0,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.2827428686210825,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 19.238992693967624,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.40022333536393395
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.40057105435051277
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.40022333536393395
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.40057105435051277
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.58982824218782e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 1.735733925984272,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 1,
+              "movement": {
+                "mobile_max_motion_angstrom": 1.735733925984272,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 17.993785299407143,
+              "status": "evaluated"
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.346450583931766
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.4406546539999985,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3467630134623878
+                }
+              },
+              "cycles": [
+                {
+                  "common_audit": {
+                    "accepted": true,
+                    "global_stereo_findings": [],
+                    "observed_preserved": true,
+                    "raw": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.346450583931766
+                    },
+                    "rdkit_target_cip": {
+                      "CA": "S",
+                      "CB": "R"
+                    },
+                    "rounded": {
+                      "accepted": true,
+                      "ca_volume_angstrom3": 2.4406546539999985,
+                      "findings": [],
+                      "minimum_nonbonded_clearance_angstrom": -0.3467630134623878
+                    }
+                  },
+                  "cycle": 1,
+                  "decision": "endpoint_gradient_met",
+                  "gradient_maximum_per_degree": 9.8987285568433e-05,
+                  "movement": {
+                    "mobile_max_motion_angstrom": 0.19828122405454063,
+                    "protected_max_motion_angstrom": 0.0
+                  }
+                }
+              ],
+              "guard_decision": "endpoint_gradient_met",
+              "index": 2,
+              "movement": {
+                "mobile_max_motion_angstrom": 0.19828122405454063,
+                "protected_max_motion_angstrom": 0.0
+              },
+              "raw_score": 31.478874033613536,
+              "status": "evaluated"
+            }
+          ],
+          "selected_index": 1,
+          "status": "selected"
+        },
+        "mean_prior": {
+          "selected_index": 0,
+          "status": "selected"
+        },
+        "own": {
+          "candidates": [
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.675131546933937,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4803548457687037
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6747373339999863,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4805359724307676
+                }
+              },
+              "index": 0
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.675131546933937,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.3690868108474874
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6747373339999863,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.36907067783152514
+                }
+              },
+              "index": 1
+            },
+            {
+              "common_audit": {
+                "accepted": true,
+                "global_stereo_findings": [],
+                "observed_preserved": true,
+                "raw": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.675131546933937,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.4999749082224705
+                },
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "rounded": {
+                  "accepted": true,
+                  "ca_volume_angstrom3": 2.6747373339999863,
+                  "findings": [],
+                  "minimum_nonbonded_clearance_angstrom": -0.49963260947858457
+                }
+              },
+              "index": 2
+            }
+          ],
+          "scored_inputs": 3,
+          "selected_index": 2,
+          "status": "selected"
+        },
+        "stock": {
+          "common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1)",
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.20513526220041678,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1409253861293847
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.20604848499998896,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1406290037075038
+            }
+          },
+          "selected_index": null,
+          "status": "empty_geometry_pool"
+        }
+      },
+      "auxiliary_ncac_relative_control": {
+        "candidates": [
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406207249003917,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.39953070356520826
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406546539999985,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.39919625368563993
+              }
+            },
+            "index": 0
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406207249003917,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.23327293312872666
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406546539999985,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.23301773289931393
+              }
+            },
+            "index": 1
+          },
+          {
+            "common_audit": {
+              "accepted": true,
+              "global_stereo_findings": [],
+              "observed_preserved": true,
+              "raw": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406207249003917,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.27663959321299814
+              },
+              "rdkit_target_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "rounded": {
+                "accepted": true,
+                "ca_volume_angstrom3": 2.4406546539999985,
+                "findings": [],
+                "minimum_nonbonded_clearance_angstrom": -0.27689625532547746
+              }
+            },
+            "index": 2
+          }
+        ],
+        "scored_inputs": 3,
+        "selected_index": 1,
+        "status": "selected"
+      },
+      "stages": {
+        "fits": 2,
+        "stage_snapshots": 5,
+        "status": "audited"
+      },
+      "status": "audited"
+    },
+    "1QYS-THR20-CB-OG1-CG2": {
+      "arms": {},
+      "reason": "missing/mismatched LINK/SSBOND endpoint",
+      "status": "shared_admission_refused"
+    },
+    "1QYS-THR22-CB-OG1-CG2": {
+      "arms": {},
+      "reason": "missing/mismatched LINK/SSBOND endpoint",
+      "status": "shared_admission_refused"
+    },
+    "1QYS-VAL6-CB-CG1-CG2": {
+      "arms": {},
+      "reason": "missing/mismatched LINK/SSBOND endpoint",
+      "status": "shared_admission_refused"
+    },
+    "1QYS-VAL8-CB-CG1-CG2": {
+      "arms": {},
+      "reason": "missing/mismatched LINK/SSBOND endpoint",
+      "status": "shared_admission_refused"
+    }
+  },
+  "manifest_sha256": "62b3294c5edb7bc58cb12e31e55e7c04bd124e0029058292c5f4d76a75bc9d92",
+  "native_coordinates_read": false,
+  "production_changed": false,
+  "profile_selected": false,
+  "schema": "dvbfixer.prospective-guard-selection.v1",
+  "systems": {
+    "1CRN": {
+      "chain": "A",
+      "count_shortfall": false,
+      "selected_counts": {
+        "THR": 2,
+        "VAL": 2
+      },
+      "status": "projected"
+    },
+    "1ENH": {
+      "chain": "A",
+      "count_shortfall": true,
+      "selected_counts": {
+        "THR": 2,
+        "VAL": 0
+      },
+      "status": "projected"
+    },
+    "1QYS": {
+      "chain": "A",
+      "count_shortfall": false,
+      "selected_counts": {
+        "THR": 2,
+        "VAL": 2
+      },
+      "status": "projected"
+    }
+  }
+}

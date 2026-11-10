@@ -1,0 +1,1916 @@
+{
+  "schema": "dvbfixer.ncac-expansion-geometry.v1",
+  "cases": {
+    "2CI2-THR22-CB-OG1-CG2": {
+      "fixture": "2CI2",
+      "ncac_previously_executed": true,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 3.093773042856446,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 3.093773042856446,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_length:CA-CB",
+                    "bond_angle:N-CA-CB"
+                  ],
+                  "ca_volume_angstrom3": 3.0937730428564367,
+                  "minimum_nonbonded_clearance_angstrom": -0.3626739804708128
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_length:CA-CB",
+                    "bond_angle:N-CA-CB"
+                  ],
+                  "ca_volume_angstrom3": 3.0930456630000025,
+                  "minimum_nonbonded_clearance_angstrom": -0.36235268175487856
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": false,
+          "trace_sha256": "78905d443c956ca41cd8feb601513b05a567fda37022f02547e9a8a92451e8b9"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.3653142512333436,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 2.3653142512333436,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3653142512333347,
+                  "minimum_nonbonded_clearance_angstrom": -0.4222978387312242
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.365577640000002,
+                  "minimum_nonbonded_clearance_angstrom": -0.422042709403877
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "aa67f272e572d5fc5b4294fbc83131ceec9f7d6bd90e284f12bf6a3f9e95fed5"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.3508467010000023,
+              "minimum_nonbonded_clearance_angstrom": -0.3335346736160223
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.3508467010000023,
+              "minimum_nonbonded_clearance_angstrom": -0.3335346736160223
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 1
+        }
+      }
+    },
+    "2CI2-VAL28-CB-CG1-CG2": {
+      "fixture": "2CI2",
+      "ncac_previously_executed": true,
+      "methods": {
+        "stock": {
+          "seed_count": 5,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": -0.3886305778156429,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": -0.6273863127948031,
+              "returned_cip": {
+                "CA": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6273863127948005,
+                  "minimum_nonbonded_clearance_angstrom": -0.8277810624097466
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6279989019999945,
+                  "minimum_nonbonded_clearance_angstrom": -0.8278159086099603
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 2,
+              "initial_volume": -0.3886305778156429,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": -0.6273863127948031,
+              "returned_cip": {
+                "CA": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6273863127948005,
+                  "minimum_nonbonded_clearance_angstrom": -0.8277810624097466
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6279989019999945,
+                  "minimum_nonbonded_clearance_angstrom": -0.8278159086099603
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 3,
+              "initial_volume": -0.3886305778156429,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": -0.6273863127948031,
+              "returned_cip": {
+                "CA": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6273863127948005,
+                  "minimum_nonbonded_clearance_angstrom": -0.8277810624097466
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6279989019999945,
+                  "minimum_nonbonded_clearance_angstrom": -0.8278159086099603
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 4,
+              "initial_volume": -0.3886305778156429,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": -0.6273863127948031,
+              "returned_cip": {
+                "CA": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6273863127948005,
+                  "minimum_nonbonded_clearance_angstrom": -0.8277810624097466
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6279989019999945,
+                  "minimum_nonbonded_clearance_angstrom": -0.8278159086099603
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 5,
+              "initial_volume": -0.3886305778156429,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": -0.6273863127948031,
+              "returned_cip": {
+                "CA": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6273863127948005,
+                  "minimum_nonbonded_clearance_angstrom": -0.8277810624097466
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "val_branch_name_orientation",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='29', insertion_code='', alternate_location='', occurrence=1):N",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='76', insertion_code='', alternate_location='', occurrence=1):O"
+                  ],
+                  "ca_volume_angstrom3": -0.6279989019999945,
+                  "minimum_nonbonded_clearance_angstrom": -0.8278159086099603
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='28', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 5,
+          "common_accepted": false,
+          "trace_sha256": "7867a77731f9b0f804dd94a75eb9d1dad57a3ba18b76f78a722a126958c49e9c"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.423129121559074,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.423129121559074,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.423129121559071,
+                  "minimum_nonbonded_clearance_angstrom": -0.45790553879101026
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4237082440000015,
+                  "minimum_nonbonded_clearance_angstrom": -0.45832819641619515
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "61a542ad6cc9c3baf54fd7579ff776ea4ec4f24695613b25b40e689026e03d0f"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6140979410000016,
+              "minimum_nonbonded_clearance_angstrom": -0.46390378223056405
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6140979410000016,
+              "minimum_nonbonded_clearance_angstrom": -0.46390378223056405
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "2CI2-VAL32-CB-CG1-CG2": {
+      "fixture": "2CI2",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.6040570562974583,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.6040570562974583,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.6040570562974525,
+                  "minimum_nonbonded_clearance_angstrom": -0.3982480715238892
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.604834571000007,
+                  "minimum_nonbonded_clearance_angstrom": -0.3978852453645296
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "8b7d5a00f4d87c3ab9b01fa7e65d83e6de6991bc9019f91ac0897a482ea3db9b"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.4242309879655197,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.4242309879655197,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4242309879655144,
+                  "minimum_nonbonded_clearance_angstrom": -0.45435197166679187
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.425230167,
+                  "minimum_nonbonded_clearance_angstrom": -0.4549972835326619
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "d1121da1ee34152d1c5a42a26814dd02aedc17f02b36ee94c9d227a018a3ab64"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.629739632000003,
+              "minimum_nonbonded_clearance_angstrom": -0.4517398350891768
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.629739632000003,
+              "minimum_nonbonded_clearance_angstrom": -0.4517398350891768
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "2CI2-THR55-CB-OG1-CG2": {
+      "fixture": "2CI2",
+      "ncac_previously_executed": true,
+      "methods": {
+        "stock": {
+          "seed_count": 5,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": -0.6202217279137621,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "returned_volume": -0.5551615014367092,
+              "returned_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5551615014367093,
+                  "minimum_nonbonded_clearance_angstrom": -0.6828497574602479
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5556207479999977,
+                  "minimum_nonbonded_clearance_angstrom": -0.6832070377005159
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R",
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 2,
+              "initial_volume": -0.6202217279137621,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "returned_volume": -0.5551615014367092,
+              "returned_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5551615014367093,
+                  "minimum_nonbonded_clearance_angstrom": -0.6828497574602479
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5556207479999977,
+                  "minimum_nonbonded_clearance_angstrom": -0.6832070377005159
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R",
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 3,
+              "initial_volume": -0.6202217279137621,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "returned_volume": -0.5551615014367092,
+              "returned_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5551615014367093,
+                  "minimum_nonbonded_clearance_angstrom": -0.6828497574602479
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5556207479999977,
+                  "minimum_nonbonded_clearance_angstrom": -0.6832070377005159
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R",
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 4,
+              "initial_volume": -0.6202217279137621,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "returned_volume": -0.5551615014367092,
+              "returned_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5551615014367093,
+                  "minimum_nonbonded_clearance_angstrom": -0.6828497574602479
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5556207479999977,
+                  "minimum_nonbonded_clearance_angstrom": -0.6832070377005159
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R",
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 5,
+              "initial_volume": -0.6202217279137621,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "returned_volume": -0.5551615014367092,
+              "returned_cip": {
+                "CA": "R",
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5551615014367093,
+                  "minimum_nonbonded_clearance_angstrom": -0.6828497574602479
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": -0.5556207479999977,
+                  "minimum_nonbonded_clearance_angstrom": -0.6832070377005159
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='I', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CA": "R",
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 5,
+          "common_accepted": false,
+          "trace_sha256": "481eaa4ba02248cd576df97d4935e5d32b0bbc9af6bbea4755b8dbddef584e25"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.4591389763472473,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 2.4591389763472473,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4591389763472447,
+                  "minimum_nonbonded_clearance_angstrom": -0.3575981127386112
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4578475470000036,
+                  "minimum_nonbonded_clearance_angstrom": -0.35720818983618186
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "aa6e6994a5b7b38848ed607de7ba12bcce9abbe28f26a1991a003fc77774e784"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5169384610000054,
+              "minimum_nonbonded_clearance_angstrom": -0.49721495801015303
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5169384610000054,
+              "minimum_nonbonded_clearance_angstrom": -0.49721495801015303
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 0
+        }
+      }
+    },
+    "1R69-VAL6-CB-CG1-CG2": {
+      "fixture": "1R69",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.466715941205914,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.458418573241024,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.458418573241026,
+                  "minimum_nonbonded_clearance_angstrom": -0.4293155416504262
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.457897184999997,
+                  "minimum_nonbonded_clearance_angstrom": -0.42899730730515895
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "877166ec24dac107dab8819e1c0777b0bd2801bedae3e37c901bc913e65629d5"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.416548268128922,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.4385095334610107,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.438509533461012,
+                  "minimum_nonbonded_clearance_angstrom": -0.451860397705238
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4389615349999993,
+                  "minimum_nonbonded_clearance_angstrom": -0.4521903046499096
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "6bca88aa7ffff5eb11ece274d3b02b278fd1bf1b4f8ad845ddab1983eb2e91dc"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6030987799999985,
+              "minimum_nonbonded_clearance_angstrom": -0.5790329422728513
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6030987799999985,
+              "minimum_nonbonded_clearance_angstrom": -0.5790329422728513
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 1
+        }
+      }
+    },
+    "1R69-VAL24-CB-CG1-CG2": {
+      "fixture": "1R69",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.667565769254643,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.514444098037435,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5144440980374436,
+                  "minimum_nonbonded_clearance_angstrom": -0.39256100606685207
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.5146592379999966,
+                  "minimum_nonbonded_clearance_angstrom": -0.3928151037889269
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "592902f7183503daf90e9e0914bc35c85834868031b70553e2c99db2834c936d"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.4132109688784382,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.4309418153855016,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.430941815385509,
+                  "minimum_nonbonded_clearance_angstrom": -0.46346010918255365
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4305902819999963,
+                  "minimum_nonbonded_clearance_angstrom": -0.46321979031456895
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "a4c559b26e93ef9e73a75f79d510a587fc24df81264d6617a07a5de2d72490ce"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5979603439999956,
+              "minimum_nonbonded_clearance_angstrom": -0.46906056016163955
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5979603439999956,
+              "minimum_nonbonded_clearance_angstrom": -0.46906056016163955
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "fixture": "1R69",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": -0.40387459953382426,
+              "initial_cip": {
+                "CA": "R",
+                "CB": "R"
+              },
+              "returned_volume": 0.5233322242014633,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "bond_angle:CA-CB-OG1",
+                    "bond_angle:OG1-CB-CG2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='26', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": 0.5233322242014693,
+                  "minimum_nonbonded_clearance_angstrom": -1.1295490776301995
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "bond_angle:CA-CB-OG1",
+                    "bond_angle:OG1-CB-CG2",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='26', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": 0.5233769039999951,
+                  "minimum_nonbonded_clearance_angstrom": -1.1301082574810555
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": false,
+          "trace_sha256": "29da6526d1c3e21222aac25f4420057f7cb4fe8a50b04f9a2818031120bb1114"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.4972165446926495,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 2.497373508639823,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4973735086398285,
+                  "minimum_nonbonded_clearance_angstrom": -0.5574504660073805
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4973866319999978,
+                  "minimum_nonbonded_clearance_angstrom": -0.5578731456337334
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "751ab9c08e3b9f7f9fc811c69a63bb2cd1c1fa5c8d31c635fdd89436c976e594"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6073308000000015,
+              "minimum_nonbonded_clearance_angstrom": -0.5021242241884034
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.6073308000000015,
+              "minimum_nonbonded_clearance_angstrom": -0.5021242241884034
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "1R69-THR27-CB-OG1-CG2": {
+      "fixture": "1R69",
+      "ncac_previously_executed": true,
+      "methods": {
+        "stock": {
+          "seed_count": 5,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 0.06178502066900551,
+              "initial_cip": {
+                "CB": "S"
+              },
+              "returned_volume": -0.08247381917640123,
+              "returned_cip": {
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08247381917639605,
+                  "minimum_nonbonded_clearance_angstrom": -0.9516248210187874
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08221725400000392,
+                  "minimum_nonbonded_clearance_angstrom": -0.95134278327542
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 2,
+              "initial_volume": 0.06178502066900551,
+              "initial_cip": {
+                "CB": "S"
+              },
+              "returned_volume": -0.08247381917640123,
+              "returned_cip": {
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08247381917639605,
+                  "minimum_nonbonded_clearance_angstrom": -0.9516248210187874
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08221725400000392,
+                  "minimum_nonbonded_clearance_angstrom": -0.95134278327542
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 3,
+              "initial_volume": 0.06178502066900551,
+              "initial_cip": {
+                "CB": "S"
+              },
+              "returned_volume": -0.08247381917640123,
+              "returned_cip": {
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08247381917639605,
+                  "minimum_nonbonded_clearance_angstrom": -0.9516248210187874
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08221725400000392,
+                  "minimum_nonbonded_clearance_angstrom": -0.95134278327542
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 4,
+              "initial_volume": 0.06178502066900551,
+              "initial_cip": {
+                "CB": "S"
+              },
+              "returned_volume": -0.08247381917640123,
+              "returned_cip": {
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08247381917639605,
+                  "minimum_nonbonded_clearance_angstrom": -0.9516248210187874
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08221725400000392,
+                  "minimum_nonbonded_clearance_angstrom": -0.95134278327542
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            },
+            {
+              "seed": 5,
+              "initial_volume": 0.06178502066900551,
+              "initial_cip": {
+                "CB": "S"
+              },
+              "returned_volume": -0.08247381917640123,
+              "returned_cip": {
+                "CB": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08247381917639605,
+                  "minimum_nonbonded_clearance_angstrom": -0.9516248210187874
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "non_L_or_nearplanar_ca",
+                    "thr_cb_not_R_or_nearplanar",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                    "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+                  ],
+                  "ca_volume_angstrom3": -0.08221725400000392,
+                  "minimum_nonbonded_clearance_angstrom": -0.95134278327542
+                },
+                "global_stereo_findings": [
+                  "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)",
+                  "independent_target_CIP_mismatch"
+                ],
+                "rdkit_target_cip": {
+                  "CB": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 5,
+          "common_accepted": false,
+          "trace_sha256": "1bfc81650fdc72e894cbd4fec95c68e0072dd7aaee0d0f7bb833bbae55713838"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.450350091828298,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 2.3069979974476564,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.306997997447652,
+                  "minimum_nonbonded_clearance_angstrom": -0.3492540586436128
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3074067589999983,
+                  "minimum_nonbonded_clearance_angstrom": -0.3497382079565683
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "8a9369f26924b73cfa0f7a58e18a31593931d07e8db23b20044cd150b87e7fc3"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5315242329999985,
+              "minimum_nonbonded_clearance_angstrom": -0.3379872939837649
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5315242329999985,
+              "minimum_nonbonded_clearance_angstrom": -0.3379872939837649
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 1
+        }
+      }
+    },
+    "1CTF-VAL56-CB-CG1-CG2": {
+      "fixture": "1CTF",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": -0.7905163642154847,
+              "initial_cip": {
+                "CA": "R"
+              },
+              "returned_volume": 0.8276649336910986,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "bond_angle:CA-CB-CG2",
+                    "bond_angle:CG1-CB-CG2",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": 0.8276649336911049,
+                  "minimum_nonbonded_clearance_angstrom": -0.65426657074268
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_angle:N-CA-CB",
+                    "bond_angle:CA-CB-CG2",
+                    "bond_angle:CG1-CB-CG2",
+                    "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):C"
+                  ],
+                  "ca_volume_angstrom3": 0.8268735779999982,
+                  "minimum_nonbonded_clearance_angstrom": -0.6539683177355728
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": false,
+          "trace_sha256": "61fe6bc045700200ebbc0426da9301d12f104e3b96cbddb4d2eeeb79112db037"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.486334491087602,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.486334491087602,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.4863344910876077,
+                  "minimum_nonbonded_clearance_angstrom": -0.43769977698779217
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.485931995999999,
+                  "minimum_nonbonded_clearance_angstrom": -0.43789838121647273
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "1773edf4e1577f1550dce70e9f35424d539f8f19ea459c49db5241ee83ce0a2b"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.7824548160000013,
+              "minimum_nonbonded_clearance_angstrom": -0.3827187734650934
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.7824548160000013,
+              "minimum_nonbonded_clearance_angstrom": -0.3827187734650934
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "1CTF-VAL66-CB-CG1-CG2": {
+      "fixture": "1CTF",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.293080549328288,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.293080549328288,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.293080549328287,
+                  "minimum_nonbonded_clearance_angstrom": -0.47575897995914485
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.2927868240000113,
+                  "minimum_nonbonded_clearance_angstrom": -0.4753201884650693
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "3eef88af72a40677e52cd192dd991033bea73dee5363332c0cea4dae54ba42ae"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.36847458534809,
+              "initial_cip": {
+                "CA": "S"
+              },
+              "returned_volume": 2.36847458534809,
+              "returned_cip": {
+                "CA": "S"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.368474585348089,
+                  "minimum_nonbonded_clearance_angstrom": -0.4622869215152492
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3687419360000086,
+                  "minimum_nonbonded_clearance_angstrom": -0.46202280471750434
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "e65a634bf73586546e216f403277708116c01a5f2e204762378801b84f7801f1"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.52333811300001,
+              "minimum_nonbonded_clearance_angstrom": -0.484291852739716
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.52333811300001,
+              "minimum_nonbonded_clearance_angstrom": -0.484291852739716
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 2
+        }
+      }
+    },
+    "1CTF-THR76-CB-OG1-CG2": {
+      "fixture": "1CTF",
+      "ncac_previously_executed": false,
+      "methods": {
+        "stock": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 3.0314539448787396,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 3.0314539448787396,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": false,
+                "raw": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_length:CA-CB",
+                    "bond_angle:N-CA-CB"
+                  ],
+                  "ca_volume_angstrom3": 3.0314539448787343,
+                  "minimum_nonbonded_clearance_angstrom": -0.35237701303481894
+                },
+                "rounded": {
+                  "accepted": false,
+                  "findings": [
+                    "bond_length:CA-CB",
+                    "bond_angle:N-CA-CB"
+                  ],
+                  "ca_volume_angstrom3": 3.0307563760000003,
+                  "minimum_nonbonded_clearance_angstrom": -0.35278267339544445
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": false,
+          "trace_sha256": "8a02a51c668293eb199cd7492af063770bcafac7532c922d7b413073032e77c7"
+        },
+        "ncac": {
+          "seed_count": 1,
+          "seeds": [
+            {
+              "seed": 1,
+              "initial_volume": 2.3091307725319674,
+              "initial_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "returned_volume": 2.3091307725319674,
+              "returned_cip": {
+                "CA": "S",
+                "CB": "R"
+              },
+              "common_audit": {
+                "accepted": true,
+                "raw": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.309130772531962,
+                  "minimum_nonbonded_clearance_angstrom": -0.3836872988709583
+                },
+                "rounded": {
+                  "accepted": true,
+                  "findings": [],
+                  "ca_volume_angstrom3": 2.3104121589999997,
+                  "minimum_nonbonded_clearance_angstrom": -0.38368353782299547
+                },
+                "global_stereo_findings": [],
+                "rdkit_target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "observed_preserved": true
+              },
+              "dynamics_calls": 0
+            }
+          ],
+          "selected_returned_seed": 1,
+          "common_accepted": true,
+          "trace_sha256": "7203a78e883f1af9732814733e6bb59d7dfe6a659e843b8deedc6c341f3ac881"
+        },
+        "own_scored": {
+          "common_accepted": true,
+          "common_audit": {
+            "accepted": true,
+            "raw": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.2239227500000007,
+              "minimum_nonbonded_clearance_angstrom": -0.4306587038104803
+            },
+            "rounded": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.2239227500000007,
+              "minimum_nonbonded_clearance_angstrom": -0.4306587038104803
+            },
+            "global_stereo_findings": [],
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "observed_preserved": true
+          },
+          "selected_index": 1
+        }
+      }
+    }
+  },
+  "native_coordinates_read": false,
+  "experiment_plan_sha256": "e38e63ce6c8f52851caa49749cca2968fc4db0b23d6d67069a123d9e24beb869",
+  "run_sha256": "0c0ecbc942db3cba5d202fb3cdd63139a77452d2762d95490fc730875979cf24",
+  "audit_script_sha256": "b612f6a40e31fd3d392da9e1a2b556d5a6804d5ef486095a7e2a715850816f13"
+}

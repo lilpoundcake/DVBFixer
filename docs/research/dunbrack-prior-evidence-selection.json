@@ -1,0 +1,238 @@
+{
+  "audit_script_sha256": "623880cc03845d5c1058ccc5bf3f01249dc5656a381e8dd315e040bb3caa9b92",
+  "cases": {
+    "1BPI-THR11-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "status": "parent_not_executed"
+    },
+    "1BPI-THR32-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "status": "parent_not_executed"
+    },
+    "1BPI-VAL34-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "shared_admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "status": "parent_not_executed"
+    },
+    "1CSP-THR40-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "execution_or_protocol_blocker",
+      "reason": "unexpected overlay anchors/order; no silent fallback",
+      "status": "parent_not_executed"
+    },
+    "1CSP-THR64-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "execution_or_protocol_blocker",
+      "reason": "unexpected overlay anchors/order; no silent fallback",
+      "status": "parent_not_executed"
+    },
+    "1CSP-VAL20-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "execution_or_protocol_blocker",
+      "reason": "unexpected overlay anchors/order; no silent fallback",
+      "status": "parent_not_executed"
+    },
+    "1CSP-VAL6-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "parent_status": "execution_or_protocol_blocker",
+      "reason": "unexpected overlay anchors/order; no silent fallback",
+      "status": "parent_not_executed"
+    },
+    "1CTF-THR76-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 1,
+      "status": "queried"
+    },
+    "1CTF-VAL56-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1CTF-VAL66-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1PGB-THR11-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "new_inputs_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 1,
+      "status": "queried"
+    },
+    "1PGB-THR2-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "new_inputs_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1PGB-VAL21-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "new_inputs_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1PGB-VAL29-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "new_inputs_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 1,
+      "status": "queried"
+    },
+    "1R69-THR27-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 1,
+      "status": "queried"
+    },
+    "1R69-VAL24-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "1R69-VAL6-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "2CI2-THR22-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 1,
+      "status": "queried"
+    },
+    "2CI2-THR55-CB-OG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "2CI2-VAL28-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0,
+        1,
+        2
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    },
+    "2CI2-VAL32-CB-CG1-CG2": {
+      "chi_convention_verified": true,
+      "common_feasible_indices": [
+        0
+      ],
+      "group": "old_eleven",
+      "periodic_controls_pass": true,
+      "selected_index": 0,
+      "status": "queried"
+    }
+  },
+  "complete_api_repeat_byte_identical": true,
+  "environment": {
+    "binary_bytes": 139538228,
+    "binary_relative_path": "rotamer/shapovalov/StpDwn_0-0-0/Dunbrack10.lib.bin",
+    "binary_sha256": "04b7abf59c6c901ab21096a94bec3c935c5e7460edb23be5535b0ec4acda5d97",
+    "init_flags": "-constant_seed -jran 7 -mute all -multithreading:total_threads 1 -packing:pack_missing_sidechains false -packing:no_optH true",
+    "read_binary": true,
+    "version": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                  PyRosetta-4                                  \u2502\n\u2502               Created in JHU by Sergey Lyskov and PyRosetta Team              \u2502\n\u2502               (C) Copyright Rosetta Commons Member Institutions               \u2502\n\u2502                                                                               \u2502\n\u2502 NOTE: USE OF PyRosetta FOR COMMERCIAL PURPOSES REQUIRES PURCHASE OF A LICENSE \u2502\n\u2502          See LICENSE.PyRosetta.md or email license@uw.edu for details         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nPyRosetta-4 2026 [Rosetta PyRosetta4.conda.m1.cxx11thread.serialization.python311.Release 2026.06+release.1a56185c2592611dec4c9c75ddc9468cd2227c1f 2026-01-30T13:14:27] retrieved from: http://www.pyrosetta.org"
+  },
+  "native_coordinates_read": false,
+  "plan_sha256": "917f50be7eab1b62a05d0511e70bf56ff9a350d0d5cfb69aedde721da753e530",
+  "private_query_sha256": "823925016a3e889b9019f63f7a30cf4d3067734262fab18ead5442926d120c96",
+  "schema": "dvbfixer.installed-dunbrack-prior-selection.v1",
+  "table_data_included": false
+}

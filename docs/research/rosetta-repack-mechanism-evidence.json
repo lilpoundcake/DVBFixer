@@ -1,0 +1,1422 @@
+{
+  "schema": "dvbfixer.rosetta-repack-mechanism-evidence.v1",
+  "installed_rosetta_revision": "1a56185c2592611dec4c9c75ddc9468cd2227c1f",
+  "pyrosetta_version": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                  PyRosetta-4                                  \u2502\n\u2502               Created in JHU by Sergey Lyskov and PyRosetta Team              \u2502\n\u2502               (C) Copyright Rosetta Commons Member Institutions               \u2502\n\u2502                                                                               \u2502\n\u2502 NOTE: USE OF PyRosetta FOR COMMERCIAL PURPOSES REQUIRES PURCHASE OF A LICENSE \u2502\n\u2502          See LICENSE.PyRosetta.md or email license@uw.edu for details         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nPyRosetta-4 2026 [Rosetta PyRosetta4.conda.m1.cxx11thread.serialization.python311.Release 2026.06+release.1a56185c2592611dec4c9c75ddc9468cd2227c1f 2026-01-30T13:14:27] retrieved from: http://www.pyrosetta.org",
+  "source_manifest": {
+    "revision": "1a56185c2592611dec4c9c75ddc9468cd2227c1f",
+    "upstream": "https://github.com/RosettaCommons/rosetta",
+    "scope": "source inspection only; no compiled Rosetta or empirical rotamer data loaded",
+    "files": {
+      "LICENSE.PyRosetta.md": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/LICENSE.PyRosetta.md",
+        "sha256": "de25db8b65876dd24024abb3be3871bacaab2202d59c1224d79e28dd5808478f",
+        "bytes": 4583
+      },
+      "LICENSE.md": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/LICENSE.md",
+        "sha256": "740846d9cfb0baa01baf0ac2f367a4ea047ef9a87bd00ea9e0b1d2e422dce048",
+        "bytes": 5832
+      },
+      "database/chemical/residue_type_sets/fa_standard/residue_types/l-caa/VAL.params": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/database/chemical/residue_type_sets/fa_standard/residue_types/l-caa/VAL.params",
+        "sha256": "94ea978171a7be78c0c01716670670031fc16cb97f82d3d0352a07d2055336ab",
+        "bytes": 2848
+      },
+      "database/scoring/weights/ref2015.wts": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/database/scoring/weights/ref2015.wts",
+        "sha256": "51eab37a72af35d95b05a942e6dc4cfd34ed5744c3f8be149e4fe5609ebe0654",
+        "bytes": 1054
+      },
+      "source/src/core/conformation/Conformation.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/conformation/Conformation.cc",
+        "sha256": "4a7e4c500817243172a02ae038b4d55a5fbf9af861095510f13674381f0db8e7",
+        "bytes": 251914
+      },
+      "source/src/core/conformation/Residue.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/conformation/Residue.cc",
+        "sha256": "aea790550679c3bc05103b40b7ccdfc919a8e502a8630f17121d88480005d984",
+        "bytes": 89676
+      },
+      "source/src/core/import_pose/import_pose.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/import_pose/import_pose.cc",
+        "sha256": "78adc3d0876a568b8d2f3ff485fb3e4e009707f9185a30bfeb192df9ffdb07ea",
+        "bytes": 86472
+      },
+      "source/src/core/io/pose_from_sfr/PoseFromSFRBuilder.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/io/pose_from_sfr/PoseFromSFRBuilder.cc",
+        "sha256": "d781d2e35b4dde9e95b700ff450bbde4e683a140f571a3a9acd27b5fadf5ea48",
+        "bytes": 102577
+      },
+      "source/src/core/pack/annealer/FixbbSimAnnealer.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/annealer/FixbbSimAnnealer.cc",
+        "sha256": "5075b387c4d8c6ab13bad9e4c46b0a4294dea8d557458b4812031e64de778cda",
+        "bytes": 11158
+      },
+      "source/src/core/pack/annealer/SimAnnealerBase.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/annealer/SimAnnealerBase.cc",
+        "sha256": "4f2c797193dff4b6af3623c8fd8a792e49f67b983fa3cbfd1236498d8f8d5101",
+        "bytes": 10092
+      },
+      "source/src/core/pack/dunbrack/RotamericSingleResidueDunbrackLibrary.tmpl.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/dunbrack/RotamericSingleResidueDunbrackLibrary.tmpl.hh",
+        "sha256": "ef8fb491df4386f7ff17dd7541e708e218472ef820a1180707a08f8f41823e6e",
+        "bytes": 97705
+      },
+      "source/src/core/pack/dunbrack/SingleResidueDunbrackLibrary.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/dunbrack/SingleResidueDunbrackLibrary.cc",
+        "sha256": "dda133aab3edbd1ab038e684cfccb1f56ccb5abc687bdcf5e2f2d5813ee85959",
+        "bytes": 33131
+      },
+      "source/src/core/pack/interaction_graph/InteractionGraphFactory.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/interaction_graph/InteractionGraphFactory.cc",
+        "sha256": "e72e296d9293b7617801e4dc83ba79f71f70dc62a9e0ca85e5248ce1bb372a7f",
+        "bytes": 20120
+      },
+      "source/src/core/pack/pack_missing_sidechains.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/pack_missing_sidechains.cc",
+        "sha256": "9828308b4fefa4f2f5f1224cc5cbb9d457793657724ee2bfaaa718ff252cc8f2",
+        "bytes": 4468
+      },
+      "source/src/core/pack/pack_rotamers.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/pack_rotamers.cc",
+        "sha256": "713a2788b2c29178196c0a827d44fae0ebf83650311c990f4bdb51ab7909d9f3",
+        "bytes": 12765
+      },
+      "source/src/core/pack/rotamer_set/RotamerSet_.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/rotamer_set/RotamerSet_.cc",
+        "sha256": "b88752527d74cf0a689554974531ad809e318b932303a16e124ab13d7c36fa67",
+        "bytes": 69937
+      },
+      "source/src/core/pack/rotamer_set/RotamerSets.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/rotamer_set/RotamerSets.cc",
+        "sha256": "90921adac9881cf14d52a5372ed8d7b92a4247c57230aa1ae4d750ef96009736",
+        "bytes": 44549
+      },
+      "source/src/core/pack/rotamer_trials.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/rotamer_trials.cc",
+        "sha256": "d90d0510397ff10611d415412db6f9347d53fc78b38c60e1266c2fbf468e39a8",
+        "bytes": 11493
+      },
+      "source/src/core/pack/rotamers/SingleResidueRotamerLibrary.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/rotamers/SingleResidueRotamerLibrary.cc",
+        "sha256": "04e6d0be36345c856f3f609be631e82c7ef2ed4ab5556a48c8f4b87344766e7f",
+        "bytes": 11378
+      },
+      "source/src/core/pack/task/PackerTask_.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/task/PackerTask_.cc",
+        "sha256": "299ff83464146860622b52210e4eca615b78786ea59c30b26dc2bc615cd02390",
+        "bytes": 43911
+      },
+      "source/src/core/pack/task/ResidueLevelTask_.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/pack/task/ResidueLevelTask_.cc",
+        "sha256": "c819de6fa6097ed4a527c809cff12c340c0de9b9c027b271d3e65f1e524ebdb1",
+        "bytes": 55947
+      },
+      "source/src/core/scoring/etable/BaseEtableEnergy.tmpl.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/BaseEtableEnergy.tmpl.hh",
+        "sha256": "a834edabcbb50471c0f74e9d2ba9df55b942ca82fdc636c96536d28c3bdd6ded",
+        "bytes": 64859
+      },
+      "source/src/core/scoring/etable/EtableEnergy.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/EtableEnergy.cc",
+        "sha256": "a9d5ea93a3e66cdaa4c73dc7e9f5a2f24bfeded43a852560ccde66a53de28360",
+        "bytes": 22143
+      },
+      "source/src/core/scoring/etable/EtableEnergy.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/EtableEnergy.hh",
+        "sha256": "aada268fff865d8bc7d965cc635784130819fd1149e6647942c6fc786fc0298f",
+        "bytes": 35830
+      },
+      "source/src/core/scoring/etable/EtableOptions.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/EtableOptions.cc",
+        "sha256": "bd5faac464b8b36474bc65dce62c5bcbfaac7ad4a34e511564a2832dee402270",
+        "bytes": 10871
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairCrossover3.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairCrossover3.hh",
+        "sha256": "e94d8a7eb3e1ea3435d94a796d88890cfd12f03934c05d5be771b86c8e78a2e7",
+        "bytes": 1708
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairCrossover4.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairCrossover4.hh",
+        "sha256": "cc0746e348aef000ae91a842d47b7ee8e203fbbdf4e585ed9b9e2954a47e14e0",
+        "bytes": 1683
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairFactory.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairFactory.cc",
+        "sha256": "25249f68505c46a6d64167e4c285406dbf473ed84060aa3a42125d5153d8287a",
+        "bytes": 9534
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairFunction.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairFunction.cc",
+        "sha256": "be5213e661d69b9a91727586a2ebeac1fb4a4b6c646524227efda509053ec81e",
+        "bytes": 1382
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairFunction.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairFunction.hh",
+        "sha256": "854f86e033547400fa4c81e56c882fa6e051ee0e018371cfea729be1363ff0a7",
+        "bytes": 4032
+      },
+      "source/src/core/scoring/etable/count_pair/CountPairIntraRes.hh": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/core/scoring/etable/count_pair/CountPairIntraRes.hh",
+        "sha256": "e222795ee1a697ece424974be3b3cb5b448bc773be34ec1d2b57eaf848e22f97",
+        "bytes": 8811
+      },
+      "source/src/protocols/minimization_packing/PackRotamersMover.cc": {
+        "url": "https://raw.githubusercontent.com/RosettaCommons/rosetta/1a56185c2592611dec4c9c75ddc9468cd2227c1f/source/src/protocols/minimization_packing/PackRotamersMover.cc",
+        "sha256": "34510eba10e4f965ad3714e6233cce77f121571c0565d4304f8a57aff03bfa03",
+        "bytes": 13910
+      }
+    },
+    "fetch_errors": {
+      "source/src/core/scoring/etable/EtableIntraResidueEnergy.cc": "HTTPError: HTTP Error 404: Not Found",
+      "source/src/core/scoring/etable/EtableEnergy.tmpl.hh": "HTTPError: HTTP Error 404: Not Found"
+    }
+  },
+  "retained_source_directory": "tmp/pdbfixer-research/rosetta-installed-source-01",
+  "plan": "tmp/pdbfixer-research/rosetta-mechanism-plan-02/plan.json",
+  "plan_sha256": "1edf9a7c0867730d1954e98e909ce07d9b016beebb179ac05878ea6bd7764bcd",
+  "retained_run_directory": "tmp/pdbfixer-research/rosetta-mechanism-run-02",
+  "execution_index_sha256": "94bd8addd8c4e32650f752335bf8880dda2832835899c843543bc14d6eadc102",
+  "harness_sha256": "4c5a638e55bcfccbc2a2fca2338ad6e1fcb05bf123b39e4e9ac4872ea7c601e9",
+  "summarizer_sha256": "6bb285d0aec941cd9d4b510aeb731515efc530f60dd0d9d53b67006e18d3384d",
+  "contact_evidence_sha256": "4d31cb9d2b83c1390b177862d0f4dd5f845e02661061813c70e80083b11a25d6",
+  "contact": {
+    "schema": "dvbfixer.rosetta-contact-mechanism.v1",
+    "source_sha256": "10a7c1fd044cb9000e3ff3747666ada70a13fe82130fdd95a487683b4cd652c0",
+    "script_sha256": "0188b913494078fe7562ead720ec33da08e499c3cc19cf4c9ebdbbdf03bff528",
+    "pyrosetta_version": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                  PyRosetta-4                                  \u2502\n\u2502               Created in JHU by Sergey Lyskov and PyRosetta Team              \u2502\n\u2502               (C) Copyright Rosetta Commons Member Institutions               \u2502\n\u2502                                                                               \u2502\n\u2502 NOTE: USE OF PyRosetta FOR COMMERCIAL PURPOSES REQUIRES PURCHASE OF A LICENSE \u2502\n\u2502          See LICENSE.PyRosetta.md or email license@uw.edu for details         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nPyRosetta-4 2026 [Rosetta PyRosetta4.conda.m1.cxx11thread.serialization.python311.Release 2026.06+release.1a56185c2592611dec4c9c75ddc9468cd2227c1f 2026-01-30T13:14:27] retrieved from: http://www.pyrosetta.org",
+    "flags": "-constant_seed -jran 7 -mute all -packing:pack_missing_sidechains false -packing:no_optH true -multithreading:total_threads 1",
+    "database_assets": {
+      "scoring/weights/ref2015.wts": "51eab37a72af35d95b05a942e6dc4cfd34ed5744c3f8be149e4fe5609ebe0654",
+      "chemical/residue_type_sets/fa_standard/residue_types/l-caa/VAL.params": "94ea978171a7be78c0c01716670670031fc16cb97f82d3d0352a07d2055336ab"
+    },
+    "atom_types": {
+      "CG1": "CH3",
+      "C": "CObb"
+    },
+    "count_pair_weight_binding_limitation": "Python count binding returns only bool, not C++ weight/path references; factor 0.2 comes from pinned source, not returned binding",
+    "energy_scope": "single etable pair; derived classic weighted repulsion only, not a complete residue or pose score",
+    "controls": [
+      {
+        "distance_scale": 1.0,
+        "distance_angstrom": 2.7627560514819254,
+        "residue_graph_path_distance": 3,
+        "crossover3_counts": true,
+        "crossover4_counts": false,
+        "unweighted_pair_etable_atr_rep_solv_elec": [
+          -0.09424740292443076,
+          4.974661125364809,
+          -0.306446233553061,
+          -1.38281493988415
+        ],
+        "source_inspected_classic_cp_factor": 0.2,
+        "source_inspected_classic_weight": 0.005,
+        "derived_classic_pair_repulsion": 0.00497466112536481
+      },
+      {
+        "distance_scale": 0.85,
+        "distance_angstrom": 2.3483426437596377,
+        "residue_graph_path_distance": 3,
+        "crossover3_counts": true,
+        "crossover4_counts": false,
+        "unweighted_pair_etable_atr_rep_solv_elec": [
+          -0.09424740292443076,
+          41.181149564245494,
+          -0.306446233553061,
+          -2.107416341315074
+        ],
+        "source_inspected_classic_cp_factor": 0.2,
+        "source_inspected_classic_weight": 0.005,
+        "derived_classic_pair_repulsion": 0.0411811495642455
+      },
+      {
+        "distance_scale": 0.65,
+        "distance_angstrom": 1.7957914334632525,
+        "residue_graph_path_distance": 3,
+        "crossover3_counts": true,
+        "crossover4_counts": false,
+        "unweighted_pair_etable_atr_rep_solv_elec": [
+          -0.09424740292443076,
+          157.29620420564757,
+          -0.306446233553061,
+          -3.7514278284774902
+        ],
+        "source_inspected_classic_cp_factor": 0.2,
+        "source_inspected_classic_weight": 0.005,
+        "derived_classic_pair_repulsion": 0.15729620420564758
+      }
+    ],
+    "acceptance_policy_changed": false,
+    "scientific_qualification": false
+  },
+  "results": {
+    "1TIM-VAL39-CG1-auto0-cb0": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CG1",
+      "auto_pack": false,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.393976007390038,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.04025587591056009,
+            "after_xyz": [
+              53.97960639505606,
+              26.371799096744503,
+              0.15074862143823964
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.393976007390038,
+            "after_xyz": [
+              54.38685249758139,
+              25.05834169795118,
+              0.8008261206750618
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 1,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.44087427259904477,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": 3694.806833347041,
+      "raw_total_score_after": 3669.1294578804573,
+      "result_sha256": "5c95c735b0f3d2d5eff837d0e75aad7f81deec390fc9a06e0721e19ae158165a",
+      "retained_files": {
+        "diagnostic-rotamers.json": "436b5dfd50c5da2a33ea4c9dbb5e0f340a0235dbb175db91095e99968d1a0ef6",
+        "input.pdb": "36e6321e645b8e6ac7be524df58a6cacd54e7289d9498dbd772393ce3c83ce14",
+        "loaded-diagnostic.pdb": "1fd8b35997080f1bcf9c920d52078b6656d3cdc033e4e5e78da4239b0919e237",
+        "loaded-snapshot.json": "3f0e14dc9d471646e0f108e7c2425697d390698842ff32b51cd02f4bb515ce9e",
+        "repacked-diagnostic.pdb": "61f57bd58a781f51dc692c7c4be5867bec4800947df3fcb45445b1c62f0171a8",
+        "repacked-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb"
+      }
+    },
+    "1TIM-VAL39-CG1-auto0-cb1": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CG1",
+      "auto_pack": false,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.4353728983926127,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.0012343495799740849,
+            "after_xyz": [
+              53.991865331746446,
+              26.390876683901872,
+              0.11752995747011852
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.4353728983926127,
+            "after_xyz": [
+              54.433251344336284,
+              25.082255359708757,
+              0.7549537562398925
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 1,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.40144912992665893,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": 3694.806833347041,
+      "raw_total_score_after": 3668.749252219387,
+      "result_sha256": "41a33e1afb8d44386f92464a67e0ce7b322e62fafe50318c7cb5acaedfe1e8b3",
+      "retained_files": {
+        "diagnostic-rotamers.json": "c04b0e24ef1cfd3e411cc7efc495278e11d371d7623a2644382030dc9f57cdb6",
+        "input.pdb": "36e6321e645b8e6ac7be524df58a6cacd54e7289d9498dbd772393ce3c83ce14",
+        "loaded-diagnostic.pdb": "1fd8b35997080f1bcf9c920d52078b6656d3cdc033e4e5e78da4239b0919e237",
+        "loaded-snapshot.json": "3f0e14dc9d471646e0f108e7c2425697d390698842ff32b51cd02f4bb515ce9e",
+        "repacked-diagnostic.pdb": "6b5c1fa62c23696fbb42cc0bb097d2d34577c2f20b91b40a53bbb7d5c9aa6dca",
+        "repacked-snapshot.json": "37952dd8f7d1648e12fd958a89a64988154ef0e6d371dc7f8cc045dcc609bd82"
+      }
+    },
+    "1TIM-VAL39-CG1-auto1-cb0": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CG1",
+      "auto_pack": true,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.393976007390038,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.04025587591056009,
+            "after_xyz": [
+              53.97960639505606,
+              26.371799096744503,
+              0.15074862143823964
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.393976007390038,
+            "after_xyz": [
+              54.38685249758139,
+              25.05834169795118,
+              0.8008261206750618
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.393976007390038,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.04025587591056009,
+            "after_xyz": [
+              53.97960639505606,
+              26.371799096744503,
+              0.15074862143823964
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.393976007390038,
+            "after_xyz": [
+              54.38685249758139,
+              25.05834169795118,
+              0.8008261206750618
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 0,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.44087427259904477,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": 3669.1294578804573,
+      "raw_total_score_after": 3669.1294578804573,
+      "result_sha256": "9fc5fe96e90cc33d53939fce3e31b8193d02356ba725e32c7ba141616004f92c",
+      "retained_files": {
+        "diagnostic-rotamers.json": "e9ffa15aece3133374aa71e9a148637ce94d7e9e02bdb9a1fd4a82316a07627b",
+        "input.pdb": "36e6321e645b8e6ac7be524df58a6cacd54e7289d9498dbd772393ce3c83ce14",
+        "loaded-diagnostic.pdb": "3742075ac3e01ed2790ea7f64064bdbeb6be603c8ebb60b7c632d8978e0bdc72",
+        "loaded-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb",
+        "repacked-diagnostic.pdb": "6f9c0dc3404850b54f1d5f3a195ca487f96b10a7f831c05718e02e93b2dafc1e",
+        "repacked-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb"
+      }
+    },
+    "1TIM-VAL39-CG1-auto1-cb1": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CG1",
+      "auto_pack": true,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.4353728983926127,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.0012343495799740849,
+            "after_xyz": [
+              53.991865331746446,
+              26.390876683901872,
+              0.11752995747011852
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.4353728983926127,
+            "after_xyz": [
+              54.433251344336284,
+              25.082255359708757,
+              0.7549537562398925
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.4353728983926127,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CB",
+            "xyz": [
+              53.993,
+              26.391,
+              0.118
+            ],
+            "distance_angstrom": 0.0012343495799740849,
+            "after_xyz": [
+              53.991865331746446,
+              26.390876683901872,
+              0.11752995747011852
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 39,
+            "icode": " ",
+            "resname": "VAL",
+            "atom": "CG2",
+            "xyz": [
+              54.282,
+              25.261,
+              1.122
+            ],
+            "distance_angstrom": 0.4353728983926127,
+            "after_xyz": [
+              54.433251344336284,
+              25.082255359708757,
+              0.7549537562398925
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 0,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.40144912992665893,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": 3668.749252219387,
+      "raw_total_score_after": 3668.749252219387,
+      "result_sha256": "c8a89ed9f219ded9330e2dd36b1dc8f2ce7e6f1253eb16eb99569b62b65c544b",
+      "retained_files": {
+        "diagnostic-rotamers.json": "c7d1cf2998115cc4e47576d821969f5090dd85ebf404d10255cd6e0d1ac50022",
+        "input.pdb": "36e6321e645b8e6ac7be524df58a6cacd54e7289d9498dbd772393ce3c83ce14",
+        "loaded-diagnostic.pdb": "c69169bfbda127eb803560d4b436eb4840ed7f322e129852784a9a527ad3c81e",
+        "loaded-snapshot.json": "37952dd8f7d1648e12fd958a89a64988154ef0e6d371dc7f8cc045dcc609bd82",
+        "repacked-diagnostic.pdb": "e96e6bc2640b2dc60f87b08a831eded806893d852df92374130e36ab59293748",
+        "repacked-snapshot.json": "37952dd8f7d1648e12fd958a89a64988154ef0e6d371dc7f8cc045dcc609bd82"
+      }
+    },
+    "1TIM-VAL39-CB-CG1-CG2-auto0-cb0": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CB-CG1-CG2",
+      "auto_pack": false,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 2,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.34215384170674773,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 3730.7765039509704,
+      "raw_total_score_after": 3669.1256025657985,
+      "result_sha256": "00f8e97d03ad28b5bf726b1b29bb404160cf7c606df615b406da4aa4bae9542e",
+      "retained_files": {
+        "diagnostic-rotamers.json": "f72daa57ab0c393f6de4d6730811ea99a0186c5c56818fc41f5469f2b3c4d34c",
+        "input.pdb": "d09afb7e1c3debb647a28c466a202cf68c0470c603fb8f1f7c677bf69b707436",
+        "loaded-diagnostic.pdb": "7892fbb4be014b437dd5dd04bf49f1c1f7cd7b56a8cee0eaf92f12662ea9d22e",
+        "loaded-snapshot.json": "33e9a947cec804ec2cfe6758294d49840a7efb15c237279a7b4e2afd22c197ce",
+        "repacked-diagnostic.pdb": "49bc33ffb59cf0e27475b4dfb95b8335a7e67b0d1b6c96d6e902094c9945da6a",
+        "repacked-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb"
+      }
+    },
+    "1TIM-VAL39-CB-CG1-CG2-auto0-cb1": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CB-CG1-CG2",
+      "auto_pack": false,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 2,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.352917686014967,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 3730.7765039509704,
+      "raw_total_score_after": 3669.096902065587,
+      "result_sha256": "0c4d5a81341938122bee05a2ff10811d1849ca703e183a11006c54ac8b76b67b",
+      "retained_files": {
+        "diagnostic-rotamers.json": "ecee6e6f9c7d8ddfe0bd05ba6fcb0cf5fbd363d9fed9358d9202c2b42711154b",
+        "input.pdb": "d09afb7e1c3debb647a28c466a202cf68c0470c603fb8f1f7c677bf69b707436",
+        "loaded-diagnostic.pdb": "7892fbb4be014b437dd5dd04bf49f1c1f7cd7b56a8cee0eaf92f12662ea9d22e",
+        "loaded-snapshot.json": "33e9a947cec804ec2cfe6758294d49840a7efb15c237279a7b4e2afd22c197ce",
+        "repacked-diagnostic.pdb": "a31fd80e29c6e11d57c247e31a5dc0e7f2f2d204e54c6dea295248d5212b57d9",
+        "repacked-snapshot.json": "9cf373f72867a0e2fb0dead5a9457a00311c6862b2d171c749f507ed21373305"
+      }
+    },
+    "1TIM-VAL39-CB-CG1-CG2-auto1-cb0": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CB-CG1-CG2",
+      "auto_pack": true,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 2,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.34215384170674773,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 3669.1256025657985,
+      "raw_total_score_after": 3669.1256025657985,
+      "result_sha256": "26c431efd4dd51bba31ea5d2acbf06243ffff77be1066e2ae7118c0978aa9601",
+      "retained_files": {
+        "diagnostic-rotamers.json": "14cd6f3d43ca0826a27f74668fc4d27ff45a9590e071816f4d1ab9530db2bf55",
+        "input.pdb": "d09afb7e1c3debb647a28c466a202cf68c0470c603fb8f1f7c677bf69b707436",
+        "loaded-diagnostic.pdb": "5106132b14e777f7327d3884643d22901270b7dfa200327cfb31dc9e1ce1b4f6",
+        "loaded-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb",
+        "repacked-diagnostic.pdb": "6ccdd966c66dbade16c30ff42af55be35d8e1ab6a50345039811a94e2f8dcfe4",
+        "repacked-snapshot.json": "71cebb59bd5ff13bd12023c3510940543df04544ef01402017b528ea7cfd60cb"
+      }
+    },
+    "1TIM-VAL39-CB-CG1-CG2-auto1-cb1": {
+      "status": "completed",
+      "case_id": "1TIM-VAL39-CB-CG1-CG2",
+      "auto_pack": true,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S"
+      },
+      "target_expected_cip": {
+        "CA": "S"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 2,
+      "diagnostic_observation_preserving_rotamers": 2,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.352917686014967,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 3669.096902065587,
+      "raw_total_score_after": 3669.096902065587,
+      "result_sha256": "d583639bb95721a9532e04fe2757c31d20f63690d336292ed646ea45d26ee3d1",
+      "retained_files": {
+        "diagnostic-rotamers.json": "f9f62692dd79e48ab17f7407fc1eeadb9018f54315da7bbbb45cc85b50dba7fb",
+        "input.pdb": "d09afb7e1c3debb647a28c466a202cf68c0470c603fb8f1f7c677bf69b707436",
+        "loaded-diagnostic.pdb": "d858d390790dd42b6b7eeeb3dae4cef629888939639b6a3e9653c34f2015537e",
+        "loaded-snapshot.json": "9cf373f72867a0e2fb0dead5a9457a00311c6862b2d171c749f507ed21373305",
+        "repacked-diagnostic.pdb": "66e2867448117201942e7f9d918e6dbfef242f083fc9c57d29023baa884d38b1",
+        "repacked-snapshot.json": "9cf373f72867a0e2fb0dead5a9457a00311c6862b2d171c749f507ed21373305"
+      }
+    },
+    "1EMV-THR11-CG2-auto0-cb0": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CG2",
+      "auto_pack": false,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.2467932315227479,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.11577143993253101,
+            "after_xyz": [
+              -7.533998993152849,
+              -9.464549868955764,
+              66.79343168355174
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.2467932315227479,
+            "after_xyz": [
+              -8.359661162364201,
+              -8.671321330609992,
+              65.9308067735752
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 1,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.2990130141950933,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": -30.824536222708524,
+      "raw_total_score_after": -32.849449094884754,
+      "result_sha256": "5d125080ff668795c6beb21e865698c2a942eab401db1e382e28f5b9a45fff50",
+      "retained_files": {
+        "diagnostic-rotamers.json": "edfbc2472e82ef7e1865845adc4f595374ccc403528cfd5118be6edcb9b4c480",
+        "input.pdb": "bd304bff2b677b6dcf43694d198b9cf36a0ee2e4c4a9badefe31dd7421e8c335",
+        "loaded-diagnostic.pdb": "ac082ed2e64c42af0991dbe5a507007a5edfa9aae095b7dec1a1fde0d4bdc148",
+        "loaded-snapshot.json": "2f3a7b3bec3f9010e4fa8e39a650b23ff91be1158e73389331ccb14bcb912bef",
+        "repacked-diagnostic.pdb": "a81bec66c059910806a01b49762560288de9a2922406fa116a8c787795af5a05",
+        "repacked-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874"
+      }
+    },
+    "1EMV-THR11-CG2-auto0-cb1": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CG2",
+      "auto_pack": false,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.11833438573506196,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.01585497630476425,
+            "after_xyz": [
+              -7.5689682246197805,
+              -9.428182159962098,
+              66.69109811257093
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.11833438573506196,
+            "after_xyz": [
+              -8.325186292527405,
+              -8.665005259368257,
+              65.74202144591273
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 1,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.10853326318254161,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": -30.824536222708524,
+      "raw_total_score_after": -32.98322785347795,
+      "result_sha256": "1966a032b5a8a904ffdbfaa84abd11be1074ddcd90c052322af8072e04757a71",
+      "retained_files": {
+        "diagnostic-rotamers.json": "3f111ddfccd96793bee23bf78dd63543a01eb03bff7eb2c63d4493ea863e9b62",
+        "input.pdb": "bd304bff2b677b6dcf43694d198b9cf36a0ee2e4c4a9badefe31dd7421e8c335",
+        "loaded-diagnostic.pdb": "ac082ed2e64c42af0991dbe5a507007a5edfa9aae095b7dec1a1fde0d4bdc148",
+        "loaded-snapshot.json": "2f3a7b3bec3f9010e4fa8e39a650b23ff91be1158e73389331ccb14bcb912bef",
+        "repacked-diagnostic.pdb": "2435e39fc40edac5f95b687a2cc6caeeceb23773c180191f8b172b44f855f513",
+        "repacked-snapshot.json": "00b7f0df0c491dc2a20fbe23fe04a130db0b1adde32d5a48bf4f61268ff7df01"
+      }
+    },
+    "1EMV-THR11-CG2-auto1-cb0": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CG2",
+      "auto_pack": true,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.2467932315227479,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.11577143993253101,
+            "after_xyz": [
+              -7.533998993152849,
+              -9.464549868955764,
+              66.79343168355174
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.2467932315227479,
+            "after_xyz": [
+              -8.359661162364201,
+              -8.671321330609992,
+              65.9308067735752
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.2467932315227479,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.11577143993253101,
+            "after_xyz": [
+              -7.533998993152849,
+              -9.464549868955764,
+              66.79343168355174
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.2467932315227479,
+            "after_xyz": [
+              -8.359661162364201,
+              -8.671321330609992,
+              65.9308067735752
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 0,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.2990130141950933,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": -32.849449094884754,
+      "raw_total_score_after": -32.849449094884754,
+      "result_sha256": "a6bb5db56da5fb1d99504dfe2dd0d569e7fa56341fa7377e381f0f981ed4049f",
+      "retained_files": {
+        "diagnostic-rotamers.json": "75df50f8b785fe095222d6289baa5957193aa5ad152eb4158b23eb0676670def",
+        "input.pdb": "bd304bff2b677b6dcf43694d198b9cf36a0ee2e4c4a9badefe31dd7421e8c335",
+        "loaded-diagnostic.pdb": "f605241036b94ce027b9acbf6366faaa6c0bc64de2fccec70835cadb9bc25b98",
+        "loaded-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874",
+        "repacked-diagnostic.pdb": "acbaae54c5c64263bece819f5d6cb78dae4327e71c53061d18c306981f39463e",
+        "repacked-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874"
+      }
+    },
+    "1EMV-THR11-CG2-auto1-cb1": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CG2",
+      "auto_pack": true,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.11833438573506196,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.01585497630476425,
+            "after_xyz": [
+              -7.5689682246197805,
+              -9.428182159962098,
+              66.69109811257093
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.11833438573506196,
+            "after_xyz": [
+              -8.325186292527405,
+              -8.665005259368257,
+              65.74202144591273
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.11833438573505577,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "CB",
+            "xyz": [
+              -7.584,
+              -9.427,
+              66.696
+            ],
+            "distance_angstrom": 0.015854976304765088,
+            "after_xyz": [
+              -7.56896822461978,
+              -9.428182159962098,
+              66.69109811257093
+            ]
+          },
+          {
+            "chain": "A",
+            "resid": 11,
+            "icode": " ",
+            "resname": "THR",
+            "atom": "OG1",
+            "xyz": [
+              -8.375,
+              -8.765,
+              65.703
+            ],
+            "distance_angstrom": 0.11833438573505577,
+            "after_xyz": [
+              -8.325186292527409,
+              -8.665005259368257,
+              65.74202144591271
+            ]
+          }
+        ],
+        "observations_preserved": false
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 0,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.10853326318252399,
+      "ownership_comparable_to_generated_only_method": false,
+      "raw_total_score_before": -32.98322785347795,
+      "raw_total_score_after": -32.98322785345544,
+      "result_sha256": "1a964ddb81d3b56b989925c5793fca9d553a7dd464999c2b924303b232c2cadf",
+      "retained_files": {
+        "diagnostic-rotamers.json": "292c51cdb6a9fa5bd4b83f3933ab3b9bd4fa2cad6fcfcb0464821eb0569fc103",
+        "input.pdb": "bd304bff2b677b6dcf43694d198b9cf36a0ee2e4c4a9badefe31dd7421e8c335",
+        "loaded-diagnostic.pdb": "70d760fa3bbfea578296807154f9d4b1da3b78ff7c823337bf599bec00e70bc1",
+        "loaded-snapshot.json": "00b7f0df0c491dc2a20fbe23fe04a130db0b1adde32d5a48bf4f61268ff7df01",
+        "repacked-diagnostic.pdb": "4ee3bb2c8a43e4e2025dc98844ed1a2173fefda081012f285b01c6cafac7256d",
+        "repacked-snapshot.json": "dcfeda81bc1c5af29486392b36ff8be3e63f0309dbb33065360359ba8609f56b"
+      }
+    },
+    "1EMV-THR11-CB-OG1-CG2-auto0-cb0": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CB-OG1-CG2",
+      "auto_pack": false,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 19,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.23360843883696164,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 2.3754307828293175,
+      "raw_total_score_after": -32.83463190554843,
+      "result_sha256": "8d94a05ab92d6dfda4a55d5ac00ab5bbcfa66a0b27b0488d9f279563d25f885d",
+      "retained_files": {
+        "diagnostic-rotamers.json": "e740b3d88b755d5f2b64f75980726eb6a68b6fe99ea688a4e257cbd8bda455aa",
+        "input.pdb": "8a777d25f3f79c7f89fec0980050ede24ede177d68e3c4d8b43c172b3c930c8e",
+        "loaded-diagnostic.pdb": "6c28005a22e5d8ee7ac341ed6bf4ea852c584bc36b46302a2c2bab9ba2491f98",
+        "loaded-snapshot.json": "ecc96277b4db0766ccaa585953961a29a7b0f5114c1d69bc18665c940c9096e3",
+        "repacked-diagnostic.pdb": "76fe0c61863b6861790020fd9d56531704377530ce6812256c776f5b6c5a55ad",
+        "repacked-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874"
+      }
+    },
+    "1EMV-THR11-CB-OG1-CG2-auto0-cb1": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CB-OG1-CG2",
+      "auto_pack": false,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 19,
+      "diagnostic_unique_chi1_count": 2,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.31457435430899766,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": 2.3754307828293175,
+      "raw_total_score_after": -32.34256960356324,
+      "result_sha256": "b82bd69345cf1681faedf1da198d5bef655fa44f8f6cb013731a83f563135332",
+      "retained_files": {
+        "diagnostic-rotamers.json": "1f34dce0f57d430d9282706e05feadf9cb0f58768cc9f8f4abcd308c5df8c5df",
+        "input.pdb": "8a777d25f3f79c7f89fec0980050ede24ede177d68e3c4d8b43c172b3c930c8e",
+        "loaded-diagnostic.pdb": "6c28005a22e5d8ee7ac341ed6bf4ea852c584bc36b46302a2c2bab9ba2491f98",
+        "loaded-snapshot.json": "ecc96277b4db0766ccaa585953961a29a7b0f5114c1d69bc18665c940c9096e3",
+        "repacked-diagnostic.pdb": "c15e3b302e5a21f3284c5eb0583938597d834b87c41392348260c59bf6ce6ce4",
+        "repacked-snapshot.json": "69a5bcebe90a690cec1a473f9fe9985fd9f6ddc1839d6f27a4852e862342227b"
+      }
+    },
+    "1EMV-THR11-CB-OG1-CG2-auto1-cb0": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CB-OG1-CG2",
+      "auto_pack": true,
+      "preserve_cb": false,
+      "task_preserve_c_beta": false,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 19,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.23360843883696164,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": -32.83463190554843,
+      "raw_total_score_after": -32.83463190554843,
+      "result_sha256": "fd795d199e907093d02ed03fb0ba7cce55ec4076a3a4e2cdefb45de6fc5d93aa",
+      "retained_files": {
+        "diagnostic-rotamers.json": "8834c04bfd50033e974300f32c0fc4175c621b49b9e39d739bf15545028e5501",
+        "input.pdb": "8a777d25f3f79c7f89fec0980050ede24ede177d68e3c4d8b43c172b3c930c8e",
+        "loaded-diagnostic.pdb": "b07055d6b17e74ed28e8476bd439c7c7ba47ab0d8867cdc07be1e5f58494ea1b",
+        "loaded-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874",
+        "repacked-diagnostic.pdb": "e7a927ccaf1c3f95256753d569c6e5c27c63c28d6ca40411574521f55a84d09e",
+        "repacked-snapshot.json": "6eafd3a5c46126355c613a4d11b6a84bc3213b84edf0111447972926c0f39874"
+      }
+    },
+    "1EMV-THR11-CB-OG1-CG2-auto1-cb1": {
+      "status": "completed",
+      "case_id": "1EMV-THR11-CB-OG1-CG2",
+      "auto_pack": true,
+      "preserve_cb": true,
+      "task_preserve_c_beta": true,
+      "target_rdkit_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "target_expected_cip": {
+        "CA": "S",
+        "CB": "R"
+      },
+      "residue_identity_preserved": true,
+      "backbone_preserved": true,
+      "load_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "repack_vs_source": {
+        "maximum_angstrom": 0.0,
+        "missing_observations": [],
+        "moved_above_1e_7_angstrom": [],
+        "observations_preserved": true
+      },
+      "diagnostic_rotamer_count": 19,
+      "diagnostic_observation_preserving_rotamers": 19,
+      "diagnostic_unique_chi1_count": 1,
+      "generated_exact_name_rmsd_reporting_only_angstrom": 0.31457435430900865,
+      "ownership_comparable_to_generated_only_method": true,
+      "raw_total_score_before": -32.34256960356324,
+      "raw_total_score_after": -32.34256960353982,
+      "result_sha256": "25b58c477d472bd741bb5dc1e31f20fa99b6aeeb6a4ba68a0641d9ad606535f3",
+      "retained_files": {
+        "diagnostic-rotamers.json": "02c632dbc55dc34d24f6e43db8c76bd53a277cdbd2bdf4e67c85df15daf2b55f",
+        "input.pdb": "8a777d25f3f79c7f89fec0980050ede24ede177d68e3c4d8b43c172b3c930c8e",
+        "loaded-diagnostic.pdb": "9347767d42e9aa9eb08fc86d293a15cd5a41657e0160304b2600bdaf21764569",
+        "loaded-snapshot.json": "69a5bcebe90a690cec1a473f9fe9985fd9f6ddc1839d6f27a4852e862342227b",
+        "repacked-diagnostic.pdb": "59cebb8c77406ea5c3e43f48041c74e97fdde8103ab0c8606f71b7e35ca9aebb",
+        "repacked-snapshot.json": "b258a2a64d6a4df480a9c92a3781aaed3d5f814d8beb6ee6b8e2bb7deae6ddba"
+      }
+    }
+  },
+  "aggregate": {
+    "planned": 16,
+    "completed": 16,
+    "load_preserves_observations": 12,
+    "repack_preserves_observations": 8
+  },
+  "protocol_failures_retained": [
+    "tmp/pdbfixer-research/rosetta-mechanism-run-01/1TIM-VAL39-CG1-auto0-cb0/execution-error.json",
+    "tmp/pdbfixer-research/rosetta-contact-01/execution-error.json"
+  ],
+  "scientific_qualification": false,
+  "matched_accuracy_comparison": false,
+  "limitations": [
+    "Four retrospective masks, one seed, one installed build; no broad or exact-repeat qualification.",
+    "Diagnostic rotamer set is built separately from mover; it is not a captured annealer trace.",
+    "PyRosetta uses its bundled empirical data; no table export, redistribution or own-reader authority established.",
+    "Target-only CIP checks are not an independent whole-protein stereo qualification.",
+    "Contact contraction controls are unphysical pair diagnostics, not minimized structures or total energies."
+  ]
+}

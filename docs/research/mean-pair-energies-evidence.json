@@ -1,0 +1,750 @@
+{
+  "audit_script_sha256": "94422a607cfec719dc0be603ae38c0c021109db31827ef7a88524a280e8d670e",
+  "cases": {
+    "1PGB-VAL29-CB-CG1-CG2": {
+      "accounting": {
+        "prior": {
+          "fa_atr": {
+            "bound": 3.7931673973291076e-05,
+            "closed": true,
+            "residual": -2.8421709430404007e-13
+          },
+          "fa_dun": {
+            "bound": 2.67586821107331e-05,
+            "closed": true,
+            "residual": 0.0
+          },
+          "fa_rep": {
+            "bound": 1.5731590692638265e-05,
+            "closed": true,
+            "residual": 5.684341886080802e-14
+          },
+          "fa_sol": {
+            "bound": 3.218185006978485e-05,
+            "closed": true,
+            "residual": 1.1368683772161603e-13
+          }
+        },
+        "selected": {
+          "fa_atr": {
+            "bound": 3.8091426536752795e-05,
+            "closed": true,
+            "residual": -2.8421709430404007e-13
+          },
+          "fa_dun": {
+            "bound": 2.6859977257263226e-05,
+            "closed": true,
+            "residual": 0.0
+          },
+          "fa_rep": {
+            "bound": 1.5810594871602826e-05,
+            "closed": true,
+            "residual": 6.394884621840902e-14
+          },
+          "fa_sol": {
+            "bound": 3.215234854568019e-05,
+            "closed": true,
+            "residual": 1.1368683772161603e-13
+          }
+        }
+      },
+      "changed_pairs": [
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            18,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.4828997541254243,
+            "fa_rep": 0.2990135790236188,
+            "fa_sol": -0.21539091504389773
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            19,
+            " ",
+            "GLU"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.005109308765414129,
+            "fa_rep": 0.0,
+            "fa_sol": 0.00016394777382672254
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            20,
+            " ",
+            "ALA"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.020327234554042613,
+            "fa_rep": 0.0,
+            "fa_sol": -0.0027407149506606387
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            25,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.010985398356737619,
+            "fa_rep": 0.0,
+            "fa_sol": 0.026708727864608317
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "ALA"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.5921924009999253,
+            "fa_rep": 0.36291542771674773,
+            "fa_sol": -0.28900106851583085
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            27,
+            " ",
+            "GLU"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.06483249144323122,
+            "fa_rep": 0.0,
+            "fa_sol": 0.012945422839214515
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            28,
+            " ",
+            "LYS"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.14516216822646133,
+            "fa_rep": 0.0,
+            "fa_sol": 0.07325208788720428
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "second": [
+            "A",
+            30,
+            " ",
+            "PHE"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.5977357568972543,
+            "fa_rep": 0.1281127829052466,
+            "fa_sol": -0.46505484182689427
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "second": [
+            "A",
+            31,
+            " ",
+            "LYS"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.0015626963385374504,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "second": [
+            "A",
+            32,
+            " ",
+            "GLN"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.004518042910419684,
+            "fa_rep": 0.0,
+            "fa_sol": -0.016123407350985053
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "second": [
+            "A",
+            33,
+            " ",
+            "TYR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.006468399013027537,
+            "fa_rep": 0.0,
+            "fa_sol": 0.007537467475062565
+          }
+        }
+      ],
+      "complete_accounting_closed": true,
+      "exact_states_repeated": 2,
+      "fa_dun_onebody_deltas": [
+        {
+          "is_target": true,
+          "residue": [
+            "A",
+            29,
+            " ",
+            "VAL"
+          ],
+          "weighted_delta": 1.0129514653012375
+        }
+      ],
+      "non_target_changed_pairs": 0,
+      "target": [
+        "A",
+        29,
+        " ",
+        "VAL"
+      ],
+      "term_totals": {
+        "fa_atr": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": -1.5975256346171705,
+          "target_pair_delta": -1.597525634617183
+        },
+        "fa_rep": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": 0.7900417896456106,
+          "target_pair_delta": 0.7900417896456131
+        },
+        "fa_sol": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": -0.8677032938483649,
+          "target_pair_delta": -0.8677032938483522
+        }
+      }
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "accounting": {
+        "prior": {
+          "fa_atr": {
+            "bound": 4.446750674748007e-05,
+            "closed": true,
+            "residual": -5.684341886080802e-14
+          },
+          "fa_dun": {
+            "bound": 2.572978981084256e-05,
+            "closed": true,
+            "residual": 8.526512829121202e-14
+          },
+          "fa_rep": {
+            "bound": 1.551687737448613e-05,
+            "closed": true,
+            "residual": -7.105427357601002e-15
+          },
+          "fa_sol": {
+            "bound": 3.748969735441049e-05,
+            "closed": true,
+            "residual": -1.4210854715202004e-13
+          }
+        },
+        "selected": {
+          "fa_atr": {
+            "bound": 4.447888049826311e-05,
+            "closed": true,
+            "residual": 0.0
+          },
+          "fa_dun": {
+            "bound": 2.58321291003003e-05,
+            "closed": true,
+            "residual": 5.684341886080802e-14
+          },
+          "fa_rep": {
+            "bound": 1.4572059430269969e-05,
+            "closed": true,
+            "residual": 7.105427357601002e-15
+          },
+          "fa_sol": {
+            "bound": 3.7350921604887796e-05,
+            "closed": true,
+            "residual": -1.4210854715202004e-13
+          }
+        }
+      },
+      "changed_pairs": [
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            20,
+            " ",
+            "LEU"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.0357635420752098,
+            "fa_rep": 0.0,
+            "fa_sol": -0.021594866902404974
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            21,
+            " ",
+            "ALA"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.4529669528232674,
+            "fa_rep": 0.06607432908637377,
+            "fa_sol": -0.9573036993630692
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            22,
+            " ",
+            "GLN"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.011756996970802847,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0004546480070253267
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            23,
+            " ",
+            "LYS"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -4.3141637961186495e-05,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            24,
+            " ",
+            "VAL"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.4336309871861135,
+            "fa_rep": -5.06584183825743,
+            "fa_sol": -0.33308254313043656
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            25,
+            " ",
+            "GLY"
+          ],
+          "second": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.37894106414762274,
+            "fa_rep": -0.1258483659354784,
+            "fa_sol": -0.20105078528063192
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            27,
+            " ",
+            "THR"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.63989029386796,
+            "fa_rep": 0.32453202581523755,
+            "fa_sol": 0.14494894701553518
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            28,
+            " ",
+            "GLN"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.03745072339456482,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0033721641747042064
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            29,
+            " ",
+            "GLN"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.00017866991112744802,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            30,
+            " ",
+            "SER"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.40361437552838564,
+            "fa_rep": 0.014149394645808116,
+            "fa_sol": 0.38637576293056086
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            31,
+            " ",
+            "ILE"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.4405836002629519,
+            "fa_rep": 0.26710670656161833,
+            "fa_sol": -0.7215568785657052
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            34,
+            " ",
+            "LEU"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.0003369558211817267,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            42,
+            " ",
+            "PRO"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.001026672049443643,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            43,
+            " ",
+            "ARG"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.6014587327791744,
+            "fa_rep": -1.4703735852588038,
+            "fa_sol": 0.040127467130489536
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            44,
+            " ",
+            "PHE"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.49170497290622284,
+            "fa_rep": -3.45797810881893,
+            "fa_sol": 0.4572325814868351
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            47,
+            " ",
+            "GLU"
+          ],
+          "weighted_deltas": {
+            "fa_atr": 0.0026976512849976597,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        },
+        {
+          "contains_target": true,
+          "first": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "second": [
+            "A",
+            48,
+            " ",
+            "LEU"
+          ],
+          "weighted_deltas": {
+            "fa_atr": -0.0006123358905197329,
+            "fa_rep": 0.0,
+            "fa_sol": 0.0
+          }
+        }
+      ],
+      "complete_accounting_closed": true,
+      "exact_states_repeated": 2,
+      "fa_dun_onebody_deltas": [
+        {
+          "is_target": true,
+          "residue": [
+            "A",
+            26,
+            " ",
+            "THR"
+          ],
+          "weighted_delta": 1.0233928945774131
+        }
+      ],
+      "non_target_changed_pairs": 0,
+      "target": [
+        "A",
+        26,
+        " ",
+        "THR"
+      ],
+      "term_totals": {
+        "fa_atr": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": -0.11373750783042169,
+          "target_pair_delta": -0.11373750783035776
+        },
+        "fa_rep": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": -9.448179442161614,
+          "target_pair_delta": -9.448179442161605
+        },
+        "fa_sol": {
+          "other_pair_delta": 0.0,
+          "recorded_total_delta": -1.2020772024971222,
+          "target_pair_delta": -1.2020772024970976
+        }
+      }
+    }
+  },
+  "interpretation": "recorded model residue-pair attribution, not physical/native causality or a fitted selector",
+  "native_coordinates_read": false,
+  "new_candidates": false,
+  "plan_sha256": "f48e7ea1840f8f384116162f4e754a2b345a66d58eddf8cfaecb4e45b539d5c0",
+  "production_changed": false,
+  "run_sha256": "b5a60fba0d01efa7a90fed5108267f6277b947729cb83398af782ebc1a865be4",
+  "schema": "dvbfixer.mean-pair-accounting-audit.v1",
+  "table_data_included": false,
+  "weights_modified": false
+}

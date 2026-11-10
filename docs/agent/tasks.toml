@@ -209,12 +209,37 @@ status = "research"
 context = "docs/agent/contexts/structure-preparation.md"
 start = [
   "docs/research/reconstruction-and-modeling-backends.md",
+  "docs/research/pdbfixer-usage-and-replacement-scope.md",
+  "src/dvbfixer/protein_completion/service.py::complete_sidechain",
+  "src/dvbfixer/protein_completion/validation.py::audit_candidate",
+  "src/dvbfixer/protein_completion/rotamers.py::load_single_chi",
+  "src/dvbfixer/protein_completion/source.py::plan_source",
+  "src/dvbfixer/protein_completion/source.py::audit_materialized_source",
+  "src/dvbfixer/protein_completion/links.py::parse_declared_links",
+  "src/dvbfixer/protein_completion/cohort.py::plan_cohort",
+  "src/dvbfixer/protein_completion/cohort.py::audit_materialized_cohort",
+  "src/dvbfixer/protein_completion/evidence.py::read_cohort_evidence",
+  "src/dvbfixer/protein_completion/branched.py::named_beta_volume",
+  "src/dvbfixer/protein_completion/branched_source.py::plan_branched_source",
+  "src/dvbfixer/protein_completion/branched_source.py::audit_branched_materialized_source",
+  "src/dvbfixer/protein_completion/anchored_branch.py::complete_anchored_branch",
+  "src/dvbfixer/protein_completion/anchored_branch.py::audit_anchored_branch",
+  "src/dvbfixer/protein_completion/anchored_source.py::plan_anchored_source",
+  "src/dvbfixer/protein_completion/anchored_source.py::audit_anchored_materialized_source",
+  "src/dvbfixer/protein_completion/mixed_cohort.py::plan_mixed_cohort",
+  "src/dvbfixer/protein_completion/mixed_cohort.py::audit_materialized_mixed_cohort",
+  "src/dvbfixer/protein_completion/mixed_evidence.py::read_mixed_evidence",
+  "docs/research/protein-completion-template-comparison.md",
+  "scripts/branched_template_baseline.py::template_proposal",
+  "docs/research/protein-completion-unfiltered.md",
+  "scripts/unfiltered_branched_comparison.py::plan",
+  "docs/research/protein-completion-rotamer-adapter.md",
   "src/dvbfixer/ffutils/geometry.py::rebuild_missing_atoms_with_retry",
   "src/dvbfixer/prepare/pipeline.py::run_pdbfixer",
   "src/dvbfixer/prep_backend.py::run_prep",
 ]
-callers = []
-contracts = ["dat-record-lifecycle", "pdb-connectivity"]
+callers = ["scripts/benchmark_protein_completion.py::run_controls", "scripts/probe_rotamer_transport.py"]
+contracts = ["dat-record-lifecycle", "pdb-connectivity", "private-canonical-sidechain"]
 invariants = [
   "INV-REBUILD-SEEDED-RETRY",
   "INV-PREP-MISSING-ATOM-ORDER",
@@ -223,11 +248,31 @@ invariants = [
 ]
 change_group = "missing-atom-rebuild-chirality"
 test_files = [
+  "tests/test_protein_completion.py",
+  "tests/test_protein_rotamers.py",
+  "tests/test_protein_completion_source.py",
+  "tests/test_protein_completion_links.py",
+  "tests/test_protein_completion_cohort.py",
+  "tests/test_protein_completion_evidence.py",
+  "tests/test_protein_completion_branched.py",
+  "tests/test_protein_branched_stereo.py",
+  "tests/test_protein_branched_source.py",
+  "tests/test_protein_anchored_branch.py",
+  "tests/test_protein_anchored_stereo.py",
+  "tests/test_protein_anchored_source.py",
+  "tests/test_protein_mixed_cohort.py",
+  "tests/test_protein_mixed_evidence.py",
+  "tests/test_branched_template_comparison.py",
+  "tests/test_unfiltered_branched_comparison.py",
+  "tests/test_protein_rotamer_conventions.py",
+  "tests/test_pdbfixer_usage_inventory.py",
   "tests/test_seeded_atom_rebuild.py",
   "tests/test_ffutils_chirality.py",
   "tests/test_prepare_smiles.py",
 ]
 verification = [
+  "pytest -q tests/test_protein_completion.py tests/test_pdbfixer_usage_inventory.py",
+  "pytest -q tests/test_protein_rotamers.py tests/test_protein_rotamer_conventions.py",
   "pytest -q tests/test_ffutils_chirality.py tests/test_seeded_atom_rebuild.py tests/test_prepare_smiles.py",
 ]
 

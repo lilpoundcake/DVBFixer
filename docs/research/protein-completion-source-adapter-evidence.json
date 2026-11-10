@@ -1,0 +1,424 @@
+{
+  "schema": "dvbfixer.private-protein-source-controls.v1",
+  "fixture": "tests/fixtures/protein_context/1UBQ.pdb",
+  "fixture_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+  "projection_sha256": "ca1d3dc5af9c1d09bc33ea7265dba052537a8400b8f5f4f1b629e444405d210b",
+  "projection": "ATOM records for residues A1--72, unchanged bytes, followed by bare TER and END",
+  "cases": [
+    {
+      "residue": 28,
+      "missing": [
+        "CB"
+      ]
+    },
+    {
+      "residue": 46,
+      "missing": [
+        "CB"
+      ]
+    },
+    {
+      "residue": 20,
+      "missing": [
+        "OG"
+      ]
+    },
+    {
+      "residue": 20,
+      "missing": [
+        "CB",
+        "OG"
+      ]
+    },
+    {
+      "residue": 57,
+      "missing": [
+        "OG"
+      ]
+    },
+    {
+      "residue": 57,
+      "missing": [
+        "CB",
+        "OG"
+      ]
+    },
+    {
+      "residue": 65,
+      "missing": [
+        "OG"
+      ]
+    },
+    {
+      "residue": 65,
+      "missing": [
+        "CB",
+        "OG"
+      ]
+    }
+  ],
+  "sampling": "unchanged three-staggered-chi control; no authentic Dunbrack rows",
+  "production_routing": false,
+  "source_hashes": {
+    "scripts/probe_protein_completion_source.py": "89fa275ed42f865db4bc3d7d96e31c038244252d6458cfcbd7ffecbf23b7b6f5",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "a25496c79393a260942aad10ce2e8e729b18f1a5c8de5d6dc80477a3b0db2911",
+    "src/dvbfixer/protein_completion/source.py": "6531ae2309f7b2551d5d191039aeca6c3aa2cdb06f61bfc3d4acc0bc6e480660",
+    "src/dvbfixer/protein_completion/validation.py": "ff0fd97b8368785e470b0c531c1ae12ac0f07d3cf32446fcbf83cd0bc0543434",
+    "src/dvbfixer/pdb_component_reconstruction.py": "d3c5a4f30f7fb03bdfded3ea980ff122127d586daf01483f9ea0f0a5219b6bd9"
+  },
+  "retained_directory": "tmp/pdbfixer-research/source-adapter-01",
+  "results": {
+    "A28-CB": {
+      "status": "completed",
+      "selected_index": 0,
+      "request_digest": "ffd025af15ab9e106ac5efdc3cf5d12a2b559c90117e69784f92f9b48e0fac07",
+      "input_sha256": "0727cb4ee31a123f34a033861a91fdcd2a5ad02120fde2a690800f1bcaa269d8",
+      "output_sha256": "964f1225e4ef9c2c38fe06e4c938d1fbc1deeef43b175b4f4599686a988d1fa2",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "28",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            39.247,
+            24.337,
+            13.554
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "080817368f5bde8d3b3f5352b5e19116d8360b20fe873efd951c84dbffef7010",
+        "completed.dat": "9a6fcbd2f9294478a75fb2c7851771b53755eb2204cc794d1422f7c59ab04f67",
+        "completed.pdb": "964f1225e4ef9c2c38fe06e4c938d1fbc1deeef43b175b4f4599686a988d1fa2",
+        "input.pdb": "0727cb4ee31a123f34a033861a91fdcd2a5ad02120fde2a690800f1bcaa269d8",
+        "request.json": "b2ef780484c27516ac38d94523dc0014c3918116025272b6f46d7d20b87f044e"
+      }
+    },
+    "A46-CB": {
+      "status": "completed",
+      "selected_index": 0,
+      "request_digest": "d9f4f340fc2f46b29dad2268f70ebe48a5f3ae4edc07aad8962bfded6149b4ef",
+      "input_sha256": "a94a5c143abc9f6261b20b576e273713809afdba2260e1f3a219a7aeec91dc1d",
+      "output_sha256": "5ba1c740788a5500919647c23f6da1d1861da58b84901cab32aae1e0bb9138c1",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "46",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            17.819,
+            27.928,
+            18.394
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "c897635be1408e8420af0316145ec40d949b3083e2f4acca6729f7507815f4fe",
+        "completed.dat": "5c70846d96cdc7caf3b2a036677c5ec419e6c5aeb0eae9e756c8e4b9328c9c83",
+        "completed.pdb": "5ba1c740788a5500919647c23f6da1d1861da58b84901cab32aae1e0bb9138c1",
+        "input.pdb": "a94a5c143abc9f6261b20b576e273713809afdba2260e1f3a219a7aeec91dc1d",
+        "request.json": "770167ea043450f57dd278adac56bf46e2693e0deb37befee1350bc205f6be36"
+      }
+    },
+    "A20-OG": {
+      "status": "completed",
+      "selected_index": 0,
+      "request_digest": "7c4cc2188ba36053e9929c5b82dc067f43975189e01dc1fd38eb1028ffb1dfbc",
+      "input_sha256": "7eea2231df32f1370c311e0eefe21651b9db5e1e3e013ad981795e8ee81d69cf",
+      "output_sha256": "3362b36bf0a81190bfa54b31e689a3aacd302c63cb9f57dd1e7a3d5fb5066d1a",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            27.425,
+            15.297,
+            7.454
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "3cedb3ccdc423adae43b0583f4c9d3ca13173439638d45575b291d1c0d1d3c06",
+        "completed.dat": "573e81e170e43646b379004d3522eae3d7a64cccc700128646cdb1893752547b",
+        "completed.pdb": "3362b36bf0a81190bfa54b31e689a3aacd302c63cb9f57dd1e7a3d5fb5066d1a",
+        "input.pdb": "7eea2231df32f1370c311e0eefe21651b9db5e1e3e013ad981795e8ee81d69cf",
+        "request.json": "71454d80bbb643f6e5ff409c339b35af74ffe30edd002aef4b19177e4162c7f2"
+      }
+    },
+    "A20-CB-OG": {
+      "status": "completed",
+      "selected_index": 0,
+      "request_digest": "54222cb668fab5c1583b3d501ca43a66fa7488e5ab233315252e0f0050d19b92",
+      "input_sha256": "d33ed3abc0dd9d5b4ddace27aa2a8c5b1e87a28bbc9f74c3c2e4e7dd87fd9cfd",
+      "output_sha256": "4e367a5393a1e9f37a7fcb1c7d4dc0d60cd76897a998040cad8b9ca67c9021e9",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            28.479,
+            15.794,
+            8.172
+          ]
+        },
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            27.352,
+            15.282,
+            7.483
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "af6895be107e880dc3dd489f422fadc638d4c3969688e1feea315ef85378487b",
+        "completed.dat": "4a80da4be772ff8d1dfb3081a982136cbc43ded2dab7ca2de410ce7cd1478cff",
+        "completed.pdb": "4e367a5393a1e9f37a7fcb1c7d4dc0d60cd76897a998040cad8b9ca67c9021e9",
+        "input.pdb": "d33ed3abc0dd9d5b4ddace27aa2a8c5b1e87a28bbc9f74c3c2e4e7dd87fd9cfd",
+        "request.json": "8fd6a920d313c2371c2fab7c6b54e3eeb5d1c8dd652c7b2e225ceba11c9b7458"
+      }
+    },
+    "A57-OG": {
+      "status": "completed",
+      "selected_index": 1,
+      "request_digest": "f68a319b64f4e1a9003df7ec7e2f204788f07ac0b8044ffefb288dd54ebfe81e",
+      "input_sha256": "743841ff8e32c70f625ac991b6be3fa23ed1bec51d78fb6ee9bde31b5d1c6166",
+      "output_sha256": "a0fa494e9634d5f33a71c4720e0ec1dc62df446188f311a877b2ef650dc00723",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "57",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            23.913,
+            16.377,
+            11.769
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "2fbb340225bc2c9a430a26aec9fd2935f5fcfbbde5150d0a5d9e5bbd13d51d4f",
+        "completed.dat": "b2aa039067e82a83c00a972593047c32f7616212dacc0734b02a0f1889b5b9dd",
+        "completed.pdb": "a0fa494e9634d5f33a71c4720e0ec1dc62df446188f311a877b2ef650dc00723",
+        "input.pdb": "743841ff8e32c70f625ac991b6be3fa23ed1bec51d78fb6ee9bde31b5d1c6166",
+        "request.json": "1209716ab52723531feec868a159a11e7fd07d49e8f281496196f6de6694a703"
+      }
+    },
+    "A57-CB-OG": {
+      "status": "completed",
+      "selected_index": 1,
+      "request_digest": "3391726e0971e1cb664b5f50d7906dde55a58ddaa3cc8fb6553a841007050f5a",
+      "input_sha256": "deb65f34625db620ea909e78e61dd84fc57f01f16d6d4ba81e30ec5d5e7cdea9",
+      "output_sha256": "c10d24f6d8818b65fab1de62efce3b03b93c3e2391499bb8e841e386134a04f6",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "57",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            23.085,
+            17.324,
+            11.171
+          ]
+        },
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "57",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            23.94,
+            16.39,
+            11.807
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "5755425a8561b32322bd09ff332c3730cbc4ad12a61388ceb6e0b9c5d31a629e",
+        "completed.dat": "05f5658c26dfc469ec312bf7f896ea58d6c41901b22a0a194bb16c8b10f23762",
+        "completed.pdb": "c10d24f6d8818b65fab1de62efce3b03b93c3e2391499bb8e841e386134a04f6",
+        "input.pdb": "deb65f34625db620ea909e78e61dd84fc57f01f16d6d4ba81e30ec5d5e7cdea9",
+        "request.json": "f4064d4bf20493bc75684dc1262ffdafc724e94222f89de7507d3d9206796ce3"
+      }
+    },
+    "A65-OG": {
+      "status": "completed",
+      "selected_index": 1,
+      "request_digest": "62e96703271de464479e1b3bddac031b6611be9017d5e7b948116716e344ce93",
+      "input_sha256": "74146060fcce1787f99f62e5f1dd68e642f04d4555bc883529acc4a84d50b99d",
+      "output_sha256": "0685de70d8ad5619582a0a24302ca310d5862861386b1a3b8cca35fb230ab0e4",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "65",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            22.965,
+            28.462,
+            10.175
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "6333571f81b6eabed83eee951676699a2beb83b60ced49f0db6585b10e52b18e",
+        "completed.dat": "4b6b6518e701bc47cb1853007841e3ac644a9337cf174e62b948437a647bf547",
+        "completed.pdb": "0685de70d8ad5619582a0a24302ca310d5862861386b1a3b8cca35fb230ab0e4",
+        "input.pdb": "74146060fcce1787f99f62e5f1dd68e642f04d4555bc883529acc4a84d50b99d",
+        "request.json": "0ddde21727e7c3b44d811a03719bcc46bef5747601fff24902ce9e3dc64dbda0"
+      }
+    },
+    "A65-CB-OG": {
+      "status": "completed",
+      "selected_index": 1,
+      "request_digest": "f9624adba8286cbdc5f13ec7d070a798128e99530829b7b1e5049de67b0363f1",
+      "input_sha256": "b159e58593478e51dbca3954f9c00602f9101da68836e336a273c523450381f6",
+      "output_sha256": "c493e9df81354b8542ab3fb365e037550aeea8afad87a2a79213e2e55c4fce1e",
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "65",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            21.493,
+            28.931,
+            10.386
+          ]
+        },
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "65",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OG"
+          },
+          "element": "O",
+          "xyz": [
+            22.774,
+            28.341,
+            10.249
+          ]
+        }
+      ],
+      "readback_passed": true,
+      "retained_files": {
+        "attempts.json": "5387e8db70b0a84f769da0162d0aa346c23883f4d7c2d471e9e0a49a60449f9d",
+        "completed.dat": "e55ea3084c79204c4c8e468ebeaa4631b2fbf3dbe7fae04955b07721bf51dada",
+        "completed.pdb": "c493e9df81354b8542ab3fb365e037550aeea8afad87a2a79213e2e55c4fce1e",
+        "input.pdb": "b159e58593478e51dbca3954f9c00602f9101da68836e336a273c523450381f6",
+        "request.json": "d21a2ef2ca99813a5f0da444db2b15e8795cb30ba744f5e3864f2ac7e2e19f83"
+      }
+    }
+  },
+  "all_eight_passed": true,
+  "raw_record_sha256": "ed82a24ba26938cf6cd028c3f6558a540a00d7947b11b5e59f27be58c9b304a2"
+}

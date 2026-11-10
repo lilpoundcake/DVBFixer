@@ -38,7 +38,16 @@
 
 ## Future research: causal PDBFixer chirality investigation (2026-10-31)
 
-**Status: requested future work; not executed or causally resolved.** Dissect
+**Update (2026-11-02): narrow causal controls now executed** in the separate
+[`research/pdbfixer-reconstruction` handoff](pdbfixer-reconstruction-handoff.md).
+The [report](../research/pdbfixer-reconstruction.md) reproduces reflected template
+initialization, hybrid fixed-anchor failures and an independent optimizer-stage
+inversion, plus pair-specific hydrogen-force ablations. This does not close the
+broader multi-source/platform and all-stereocentre acceptance below. The original
+research decomposition follows; its unchecked items are not a claim that none of
+the narrow work has run.
+
+Dissect
 PDBFixer's heavy-atom reconstruction to determine exactly why some incomplete
 residues or reconstructed gaps acquire D-Cα. This is separate from implementing
 pre-diffusion template completion, and from the existing seeded retry and

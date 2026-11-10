@@ -1,0 +1,3757 @@
+{
+  "schema": "dvbfixer.retrospective-branched-template-comparison.v1",
+  "cases": [
+    {
+      "id": "paired-1UBQ-A1-72-VAL5-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-VAL5-CG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL5-CG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "5",
+        "missing": [
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "0821dd47a2d411b74117d156f592c3ce5373cda99f1175b183956de34fffab6f",
+      "prior_output_sha256": "ed24df9f9d1ea6650d94e3bdea6681f140553185b55750b90fe1fc0f0e9fb8c4"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-VAL5-CB-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-VAL5-CB-CG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL5-CB-CG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "5",
+        "missing": [
+          "CB",
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "50fd332369aaab93143d24ad18a9b98b9ecf03b9e8c27b8d17ba6c8d8552412f",
+      "prior_output_sha256": "728792ba00e6095a502bf2ef9f6daf5b99fb30025ca1573807ff59e8043571fe"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-VAL26-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-VAL26-CG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL26-CG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "26",
+        "missing": [
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "03f7b50a1732bd52ed1106b28be70a58da11539c9a623cf98b77da2ebcfe678b",
+      "prior_output_sha256": "dbcbc06a259e43db2bae2042cad7de6fa630e58733e481a4a4598d638fb3e333"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-VAL26-CB-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-VAL26-CB-CG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL26-CB-CG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "26",
+        "missing": [
+          "CB",
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "9be9e651342bc16a7ba20b50e48f8728a2d7e1c3952e307b7dbca20bdfb01176",
+      "prior_output_sha256": "c0e9e9c6d76a4553b94acf8f5947c82848b0d2092eb967470fe054c8ccaccb4e"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-THR7-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-THR7-OG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR7-OG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "7",
+        "missing": [
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "97ac1db6b883f1cc9828d782ea7c636411dfb437a87b62bd0ba3264adc363949",
+      "prior_output_sha256": "0898e204ff46b4ab2bfccb60d4fda509b0879fc490c097530f736a9c99f2d8b3"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-THR7-CB-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-THR7-CB-OG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR7-CB-OG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "7",
+        "missing": [
+          "CB",
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e6bec839b46d86bda3c6921db8f869bf5d224b700bef4ddf6c6556f49645442b",
+      "prior_output_sha256": "ac770834c2eec1a5e011fb1971b28865c1c8175c8bc864593293dd87b839c9be"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-THR55-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-THR55-OG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR55-OG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "55",
+        "missing": [
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "be41c9bb89e77133c3efbb23cce8313163f3abaa7fe8cc0d1d3f8ea1bbccb422",
+      "prior_output_sha256": "9e57be53d116aef2fe2530c72aeb682c05f19877d5f18be46b7905c55459e67c"
+    },
+    {
+      "id": "paired-1UBQ-A1-72-THR55-CB-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1UBQ-A1-72-THR55-CB-OG1-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR55-CB-OG1-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "55",
+        "missing": [
+          "CB",
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "660bb46b24b9454350523427c6500d9a671f3e69f1874288280e86fb4ef239b4",
+      "prior_output_sha256": "ace487d1604a6d00ea6881a513526f25b23b8d9c6246fc7ad9d27b38fa6e4fb8"
+    },
+    {
+      "id": "paired-1FR2-A1-end-VAL19-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1FR2-A1-end-VAL19-CG1-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-VAL19-CG1-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "VAL",
+        "number": "19",
+        "missing": [
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "f01556883c04edfbaaf43551437c90b410233bc1e16d8e685a12494c8b092f01",
+      "prior_output_sha256": "28de07eca4f80a852fb7ad4f4de6900cc974f51392c2cf8563e925e327630176"
+    },
+    {
+      "id": "paired-1FR2-A1-end-VAL19-CB-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1FR2-A1-end-VAL19-CB-CG1-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-VAL19-CB-CG1-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "VAL",
+        "number": "19",
+        "missing": [
+          "CB",
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "d07157e475f15671b2b5556eb3fbf3cf88f889624cb17755299c4f558df00f67",
+      "prior_output_sha256": "509e914faafe1c6b4d5c8ddf080cab0ce7d147b2bfae079899c756cce722482a"
+    },
+    {
+      "id": "paired-1FR2-A1-end-THR11-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1FR2-A1-end-THR11-OG1-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-THR11-OG1-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "THR",
+        "number": "11",
+        "missing": [
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e74e05798f6059b24825f3eca4e313f6ab63a230744cabc39375456d9e752923",
+      "prior_output_sha256": "2e83f9d7b384a49f37cd009aed882812c6d8ce8018ab438bf8ca3d360cd1c2a0"
+    },
+    {
+      "id": "paired-1FR2-A1-end-THR11-CB-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1FR2-A1-end-THR11-CB-OG1-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-THR11-CB-OG1-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "THR",
+        "number": "11",
+        "missing": [
+          "CB",
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "cac48edc92514999262b22e8b94fd6f1ebdb8413e2be3f73e0d66a21a2047853",
+      "prior_output_sha256": "32dfdddb0133dc221f8a79976efec679c5cdd4ea15f4830c983739a2f65d083a"
+    },
+    {
+      "id": "paired-1A3N-A1-59-VAL1-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1A3N-A1-59-VAL1-CG1-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-VAL1-CG1-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "VAL",
+        "number": "1",
+        "missing": [
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e14cfcb870e3eea5fbad06a6a4604299ef880787eb80f13b3f68c7fb8c2f7ecf",
+      "prior_output_sha256": "f04cb942e30ab5437ce5f4af36e3f7a67b434dc83bc01060faadb8491ed26d31"
+    },
+    {
+      "id": "paired-1A3N-A1-59-VAL1-CB-CG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1A3N-A1-59-VAL1-CB-CG1-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-VAL1-CB-CG1-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "VAL",
+        "number": "1",
+        "missing": [
+          "CB",
+          "CG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "6196d3dea05d1ab4b09df7e8e24bc2203a82d33f9a331c84ded8a7ea2764b8df",
+      "prior_output_sha256": "ca7d4c31bc9e354200bebf805ea8b8468cac5b805f0af8ee46e9a4c44ce5ced9"
+    },
+    {
+      "id": "paired-1A3N-A1-59-THR8-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1A3N-A1-59-THR8-OG1-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-THR8-OG1-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "THR",
+        "number": "8",
+        "missing": [
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "41a0b2b02ddd97b3921440831f0e6076610c0f4971c576095f456350816957fb",
+      "prior_output_sha256": "407e6176fb0d7d6b27052e019012e1d6fc910814540b97fba73dddc27ca4245b"
+    },
+    {
+      "id": "paired-1A3N-A1-59-THR8-CB-OG1-CG2",
+      "mode": "paired",
+      "retained": "tmp/pdbfixer-research/branched-source-01",
+      "retained_case": "1A3N-A1-59-THR8-CB-OG1-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-THR8-CB-OG1-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "THR",
+        "number": "8",
+        "missing": [
+          "CB",
+          "OG1",
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e1f078c83df4ad55eb1f3d92aa9319ad9d701f3e898cfc1a1a6bda56c6aa917f",
+      "prior_output_sha256": "c1eb6e0c6ba990f5c65c19c432c4f602e40060264ecab59fc2e3e1b31d98a480"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-VAL5-CG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-VAL5-CG1",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL5-CG1",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "5",
+        "missing": [
+          "CG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "6b630875dfae5b5b8f2eefbb6fe4ca9dc12d3af9d29e9d534c173b87a1a2ab0b",
+      "prior_output_sha256": "05a86220b1743bec5a2da982bf34eaa9228d25ed7fe9e0824f106d06884ff344"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-VAL5-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-VAL5-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL5-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "5",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "36aefbe39c893287f2133ce4a8493587599198926f8f22f696027eccde45cf6f",
+      "prior_output_sha256": "ada8711912ec449b892f0c24c74f9d4d795d5613b2eea1eae3832c4c70a0bb3f"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-VAL26-CG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-VAL26-CG1",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL26-CG1",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "26",
+        "missing": [
+          "CG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "f252e91fd963580e24376321db69c291b4c0618308a68a71be6c08fc82b6fd24",
+      "prior_output_sha256": "3395eb1a1efc366f5270a6e45a35d3062e82219efca7a8214255f3cd41bc8b2d"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-VAL26-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-VAL26-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-VAL26-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "VAL",
+        "number": "26",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "dc04fc33a4ad3f3277542d5a33cb0640241a92abee86d83fc7af9114d263b660",
+      "prior_output_sha256": "017815b150cb6aacd6706c3601998b8af17cc2152f020b994144fc0eac794610"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-THR7-OG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-THR7-OG1",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR7-OG1",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "7",
+        "missing": [
+          "OG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "ae692790808a263c84fd1ae75ce37ca131c4d1d1e2050c847040d29c7beb4a18",
+      "prior_output_sha256": "7c473de50107418fb5c008af9b1eb843b3ebfbec6ef6c8bc8b7ae828a4471508"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-THR7-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-THR7-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR7-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "7",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "26a712cc14225228e75632ead129937339c3c37d84dd2f17f773a6286df6dac8",
+      "prior_output_sha256": "573609337d43268f575c039294597ed1e32618245b5a2ef05081c85da2017e4c"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-THR55-OG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-THR55-OG1",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR55-OG1",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "55",
+        "missing": [
+          "OG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "64ecf82ec7bb40589f093d9b2f083a2a8e3c5658ab0b340134b89ba7876d4209",
+      "prior_output_sha256": "3c1280aff4510115e6345eb243d335c2d0b4fdd55c178660f44ded34b9f2d627"
+    },
+    {
+      "id": "anchored-1UBQ-A1-72-THR55-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1UBQ-A1-72-THR55-CG2",
+      "declaration": {
+        "id": "1UBQ-A1-72-THR55-CG2",
+        "fixture": "1UBQ",
+        "stop": 72,
+        "residue_name": "THR",
+        "number": "55",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "59aa5fd8ec542f5e3fda91e3766baf37ac925b7156aceed8228ffa89f3a7bbc7",
+      "prior_output_sha256": "5f83b112575889f2cf46804f80223558f1bd1fbf046cdd1ba953ac6dff271a60"
+    },
+    {
+      "id": "anchored-1FR2-A1-end-VAL19-CG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1FR2-A1-end-VAL19-CG1",
+      "declaration": {
+        "id": "1FR2-A1-end-VAL19-CG1",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "VAL",
+        "number": "19",
+        "missing": [
+          "CG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "653b66959beb6f52d633811563307e7a8fc95e7e338886f5a5342e8421a68bc2",
+      "prior_output_sha256": "ea48419dff8d26eac4b678d2fefb9f2839e385c6eaedb06070fa97dfaf61a5dc"
+    },
+    {
+      "id": "anchored-1FR2-A1-end-VAL19-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1FR2-A1-end-VAL19-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-VAL19-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "VAL",
+        "number": "19",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "989973b50eb275e6a6f485cea589caa0c552a3ce3be4dafcd42f86c74d525b1c",
+      "prior_output_sha256": "1f5949c0b1799817c8b0c89bf4d0858d77b22e8d2e9bf876362ef31532b5848a"
+    },
+    {
+      "id": "anchored-1FR2-A1-end-THR11-OG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1FR2-A1-end-THR11-OG1",
+      "declaration": {
+        "id": "1FR2-A1-end-THR11-OG1",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "THR",
+        "number": "11",
+        "missing": [
+          "OG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e52b3906b223c54ee5f9df864cdf018ac3ebe442000ce6be5ac67b2df9fc3d14",
+      "prior_output_sha256": "c76be2c85510c9b70b36d7edf23f160100c8dbcf9e8b50efaea0363d409115ed"
+    },
+    {
+      "id": "anchored-1FR2-A1-end-THR11-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1FR2-A1-end-THR11-CG2",
+      "declaration": {
+        "id": "1FR2-A1-end-THR11-CG2",
+        "fixture": "1FR2",
+        "stop": null,
+        "residue_name": "THR",
+        "number": "11",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "52bb165e2dec44f83ad72f6bd89857d46231eecbb4bd8d0d5dd9b2189abe140e",
+      "prior_output_sha256": "7976dbf2519687c79334c4ce6101dab29b25df8580603a6ee8a0b37c2889ae71"
+    },
+    {
+      "id": "anchored-1A3N-A1-59-VAL1-CG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1A3N-A1-59-VAL1-CG1",
+      "declaration": {
+        "id": "1A3N-A1-59-VAL1-CG1",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "VAL",
+        "number": "1",
+        "missing": [
+          "CG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "0b4fb78d358bb0341e43538027bd6b96cf75dee62ee4688fb309c8b1f42d30e4",
+      "prior_output_sha256": "69873dab97b81026894cb996d897bd1660bb9f8356b38f72489de4370998a7ec"
+    },
+    {
+      "id": "anchored-1A3N-A1-59-VAL1-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1A3N-A1-59-VAL1-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-VAL1-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "VAL",
+        "number": "1",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "e4400318853aa34511644632252ef33d1ed8183321778841c3134d2ff735fab0",
+      "prior_output_sha256": "ff829104e0217079faf7da0880697428e0884dd8d18e5e1c757b6d6b1de66a49"
+    },
+    {
+      "id": "anchored-1A3N-A1-59-THR8-OG1",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1A3N-A1-59-THR8-OG1",
+      "declaration": {
+        "id": "1A3N-A1-59-THR8-OG1",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "THR",
+        "number": "8",
+        "missing": [
+          "OG1"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "7abc6ac8b0be54f41524f11537c83509bedcfbf6cbc43d6a65947c2537a63866",
+      "prior_output_sha256": "6296f1a9779edca0bb813d2afd659ab8aafef72571678e74d05177ec50e6cf9e"
+    },
+    {
+      "id": "anchored-1A3N-A1-59-THR8-CG2",
+      "mode": "anchored",
+      "retained": "tmp/pdbfixer-research/anchored-source-01",
+      "retained_case": "1A3N-A1-59-THR8-CG2",
+      "declaration": {
+        "id": "1A3N-A1-59-THR8-CG2",
+        "fixture": "1A3N",
+        "stop": 59,
+        "residue_name": "THR",
+        "number": "8",
+        "missing": [
+          "CG2"
+        ],
+        "admission_control": false
+      },
+      "input_sha256": "5700a0a009e64196e4fdd937e30bcd4d95b89f96d0f4d106b09c98e53726a147",
+      "prior_output_sha256": "6cb4ef4930ea4514665ca69b2282774a95562d5c768aefeebe9219fe4ca0c836"
+    }
+  ],
+  "environment": {
+    "pdbfixer": "1.12.0",
+    "openmm": "8.5.2",
+    "platform": "Reference",
+    "source_sha256": "a52e39125e3e0e2d1b58b83841fb05b8669e0bcdd73461e1b0ed1d5a8e8261b9",
+    "resource_sha256": {
+      "soft.xml": "f3255082d46c050cb8163af73f11396091e8032d548183376d6e2c02664f7789",
+      "templates/A.pdb": "e8cbac499131cc31f29b93ffa2bbfea8540b525b310d5ea84ec7060dc4aed882",
+      "templates/ACE.pdb": "c80a4a5b5c355612ca0cef9550d70318ea9f2e4515edc0ebdf708ba62abf157d",
+      "templates/ALA.pdb": "5d4afe9fe13cbcd94f682a440fc2d8a1cecd2b356b68488213083a99c018891d",
+      "templates/ARG.pdb": "b563c31e5a4bdb0a8132436621c395ff5d121c12f61dc7914cd5a642b5d03f82",
+      "templates/ASN.pdb": "03e4429faf869ed1debde1935bdfd652d6d2ed0efe3a8c0937f0726bc178510d",
+      "templates/ASP.pdb": "76aa87d2ff758661c78a3b907b3c0043fa08850547ff06dda1c46a301e6e7aff",
+      "templates/C.pdb": "03b933a77d61b7aff4b1c665f8d13c95b0292015feff685d58cf89e404170a0c",
+      "templates/CYS.pdb": "37855be2763394ce872bd222a1bdf705d56f60d2389328ef86620847c1fcb5fd",
+      "templates/DA.pdb": "3dbe2e49912bde8508c7f4aba510b5f368043a48a6b35be26a04dc337ab470e2",
+      "templates/DC.pdb": "16ca41ef7b3cbd51f4013cdf8913d5d5edfd641e4e583150c3be3dd5904817da",
+      "templates/DG.pdb": "8d1d0585b952ed0a50e751a86b61c264237cce4880da72a9ed7296644136d9a7",
+      "templates/DT.pdb": "c9e80cbacc60b0994f031752e5e0521efc35f12a302517b3b668426ed148cd90",
+      "templates/G.pdb": "4c5ff7bee3a55e0d07d4953228e77c2748e5d27641fe58595d569dc54c7963fe",
+      "templates/GLN.pdb": "2a6d372fc3b6a29e3846f95c286dc68dedc5499b5c53f74efed9f79f34724820",
+      "templates/GLU.pdb": "a52934d6cb9e1fb2317ddeabb8424e0bb6c59e1246cd34e78df3f65fea78e681",
+      "templates/GLY.pdb": "00ac8db40e228a7a3950d9570751c72e3d592bad049c8d64f1393d5b33fb1c3e",
+      "templates/HIS.pdb": "9b3250e1e29a1339d8cb07943928cb498bcbececfe8a940be93f995f2369cff1",
+      "templates/ILE.pdb": "3a8f8510be1d78198ef6ba2a6e191e2c185a8a33b870081fe5ec9378711e06c7",
+      "templates/LEU.pdb": "177dcca58b59a036f71f78a04d792e08f6ba17b626c37301a1fc6fda3d5dcf54",
+      "templates/LYS.pdb": "3c62dad1cbad3eb4c5fbed1511e8e129c42ff10b618ab43dfa0aaa9f0c237a0f",
+      "templates/MET.pdb": "a698fdea05abda618ffceb6de5c09f875eb2127b8a01a9e8f0013e65c3fcb6a6",
+      "templates/NME.pdb": "f699e5baa14286e331c4c0e748848d2ba5d830889dd28c33cc3cb59c37b286b1",
+      "templates/PHE.pdb": "68e11ff2b2694189ac8247b065df40b06bd034b1750ce02e98036100ec4a6aef",
+      "templates/PRO.pdb": "aed07c4cc88aef05fa2e4e04ad9569df36c749dbcd29ca04264700f1b27f11bf",
+      "templates/SER.pdb": "8c88c15eaca0008142861d0ef8ae79b4887ba2dea9eb8ec7c828f1f017dbec39",
+      "templates/THR.pdb": "63ded1fd1fcd8a13e3e2289230083c402a5017a57e14362e244ffd6ba2e2a12f",
+      "templates/TRP.pdb": "e49ca09b1f182c750bf725929a050a573ec0987c94b8184af081797e9a9f5d28",
+      "templates/TYR.pdb": "ecd7f527671d90151aefbfa868372e5458aa0fea625f2b32d1c437cc14e30cd9",
+      "templates/U.pdb": "7ef2bcdbec3798731109f7243e959ce94f3c3946888b0a515d6dbe7823cd772b",
+      "templates/VAL.pdb": "0a035bae591b0e82bd2fea54f32d43263114adb3867ae22cbe149d2ee8080be2"
+    },
+    "helper_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c"
+  },
+  "case_selection": "all 32 previously accepted source controls; retrospective, not blind",
+  "template": "shared seeded rebuild helper 1..5 on OpenMM Reference; preserve all returned states",
+  "common_gate": "same physical geometry/stereo/clash/rounded checks, measured chi; no own staggered-grid requirement",
+  "observations": "unchanged complete masked source for both arms; no reference coordinates in proposals",
+  "no_refinement_or_reflection": true,
+  "not_full_legacy_pipeline": true,
+  "retained_directory": "tmp/pdbfixer-research/template-comparison-01",
+  "python": "3.12.13",
+  "source_hashes": {
+    "scripts/compare_branched_completion.py": "899783eb3f37e76608d103566b0b2d1a624d32d7349b812bf9b97fa1c916c6d6",
+    "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+    "scripts/branched_template_baseline.py": "b170d65b4c1182417f15adfd6060b7ba783d3f69ceb01db1bb534cd63b5ccfa0",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+    "src/dvbfixer/protein_completion/anchored_source.py": "e6e898a0784ad54ae93fa03ccad4a6489ed454d7ccd5630d52fb0e64a896b1c8",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+    "src/dvbfixer/protein_completion/branched_source.py": "bc55103b387fb84b90c22007e1ceaf9225404a59b3cc753c237bd0e3b472cb06",
+    "src/dvbfixer/protein_completion/cohort.py": "c80c611faad2eaba48e4d8c46e0110b677acf7faae7e95f6bc28e72866bac243",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/evidence.py": "d9083f0fa6084cb1d787b06631528c1a0ae8ec27e7c3d4ab8ea6e3bf7925400b",
+    "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/mixed_cohort.py": "1e94d326babc81f8c793328ab3fe0da84f0a335d987a76a227ed6cc2c609a077",
+    "src/dvbfixer/protein_completion/mixed_evidence.py": "67d946fd042ec301f79e69d325d3c43f7cf77f6964517c3bda07027c23194339",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+    "src/dvbfixer/protein_completion/source.py": "2963f9f5b56d9d1d5af28d3dcbce034d0839aaa64d2a52a5593a4fb16a2777ed",
+    "src/dvbfixer/protein_completion/validation.py": "13d4b1717ddc63f9eb315330cc11f27e007662974be5d5da7601f5248063d366"
+  },
+  "results": {
+    "paired-1UBQ-A1-72-VAL5-CG1-CG2": {
+      "request_digest": "d1c67202f584756336fe118b11e3e8517a927d1c791863343ee8df5574105bab",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.42816838130417123
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.4286141280540523
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.026787525808650552,
+          "maximum_error_angstrom": 0.028527150036853733,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-CG1",
+              "bond_angle:CA-CB-CG2"
+            ],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.3679359123277055
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-CG1",
+              "bond_angle:CA-CB-CG2"
+            ],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.36782569762225004
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.591532126558357,
+          "maximum_error_angstrom": 0.6922715455679336,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "8466c9ec56d45ef99019c83b8fa76d3da7736de3b57a5cee923686c68aa422ca",
+        "input.pdb": "0821dd47a2d411b74117d156f592c3ce5373cda99f1175b183956de34fffab6f",
+        "own-attempts.json": "cf4307296cc24e6998035e1398b412d07868332830aa67179a02d93bc9bedce9",
+        "own-proposal.pdb": "ed24df9f9d1ea6650d94e3bdea6681f140553185b55750b90fe1fc0f0e9fb8c4",
+        "source-plan.json": "dacd6138ba8675af7821b07238f50cba14a1032d5353b668258d62b79d8c58f8",
+        "template-proposal.json": "c7cb6ad3253d0f10981b3c0746a009cf77458ecbf3385861e2b3040a1e37e1c7",
+        "template-proposal.pdb": "bbcbb68bca4d2dea37f837b7adbdbaa96b17c9e036a02b8904cb084b5d9c927e",
+        "template-seed-1.json": "f01285de16514ca0470287b907d630a30d551565c269058dbe96940c5add6ce5",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-VAL5-CB-CG1-CG2": {
+      "request_digest": "9816d38450006067b9831294370fb61f040e47a54ac8c6c1abd051cd020a2060",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.707239557472517,
+            "minimum_nonbonded_clearance_angstrom": -0.40762795362506177
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7067314059999874,
+            "minimum_nonbonded_clearance_angstrom": -0.40702322093872745
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.11691108816740799,
+          "maximum_error_angstrom": 0.140617147246506,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "ca_volume_angstrom3": 1.2127917081266693,
+            "minimum_nonbonded_clearance_angstrom": -0.641605667055194
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "ca_volume_angstrom3": 1.2133763879999984,
+            "minimum_nonbonded_clearance_angstrom": -0.641148608569142
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 1.177936526602145,
+          "maximum_error_angstrom": 1.3940624346441524,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "d8ac1c0555371a078e2cd12b46cf8209cb925421394a7d49e8d355927aa803e2",
+        "input.pdb": "50fd332369aaab93143d24ad18a9b98b9ecf03b9e8c27b8d17ba6c8d8552412f",
+        "own-attempts.json": "8944a3cabbd3bb9cff8731f07259686f4ff7610b037f7b0df52e41ad77c953f0",
+        "own-proposal.pdb": "728792ba00e6095a502bf2ef9f6daf5b99fb30025ca1573807ff59e8043571fe",
+        "source-plan.json": "75befdc9cce2c76693662d7d12669b20bbf1a0ef6ebe54582f487180ec189b5b",
+        "template-proposal.json": "39998fc2234a13931eeb863dde5537bd69376050f5db8f74eb37277c5cf1897b",
+        "template-proposal.pdb": "6ac95649c19f960ee9c61473b26f9e2441ca72fabfe8615530cc307d1dd4995f",
+        "template-seed-1.json": "19d95e857865ce4cd1ba2dfe6a1193e6790f1c168b25568b5ec7fa8873efb5a0",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-VAL26-CG1-CG2": {
+      "request_digest": "48b38bc7ba4129c66aa1308e4acf46ab567b7eb6a6a6a4586ab908283d3659c7",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.438885061097936
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.4386062402983275
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.24540705247113978,
+          "maximum_error_angstrom": 0.2968618861724559,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.4612683063645706
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.4613605188795247
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.10445455873818076,
+          "maximum_error_angstrom": 0.10947600188641378,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "923962920f2c1f0636a424d1166ba54be8a324fcd2e183ca3b151aaef5c9da72",
+        "input.pdb": "03f7b50a1732bd52ed1106b28be70a58da11539c9a623cf98b77da2ebcfe678b",
+        "own-attempts.json": "fb61b1b49c0da4a7db6ae7237c374abfd8e8133a30a40aaa2b7870c79c1875e1",
+        "own-proposal.pdb": "dbcbc06a259e43db2bae2042cad7de6fa630e58733e481a4a4598d638fb3e333",
+        "source-plan.json": "d939a25320f4fe21de9d9007f4f2a942fdfb3dbf55cf8cbb55466f551272e975",
+        "template-proposal.json": "9577ab082f697a1d3762c91cdf2da262130c417460238a32f330e395a1f0e910",
+        "template-proposal.pdb": "53cb873af6b0ba65fd569392ca0140cdd01c9a28e323addf6b885af7c0d1d1f1",
+        "template-seed-1.json": "6163a1a3eb58cb8b36f99be91f76726dce8d043f76e45618249f74667dbb383d",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-VAL26-CB-CG1-CG2": {
+      "request_digest": "a88ffb59afd0e701c35511873c820d850daf6163c9637d9d1e08e68442a6e800",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5732630859427528,
+            "minimum_nonbonded_clearance_angstrom": -0.4681026856247832
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5730566359999973,
+            "minimum_nonbonded_clearance_angstrom": -0.4679800478168623
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.21485553179579966,
+          "maximum_error_angstrom": 0.29703605020817725,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4289812018583743,
+            "minimum_nonbonded_clearance_angstrom": -0.4424836168259989
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.429148504000005,
+            "minimum_nonbonded_clearance_angstrom": -0.4426571047644776
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.12595844855780555,
+          "maximum_error_angstrom": 0.16271810022956204,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "da8617f9a91e5c3d11abe7e432d40eeafc7569b64496f7214111a00c522d4850",
+        "input.pdb": "9be9e651342bc16a7ba20b50e48f8728a2d7e1c3952e307b7dbca20bdfb01176",
+        "own-attempts.json": "f9283858c9fa9070c1265c622d01ee2e182ddd1a3770f2f1687d9617e20b3d44",
+        "own-proposal.pdb": "c0e9e9c6d76a4553b94acf8f5947c82848b0d2092eb967470fe054c8ccaccb4e",
+        "source-plan.json": "8da9e30f212901543217a469eed1179b4df606c7c50e4221362872a305bee991",
+        "template-proposal.json": "bef9a0fed0b91017debd312cae353738438afeca8aea69168e4c7770bf4311af",
+        "template-proposal.pdb": "06f64de297a9aeb05769bdc457c50e51da39f064d17902eebebe684eca19855d",
+        "template-seed-1.json": "9ca26fd6a9991b45e9fa102fe7c641c13c0f415198c79c79ddc5e11bd81ff742",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-THR7-OG1-CG2": {
+      "request_digest": "656a1b5af9fc20e643c45690722180647ae83ab3ce5ba9383405b54734f6a788",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.2832262957235159
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.2827726747011803
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.4723151776282806,
+          "maximum_error_angstrom": 0.4997053956341008,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.5780695302831114
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.578007618720418
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.506694857299183,
+          "maximum_error_angstrom": 2.765686449198488,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "073bcc71f0b1381eff29d9ca58425de53d2c8513984545cdd4fe6a27f029e6e9",
+        "input.pdb": "97ac1db6b883f1cc9828d782ea7c636411dfb437a87b62bd0ba3264adc363949",
+        "own-attempts.json": "b2a70a6bdac633d7a6cdb6249efb21cd5155c21a91c1bbd96426fa21350ed2bf",
+        "own-proposal.pdb": "0898e204ff46b4ab2bfccb60d4fda509b0879fc490c097530f736a9c99f2d8b3",
+        "source-plan.json": "7d5c715de86f463a7690d5b50c6884a8a8beae2c40c89915f257719a3ed956fd",
+        "template-proposal.json": "956b9ba6d2bfc695b26a8a7e0e656fd0241490bfd79f2737ef92ff575cac070e",
+        "template-proposal.pdb": "e73d21ccb996b53c4055f0b822a7af84891726c20dc40d0a8307d1ad14d12c76",
+        "template-seed-1.json": "5ee8d666eea200c5b7561247de64adc62d43a2c7cdc09ac99e572e1ac349443c",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-THR7-CB-OG1-CG2": {
+      "request_digest": "152c75f67808d6611f0c1750918180d652241dc3f7538125cf6ffb4cc4199e7c",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5986058206639693,
+            "minimum_nonbonded_clearance_angstrom": -0.3312531568563961
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.599097110999992,
+            "minimum_nonbonded_clearance_angstrom": -0.33120418665505014
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.36594728473410915,
+          "maximum_error_angstrom": 0.4798616198993635,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='8', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.31552600291860955,
+            "minimum_nonbonded_clearance_angstrom": -1.0833772974350646
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='8', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.3142529209999886,
+            "minimum_nonbonded_clearance_angstrom": -1.0837458597846874
+          },
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1)",
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.570311884787384,
+          "maximum_error_angstrom": 3.2846066649129626,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "06a3394099113030cf06ea587f1a76fc4cfaa068eeef725f4b2e09b6284832cd",
+        "input.pdb": "e6bec839b46d86bda3c6921db8f869bf5d224b700bef4ddf6c6556f49645442b",
+        "own-attempts.json": "62fc6cd3dc1001380ccc6d60f2585120f8525caf005e3fdb8fa93e35dbec6a3d",
+        "own-proposal.pdb": "ac770834c2eec1a5e011fb1971b28865c1c8175c8bc864593293dd87b839c9be",
+        "source-plan.json": "d0c26d2a43a99217c9c7a753700130649209cb72c405f7ffa9438140a8221b1f",
+        "template-proposal.json": "136b9f25cb043469a72c3f42acb39daca1a4cba0a0a3cc53dcef363eaba9e661",
+        "template-proposal.pdb": "f308b400e8d9559668dee0a3c649c4db01ce6d143c136644c6b93ad3d7ddb6e8",
+        "template-seed-1.json": "8580dd0e9fcdfe57f1f6a63039087f6b91c864e737b4ec08147cd526c9c24ada",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-THR55-OG1-CG2": {
+      "request_digest": "433ee7a4ab210ebf435f1db106d46b8174e7d05f31de07bd797d5e8f14f7f18d",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.3301239943564924
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.3301991418092485
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.19789284238748348,
+          "maximum_error_angstrom": 0.19964924146482826,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9030694544985292
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9030636607796054
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.402095230683025,
+          "maximum_error_angstrom": 2.670068361093489,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "cd0e56921eec0184ef672ff3cff1f3b850bec2917685ef3dc9a293f4c1bad194",
+        "input.pdb": "be41c9bb89e77133c3efbb23cce8313163f3abaa7fe8cc0d1d3f8ea1bbccb422",
+        "own-attempts.json": "6fb9e7db70310aabb859b406c8b8b64376568141777bab40fc7f3d72f7b077f5",
+        "own-proposal.pdb": "9e57be53d116aef2fe2530c72aeb682c05f19877d5f18be46b7905c55459e67c",
+        "source-plan.json": "b44b7ef7979a1669f54b7a14c2239cb6bd3c9774cef38b7b34c19d68ca3dd0d5",
+        "template-proposal.json": "73b3d6f77fdc5f461014eee6f669009ea1441bd5c15200e721ce05e9224b9ea5",
+        "template-proposal.pdb": "582116e4f6b404569be0a88e2e9c3723c44488e2dc6b000680626b59d3daa925",
+        "template-seed-1.json": "4a26939b0058775e856ea4cc0fad15cf93d09ea36bd0ee1dc31623cab359e1d6",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1UBQ-A1-72-THR55-CB-OG1-CG2": {
+      "request_digest": "e815fa8781e3b8557ccd1808a4cce7403ce775089e36ee7d54ef1c6d772adc0c",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7303086438775654,
+            "minimum_nonbonded_clearance_angstrom": -0.3432274230994323
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7310174300000094,
+            "minimum_nonbonded_clearance_angstrom": -0.34321776979904084
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.17608287044400492,
+          "maximum_error_angstrom": 0.2523281691839379,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='21', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='21', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.4483960890090394,
+            "minimum_nonbonded_clearance_angstrom": -1.3514745681548115
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='21', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='21', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.4477938280000085,
+            "minimum_nonbonded_clearance_angstrom": -1.3514727724756053
+          },
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.5134581794203585,
+          "maximum_error_angstrom": 3.0992339806287053,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "bd26a8bfd2ecccf025b2ee35365a634d523d26dca95b9302d1c8902e17cc304d",
+        "input.pdb": "660bb46b24b9454350523427c6500d9a671f3e69f1874288280e86fb4ef239b4",
+        "own-attempts.json": "15258d75bd29c0ed0b253cbc45e54c6b0dd608fae42477c466fae187ce390f2a",
+        "own-proposal.pdb": "ace487d1604a6d00ea6881a513526f25b23b8d9c6246fc7ad9d27b38fa6e4fb8",
+        "source-plan.json": "e312b2f06ffc375e2bfd7cfceaf61d7f2dce1a3d7fe1397efbd64936e8fdd293",
+        "template-proposal.json": "172df1140a1b0194c2690c8338788a5cc0977ed54e222a9fd2d48e1633215fb0",
+        "template-proposal.pdb": "969f093c961e7185c146c5e9f3d580d8505a51788782b29c2fbae5ee206efbdd",
+        "template-seed-1.json": "abc6ad8f43cee7466dbb1aa7bdd6ffd532e013d3df3b4c39456b77d510dfd84a",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1FR2-A1-end-VAL19-CG1-CG2": {
+      "request_digest": "2e6b84cb63a9f01279d60f3b3a79aa39aa28e20cfb82b029fa9ad9c9c191ee40",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.4846062414775254
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.4846753182535566
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.18105120435250352,
+          "maximum_error_angstrom": 0.20472673967916255,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.45264354668611695
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.4528512083710461
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.0904492209520414,
+          "maximum_error_angstrom": 0.11012725725347279,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "d6f4d6c43bb1df153f0fe92f4f572e4d3565412453d2a3acbe05542867d77a5a",
+        "input.pdb": "f01556883c04edfbaaf43551437c90b410233bc1e16d8e685a12494c8b092f01",
+        "own-attempts.json": "40c9908dc515598ef6243e9dcf55d9fc453a4b0676d60cf070276ce212e1ba9b",
+        "own-proposal.pdb": "28de07eca4f80a852fb7ad4f4de6900cc974f51392c2cf8563e925e327630176",
+        "source-plan.json": "ba28a6f9f1c93f79eb57e3bfdd194bce89427e4f4cc2ce841f6619fc712c8a3e",
+        "template-proposal.json": "bc07b9c6f0d326786293d8c7e408d3dce72a8a61288cc4f8f823581a55fd39b3",
+        "template-proposal.pdb": "59d4ce95348d15e61ef9b8491d6015387853e4fdffc29083ca06ecdd357f745f",
+        "template-seed-1.json": "cb60ee78495f5a31553238f6bf8bcbe7ed925fc9b37b03e459b9817c2ca231ac",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1FR2-A1-end-VAL19-CB-CG1-CG2": {
+      "request_digest": "7eb4a1c8063722da4beb99fa4a00008f6a3162be93a1bc7b6c9e959c1dda7cc7",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4994987924218863,
+            "minimum_nonbonded_clearance_angstrom": -0.494492941321675
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4993682559999977,
+            "minimum_nonbonded_clearance_angstrom": -0.49441486099615384
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.14663854957158268,
+          "maximum_error_angstrom": 0.1980898079944847,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.471337379663955,
+            "minimum_nonbonded_clearance_angstrom": -0.43340174377949836
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.471781173999996,
+            "minimum_nonbonded_clearance_angstrom": -0.43383800172681
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.1090072545665744,
+          "maximum_error_angstrom": 0.13802418274183104,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "6033518ab857ea838af44ad43a83581308da3876872bff6e1ff78640a419769e",
+        "input.pdb": "d07157e475f15671b2b5556eb3fbf3cf88f889624cb17755299c4f558df00f67",
+        "own-attempts.json": "9ace51e3c9361f1d6fe3db3a059d3c32fae0c254737f31fa0ca231632dd6d2ea",
+        "own-proposal.pdb": "509e914faafe1c6b4d5c8ddf080cab0ce7d147b2bfae079899c756cce722482a",
+        "source-plan.json": "96e636a121f22861b508f99a143205c0ebaebf0a4f9eb14c9745b4577a491139",
+        "template-proposal.json": "f1d12f528d256c3d64816c6e4799b8672ade8bbba42db403eb4e6ba4afc279c7",
+        "template-proposal.pdb": "c6afe11c565c45cde92707f34e8e8a67c4987154026d0d2ae993c0964e0d1f27",
+        "template-seed-1.json": "f5ee98dd4684aab6fc3c0b8c51d3a6d8f8df34cf5b2114496957088d7c01713f",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1FR2-A1-end-THR11-OG1-CG2": {
+      "request_digest": "2ccfc7be9fb7047e8388e55e7a0c360f42d4f83d4d0fb1bf451f3c38af08cdc9",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.38672786393316794
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.38641340347608
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.10232638521260562,
+          "maximum_error_angstrom": 0.10525073162919603,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.5541012217898813
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.5543313615250298
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.4321123287772757,
+          "maximum_error_angstrom": 2.7324312347968696,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "339e394a6c3613952295c1ba299145dc2e2f2ef64e6cfef0428ca8a939bfdd89",
+        "input.pdb": "e74e05798f6059b24825f3eca4e313f6ab63a230744cabc39375456d9e752923",
+        "own-attempts.json": "b93a960a8972fd2ef0711b52acfb851c6c20c7da3aa86646033b2c7ff17c091f",
+        "own-proposal.pdb": "2e83f9d7b384a49f37cd009aed882812c6d8ce8018ab438bf8ca3d360cd1c2a0",
+        "source-plan.json": "70d35c6f6d034629b6f6ce697cd580497c87615a8652bc6e1348c78de87a6914",
+        "template-proposal.json": "28c6d02380a02a3742294014e7b012004178b432005bf5d7fb194a1be77f000a",
+        "template-proposal.pdb": "269b9930da15f6f13985fec36e998c9a7f6c1fde53209a4010c3ecee4d39013f",
+        "template-seed-1.json": "fe22fe70bd3f095799306f4c0f51d87aa8c08717700d05dcefb2f4746e7b0f77",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1FR2-A1-end-THR11-CB-OG1-CG2": {
+      "request_digest": "681e9c4b079b89b9fd801b4e3a1eb5ad375c476b0457feb9f48ee2e0d68a46f5",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.661644745837815,
+            "minimum_nonbonded_clearance_angstrom": -0.37625282767014157
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6616010060000126,
+            "minimum_nonbonded_clearance_angstrom": -0.37600210970542247
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.11590808638972774,
+          "maximum_error_angstrom": 0.1515407580098068,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='84', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": -0.22346291654430947,
+            "minimum_nonbonded_clearance_angstrom": -0.9432933708008107
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CB:ComponentInstanceRef(model=1, chain_id='A', sequence_number='84', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": -0.22365726200000025,
+            "minimum_nonbonded_clearance_angstrom": -0.9431991850183472
+          },
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1)",
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.5558466536642963,
+          "maximum_error_angstrom": 3.1013799608214376,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 5,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "715584038227914249f5a0841051490c6d6b39e447b7c05b1ec1981f7154e9cc",
+        "input.pdb": "cac48edc92514999262b22e8b94fd6f1ebdb8413e2be3f73e0d66a21a2047853",
+        "own-attempts.json": "e19c4d578a7ee2aef74227b03093bd81993e41248b150955f9a020f427b68642",
+        "own-proposal.pdb": "32dfdddb0133dc221f8a79976efec679c5cdd4ea15f4830c983739a2f65d083a",
+        "source-plan.json": "bee4f4e88f025966fcb84f8b57a4ffdad7a16009df998d78a18a9ed3cd790e99",
+        "template-proposal.json": "747e0d4cee1d08b4bfe78e71cac1baaa81fa9e602df4366aa4caeea9fb374e4d",
+        "template-proposal.pdb": "f08e91ab512c32e4841c1525ee6ed4fd0a8f0e3f53dd8838e844236ecfd519b9",
+        "template-seed-1.json": "4fab18161052f231daa020db858ec3b5d89fded340fbd8937f88b3e79da0b37f",
+        "template-seed-2.json": "7708ec3bfa98d214859ac26f2c7c06f1670917a828739939212c76ac02123db5",
+        "template-seed-3.json": "672da905d4645590384ef31afc31413d14f521de988ada916e4309604a142c0f",
+        "template-seed-4.json": "0fab6a1ca5ab39939ffa575ac9e8db926d4c584482220431e0a16a46df2d8fd4",
+        "template-seed-5.json": "268112603b50ba03384857e3c992b5a5084a9ff87adbbe4821001b724ba9bc55",
+        "template.log": "9f32b4c4354e43b16960c864f9b2266c6189a7a872f089277d9b5b97c0de1080"
+      }
+    },
+    "paired-1A3N-A1-59-VAL1-CG1-CG2": {
+      "request_digest": "d254dee040f837ab18916613aba2194d210a9bcafa3be97bf10adfb8556caaca",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.49632079485034364
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.49624897761533093
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.28108025349791665,
+          "maximum_error_angstrom": 0.32195694310451006,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.6442948607142371
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.6442442053041053
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.8069144188349325,
+          "maximum_error_angstrom": 1.0193502712632239,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "4685fd245c5faa757f8729e09b0228f37bee6488b2a97f42df5eacc04e0f929b",
+        "input.pdb": "e14cfcb870e3eea5fbad06a6a4604299ef880787eb80f13b3f68c7fb8c2f7ecf",
+        "own-attempts.json": "66e233dbe7bc670b3ded07b0d01fbbb5b536c3ceaff02ac18e116b8d259fe3ba",
+        "own-proposal.pdb": "f04cb942e30ab5437ce5f4af36e3f7a67b434dc83bc01060faadb8491ed26d31",
+        "source-plan.json": "871f85879fcf3a06132a4298427b621256d6a7b480c8466bd56ef494ff93d069",
+        "template-proposal.json": "e4baed2b5ee0bbc0f8bfb7a89e94746b6a61b697cd46a680dfd939720cd9274b",
+        "template-proposal.pdb": "19a9dd74c720081c6f05cc4720be5504fbf7c69ab15a590d822e7726bcf5e9e2",
+        "template-seed-1.json": "1f33d415b554c22f8530cbc52f3c80b127ae37ff98d8c548aa843651de49f384",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1A3N-A1-59-VAL1-CB-CG1-CG2": {
+      "request_digest": "f9325f1ab0953259bbf660d756d6d8a427f5bf6908e02f5fc01e09caf32a3d73",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6165349163441944,
+            "minimum_nonbonded_clearance_angstrom": -0.4547140296263654
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.615905190000001,
+            "minimum_nonbonded_clearance_angstrom": -0.4542528961229535
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 1.864736386732909,
+          "maximum_error_angstrom": 2.3983302418100827,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.0880728424722392,
+            "minimum_nonbonded_clearance_angstrom": -1.0782003655440353
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 0.08763038400000163,
+            "minimum_nonbonded_clearance_angstrom": -1.078038213964159
+          },
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {},
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 1.227126833854243,
+          "maximum_error_angstrom": 1.4541115487295062,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "ed0783f7ad24b962eeacc1aaacfb6c921828b6cd4744c806db46db3150e7fcbd",
+        "input.pdb": "6196d3dea05d1ab4b09df7e8e24bc2203a82d33f9a331c84ded8a7ea2764b8df",
+        "own-attempts.json": "4070e219020ccb03ffc02a8c23cd7ec98900f5e63f8f15ca4c53415649cce911",
+        "own-proposal.pdb": "ca7d4c31bc9e354200bebf805ea8b8468cac5b805f0af8ee46e9a4c44ce5ced9",
+        "source-plan.json": "46a2e474982b11b6b29da41d0c43685354f86fab1f5a2d701e427709ea1da8a5",
+        "template-proposal.json": "f3f460d789ce4a49af12e6bfe06fac6fc6b4c149516bc6a6df3a6843b7367a0f",
+        "template-proposal.pdb": "af9ef02eba0284be6f5009dfb0c85e6f53564bf9aa138d4af7c653f680a281b5",
+        "template-seed-1.json": "d0d47601549341e2272bcc13c97cac06b2cd06c48b2d98116a20d90a70733a01",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1A3N-A1-59-THR8-OG1-CG2": {
+      "request_digest": "721b9fbf215be5a17ee388f79ef2a50cca378ac93dce80ac3d62b79e8b54e3bf",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.49082909882362324
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.49011443523976217
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.07908356468376071,
+          "maximum_error_angstrom": 0.10337449420005036,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.3562795004933279
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.35652090527961544
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.05662022155638401,
+          "maximum_error_angstrom": 0.07198216233734821,
+          "atom_count": 2,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "a2d4a57ba76ce42fc8fd4a2ac83b323163f66ea693764a4f53feb7370ce6ac58",
+        "input.pdb": "41a0b2b02ddd97b3921440831f0e6076610c0f4971c576095f456350816957fb",
+        "own-attempts.json": "ca1a5e0e5e5499d04bc59b05608ac908780382c00ee135d4526454cfef531757",
+        "own-proposal.pdb": "407e6176fb0d7d6b27052e019012e1d6fc910814540b97fba73dddc27ca4245b",
+        "source-plan.json": "8dbfcdaf02725ca365666f32ac1023eb4e6347573b635a86eb6668c9109e1aa7",
+        "template-proposal.json": "2a8cb3e3beaec490b84131b04721c3b82349eef1e494cd84578892521146b809",
+        "template-proposal.pdb": "264b00d97d13c187051204661ecbed06974a4a442c6c9e97fe77f64f0cdc9ddc",
+        "template-seed-1.json": "b1f8fb72e7e0a61bb31292436926f87eed6cdc37aceb8a3c962fe9a6b425e7e2",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "paired-1A3N-A1-59-THR8-CB-OG1-CG2": {
+      "request_digest": "65a70712289c4157378257aff75cbd7200e2d53e833b0cb48eb9c010e3f0627e",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.538108134441189,
+            "minimum_nonbonded_clearance_angstrom": -0.48415199741932335
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.537503505000001,
+            "minimum_nonbonded_clearance_angstrom": -0.4839125527515451
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.13777770336610148,
+          "maximum_error_angstrom": 0.17235733830079905,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5492514868161074,
+            "minimum_nonbonded_clearance_angstrom": -0.3476513392489151
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.549066723000002,
+            "minimum_nonbonded_clearance_angstrom": -0.34799000656943946
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.17498262292534245,
+          "maximum_error_angstrom": 0.1920661682213574,
+          "atom_count": 3,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "1128df437dcd9ac7e7f30d26f6ecdaa2b708f23a503d450d054d5694ffa339a2",
+        "input.pdb": "e1f078c83df4ad55eb1f3d92aa9319ad9d701f3e898cfc1a1a6bda56c6aa917f",
+        "own-attempts.json": "1aa48e0bfc4f35d57e5d57bd82b7217190e62640bd269e2ba39f15dc3a6cce9c",
+        "own-proposal.pdb": "c1eb6e0c6ba990f5c65c19c432c4f602e40060264ecab59fc2e3e1b31d98a480",
+        "source-plan.json": "34e8da12c029329df23d556075aa59806b4812a35014efc702626e3a75259f17",
+        "template-proposal.json": "34b32714eda3b652eeaca3ddedbee26b77774f48fbc30d61c9500aedc06e6d94",
+        "template-proposal.pdb": "177b21c4503084cc0c3e31bb93c28d0d1339a50af983c393c02e04ae20a85aa9",
+        "template-seed-1.json": "7b36726513f79d603867e3133fa6795dc53cb67a7ee84f3f15a5807042564b25",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-VAL5-CG1": {
+      "request_digest": "e1a6a1bb092cfc772648b69a8be6c7dbb3140f296d6180c7cdabc8c0c42edcfb",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.4222667040196906
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.42249601175750184
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.02566669875096972,
+          "maximum_error_angstrom": 0.02566669875096972,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.35974019432393467
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.35991266572817304
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.4618174785986348,
+          "maximum_error_angstrom": 0.4618174785986348,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "b5d6ed7ebdfacab704ca06f8aef4a47ceb20cbea27e4a84dbca49b131c015027",
+        "input.pdb": "6b630875dfae5b5b8f2eefbb6fe4ca9dc12d3af9d29e9d534c173b87a1a2ab0b",
+        "own-attempts.json": "cbd920bbaac49f83b3d1436bf21919a4107d8cd014ec71c4d181fef4ab16a187",
+        "own-proposal.pdb": "05a86220b1743bec5a2da982bf34eaa9228d25ed7fe9e0824f106d06884ff344",
+        "source-plan.json": "55ddfe127c1200aba127ac2a25be18fea100226096b0cf4aa1fabd6bda884b73",
+        "template-proposal.json": "95c22d4cd67d99daf6dc1318ad6e54dc1bb1cf9986be1033e579d668e055bf51",
+        "template-proposal.pdb": "c99324d29ce9e071f61ff4eb3669ae1df206709969c8b0d420e8261b3855084c",
+        "template-seed-1.json": "cadc502d6e90e69a8309cb0c2f9561dd535206e29f9a6797fdd427821268c5d5",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-VAL5-CG2": {
+      "request_digest": "31518da7f65e41b9936cc0b5263c7a34afa314c4330dea725714359ca6965810",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.2769994278732004
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.27668114726994286
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.0315422775384378,
+          "maximum_error_angstrom": 0.0315422775384378,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.12905901462765135
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.1291368181222694
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.24855224421457964,
+          "maximum_error_angstrom": 0.24855224421457964,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "5a31e472775e6e3b80dd81b8b6df82918b39000f27e94bd3d01e12de61ff8d9a",
+        "input.pdb": "36aefbe39c893287f2133ce4a8493587599198926f8f22f696027eccde45cf6f",
+        "own-attempts.json": "6a36e76bf97b7b214f2c7c6dc3859f58aaf1687858a5294ebac2cca6f0299afe",
+        "own-proposal.pdb": "ada8711912ec449b892f0c24c74f9d4d795d5613b2eea1eae3832c4c70a0bb3f",
+        "source-plan.json": "3a78001b867809a88e6c42fc1348dbc5f1f82df8f47cef896bb9e971a937b6b3",
+        "template-proposal.json": "f7726ec947cb19298935f31f3cbeeda62456905d05cc8a64b080c527b8a0134f",
+        "template-proposal.pdb": "9a8ed708b2696d5ff83b99c615f778b51d854f0ad576b4265625c2523fa711a6",
+        "template-seed-1.json": "c8e62f2b9677ba91f5369e9916f5ac607e5302dc3ddeaceb455038ace0ddf628",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-VAL26-CG1": {
+      "request_digest": "30b4a506efb351904a7f3ff88b7266c8f2dbae721fff13b7d4d983bd3f10ed1b",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.5181786722127413
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.5184498963231579
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.08995866308790966,
+          "maximum_error_angstrom": 0.08995866308790966,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.43632369164492957
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.43633453304864034
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.13251372270536516,
+          "maximum_error_angstrom": 0.13251372270536516,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "407d1bb746864796f8790b7843d63d47b06be3de6e5728e70af2a78de3423e33",
+        "input.pdb": "f252e91fd963580e24376321db69c291b4c0618308a68a71be6c08fc82b6fd24",
+        "own-attempts.json": "8983ed2a82a943a19409bb21d202c75560ffbd21d22979ac651a98cce6ddfd5f",
+        "own-proposal.pdb": "3395eb1a1efc366f5270a6e45a35d3062e82219efca7a8214255f3cd41bc8b2d",
+        "source-plan.json": "f18db5466acd472c0d6b9d41d5c87c3dd757c681f8bccc25c0d4f4e1c7c4be29",
+        "template-proposal.json": "35680fa369b0ec9835447aa19fee5a6355f0c539ceaa28aced30a6b0d19ee371",
+        "template-proposal.pdb": "1c2613899434570923dce08ecb70189351ad60acd97a72170bb6f90968ae8801",
+        "template-seed-1.json": "7c2f8a659999c5caa382e22c73fd192f754dd2b7e5bcb7ec75ecc9fd2dbe7588",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-VAL26-CG2": {
+      "request_digest": "f048f6e4bf159ca799e4755ad42af4422a1825476f3e6bb89b5e562c7346e136",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.19930336722423192
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.19983639783044005
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.138442990319793,
+          "maximum_error_angstrom": 0.138442990319793,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.18918925425537836
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.18884890931532228
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.11901714351619223,
+          "maximum_error_angstrom": 0.11901714351619223,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "1b5912b2a45ecc07a6f35758e1e53c9248a96a12019c642791c1604bf98b2518",
+        "input.pdb": "dc04fc33a4ad3f3277542d5a33cb0640241a92abee86d83fc7af9114d263b660",
+        "own-attempts.json": "95e6bede2acce0e58c9c0ac74f3a566588e6c80303644a626e51fc20741454ac",
+        "own-proposal.pdb": "017815b150cb6aacd6706c3601998b8af17cc2152f020b994144fc0eac794610",
+        "source-plan.json": "b8c4cbe801859e8506941ca3dbbd869baf832b367c571b6baa4265791978f983",
+        "template-proposal.json": "7739aa42e8b4bd4834bc0ed7f9f0afab3ee58281075b95a3b5d397ecb0f01d39",
+        "template-proposal.pdb": "46f25182d9d4e43b8a0be05a947fd4f890af1b45dd142b904bdec8b88d525ed4",
+        "template-seed-1.json": "6a82a4648e7ae9e63cc63166585d7028be0c788ba858f26fe9e59425f50caa0a",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-THR7-OG1": {
+      "request_digest": "f68a2ed4043c9a215da7966e76d372d7e9e22aa453d1d3856f6ba8f724e8a3d4",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.4640268494881161
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.46365150969620594
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.23115889172117415,
+          "maximum_error_angstrom": 0.23115889172117415,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -1.0321056392373877
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -1.0323830094936868
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.5467570820482033,
+          "maximum_error_angstrom": 2.5467570820482033,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "2046d15d3ea347d9ae427604feac36c99656247114667fbae449a68b75f22e71",
+        "input.pdb": "ae692790808a263c84fd1ae75ce37ca131c4d1d1e2050c847040d29c7beb4a18",
+        "own-attempts.json": "7cdb055a5d1fa6ffa4c06d1bfabe49074dc052c763987d67750bc164caf5c50d",
+        "own-proposal.pdb": "7c473de50107418fb5c008af9b1eb843b3ebfbec6ef6c8bc8b7ae828a4471508",
+        "source-plan.json": "f030e4ef35d7784fae0d87a04713f8daf5bfddfb22170c18847937c7e1248840",
+        "template-proposal.json": "c2b974897faaf9134f50476bbbfeb8cb32dc7779a00faf8ce11a143a36a33375",
+        "template-proposal.pdb": "4f38106a5335a4679f4854960f0cb2f481a08068ebaa8f65b424201933ee8656",
+        "template-seed-1.json": "f86d4bd20c891e6c695439e4194ce9532eacfec7722e0da1c0abf879b345d55b",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-THR7-CG2": {
+      "request_digest": "f0942af323244b5d7cde19cf377d4292c2d075b863229dbb19a696877c607710",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.47252582681297417
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.47205957587279945
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.1178210214464354,
+          "maximum_error_angstrom": 0.1178210214464354,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='8', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.9459753711311145
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='8', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.9459631217114928
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.947429438768973,
+          "maximum_error_angstrom": 2.947429438768973,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "a79d23ebf93a08f85cddbd4be5b8c2c7e713bc4e383ce5985c79b4ed9a9d0c19",
+        "input.pdb": "26a712cc14225228e75632ead129937339c3c37d84dd2f17f773a6286df6dac8",
+        "own-attempts.json": "3f5fc022ae365275aaa26ab08fce82c97918937672a1b63d03818cb2c5fbbab5",
+        "own-proposal.pdb": "573609337d43268f575c039294597ed1e32618245b5a2ef05081c85da2017e4c",
+        "source-plan.json": "29187ca64053ff38f7a25ebfabe5daf465a9c75c290826fb578aa73ff96a4e22",
+        "template-proposal.json": "cb85b5943d5f6260e4a2bb53f1b79b199ecbcfcec6b44878e370df62d732a5d0",
+        "template-proposal.pdb": "f126390a28058fb7257357f01765f96e80adc96399ba7ee2dbf30181ace13520",
+        "template-seed-1.json": "4c303a0cfc5578ce1b7c5204db11ba528ee7226ad25903de04d71987aeaeb3f2",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-THR55-OG1": {
+      "request_digest": "bc590a876ef3f37cba332dfd969221903dce63aa5fbfd2df8a9c4305ff6787e3",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.38627408345714964
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.386355879790125
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.24313573971020408,
+          "maximum_error_angstrom": 0.24313573971020408,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9837665060511862
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9841490944940474
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.255917350721386,
+          "maximum_error_angstrom": 2.255917350721386,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "5965687b64ddba8868d8164c740a1435678c830a7ff82a4f7b6577c811bad5b2",
+        "input.pdb": "64ecf82ec7bb40589f093d9b2f083a2a8e3c5658ab0b340134b89ba7876d4209",
+        "own-attempts.json": "23a6e5fd6812880dc9d79d0cb8f6b6d66ae1164d09064f7d9437204fb36bee6e",
+        "own-proposal.pdb": "3c1280aff4510115e6345eb243d335c2d0b4fdd55c178660f44ded34b9f2d627",
+        "source-plan.json": "e42940ff10e268c0944ebdcaf3dc2c40a11566d6ad4c380ef930169205bdf401",
+        "template-proposal.json": "9275d5768c2ad8b643a6418357deb669e634e6edaaac1b67b8a2113c2165ab60",
+        "template-proposal.pdb": "aeab242f57747755c54055e8a2e413970e220b62bcb4e4cc2dac987e936a65ea",
+        "template-seed-1.json": "46aa5c98e5e6d955246d38cd1e2a175309a786e94b334e04395d2881acb17cd3",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1UBQ-A1-72-THR55-CG2": {
+      "request_digest": "75c37718ee605643b7e4ad6a290edaea11258bb3c64247b8685647df3ad963ab",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.32174992285293813
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.3213496282417059
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.21526305286744232,
+          "maximum_error_angstrom": 0.21526305286744232,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):N",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='57', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9030444583388788
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='56', insertion_code='', alternate_location='', occurrence=1):N",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='57', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.9035773595001979
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='55', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.8567302966781973,
+          "maximum_error_angstrom": 2.8567302966781973,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 8.140289677804162e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "72",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "0c8fc5ce4a9ff16f7d1e6b1a1642725f0190112c70726d010137e523c688cc91",
+        "input.pdb": "59aa5fd8ec542f5e3fda91e3766baf37ac925b7156aceed8228ffa89f3a7bbc7",
+        "own-attempts.json": "dcecb87c37f78c63eaaad0af0e92d43286d54c86d4b7b3267b13e05d86c2dc65",
+        "own-proposal.pdb": "5f83b112575889f2cf46804f80223558f1bd1fbf046cdd1ba953ac6dff271a60",
+        "source-plan.json": "a6347bc3d2abf76e3ce3dc3b96b7e14745a72ee30bcebcbc29e74c209fd6ef06",
+        "template-proposal.json": "473e3a8a58a522ea8c2e45de89daf3cc651b43b006a08dd597e81b9fff85e592",
+        "template-proposal.pdb": "2f3fcbb4a9eeeac9ff837ad5cb42f72189fedcb5416ff89fc706a535499f2d74",
+        "template-seed-1.json": "882f8629a184ba2c66ed96ecbdfdde6ab20941b576de2a8a2950f95ecf12e9b7",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1FR2-A1-end-VAL19-CG1": {
+      "request_digest": "4f3643472d80434a867cb0b94dc282e30d89086a7bc7428aa3b812e658cd18cd",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.5415121278072315
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.5413228583836194
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.06818579832776782,
+          "maximum_error_angstrom": 0.06818579832776782,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.43391634228894915
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.434400397895899
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.14196724555822499,
+          "maximum_error_angstrom": 0.14196724555822499,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "0dd95d30811018b1a8239f398522e5d949b75651545dfc73088a51499798924c",
+        "input.pdb": "653b66959beb6f52d633811563307e7a8fc95e7e338886f5a5342e8421a68bc2",
+        "own-attempts.json": "d7ba8467a04cf8b77c63bc7ed3ef3b316c8b452d979048c64dca13e2a8bae1bc",
+        "own-proposal.pdb": "ea48419dff8d26eac4b678d2fefb9f2839e385c6eaedb06070fa97dfaf61a5dc",
+        "source-plan.json": "36e47b89cf283ca27c2aff5361d67968724f6a28a518083195f01b3cdf87a963",
+        "template-proposal.json": "590a7279023aa8ee149fa0c58f0e5898d6264e2212a644cd8b4476d4737748b5",
+        "template-proposal.pdb": "bc67793591478a0e5ff93da42d6b7a467ba826959c69d7562f6b3b0208957e8f",
+        "template-seed-1.json": "ca121a66e29d60bb9ff9538f8f43f79c33eb18cbe12f6b6ca46f84560968af8f",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1FR2-A1-end-VAL19-CG2": {
+      "request_digest": "69f6005236a4732e27a687a5acc62dc68264c30c6f7465091ae78aa85f7c7589",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.26183455979265746
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.26171654624264296
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.037656171254707244,
+          "maximum_error_angstrom": 0.037656171254707244,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.24651268805656423
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.24640864963291076
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.09502039746006388,
+          "maximum_error_angstrom": 0.09502039746006388,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "3c5e5484f3f124d6d53117a3a41d49ace9fe635ebb60959990330d544fa65d08",
+        "input.pdb": "989973b50eb275e6a6f485cea589caa0c552a3ce3be4dafcd42f86c74d525b1c",
+        "own-attempts.json": "006d134c58474394d5985e7dff30f9a7c00bb6abda6b221830ba7bbca941ae04",
+        "own-proposal.pdb": "1f5949c0b1799817c8b0c89bf4d0858d77b22e8d2e9bf876362ef31532b5848a",
+        "source-plan.json": "f4b3d7f32af19c107d06aa16fb63b7d1b6713d2bf8cbc3cb83f14e7348e59d85",
+        "template-proposal.json": "f26206637cfa5b9fdd5fc63d53a29827585259f83dca211fd12a5106d0c68cf4",
+        "template-proposal.pdb": "aaade331860ddee0f4df086b190b5a7ab14160bcd3b0b70220ce470fbc5a2813",
+        "template-seed-1.json": "95c8f41ff2a1fdcd7192ce375b233f9a189437ffb1a2c579cbf517a6b98f60a2",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1FR2-A1-end-THR11-OG1": {
+      "request_digest": "49e622a97dd7ec475799074fcf811a530dadc7306164260fea5de27a2a522e6b",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.43214096561672677
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.43211406259151386
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.011042490640989664,
+          "maximum_error_angstrom": 0.011042490640989664,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -1.1978121602444978
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -1.1977390673306216
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.2814048907944797,
+          "maximum_error_angstrom": 2.2814048907944797,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "57d46b97a70fdffd14f04d5e7d28980ea81fd198dc869d71a05ecb95678e2ef1",
+        "input.pdb": "e52b3906b223c54ee5f9df864cdf018ac3ebe442000ce6be5ac67b2df9fc3d14",
+        "own-attempts.json": "037c35a9001278b222a2ab02e0d692578018149b098d161da5b6cae40f4501f4",
+        "own-proposal.pdb": "c76be2c85510c9b70b36d7edf23f160100c8dbcf9e8b50efaea0363d409115ed",
+        "source-plan.json": "4ad791b3f8e70264a5e218303fe6c895fd1e4b9f68cf07826bad2b8c9f7f74d9",
+        "template-proposal.json": "b00f5d5bff99d6b8337f008b187cdad30253339401a3da48ee9a4a0de66cd96e",
+        "template-proposal.pdb": "92672f8d44448e416cca818ee028c2a5cebb63ab1757eaaec57a68be3b84fe37",
+        "template-seed-1.json": "bd88efe9670194cc588d8d8b0774b2302153c13f669f68098b884cc4cca16916",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1FR2-A1-end-THR11-CG2": {
+      "request_digest": "43a5be972b8959028085ef82dc15085ad62eaa8b22da22595fabee7da96e0f8e",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.35963764988867286
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.3598477548751866
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.024245288088010308,
+          "maximum_error_angstrom": 0.024245288088010308,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.9229352857337076
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='12', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.9231816780393438
+          },
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='11', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 2.907406810518913,
+          "maximum_error_angstrom": 2.907406810518913,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 1.434896150467636e-14,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "85",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "3c8e8ba54c481d4195c3991082e942d80a638ccc5bbb03cd967189587f35c604",
+        "input.pdb": "52bb165e2dec44f83ad72f6bd89857d46231eecbb4bd8d0d5dd9b2189abe140e",
+        "own-attempts.json": "2e0e294726039b69cf00bc0ec90ac59fcbc0ac79bf1afc21e225f96880df8cb5",
+        "own-proposal.pdb": "7976dbf2519687c79334c4ce6101dab29b25df8580603a6ee8a0b37c2889ae71",
+        "source-plan.json": "45c0a10ca2b4a5202ebc8501ce0bba10643ad8bcd495cd8b512d81c6c2798ea2",
+        "template-proposal.json": "807a09e4c58174c95839a2a52331f9c701cdb85075dcfdda3362df2dc316c31c",
+        "template-proposal.pdb": "5962d3f2bee8b2292dcbcde6316178560818b416a9ea00a07eb9b2410e025213",
+        "template-seed-1.json": "a16f5184837260fb002af4c3fc5000d0af3f2b56be7b84fc7399f51035a80abd",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1A3N-A1-59-VAL1-CG1": {
+      "request_digest": "f7e6599cb0eb35d474fdf6bff71cd64f63851146aa357560c45728e20ef64bc5",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.36133250384380533
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.36149987658384264
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.0993132627564408,
+          "maximum_error_angstrom": 0.0993132627564408,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "raw": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CG1-CB-CG2"
+            ],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.5120453963236078
+          },
+          "rounded": {
+            "accepted": false,
+            "findings": [
+              "bond_angle:CG1-CB-CG2"
+            ],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.5120552290599463
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.8548678890254714,
+          "maximum_error_angstrom": 0.8548678890254714,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "6dccd3245a0089593dfafe529da8d0fa842c04d3bead042085c7def70837cdba",
+        "input.pdb": "0b4fb78d358bb0341e43538027bd6b96cf75dee62ee4688fb309c8b1f42d30e4",
+        "own-attempts.json": "2dd9013cd0fa480027464aee12025edb7e63cafc14eceb9ee8d5ba0cfee45da3",
+        "own-proposal.pdb": "69873dab97b81026894cb996d897bd1660bb9f8356b38f72489de4370998a7ec",
+        "source-plan.json": "b5e650509415659261711054a5fa2c51fc450982755c0656474dfb4323a9c42c",
+        "template-proposal.json": "720d373acf81abdca17923f12694fc90fc1be032d66c5fdca826e1218fb3a173",
+        "template-proposal.pdb": "29ca6a85eaee3f367885b0d8d1e4ca81a38a9e81d9826f5bbeb97c07315c33b8",
+        "template-seed-1.json": "7293f54cf25467893f220e44176f4eed71b50d4f250c55fd4a6c59e6edb19834",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1A3N-A1-59-VAL1-CG2": {
+      "request_digest": "6ffc7061f8a480c4fcdc77d24cfe2774609b01ab28b4a6c123d4b2a0501acdb6",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.41449401591479607
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.4143889547400912
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.06854630619865862,
+          "maximum_error_angstrom": 0.06854630619865862,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.15557720056968183
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.1556326979493865
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.2954188305834128,
+          "maximum_error_angstrom": 0.2954188305834128,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "a63016e456a2d01863b90819121c2c7d0a14c3b90302e12c938bf41e7b5ccf39",
+        "input.pdb": "e4400318853aa34511644632252ef33d1ed8183321778841c3134d2ff735fab0",
+        "own-attempts.json": "0d7fdff47ab17efdfb041eb46f09df2989ab45906e42ce4679f811d50080f44d",
+        "own-proposal.pdb": "ff829104e0217079faf7da0880697428e0884dd8d18e5e1c757b6d6b1de66a49",
+        "source-plan.json": "97bf483089690f23955e0cc4ffc55cd500e133ffa61ce393b159693ad7b5cd12",
+        "template-proposal.json": "7032ae2807b0fa7a0f5c8fba1e7dc5685a69b88c808dd352f231ce627eba6c50",
+        "template-proposal.pdb": "fc7df2e4eeed1f5840e18ef0b9b9cb654d7bccbfdc550196a91a504cd5b309e6",
+        "template-seed-1.json": "61690d9611bd07b6e4056abeafd36971b98057a5262b6fff6c5e8f410477306b",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1A3N-A1-59-THR8-OG1": {
+      "request_digest": "f8b9cca0a376ddb057efb6ffb9ed2c39592daa2de5f25282426a6928a0b68e2f",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.218743845702978
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.21863629117574734
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.08064474003327783,
+          "maximum_error_angstrom": 0.08064474003327783,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.20159099654095347
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.2018647172770962
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.056189891439176264,
+          "maximum_error_angstrom": 0.056189891439176264,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "c70a80fe98e9a530224c24e89f9d841e62c26945eb57df25852d8297e50f6d31",
+        "input.pdb": "7abc6ac8b0be54f41524f11537c83509bedcfbf6cbc43d6a65947c2537a63866",
+        "own-attempts.json": "4c96a527de119464a1d88e2994dd0bc7b1fb15deb7b2ce24f43cf65e8a5fff59",
+        "own-proposal.pdb": "6296f1a9779edca0bb813d2afd659ab8aafef72571678e74d05177ec50e6cf9e",
+        "source-plan.json": "c9d8a0cf0bd3cdb4e0aee9f37184b6e84ed570836ff2e400d58c0f180d36f30c",
+        "template-proposal.json": "eea064e546ca3d921791e51472f22de15add88ed8989a92867a6803be0c4be7f",
+        "template-proposal.pdb": "1036c9233ae67caa6b28c3a1fe2da6f9a41371e27ad55b6d2f8e0e406049a03d",
+        "template-seed-1.json": "5e8cc995dbe3093115b7fe053d61989dc8a663e8801d0bb5828241fc6de8a61b",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "anchored-1A3N-A1-59-THR8-CG2": {
+      "request_digest": "a6b1eda72fecfeee388ab332c58f0dcdd0bc666f6df4375a5f30f46702dd6c2f",
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.48374584062327486
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.4840168038892938
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.10439335319063939,
+          "maximum_error_angstrom": 0.10439335319063939,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        }
+      },
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "raw": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.3536003776148564
+          },
+          "rounded": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.3538724583497812
+          },
+          "global_stereo_findings": [],
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "observed_preserved": true
+        },
+        "scores": {
+          "exact_name_rmsd_angstrom": 0.07400991068321924,
+          "maximum_error_angstrom": 0.07400991068321924,
+          "atom_count": 1,
+          "symmetry_minimized": false,
+          "used_for_selection": false
+        },
+        "helper_attempts": 1,
+        "observed_temporary_max_movement_angstrom": 7.17448075233818e-15,
+        "unpublished_extras": [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "59",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "OXT"
+          }
+        ]
+      },
+      "output_label": "diagnostic proposals, only common_audit.accepted denotes scientific gate pass",
+      "retained_files": {
+        "comparison.json": "d7ce5a86a8df748fcb4f0c0b6210ee1225f808417a4b9fb486f70e8b0ebc6e4b",
+        "input.pdb": "5700a0a009e64196e4fdd937e30bcd4d95b89f96d0f4d106b09c98e53726a147",
+        "own-attempts.json": "368489d705e7a549e8b38373c663be8c689e138ee399b6f6a4d59d72daddd31e",
+        "own-proposal.pdb": "6cb4ef4930ea4514665ca69b2282774a95562d5c768aefeebe9219fe4ca0c836",
+        "source-plan.json": "df51420610856afe79ebf88df796bfc535f3dbdec2f7dcf76c1052cb1f6a02a4",
+        "template-proposal.json": "25ed0ac29aa0fea0cc14a975d313228267af973de322a7da9cb7950fa4fa830a",
+        "template-proposal.pdb": "9102b6978613e97742b3ee3e9899aedfbc78a7fc7209d9236c13cdcfbe9dfb9e",
+        "template-seed-1.json": "38b6f44b1f0f6c09f668865e1f95ddd6106e326d54380693ed84d2bd2a5f7113",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "raw_record_sha256": "27dcdba31ca151134b3f343eeb8c78308c6255923abda5bd1acfe1a83e4817e5"
+}

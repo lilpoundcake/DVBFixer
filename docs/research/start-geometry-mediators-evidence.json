@@ -1,0 +1,1805 @@
+{
+  "analysis_timing": "retrospective saved-system analysis after source-geometry results; no new optimizer calls",
+  "audit_script_sha256": "c28545a8da6ac1dcf43bd2eb8e95a65d23a589536e637d29484cd85d4d8d97c9",
+  "contrasts": [
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.6786281936842173,
+          "rms_angstrom": 0.12402025461433223
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 4.47060043466529,
+          "rms_angstrom": 0.2995714136360119
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.3464334368991326
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.00267473733399998
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.000205507252999965
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.7586493071791547,
+          "rms_angstrom": 0.17862629515012046
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 4.0139333850341945,
+          "rms_angstrom": 0.3485388797879713
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.6786281936842173,
+          "rms_angstrom": 0.12402025461433223
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 3.968445324180649,
+          "rms_angstrom": 0.29939554170219557
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.3464334368991326
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.00267473733399998
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "6",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.000205507252999965
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.7586493071791547,
+          "rms_angstrom": 0.17862629515012046
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 3.707882749403875,
+          "rms_angstrom": 0.32423269890873174
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.3005894209715402,
+          "rms_angstrom": 0.015411833935897366
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 1.9671682859475403,
+          "rms_angstrom": 0.11704596715961836
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.3071380952294187
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.0026332142180000235
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.00025918127800003546
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.370717191062653,
+          "rms_angstrom": 0.15341760477892633
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 2.8042549029823447,
+          "rms_angstrom": 0.2515953967917727
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 0.3005894209715402,
+          "rms_angstrom": 0.015411833935897366
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 1.9816083840749592,
+          "rms_angstrom": 0.16299454061472626
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.3071380952294187
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.0026332142180000235
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "27",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.00025918127800003546
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": false,
+          "maximum_angstrom": 2.370717191062653,
+          "rms_angstrom": 0.15341760477892633
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": false,
+          "maximum_angstrom": 3.458755532911493,
+          "rms_angstrom": 0.3187633323223082
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.11857908753233147,
+          "rms_angstrom": 0.007922792575969489
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 1.771164341568055,
+          "rms_angstrom": 0.14486367670672898
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.2446754597082739
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.0026483707199999942
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.0004034138780000026
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 2.2211773904846046,
+          "rms_angstrom": 0.17138875101807352
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 3.369744648996985,
+          "rms_angstrom": 0.32280363781612587
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 0.11857908753233147,
+          "rms_angstrom": 0.007922792575969489
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 0.9552194608653986,
+          "rms_angstrom": 0.08642065846557476
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.2446754597082739
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.0026483707199999942
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "1",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.0004034138780000026
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 2.2211773904846046,
+          "rms_angstrom": 0.17138875101807352
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 3.371644338193828,
+          "rms_angstrom": 0.3598827313027749
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 1.3785042618722667,
+          "rms_angstrom": 0.0768525734299995
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.9376461872292543,
+          "rms_angstrom": 0.33256592024285764
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.0487335219206084
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.002634027079
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.0008131095880000018
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 1.9505601759494642,
+          "rms_angstrom": 0.14784035525593772
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.7765033249893625,
+          "rms_angstrom": 0.2432023501813358
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 1.3785042618722667,
+          "rms_angstrom": 0.0768525734299995
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.3275996869574063,
+          "rms_angstrom": 0.3260499786497644
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": false,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [
+            {
+              "atom": [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CB"
+              ],
+              "delta_angstrom": 1.0487335219206084
+            }
+          ],
+          "changed_weights": [],
+          "exact": false,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [
+            {
+              "after": [
+                0.002634027079
+              ],
+              "atoms": [
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "N"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "CA"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "C"
+                ],
+                [
+                  "A",
+                  "2",
+                  "",
+                  "THR",
+                  "CB"
+                ]
+              ],
+              "before": [
+                0.0008131095880000018
+              ]
+            }
+          ],
+          "exact": false,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "residue": "THR",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": false,
+          "maximum_angstrom": 1.9505601759494642,
+          "rms_angstrom": 0.14784035525593772
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.82423548172098,
+          "rms_angstrom": 0.28718973809747456
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 1,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "beta_only",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "arm": "full_generated",
+      "entire_force_list_exact": true,
+      "forces": [
+        {
+          "exact": true,
+          "type": "HarmonicBondForce"
+        },
+        {
+          "exact": true,
+          "type": "PeriodicTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "NonbondedForce"
+        },
+        {
+          "exact": true,
+          "type": "CMAPTorsionForce"
+        },
+        {
+          "exact": true,
+          "type": "CMMotionRemover"
+        },
+        {
+          "exact": true,
+          "type": "HarmonicAngleForce"
+        },
+        {
+          "changed_anchors": [],
+          "changed_weights": [],
+          "exact": true,
+          "type": "CustomExternalForce"
+        },
+        {
+          "changed_reference_volumes": [],
+          "exact": true,
+          "type": "CustomCompoundBondForce"
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "residue": "VAL",
+      "seed": 2,
+      "starting_coordinate_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    }
+  ],
+  "interpretation": "exact force-parameter identity vs geometry-derived anchor/reference mediation; H coordinates measured separately",
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "01e3fd4fb5d9acc8fb963fc1c52c2d7cd1b050e85aece83a63f45c7b7c0ecaab",
+  "production_changed": false,
+  "run_sha256": "0add4f23d6f8045c8ec7784773c3c58e398b54270f4c1924496460e78cec7167",
+  "schema": "dvbfixer.start-geometry-mediators.v1"
+}

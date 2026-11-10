@@ -1,0 +1,721 @@
+{
+  "schema": "dvbfixer.prospective-scoring-followup.v1",
+  "prospectively_enrolled": true,
+  "policy_retuned": false,
+  "enrollment": {
+    "coordinate_model": "first coordinate MODEL in file, explicitly projected; unwrapped single model if no MODEL records",
+    "expected_masks": 48,
+    "expected_rosetta_revision": "1a56185c2592611dec4c9c75ddc9468cd2227c1f",
+    "hydrogen_protocol": "fresh import for each rounded heavy candidate; no H optimization; no repack or minimization",
+    "init_flags": "-constant_seed -jran 7 -mute all -multithreading:total_threads 1 -packing:pack_missing_sidechains false -packing:no_optH true",
+    "outcome_filtering": false,
+    "parent_enrollment_sha256": "e4f42d6d69189fb660cec0c2b18caee0d1985127c8ca07ca84450c676e5b6429",
+    "production_enabled": false,
+    "projection": "every chain-A ATOM byte in that model, retaining altloc/occupancy and chain TER; retain LINK/SSBOND/CONECT touching selected atoms, including excluded endpoints for fail-closed admission",
+    "protocol_amendment": {
+      "change": "place retained CONECT after coordinates; no atom or link changes",
+      "cohort_and_scoring_rule_unchanged": true,
+      "new_cohort_scoring_not_started": true,
+      "reason": "OpenMM cannot read CONECT before the coordinate model exists",
+      "reconstruction_results_already_observed": true
+    },
+    "qualification_scope": "prospective follow-up of an already chosen scoring rule on three deliberately selected protein systems; not randomized or blinded; correlated masks",
+    "replacement_structures_allowed": false,
+    "schema": "dvbfixer.prospective-branched-enrollment.v1",
+    "score_policy_plan_sha256": "c35ae866d2483b10029fa60df4505574c9a646345089da93f83715fa4bdba99b",
+    "score_selection_policy": "minimum total score over complete old-source-and-common-gate-feasible own pool; stable index tie; any missing feasible score blocks selection",
+    "selection": "first two observed VAL and first two observed THR identities in chain-A file order; four masks each",
+    "source_hashes": {
+      "scripts/audit_unfiltered_reference.py": "268371bdd134efdb60d5c0c898be06021040577a1d7a2e9f2af05d04e878a559",
+      "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+      "scripts/branched_template_baseline.py": "b170d65b4c1182417f15adfd6060b7ba783d3f69ceb01db1bb534cd63b5ccfa0",
+      "scripts/compare_branched_completion.py": "899783eb3f37e76608d103566b0b2d1a624d32d7349b812bf9b97fa1c916c6d6",
+      "scripts/prospective_branched_cohort.py": "86ee3e7d05c9065ecf2954722a1fc4bf96d17306b332cd5a25d904513b924874",
+      "scripts/research_rosetta_fixed_scoring.py": "b5983c7ade80e94c67d332db9c5c6a5988f2d0463ab4d3e455cb8ef3993ad9ac",
+      "scripts/research_rosetta_repack.py": "4c5a638e55bcfccbc2a2fca2338ad6e1fcb05bf123b39e4e9ac4872ea7c601e9",
+      "scripts/rosetta_fixed_contract.py": "08a60c0fdffb223085a74106f6154536f546ff64513b4007dbce91a5d444e76e",
+      "scripts/summarize_rosetta_fixed_scoring.py": "58c42d455e02292b1be4538060c02d414e2a0ba752239e2f7de3330352c801a1",
+      "scripts/unfiltered_branched_comparison.py": "39e2b5b1bafdf932ee41f07fdb7ae830fdfc340c1ddc22ec143c4ad26aaef47e",
+      "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+      "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+      "src/dvbfixer/protein_completion/anchored_source.py": "e6e898a0784ad54ae93fa03ccad4a6489ed454d7ccd5630d52fb0e64a896b1c8",
+      "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+      "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+      "src/dvbfixer/protein_completion/branched_source.py": "bc55103b387fb84b90c22007e1ceaf9225404a59b3cc753c237bd0e3b472cb06",
+      "src/dvbfixer/protein_completion/cohort.py": "c80c611faad2eaba48e4d8c46e0110b677acf7faae7e95f6bc28e72866bac243",
+      "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+      "src/dvbfixer/protein_completion/evidence.py": "d9083f0fa6084cb1d787b06631528c1a0ae8ec27e7c3d4ab8ea6e3bf7925400b",
+      "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+      "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+      "src/dvbfixer/protein_completion/mixed_cohort.py": "1e94d326babc81f8c793328ab3fe0da84f0a335d987a76a227ed6cc2c609a077",
+      "src/dvbfixer/protein_completion/mixed_evidence.py": "67d946fd042ec301f79e69d325d3c43f7cf77f6964517c3bda07027c23194339",
+      "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+      "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+      "src/dvbfixer/protein_completion/source.py": "2963f9f5b56d9d1d5af28d3dcbce034d0839aaa64d2a52a5593a4fb16a2777ed",
+      "src/dvbfixer/protein_completion/validation.py": "13d4b1717ddc63f9eb315330cc11f27e007662974be5d5da7601f5248063d366"
+    },
+    "systems": [
+      {
+        "description": "crambin",
+        "id": "1CRN",
+        "url": "https://files.rcsb.org/download/1CRN.pdb"
+      },
+      {
+        "description": "hen egg-white lysozyme",
+        "id": "1AKI",
+        "url": "https://files.rcsb.org/download/1AKI.pdb"
+      },
+      {
+        "description": "barstar",
+        "id": "1BTA",
+        "url": "https://files.rcsb.org/download/1BTA.pdb"
+      }
+    ]
+  },
+  "enrollment_sha256": "109a82ddc3939ad209c08613c1da4d0fcc01b6ea0338f1db53ae275b2c625773",
+  "mask_plan_sha256": "2d123dd54d5642c7f4b6de87b85e0521384a390688fc9f49f984fdb042cac1b9",
+  "score_plan_sha256": "cf37d076da50c7faeb2b6afb76b64b27651534da4c96d080e375acfd54b4bdb0",
+  "comparison_sha256": "4de5daf43c78416dc064b0b69200de8ea655f27611df3029c709bee9d1e7a260",
+  "independent_readback_path": "docs/research/rosetta-scoring-followup-evidence-readback.json",
+  "independent_readback_sha256": "25d0705001baca14948472efe672520f5043dc2cd3fbc473f958ca286b1506ca",
+  "provenance_adapter_sha256": "9952bb9c3c02f160a4b10929774564017ecf09ce274fece1f0ac673cd2ecd8f4",
+  "preparation_adapter_sha256": "5d0934119eb6bed3db647743ecaa42f7530887361cdfa3e75d1a54c9d8de375a",
+  "parent_enrollment": {
+    "coordinate_model": "first coordinate MODEL in file, explicitly projected; unwrapped single model if no MODEL records",
+    "expected_masks": 48,
+    "expected_rosetta_revision": "1a56185c2592611dec4c9c75ddc9468cd2227c1f",
+    "hydrogen_protocol": "fresh import for each rounded heavy candidate; no H optimization; no repack or minimization",
+    "init_flags": "-constant_seed -jran 7 -mute all -multithreading:total_threads 1 -packing:pack_missing_sidechains false -packing:no_optH true",
+    "outcome_filtering": false,
+    "production_enabled": false,
+    "projection": "every chain-A ATOM byte in that model, retaining altloc/occupancy and chain TER; retain LINK/SSBOND/CONECT touching selected atoms, including excluded endpoints for fail-closed admission",
+    "qualification_scope": "prospective follow-up of an already chosen scoring rule on three deliberately selected protein systems; not randomized or blinded; correlated masks",
+    "replacement_structures_allowed": false,
+    "schema": "dvbfixer.prospective-branched-enrollment.v1",
+    "score_policy_plan_sha256": "c35ae866d2483b10029fa60df4505574c9a646345089da93f83715fa4bdba99b",
+    "score_selection_policy": "minimum total score over complete old-source-and-common-gate-feasible own pool; stable index tie; any missing feasible score blocks selection",
+    "selection": "first two observed VAL and first two observed THR identities in chain-A file order; four masks each",
+    "source_hashes": {
+      "scripts/audit_unfiltered_reference.py": "268371bdd134efdb60d5c0c898be06021040577a1d7a2e9f2af05d04e878a559",
+      "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+      "scripts/branched_template_baseline.py": "b170d65b4c1182417f15adfd6060b7ba783d3f69ceb01db1bb534cd63b5ccfa0",
+      "scripts/compare_branched_completion.py": "899783eb3f37e76608d103566b0b2d1a624d32d7349b812bf9b97fa1c916c6d6",
+      "scripts/prospective_branched_cohort.py": "8c34988f0cbe8482cfc761366b74c7e22999e42087e0afc0263a643f9d3669d1",
+      "scripts/research_rosetta_fixed_scoring.py": "b5983c7ade80e94c67d332db9c5c6a5988f2d0463ab4d3e455cb8ef3993ad9ac",
+      "scripts/research_rosetta_repack.py": "4c5a638e55bcfccbc2a2fca2338ad6e1fcb05bf123b39e4e9ac4872ea7c601e9",
+      "scripts/rosetta_fixed_contract.py": "08a60c0fdffb223085a74106f6154536f546ff64513b4007dbce91a5d444e76e",
+      "scripts/summarize_rosetta_fixed_scoring.py": "58c42d455e02292b1be4538060c02d414e2a0ba752239e2f7de3330352c801a1",
+      "scripts/unfiltered_branched_comparison.py": "39e2b5b1bafdf932ee41f07fdb7ae830fdfc340c1ddc22ec143c4ad26aaef47e",
+      "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+      "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+      "src/dvbfixer/protein_completion/anchored_source.py": "e6e898a0784ad54ae93fa03ccad4a6489ed454d7ccd5630d52fb0e64a896b1c8",
+      "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+      "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+      "src/dvbfixer/protein_completion/branched_source.py": "bc55103b387fb84b90c22007e1ceaf9225404a59b3cc753c237bd0e3b472cb06",
+      "src/dvbfixer/protein_completion/cohort.py": "c80c611faad2eaba48e4d8c46e0110b677acf7faae7e95f6bc28e72866bac243",
+      "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+      "src/dvbfixer/protein_completion/evidence.py": "d9083f0fa6084cb1d787b06631528c1a0ae8ec27e7c3d4ab8ea6e3bf7925400b",
+      "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+      "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+      "src/dvbfixer/protein_completion/mixed_cohort.py": "1e94d326babc81f8c793328ab3fe0da84f0a335d987a76a227ed6cc2c609a077",
+      "src/dvbfixer/protein_completion/mixed_evidence.py": "67d946fd042ec301f79e69d325d3c43f7cf77f6964517c3bda07027c23194339",
+      "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+      "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+      "src/dvbfixer/protein_completion/source.py": "2963f9f5b56d9d1d5af28d3dcbce034d0839aaa64d2a52a5593a4fb16a2777ed",
+      "src/dvbfixer/protein_completion/validation.py": "13d4b1717ddc63f9eb315330cc11f27e007662974be5d5da7601f5248063d366"
+    },
+    "systems": [
+      {
+        "description": "crambin",
+        "id": "1CRN",
+        "url": "https://files.rcsb.org/download/1CRN.pdb"
+      },
+      {
+        "description": "hen egg-white lysozyme",
+        "id": "1AKI",
+        "url": "https://files.rcsb.org/download/1AKI.pdb"
+      },
+      {
+        "description": "barstar",
+        "id": "1BTA",
+        "url": "https://files.rcsb.org/download/1BTA.pdb"
+      }
+    ]
+  },
+  "protocol_amended": true,
+  "amendment_audit": {
+    "case_declarations_identical": true,
+    "artifacts": {
+      "1AKI-THR40-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "92aaabe1b5d6bb17b7d38f7b4345f4300d6a6e04ce051904c81e47a22a9750d7",
+        "new_sha256": "49ebcd4bfd78c7d7cf8c8b4b92b50ddab74982518a9fd455a38548f3b2ddd266"
+      },
+      "1AKI-THR40-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "fad88f4ac79dfecc6dad0a5933bc4527b2aa2bbc8f281894b2019e2609745adf",
+        "new_sha256": "184c6d743eb1799025df8c4449eb0505e384190d2679a38557e53943050104e0"
+      },
+      "1AKI-THR40-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "2b0445313cb6bdcb43496cd0e11fa5b398cb404dd043ef255893f0cb35b87512",
+        "new_sha256": "5b852d71df17901857864c41324d2b55582b77ab988359e46ceb0881c4a9233a"
+      },
+      "1AKI-THR40-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "caa75f69fe8f398a45c57a2ee92274901153065283661c41a7cd6e68221f99f5",
+        "new_sha256": "874dae56b797894336755d60ea6e212b5ea797c275738e434d65f8d11b34ffc4"
+      },
+      "1AKI-THR43-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "0933b63bce08ff9336ae84f1610e41f711e5477b250d0efb9860ce946cb87b1c",
+        "new_sha256": "3ffca62237ebec786af06e615f377fe9abfd3611b31fc29be8cc583ef2f29c8b"
+      },
+      "1AKI-THR43-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "c0300804d49ffb479321666c493c91d0d4a158ba2bad352b1b5714341cdbbcaf",
+        "new_sha256": "c8fec362432be8281c92a1501bf76f6ed3b5d08a9c61457aedabf75da4bb1eda"
+      },
+      "1AKI-THR43-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "1f35ab78190f0f1595acef1eb3e7e72ecfd413cdae26126985f5b64c05391bd0",
+        "new_sha256": "d50fa5d07b5497469b1d2fe029792505b83c1be1ba0cf6d1ce3afbfe01365191"
+      },
+      "1AKI-THR43-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "8796676d4c3d70a0389e03f8cecaebf2c407eaa418b901d4b79acc23ed48837c",
+        "new_sha256": "0ec9ffbbd77a4542f02e2af5c2283812d0e11320bc4f58504d3a539886c2db2c"
+      },
+      "1AKI-VAL2-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "c9bdc6004328c52fb6e98f65f448cc462b08e44aae5e63ee8bbc49e5e1f08473",
+        "new_sha256": "c8e190d435f965227929d70b72a1869fbb332d2ff9003598f64b8b857833982f"
+      },
+      "1AKI-VAL2-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "47bc10971824a0b35e1f77a21da5473795e95f05729354647eb9ce0e042bc953",
+        "new_sha256": "d96015f975f5916e0a0649b2a8b8852a17be900bb6a04f0b59fd4c29c0b8cfa6"
+      },
+      "1AKI-VAL2-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "f16f71b55a32d816d43cd73d459cd0efd41fc7842216fd97d6da50cc6ce2840b",
+        "new_sha256": "6d7e2b3da06021622abb01f0f9c0c3199f2b15c68a6260046757766ed855888d"
+      },
+      "1AKI-VAL2-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "6183471bd142278b31db4a4dcd8d4bd6c39f7b525dc40d0ff0e7a2efeaf1d774",
+        "new_sha256": "54f4753571246022c214f24c62a9af5c3b39e0f0f82d3197fb2d6a0a0b95318c"
+      },
+      "1AKI-VAL29-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "913b7d19735921183498176e79653fcfa4f77c9327dd3ebc1c3d1701a7bcf4b5",
+        "new_sha256": "0cbc5756e902b671ea1cf895ff25dd4a5ddb5d4062321e295c8f83b3d165bc3e"
+      },
+      "1AKI-VAL29-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "c020d916a0f1b66246507ef52f58f234aecfbb92514995a1ef3c9ccdbb9584a6",
+        "new_sha256": "ef47dc7431c12ebc7477897453a1de2729afd034724fef6345302cf75f7031a4"
+      },
+      "1AKI-VAL29-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "4fb4880e27a5c201f3d06e02c700e2b441f4fd3868869a33930fa944414e551f",
+        "new_sha256": "424cce59c93881aaf122560935d5bae1ee339d4956a92beb5fab22529ed5e375"
+      },
+      "1AKI-VAL29-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "b711f3f28ae6935d82f515878248e68a69780fb431ba9115caee779e73c3d74f",
+        "new_sha256": "11758020a35b517505c72ca28e8454e21c763650cc08b71c0871b98eb8736aaa"
+      },
+      "1AKI-original.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "c75d7a689617248cdd92dc6633531d2506fb9bef1e6e21e26c8f579ae6955abb",
+        "new_sha256": "c75d7a689617248cdd92dc6633531d2506fb9bef1e6e21e26c8f579ae6955abb"
+      },
+      "1AKI-reference.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "103343d0d6b3715f377346ca2d88a3cbd767328a062774a00e64666b140602d6",
+        "new_sha256": "981ca73d0cc89cf51717bb02f18384c3bf2c2b8fe566dc8da6f8383c41de996d"
+      },
+      "1BTA-THR19-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "697389819a58b8a45e4eedfc5fd55daaf4eef33c4aa91adf5f66da2969f41e69",
+        "new_sha256": "697389819a58b8a45e4eedfc5fd55daaf4eef33c4aa91adf5f66da2969f41e69"
+      },
+      "1BTA-THR19-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "7e48f6c9d5501b81fd30ea42bcc8e858d3d17bda548cc493afdeb4b9d2660958",
+        "new_sha256": "7e48f6c9d5501b81fd30ea42bcc8e858d3d17bda548cc493afdeb4b9d2660958"
+      },
+      "1BTA-THR19-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "fc012218048364cce7380aeadc6a8194e56bd4b59f2eafdd93d60c658e4b4d2c",
+        "new_sha256": "fc012218048364cce7380aeadc6a8194e56bd4b59f2eafdd93d60c658e4b4d2c"
+      },
+      "1BTA-THR19-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "ed17eef54f5e2adf8766fde0f08ea755684e11b074812b3885e005510c3a1931",
+        "new_sha256": "ed17eef54f5e2adf8766fde0f08ea755684e11b074812b3885e005510c3a1931"
+      },
+      "1BTA-THR42-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "b8edd38c1f0334a43c9235d79cfbeebe393fe396e641b8fe2db45f88c267abd9",
+        "new_sha256": "b8edd38c1f0334a43c9235d79cfbeebe393fe396e641b8fe2db45f88c267abd9"
+      },
+      "1BTA-THR42-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "1f3062b0cbfa72ca69b0f2220003ef07cb4b918484ef6ab4b69b5d2b7822a01a",
+        "new_sha256": "1f3062b0cbfa72ca69b0f2220003ef07cb4b918484ef6ab4b69b5d2b7822a01a"
+      },
+      "1BTA-THR42-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "b87760d38c8f285d8ba1f491cbec8f6f81aa04797fa5f33bec4d56867bbfc986",
+        "new_sha256": "b87760d38c8f285d8ba1f491cbec8f6f81aa04797fa5f33bec4d56867bbfc986"
+      },
+      "1BTA-THR42-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "69ce21c103b40f5cc304054141a57f342aaa1260c1abb209b7e94efa80af6ab3",
+        "new_sha256": "69ce21c103b40f5cc304054141a57f342aaa1260c1abb209b7e94efa80af6ab3"
+      },
+      "1BTA-VAL4-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "29fb1c3dc46f1e3f57a0937ce0632165ff771caf3614a99bc153c3523c204f47",
+        "new_sha256": "29fb1c3dc46f1e3f57a0937ce0632165ff771caf3614a99bc153c3523c204f47"
+      },
+      "1BTA-VAL4-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "3238d85a3cf5953c5dd383cc0bea2fdabfe70e90388be05453513b56bccdb103",
+        "new_sha256": "3238d85a3cf5953c5dd383cc0bea2fdabfe70e90388be05453513b56bccdb103"
+      },
+      "1BTA-VAL4-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "0f24e682d007f8e18b5d5b84090a6d9e6d10ae03e44d3e4d8c4575868020e043",
+        "new_sha256": "0f24e682d007f8e18b5d5b84090a6d9e6d10ae03e44d3e4d8c4575868020e043"
+      },
+      "1BTA-VAL4-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "7ef17c05036f4f48ab0471438117a87c397c9e867240799668723f5d4597a643",
+        "new_sha256": "7ef17c05036f4f48ab0471438117a87c397c9e867240799668723f5d4597a643"
+      },
+      "1BTA-VAL45-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "254f4ac5756c08c1c59a3a038c033b4a25bc95d8520ff8d070c3ae651876fee6",
+        "new_sha256": "254f4ac5756c08c1c59a3a038c033b4a25bc95d8520ff8d070c3ae651876fee6"
+      },
+      "1BTA-VAL45-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "d8e01f24bae304eaad378a53f6bce2a9d812cdf555df1fa78c93097d8e404597",
+        "new_sha256": "d8e01f24bae304eaad378a53f6bce2a9d812cdf555df1fa78c93097d8e404597"
+      },
+      "1BTA-VAL45-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "df5d647bc3d3a4a385bd36ebd8248cdc4b77ebb046546ce16448782cbfaa2e0d",
+        "new_sha256": "df5d647bc3d3a4a385bd36ebd8248cdc4b77ebb046546ce16448782cbfaa2e0d"
+      },
+      "1BTA-VAL45-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "2f2c0732d1082202b69cebca5830b02ad74a56beb634e3962884bd84961dfa74",
+        "new_sha256": "2f2c0732d1082202b69cebca5830b02ad74a56beb634e3962884bd84961dfa74"
+      },
+      "1BTA-original.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "d6cf4b679fa9d9dc738d0e1ba588d58bc5d0f1758c7b186b27a5d858926673c9",
+        "new_sha256": "d6cf4b679fa9d9dc738d0e1ba588d58bc5d0f1758c7b186b27a5d858926673c9"
+      },
+      "1BTA-reference.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "8bec3e8db113f214c82556ffbe682abd23fd48386812762149b9da53f6e8a63e",
+        "new_sha256": "8bec3e8db113f214c82556ffbe682abd23fd48386812762149b9da53f6e8a63e"
+      },
+      "1CRN-THR1-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "1038dd47f5c9cb591649c623532861538091fcb90a46dfdc832fb269d2d59ec6",
+        "new_sha256": "0835221953964716dfbdba0d83b4fede7f6b111144d220350cc8f51296080037"
+      },
+      "1CRN-THR1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "cc07d00ded28193705883b7e0dbb71afec23dac34f2b4800d15e9335d9b250f6",
+        "new_sha256": "916e72173d25d9d35c96ad80a76f4b50aff141dbb9919056640a8d8c91bf8ccc"
+      },
+      "1CRN-THR1-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "a4926ca5142214513a5da32b45c373c901ac9c4082456fc233d1355b81339b67",
+        "new_sha256": "06184c76cb9ba8dc5f53902b5d0de73bbc5393451ae07ba700d6f6a6e5b1bd71"
+      },
+      "1CRN-THR1-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "2a4be839365acb2821022e48fd9c68fe0ad9cd4e01923e17073dde81e186610a",
+        "new_sha256": "d64a02692183ff8a86ed9204a66d72970318a198f2cd032eca34ba89291bc0fb"
+      },
+      "1CRN-THR2-CB-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "9b7f5eebca556366413ce5f6ba0f0f46fc2ceea74fe4665cae59aa6a3b116b82",
+        "new_sha256": "3343ca03ba605fce3bda98aa341a89db6e428a2f1e911812ee07d3720f35e9b0"
+      },
+      "1CRN-THR2-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "4f2160ad447f76d2bfb1dc50cbf7ac0a26ab1bf9d1adf1391af44a65e4512998",
+        "new_sha256": "872c8f8dc7b1cf17f19a20e055ac5fc44b96272d58a06047f552f50a3cd1c5b5"
+      },
+      "1CRN-THR2-OG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "d5ec8c69a55ea2c04eeab29461518ff87d12143de815ea2b83403aabbd5d0001",
+        "new_sha256": "3e286e924de6bb8abbdd48e429b7a6cb19db1d5dec34b9b44bb69a7df3947929"
+      },
+      "1CRN-THR2-OG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "d08f4a561c2422262425275caa91f3de27bf5cd2ccad903e72c1a7c5ef2a0100",
+        "new_sha256": "72880176e22362cb1766244e342bd830912f67e971b0b558770d7504ff7df5a4"
+      },
+      "1CRN-VAL15-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "ccfecfe06305c9b99b7823247dffbd4884c4c2226fee4f704765256b7a9f60cb",
+        "new_sha256": "7d93b1415642eeead773153ec567c3f0a97fcc6548022a0bf918ac08e8b92c51"
+      },
+      "1CRN-VAL15-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "7c8574b9adc1607a62f34f7b9b74a12bb49fc7a9a9fa30596a1b6310a4c6e5df",
+        "new_sha256": "f5c51279fd9563cb8d4f7f28a5776fbf391b21d5e91a1876c08ed2af4a186ff7"
+      },
+      "1CRN-VAL15-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "14a49eac2a12ce8f2c8b067111f6b167065cd6a708e5b593f12007631b03e55e",
+        "new_sha256": "b35a5d3d5e90c2b1cdd5a1bc8e2ce827c144c831a116cc08aac9f9ade0068bb4"
+      },
+      "1CRN-VAL15-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "150c96517d22a0615ca66ab3b8c42e998f628af81205b09ba24a818fc02443ca",
+        "new_sha256": "ed5b481ab9a765bc8d80ce2223f8a77c6d02b1a5521e035c43dd221c0648dd1f"
+      },
+      "1CRN-VAL8-CB-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "658079a5b819398d63744f3c47c157966e5afc3e3079d0e137abc33d83a16a63",
+        "new_sha256": "590ad0103154ab13e03cddb2d2a4cc088a224d67135dc051a0f4947ad90af019"
+      },
+      "1CRN-VAL8-CG1-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "1063590fede4213f6e8981becfffdcd185ff1ef0608b1caa0c2b77c66dbc27c5",
+        "new_sha256": "5fdaa773d1ab3cd67e23f17a76d15595fa1e6b9f01b41acacfc965904b3f0dce"
+      },
+      "1CRN-VAL8-CG1.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "62bfd2eaedcefaf464f1600cde2f9d305fbd1bf1a71d184b6eda6ae179494b1b",
+        "new_sha256": "1884a1e6fddd2b13b369f5fcb96d70e58e6df1ae9fafbc795c90a8293a33a484"
+      },
+      "1CRN-VAL8-CG2.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "641b694bd6d12b5c9d0a1bda5c78bba909eb9dfdb11949459ee41c66472fe9a5",
+        "new_sha256": "b2ec14cb7560e167ae26825255043f68c93088bcc312e97195e2df19139c6c82"
+      },
+      "1CRN-original.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+        "new_sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811"
+      },
+      "1CRN-reference.pdb": {
+        "nonconect_bytes_identical": true,
+        "conect_records_identical": true,
+        "old_sha256": "6417b7171a36f3ec390a8623a3309524c5b3b5bf18f5bdecb567485e9cf68efc",
+        "new_sha256": "eab79b9a6fed4bad54583e055bf16a358287cd0bde8681adb458e2ece5a63310"
+      }
+    }
+  },
+  "own_replay_audit": {
+    "source_statuses_identical": true,
+    "cases": {
+      "1AKI-THR40-CB-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1AKI-THR40-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-THR40-OG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-THR40-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1AKI-THR43-CB-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1AKI-THR43-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-THR43-OG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-THR43-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1AKI-VAL2-CB-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1AKI-VAL2-CG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-VAL2-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-VAL2-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-VAL29-CB-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1AKI-VAL29-CG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1AKI-VAL29-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1AKI-VAL29-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR1-CB-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR1-OG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR1-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR2-CB-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1CRN-THR2-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR2-OG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-THR2-OG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 1
+      },
+      "1CRN-VAL15-CB-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1CRN-VAL15-CG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-VAL15-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1CRN-VAL15-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      },
+      "1CRN-VAL8-CB-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1CRN-VAL8-CG1": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": null
+      },
+      "1CRN-VAL8-CG1-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 2
+      },
+      "1CRN-VAL8-CG2": {
+        "all_generated_coordinates_and_audits_identical": true,
+        "selected_index": 0
+      }
+    }
+  },
+  "native_audit_sha256": "c3786983e0df48f3af52218a1fd9fde3aebb0e684e7be39f9fc6db93edbc4030",
+  "native_control_count": 32,
+  "native_control_passes": 32,
+  "per_system": {
+    "1CRN": {
+      "description": "crambin",
+      "planned": 16,
+      "source_statuses": {
+        "evaluated": 16
+      },
+      "refusal_reasons": {},
+      "old_own_passes": 15,
+      "template_passes": 9,
+      "scored_selection_statuses": {
+        "selected": 15,
+        "no_old_gate_feasible_candidate": 1
+      }
+    },
+    "1AKI": {
+      "description": "hen egg-white lysozyme",
+      "planned": 16,
+      "source_statuses": {
+        "evaluated": 16
+      },
+      "refusal_reasons": {},
+      "old_own_passes": 16,
+      "template_passes": 5,
+      "scored_selection_statuses": {
+        "selected": 16
+      }
+    },
+    "1BTA": {
+      "description": "barstar",
+      "planned": 16,
+      "source_statuses": {
+        "shared_admission_refused": 16
+      },
+      "refusal_reasons": {
+        "source scope requires canonical heavy-atom names/elements": 16
+      },
+      "old_own_passes": 0,
+      "template_passes": 0,
+      "scored_selection_statuses": {}
+    }
+  },
+  "aggregate": {
+    "planned_cases": 48,
+    "shared_refusals": 16,
+    "independently_validated_snapshots": 128,
+    "cell_statuses": {
+      "scored": 128
+    },
+    "retained_clash_topologies": {
+      "no_short_path_in_partial_graph": 30,
+      "known_1_4": 10
+    },
+    "own_selection_statuses": {
+      "selected": 31,
+      "no_old_gate_feasible_candidate": 1
+    },
+    "selections_changed": [
+      {
+        "id": "1AKI-VAL2-CG1-CG2",
+        "previous": 0,
+        "selected": 2,
+        "old_rounded_rmsd": 2.413641232660728,
+        "scored_rounded_rmsd": 0.14655374440798027
+      }
+    ],
+    "context_coordinate_comparison_blockers": [],
+    "paired": {
+      "matched_count": 16,
+      "old_median_rounded_rmsd": 0.24744750796193798,
+      "scored_median_rounded_rmsd": 0.2419634377574429
+    },
+    "anchored": {
+      "matched_count": 15,
+      "old_median_rounded_rmsd": 0.1145120081039535,
+      "scored_median_rounded_rmsd": 0.1145120081039535
+    }
+  },
+  "changed_choice_reporting": [
+    {
+      "id": "1AKI-VAL2-CG1-CG2",
+      "reporting_only": true,
+      "previous": {
+        "exact_name_rmsd_angstrom": 2.413641232660728,
+        "maximum_error_angstrom": 2.4511225999529285,
+        "atom_count": 2,
+        "symmetry_minimized": false,
+        "used_for_selection": false,
+        "generated_only_val_symmetry_rmsd_angstrom": 1.7710920360049054,
+        "val_swap_admissible": true,
+        "val_swapped_in_reporting": true,
+        "named_chi1_error_degrees": 118.16316074498206,
+        "reporting_only_no_reranking": true
+      },
+      "selected": {
+        "exact_name_rmsd_angstrom": 0.14655374440798027,
+        "maximum_error_angstrom": 0.18900529093122953,
+        "atom_count": 2,
+        "symmetry_minimized": false,
+        "used_for_selection": false,
+        "generated_only_val_symmetry_rmsd_angstrom": 0.14655374440798027,
+        "val_swap_admissible": true,
+        "val_swapped_in_reporting": false,
+        "named_chi1_error_degrees": 1.8594339054558304,
+        "reporting_only_no_reranking": true
+      }
+    }
+  ],
+  "scientific_qualification": false,
+  "label_scope": "prospective enrollment/policy follow-up, not a randomized or blinded qualified accuracy benchmark; legacy readback benchmark flag remains false"
+}

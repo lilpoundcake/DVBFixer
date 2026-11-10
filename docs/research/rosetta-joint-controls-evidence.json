@@ -1,0 +1,4602 @@
+{
+  "schema": "dvbfixer.exact-joint-audit.v1",
+  "aggregate": {
+    "declared_cases": 12,
+    "cell_statuses": {
+      "scored": 46
+    },
+    "target_view_imports": 92,
+    "own_joint_combinations": 34,
+    "native_controls": 12,
+    "eligible_joint_combinations": 34,
+    "raw_joint_rejections": 0,
+    "rounded_rejections": 0,
+    "verified_dat_sidecars": 34,
+    "selection_statuses": {
+      "selected": 11,
+      "no_old_gate_feasible_candidate": 1
+    },
+    "coupling_statuses": {
+      "uninformative_single_option_axis": 10,
+      "empty_source_feasible_matrix": 1,
+      "informative_two_axis_matrix": 1
+    },
+    "selection_changes": [
+      {
+        "id": "1CRN-group0-distal-distal",
+        "previous_index": 0,
+        "selected_index": 1,
+        "previous_rmsd": 1.7387654384648896,
+        "selected_rmsd": 0.18338552287462623
+      },
+      {
+        "id": "1AKI-group0-distal-distal",
+        "previous_index": 2,
+        "selected_index": 8,
+        "previous_rmsd": 1.7073341061432585,
+        "selected_rmsd": 0.11356385868752343
+      }
+    ],
+    "independent_choice_joint_rejections": 0,
+    "same_case_median_baseline_rmsd": 0.31061390825267393,
+    "same_case_median_scored_rmsd": 0.21096445198184627,
+    "matched_cases": 11
+  },
+  "cases": {
+    "1CRN-group0-distal-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        3
+      ],
+      "observed_ca_distance_angstrom": 3.7938805990700333,
+      "independent_joint_index": 1,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 0,
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": -20.771153107163407
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          3
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            0
+          ],
+          "score": -19.937332829478883,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.23094479859914596,
+                  "maximum_error_angstrom": 0.28157414654048046,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.23094479859914596,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.678659500723569,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.448116623039025,
+                  "maximum_error_angstrom": 2.566470923271877,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 2.448116623039025,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 116.09722913054475,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.7387654384648896,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7387654384648896,
+            "reporting_only": true
+          },
+          "score_record_sha256": "b1171d61087598c000cfd5a08f4b5ef8151a8e8104e7138cedce563d845f4969"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            0,
+            1
+          ],
+          "score": -20.771153107163407,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.23094479859914596,
+                  "maximum_error_angstrom": 0.28157414654048046,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.23094479859914596,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.678659500723569,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.11800423721205952,
+                  "maximum_error_angstrom": 0.1451688671857709,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.11800423721205952,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 3.8939675641893814,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.18338552287462623,
+            "pooled_generated_only_val_symmetry_rmsd": 0.18338552287462623,
+            "reporting_only": true
+          },
+          "score_record_sha256": "05db968bb5da498debe2f5dec78d788b5276348a96ce5a902403c49ecc49266c"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 3.976864947000216,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.23094479859914596,
+                  "maximum_error_angstrom": 0.28157414654048046,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.23094479859914596,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.678659500723569,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4550937863959494,
+                  "maximum_error_angstrom": 2.493221610687666,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 2.4550937863959494,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 123.92290237559092,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.7436772923909976,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7436772923909976,
+            "reporting_only": true
+          },
+          "score_record_sha256": "35181b48ab27681df56f0632149560f4977a187ab57825c737e32c7c9366f319"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "557944c4f05ee10b73b3daba6814283331da984231442df6f1ea2c9e21170b45"
+        }
+      ]
+    },
+    "1CRN-group0-whole-whole": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        3
+      ],
+      "observed_ca_distance_angstrom": 3.7938805990700333,
+      "independent_joint_index": 1,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 1,
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": -20.664703091023746
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          3
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            0
+          ],
+          "score": -19.67930876122255,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.2850608122255081,
+                  "maximum_error_angstrom": 0.439347243077727,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.2850608122255081,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.7044840555200267,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 1.9747997366821783,
+                  "maximum_error_angstrom": 2.585787887665963,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.9747997366821783,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 116.12605285922322,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.4108674045895786,
+            "pooled_generated_only_val_symmetry_rmsd": 1.4108674045895786,
+            "reporting_only": true
+          },
+          "score_record_sha256": "c50721336034a76ac7827598730ff8c5c7c39889183b167a3646c9cdd4f51990"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            0,
+            1
+          ],
+          "score": -20.664703091023746,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.2850608122255081,
+                  "maximum_error_angstrom": 0.439347243077727,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.2850608122255081,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.7044840555200267,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.11059535855239756,
+                  "maximum_error_angstrom": 0.14606163082753784,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.11059535855239756,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 3.914726237601741,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.2162070766649415,
+            "pooled_generated_only_val_symmetry_rmsd": 0.2162070766649415,
+            "reporting_only": true
+          },
+          "score_record_sha256": "8f3b0e6fb28033bfe052b63140d934c38bb83a9195e2f10e6cb9c1a2bbabe3a4"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 3.818607760892114,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.2850608122255081,
+                  "maximum_error_angstrom": 0.439347243077727,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.2850608122255081,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.7044840555200267,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.0272741140095816,
+                  "maximum_error_angstrom": 2.5797833242348087,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 2.0272741140095816,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 123.90476051237818,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.447601464492213,
+            "pooled_generated_only_val_symmetry_rmsd": 1.447601464492213,
+            "reporting_only": true
+          },
+          "score_record_sha256": "4c7ff39046b7d8f1eeff9537a56e077f44bf73af1e48ea8f7e8f12d53205c119"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "a255215f4bf4c61eaed9140ba50334fb03775e2cd767ac31ee6bd05d6e7449e4"
+        }
+      ]
+    },
+    "1CRN-group0-anchored-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        3
+      ],
+      "observed_ca_distance_angstrom": 3.7938805990700333,
+      "independent_joint_index": 1,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 1,
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": -21.707475371408854
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          3
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            0
+          ],
+          "score": -20.898139259363695,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.20741504284887338,
+                  "maximum_error_angstrom": 0.20741504284887338,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.20741504284887338,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.23941241133312,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.448116623039025,
+                  "maximum_error_angstrom": 2.566470923271877,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 2.448116623039025,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 116.09722913054475,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 2.0024627337356367,
+            "pooled_generated_only_val_symmetry_rmsd": 2.0024627337356367,
+            "reporting_only": true
+          },
+          "score_record_sha256": "ca8487a1150f9111fa8eec205648541e12484931a8735e08e77e47a3d94dc6c3"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            0,
+            1
+          ],
+          "score": -21.707475371408854,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.20741504284887338,
+                  "maximum_error_angstrom": 0.20741504284887338,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.20741504284887338,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.23941241133312,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.11800423721205952,
+                  "maximum_error_angstrom": 0.1451688671857709,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.11800423721205952,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 3.8939675641893814,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.15369992409453775,
+            "pooled_generated_only_val_symmetry_rmsd": 0.15369992409453775,
+            "reporting_only": true
+          },
+          "score_record_sha256": "93733e52e6e53e3438594aa0c669420ed4c4825e8c7ae1d03f93f99d9ebb2395"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 3.0607307744074106,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.20741504284887338,
+                  "maximum_error_angstrom": 0.20741504284887338,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.20741504284887338,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.23941241133312,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4550937863959494,
+                  "maximum_error_angstrom": 2.493221610687666,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 2.4550937863959494,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 123.92290237559092,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 2.008149396832815,
+            "pooled_generated_only_val_symmetry_rmsd": 2.008149396832815,
+            "reporting_only": true
+          },
+          "score_record_sha256": "43c9996ca630f7cf7fc09295b71c3654b96cd1652ad11debe4b2488cac6715c0"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "1",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "eef2bfa59cee4fb5c49826c4a5b7825a0e30a3449a332469e3f95540f4584bcb"
+        }
+      ]
+    },
+    "1CRN-group1-distal-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        3,
+        1
+      ],
+      "observed_ca_distance_angstrom": 10.80441530116276,
+      "independent_joint_index": 2,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 2,
+      "selection": {
+        "status": "selected",
+        "selected_index": 2,
+        "total_score": -22.15861292542592
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          2
+        ],
+        "dimensions": [
+          3,
+          1
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            2
+          ],
+          "score": -12.398020776897646,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.6585723612495484,
+                  "maximum_error_angstrom": 2.667914728772267,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.5542712118546105,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 140.35883088391546,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24719425559668667,
+                  "maximum_error_angstrom": 0.2658439391823707,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24719425559668667,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.957315202632799,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.888003177963427,
+            "pooled_generated_only_val_symmetry_rmsd": 1.1128485970697002,
+            "reporting_only": true
+          },
+          "score_record_sha256": "55e76ae47e039350f9ded5902b15aec97c5eb8b6f45714c6578637a60e977448"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            1,
+            2
+          ],
+          "score": -14.347030079273274,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.2302790184189956,
+                  "maximum_error_angstrom": 2.2905296330761575,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.907727050707202,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 99.66909730276399,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24719425559668667,
+                  "maximum_error_angstrom": 0.2658439391823707,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24719425559668667,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.957315202632799,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.5867024768367886,
+            "pooled_generated_only_val_symmetry_rmsd": 1.3602440038463686,
+            "reporting_only": true
+          },
+          "score_record_sha256": "187970cb7c59127104a855441d50c0c61c2720fbd90dc90b078be47443c270ea"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            2,
+            2
+          ],
+          "score": -22.15861292542592,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.4417889767751115,
+                  "maximum_error_angstrom": 0.5104899607240088,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.4417889767751115,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 20.338182268080914,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24719425559668667,
+                  "maximum_error_angstrom": 0.2658439391823707,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24719425559668667,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.957315202632799,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.3579682248468431,
+            "pooled_generated_only_val_symmetry_rmsd": 0.3579682248468431,
+            "reporting_only": true
+          },
+          "score_record_sha256": "dc9d623dc2d25a110295ab5bd1c059dcb4d6b64107f9f0164d2707ace8fdb12b"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "5758eae6fb7142d5af7a560902fab9e490e3e3db634f100e4f732430b351907e"
+        }
+      ]
+    },
+    "1CRN-group1-whole-whole": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        3,
+        1
+      ],
+      "observed_ca_distance_angstrom": 10.80441530116276,
+      "independent_joint_index": 2,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 2,
+      "selection": {
+        "status": "selected",
+        "selected_index": 2,
+        "total_score": -22.036135310827497
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          2
+        ],
+        "dimensions": [
+          3,
+          1
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            2
+          ],
+          "score": -12.6333624930162,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.163623272814994,
+                  "maximum_error_angstrom": 2.6652656528008607,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.2586613259067483,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 140.38160321404206,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24829350911102513,
+                  "maximum_error_angstrom": 0.3973185120278189,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24829350911102513,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.954383305492485,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.5399537871854032,
+            "pooled_generated_only_val_symmetry_rmsd": 0.9071598536090539,
+            "reporting_only": true
+          },
+          "score_record_sha256": "5103affa5bc6f4940078abafb43fdf6b216677c68c52991e25dedc1f9435eaab"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            1,
+            2
+          ],
+          "score": -14.58769818413591,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 1.8175780588464419,
+                  "maximum_error_angstrom": 2.2967198348949744,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.5513031081427426,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 99.66105717539159,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24829350911102513,
+                  "maximum_error_angstrom": 0.3973185120278189,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24829350911102513,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.954383305492485,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.2971583686402108,
+            "pooled_generated_only_val_symmetry_rmsd": 1.1108985102159423,
+            "reporting_only": true
+          },
+          "score_record_sha256": "8a3a695bf899e59d2c68e9e81d34e37b52ba02200ae8bbc488fc4fb598e1bdce"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            2,
+            2
+          ],
+          "score": -22.036135310827497,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.36369034447819276,
+                  "maximum_error_angstrom": 0.5286473304576502,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.36369034447819276,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 20.348520176138123,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.24829350911102513,
+                  "maximum_error_angstrom": 0.3973185120278189,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.24829350911102513,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 8.954383305492485,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.31138427491873544,
+            "pooled_generated_only_val_symmetry_rmsd": 0.31138427491873544,
+            "reporting_only": true
+          },
+          "score_record_sha256": "1a9f3c2e8919e0aae72388a34dbb7523734bf6760c201379a6805805892c2f99"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "6d7cfacdfc2147e2bc8489c13a6a5439d7fdd222ab84c69fe64cae0272c12731"
+        }
+      ]
+    },
+    "1CRN-group1-anchored-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        0,
+        1
+      ],
+      "observed_ca_distance_angstrom": 10.80441530116276,
+      "independent_joint_index": null,
+      "independent_joint_eligible": null,
+      "raw_clearance_joint_index": null,
+      "selection": {
+        "status": "no_old_gate_feasible_candidate",
+        "selected_index": null
+      },
+      "coupling": {
+        "status": "empty_source_feasible_matrix"
+      },
+      "cells": [
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": -22.028476115625715,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "8",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "15",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "c1ac6e298f5642780964246818f4b66800e1000062f49cb362ef3126774c9e9e"
+        }
+      ]
+    },
+    "1AKI-group0-distal-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        3,
+        3
+      ],
+      "observed_ca_distance_angstrom": 13.127949002033791,
+      "independent_joint_index": 2,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 2,
+      "selection": {
+        "status": "selected",
+        "selected_index": 8,
+        "total_score": 13.618787522718847
+      },
+      "coupling": {
+        "status": "informative_two_axis_matrix",
+        "reference_indices": [
+          0,
+          0
+        ],
+        "dimensions": [
+          3,
+          3
+        ],
+        "max_absolute_delta": 1.7053025658242404e-13,
+        "values": [
+          {
+            "indices": [
+              0,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              1
+            ],
+            "delta": -1.7053025658242404e-13
+          },
+          {
+            "indices": [
+              1,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              2
+            ],
+            "delta": 1.7053025658242404e-13
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            0
+          ],
+          "score": 39.60578248184915,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.413641232660728,
+                  "maximum_error_angstrom": 2.4511225999529285,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7710920360049054,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 118.16316074498206,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5194605573415902,
+                  "maximum_error_angstrom": 2.5304786108560555,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7384002703635317,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 122.05558033131956,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 2.4671183088777884,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7548222844493402,
+            "reporting_only": true
+          },
+          "score_record_sha256": "e392cd35bf0d894cb30fd52ea9576725766aa45a20f0f7d2f449c2ad9399151f"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            0,
+            1
+          ],
+          "score": 38.22251304965859,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.413641232660728,
+                  "maximum_error_angstrom": 2.4511225999529285,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7710920360049054,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 118.16316074498206,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4777413101451895,
+                  "maximum_error_angstrom": 2.4978714938923496,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7898217788372104,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 117.95800045317617,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 2.4459012653825583,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7804815359896318,
+            "reporting_only": true
+          },
+          "score_record_sha256": "a3b4a06d4b06d4f4722576862811e24c3ef1c45e577cc2241706afa0eac62889"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 19.077958937847896,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.413641232660728,
+                  "maximum_error_angstrom": 2.4511225999529285,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7710920360049054,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 118.16316074498206,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.06569246532137436,
+                  "maximum_error_angstrom": 0.0709154426059656,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.06569246532137436,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.073391658131868,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.7073341061432585,
+            "pooled_generated_only_val_symmetry_rmsd": 1.2532123722657706,
+            "reporting_only": true
+          },
+          "score_record_sha256": "44f205c96612b0823920673557fd39ea9e608d4ff152aab443a0a72907f7f6f8"
+        },
+        {
+          "id": "joint-3",
+          "arm": "own",
+          "index": 3,
+          "indices": [
+            1,
+            0
+          ],
+          "score": 39.33262609799279,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5084398537736563,
+                  "maximum_error_angstrom": 2.519271720160412,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.6808567755760744,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 121.8584142317469,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5194605573415902,
+                  "maximum_error_angstrom": 2.5304786108560555,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7384002703635317,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 122.05558033131956,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 2.51395624464707,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7098706091397673,
+            "reporting_only": true
+          },
+          "score_record_sha256": "99d684e3dfee8c4a1cad1cc3df234eedab59aa2133c5046af23840d880c81c6d"
+        },
+        {
+          "id": "joint-4",
+          "arm": "own",
+          "index": 4,
+          "indices": [
+            1,
+            1
+          ],
+          "score": 37.94935666580206,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5084398537736563,
+                  "maximum_error_angstrom": 2.519271720160412,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.6808567755760744,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 121.8584142317469,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4777413101451895,
+                  "maximum_error_angstrom": 2.4978714938923496,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7898217788372104,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 117.95800045317617,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 2.4931378321304263,
+            "pooled_generated_only_val_symmetry_rmsd": 1.7361943295610651,
+            "reporting_only": true
+          },
+          "score_record_sha256": "c2a002f65e507a5b4f246bda69178c870c581ef572f7777d5d39a627c11397dc"
+        },
+        {
+          "id": "joint-5",
+          "arm": "own",
+          "index": 5,
+          "indices": [
+            1,
+            2
+          ],
+          "score": 18.804802553991536,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5084398537736563,
+                  "maximum_error_angstrom": 2.519271720160412,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.6808567755760744,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 121.8584142317469,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.06569246532137436,
+                  "maximum_error_angstrom": 0.0709154426059656,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.06569246532137436,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.073391658131868,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.7743429769917656,
+            "pooled_generated_only_val_symmetry_rmsd": 1.1894526051928251,
+            "reporting_only": true
+          },
+          "score_record_sha256": "38487b8c0fa69c060dea6d0e169635d26537bf8981ced96659517a9fd156cb0a"
+        },
+        {
+          "id": "joint-6",
+          "arm": "own",
+          "index": 6,
+          "indices": [
+            2,
+            0
+          ],
+          "score": 34.14661106671993,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.14655374440798027,
+                  "maximum_error_angstrom": 0.18900529093122953,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.14655374440798027,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 1.8594339054558304,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5194605573415902,
+                  "maximum_error_angstrom": 2.5304786108560555,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7384002703635317,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 122.05558033131956,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.7845390861508184,
+            "pooled_generated_only_val_symmetry_rmsd": 1.233595051060112,
+            "reporting_only": true
+          },
+          "score_record_sha256": "318b64ca55b673c7f4f561b476678c54b92aff4ca60de333d9dbc0be57e42978"
+        },
+        {
+          "id": "joint-7",
+          "arm": "own",
+          "index": 7,
+          "indices": [
+            2,
+            1
+          ],
+          "score": 32.76334163452937,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.14655374440798027,
+                  "maximum_error_angstrom": 0.18900529093122953,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.14655374440798027,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 1.8594339054558304,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4777413101451895,
+                  "maximum_error_angstrom": 2.4978714938923496,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7898217788372104,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 117.95800045317617,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 1.755089741295299,
+            "pooled_generated_only_val_symmetry_rmsd": 1.2698306973766218,
+            "reporting_only": true
+          },
+          "score_record_sha256": "c329fd1285b6ef0f64693875ed1bccd694fc5585fcdb607bc411ff990a6b1e61"
+        },
+        {
+          "id": "joint-8",
+          "arm": "own",
+          "index": 8,
+          "indices": [
+            2,
+            2
+          ],
+          "score": 13.618787522718847,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.14655374440798027,
+                  "maximum_error_angstrom": 0.18900529093122953,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.14655374440798027,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 1.8594339054558304,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.06569246532137436,
+                  "maximum_error_angstrom": 0.0709154426059656,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.06569246532137436,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.073391658131868,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.11356385868752343,
+            "pooled_generated_only_val_symmetry_rmsd": 0.11356385868752343,
+            "reporting_only": true
+          },
+          "score_record_sha256": "bfaed14a5b300b0897e73e22f4c3eddc58521f1bf415a3eea4b3f4d7639b8c72"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "18dd74f6202b1fc0bca5af0d02ad0eb574ade61bd0341070c9fdc8617d2d5d9d"
+        }
+      ]
+    },
+    "1AKI-group0-whole-whole": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        3,
+        1
+      ],
+      "observed_ca_distance_angstrom": 13.127949002033791,
+      "independent_joint_index": 2,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 2,
+      "selection": {
+        "status": "selected",
+        "selected_index": 2,
+        "total_score": 14.478470178413389
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          2
+        ],
+        "dimensions": [
+          3,
+          1
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              2
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              2,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 19.56023286038716,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.1220852166363793,
+                  "maximum_error_angstrom": 2.675122053290278,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.5834756076428844,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 118.13711877354643,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.18157551229906227,
+                  "maximum_error_angstrom": 0.2627584442030357,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.18157551229906227,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.072705940993899,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.5060237935260745,
+            "pooled_generated_only_val_symmetry_rmsd": 1.1270236613901832,
+            "reporting_only": true
+          },
+          "score_record_sha256": "6d8c17fadc142563fb56fee4098fd7a28fc02588ff02fb22bbd6c89d63fe4628"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            1,
+            2
+          ],
+          "score": 19.482486934300383,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.131483755509293,
+                  "maximum_error_angstrom": 2.724971375996453,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.5574876136479112,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 121.85609970444102,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.18157551229906227,
+                  "maximum_error_angstrom": 0.2627584442030357,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.18157551229906227,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.072705940993899,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.5126454750976295,
+            "pooled_generated_only_val_symmetry_rmsd": 1.108768987060274,
+            "reporting_only": true
+          },
+          "score_record_sha256": "b0974dcbe4004acc2665cc6069640e77eec1f915909292053d3085357e293d37"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            2,
+            2
+          ],
+          "score": 14.478470178413389,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.23673261991819913,
+                  "maximum_error_angstrom": 0.2672283667577256,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.23673261991819913,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 1.8633225802564084,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.18157551229906227,
+                  "maximum_error_angstrom": 0.2627584442030357,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.18157551229906227,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.072705940993899,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.21096445198184627,
+            "pooled_generated_only_val_symmetry_rmsd": 0.21096445198184627,
+            "reporting_only": true
+          },
+          "score_record_sha256": "230e79235cf2ea42e711abcfec85391277a7fc512deae8fb8a48febc2401e9f9"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "ecc7123d8b01d874e2c51f0dd477778937b73cdd652f119e6362248e0c8d833e"
+        }
+      ]
+    },
+    "1AKI-group0-anchored-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        3
+      ],
+      "observed_ca_distance_angstrom": 13.127949002033791,
+      "independent_joint_index": 2,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 2,
+      "selection": {
+        "status": "selected",
+        "selected_index": 2,
+        "total_score": 13.930568418136389
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          0
+        ],
+        "dimensions": [
+          1,
+          3
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              0
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              0,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            0
+          ],
+          "score": 34.45839196213747,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.07563068160475482,
+                  "maximum_error_angstrom": 0.07563068160475482,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.07563068160475482,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.9890380973518518,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.5194605573415902,
+                  "maximum_error_angstrom": 2.5304786108560555,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7384002703635317,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 122.05558033131956,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 2.057594307275691,
+            "pooled_generated_only_val_symmetry_rmsd": 1.4200693645030162,
+            "reporting_only": true
+          },
+          "score_record_sha256": "eaf67ce79a4ca05cc5d632c052deaf7e154b52636b3ba3c2bc5d33982479191c"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            0,
+            1
+          ],
+          "score": 33.07512252994697,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.07563068160475482,
+                  "maximum_error_angstrom": 0.07563068160475482,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.07563068160475482,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.9890380973518518,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 2.4777413101451895,
+                  "maximum_error_angstrom": 2.4978714938923496,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.7898217788372104,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": true,
+                  "named_chi1_error_degrees": 117.95800045317617,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 2.023538484931779,
+            "pooled_generated_only_val_symmetry_rmsd": 1.46203556728282,
+            "reporting_only": true
+          },
+          "score_record_sha256": "e20ad15f1622eef9358fd43d35886df44ce73c41860a9965755f1030bee2e54a"
+        },
+        {
+          "id": "joint-2",
+          "arm": "own",
+          "index": 2,
+          "indices": [
+            0,
+            2
+          ],
+          "score": 13.930568418136389,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.07563068160475482,
+                  "maximum_error_angstrom": 0.07563068160475482,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.07563068160475482,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.9890380973518518,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.06569246532137436,
+                  "maximum_error_angstrom": 0.0709154426059656,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.06569246532137436,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 2.073391658131868,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.06916405617563635,
+            "pooled_generated_only_val_symmetry_rmsd": 0.06916405617563635,
+            "reporting_only": true
+          },
+          "score_record_sha256": "aa46e4a34889a43666557151e94b129ada7521c52b59afed1137406ece709920"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "2",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "29",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "VAL",
+                "cip": {
+                  "CA": "S"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": true,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "1393fb2a608d7d30a0175d4a33c96f285219a00aae3dbb1a48ee102cfe0445dd"
+        }
+      ]
+    },
+    "1AKI-group1-distal-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        1
+      ],
+      "observed_ca_distance_angstrom": 8.96200903815657,
+      "independent_joint_index": 0,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 0,
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 11.507865186716927
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          1,
+          1
+        ],
+        "dimensions": [
+          1,
+          1
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              1,
+              1
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            1,
+            1
+          ],
+          "score": 11.507865186716927,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.46382863214769077,
+                  "maximum_error_angstrom": 0.5118290730312189,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.46382863214769077,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 20.627114755159823,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.14410065926289017,
+                  "maximum_error_angstrom": 0.1618301578816494,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.14410065926289017,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.603793138463374,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.3434399510831532,
+            "pooled_generated_only_val_symmetry_rmsd": 0.3434399510831532,
+            "reporting_only": true
+          },
+          "score_record_sha256": "85a4cd82d1c787cf1570b8a187f0bf12a6de89ed0b8d9188fc0e620a41ca69c9"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 4,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "6d7b8ec5a3fc2f65b154b4b92baf105d9413dfc294e9f80e6e2b0f4aea900ef3"
+        }
+      ]
+    },
+    "1AKI-group1-whole-whole": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        2
+      ],
+      "observed_ca_distance_angstrom": 8.96200903815657,
+      "independent_joint_index": 0,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 0,
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 12.235195370911654
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          1,
+          1
+        ],
+        "dimensions": [
+          1,
+          2
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              1,
+              1
+            ],
+            "delta": 0.0
+          },
+          {
+            "indices": [
+              1,
+              2
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            1,
+            1
+          ],
+          "score": 12.235195370911654,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.36277587203855405,
+                  "maximum_error_angstrom": 0.5462050896870142,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.36277587203855405,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 20.636251009063244,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.2477007603271893,
+                  "maximum_error_angstrom": 0.2828603895917591,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.2477007603271893,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.638565310061949,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.31061390825267393,
+            "pooled_generated_only_val_symmetry_rmsd": 0.31061390825267393,
+            "reporting_only": true
+          },
+          "score_record_sha256": "bd56e5ad119462665e14d64b44b3cd45fc2f846d26ed0b115848d7d66baff564"
+        },
+        {
+          "id": "joint-1",
+          "arm": "own",
+          "index": 1,
+          "indices": [
+            1,
+            2
+          ],
+          "score": 16.665820951683955,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.36277587203855405,
+                  "maximum_error_angstrom": 0.5462050896870142,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.36277587203855405,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 20.636251009063244,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 1.9188868300831778,
+                  "maximum_error_angstrom": 2.5617796548493397,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 1.9188868300831778,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 114.38531571154539,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 1.3808933702498538,
+            "pooled_generated_only_val_symmetry_rmsd": 1.3808933702498538,
+            "reporting_only": true
+          },
+          "score_record_sha256": "201657044ae333bf4f469a761eff18392525d072db8ab8aa76865d356d934e92"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 3,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 6,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "d46d8dadaeaf2b8d710b9cba3bc927a34abd479843fdb96558bf7725438b4a07"
+        }
+      ]
+    },
+    "1AKI-group1-anchored-distal": {
+      "status": "evaluated",
+      "individual_feasible_counts": [
+        1,
+        1
+      ],
+      "observed_ca_distance_angstrom": 8.96200903815657,
+      "independent_joint_index": 0,
+      "independent_joint_eligible": true,
+      "raw_clearance_joint_index": 0,
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 13.489239869341205
+      },
+      "coupling": {
+        "status": "uninformative_single_option_axis",
+        "reference_indices": [
+          0,
+          1
+        ],
+        "dimensions": [
+          1,
+          1
+        ],
+        "max_absolute_delta": 0.0,
+        "values": [
+          {
+            "indices": [
+              0,
+              1
+            ],
+            "delta": 0.0
+          }
+        ]
+      },
+      "cells": [
+        {
+          "id": "joint-0",
+          "arm": "own",
+          "index": 0,
+          "indices": [
+            0,
+            1
+          ],
+          "score": 13.489239869341205,
+          "eligible": true,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.12597221915962203,
+                  "maximum_error_angstrom": 0.12597221915962203,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.12597221915962203,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.7559679890044606,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.14410065926289017,
+                  "maximum_error_angstrom": 0.1618301578816494,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.14410065926289017,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 5.603793138463374,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.13832208789632863,
+            "pooled_generated_only_val_symmetry_rmsd": 0.13832208789632863,
+            "reporting_only": true
+          },
+          "score_record_sha256": "b11ce502cbddfee062e5235ead08884d1bc22c835e6e5b82e51fc764280581cf"
+        },
+        {
+          "id": "native-control",
+          "arm": "native_control",
+          "index": -1,
+          "indices": null,
+          "score": 13.449831816595534,
+          "eligible": false,
+          "coordinate_report": {
+            "targets": [
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "40",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 1,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              },
+              {
+                "residue": {
+                  "model": 1,
+                  "chain_id": "A",
+                  "sequence_number": "43",
+                  "insertion_code": "",
+                  "alternate_location": "",
+                  "occurrence": 1
+                },
+                "residue_name": "THR",
+                "cip": {
+                  "CA": "S",
+                  "CB": "R"
+                },
+                "scores": {
+                  "exact_name_rmsd_angstrom": 0.0,
+                  "maximum_error_angstrom": 0.0,
+                  "atom_count": 2,
+                  "symmetry_minimized": false,
+                  "used_for_selection": false,
+                  "generated_only_val_symmetry_rmsd_angstrom": 0.0,
+                  "val_swap_admissible": false,
+                  "val_swapped_in_reporting": false,
+                  "named_chi1_error_degrees": 0.0,
+                  "reporting_only_no_reranking": true
+                }
+              }
+            ],
+            "global_stereo_pass": true,
+            "generated_atom_count": 3,
+            "pooled_exact_name_rmsd": 0.0,
+            "pooled_generated_only_val_symmetry_rmsd": 0.0,
+            "reporting_only": true
+          },
+          "score_record_sha256": "476b0e29d51b902fb044a2227917b4bea21f91b42a41c029ed18e3842e61a796"
+        }
+      ]
+    }
+  },
+  "plan_path": "tmp/pdbfixer-research/joint-plan-01/plan.json",
+  "plan_sha256": "e892f81ed3a370e44abf3a3fd1522cd721d52480a527cd2b176f68922e913e6c",
+  "raw_score_path": "tmp/pdbfixer-research/joint-score-01/evidence.json",
+  "raw_score_sha256": "e3e7d50e06e349371d256c7bdc01c07af3bcf2d80f2cf6b403398f5984423a22",
+  "environment": {
+    "version": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                  PyRosetta-4                                  \u2502\n\u2502               Created in JHU by Sergey Lyskov and PyRosetta Team              \u2502\n\u2502               (C) Copyright Rosetta Commons Member Institutions               \u2502\n\u2502                                                                               \u2502\n\u2502 NOTE: USE OF PyRosetta FOR COMMERCIAL PURPOSES REQUIRES PURCHASE OF A LICENSE \u2502\n\u2502          See LICENSE.PyRosetta.md or email license@uw.edu for details         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nPyRosetta-4 2026 [Rosetta PyRosetta4.conda.m1.cxx11thread.serialization.python311.Release 2026.06+release.1a56185c2592611dec4c9c75ddc9468cd2227c1f 2026-01-30T13:14:27] retrieved from: http://www.pyrosetta.org",
+    "weights": {
+      "ScoreType.fa_atr": 1.0,
+      "ScoreType.fa_rep": 0.55,
+      "ScoreType.fa_sol": 1.0,
+      "ScoreType.fa_intra_rep": 0.005,
+      "ScoreType.fa_intra_sol_xover4": 1.0,
+      "ScoreType.lk_ball_wtd": 1.0,
+      "ScoreType.fa_elec": 1.0,
+      "ScoreType.pro_close": 1.25,
+      "ScoreType.hbond_sr_bb": 1.0,
+      "ScoreType.hbond_lr_bb": 1.0,
+      "ScoreType.hbond_bb_sc": 1.0,
+      "ScoreType.hbond_sc": 1.0,
+      "ScoreType.dslf_fa13": 1.25,
+      "ScoreType.omega": 0.4,
+      "ScoreType.fa_dun": 0.7,
+      "ScoreType.p_aa_pp": 0.6,
+      "ScoreType.yhh_planarity": 0.625,
+      "ScoreType.ref": 1.0,
+      "ScoreType.rama_prepro": 0.45
+    }
+  },
+  "environment_sha256": "2cbf0fda3462cc8e8d6003fe7ecf890e10088f91ec1074db0d103b1c24a8dcb9",
+  "audit_script_sha256": "a67aa2e59cb0bd34902c891ddac91fc5f2a8294493e7d80883825c6b1eca160d",
+  "enrollment_protocol_excerpt": {
+    "schema": "dvbfixer.exact-joint-enrollment.v1",
+    "cases": [
+      {
+        "id": "1CRN-group0-distal-distal",
+        "system": "1CRN",
+        "mask_class": "distal-distal",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "1",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group0-distal-distal/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1CRN-group0-whole-whole",
+        "system": "1CRN",
+        "mask_class": "whole-whole",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "1",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "OG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group0-whole-whole/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1CRN-group0-anchored-distal",
+        "system": "1CRN",
+        "mask_class": "anchored-distal",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "1",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group0-anchored-distal/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1CRN-group1-distal-distal",
+        "system": "1CRN",
+        "mask_class": "distal-distal",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "15",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group1-distal-distal/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1CRN-group1-whole-whole",
+        "system": "1CRN",
+        "mask_class": "whole-whole",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "CG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "15",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group1-whole-whole/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1CRN-group1-anchored-distal",
+        "system": "1CRN",
+        "mask_class": "anchored-distal",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "15",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1CRN-group1-anchored-distal/source.pdb",
+        "reference": "1CRN-reference.pdb"
+      },
+      {
+        "id": "1AKI-group0-distal-distal",
+        "system": "1AKI",
+        "mask_class": "distal-distal",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "29",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group0-distal-distal/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      },
+      {
+        "id": "1AKI-group0-whole-whole",
+        "system": "1AKI",
+        "mask_class": "whole-whole",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "CG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "29",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group0-whole-whole/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      },
+      {
+        "id": "1AKI-group0-anchored-distal",
+        "system": "1AKI",
+        "mask_class": "anchored-distal",
+        "targets": [
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "2",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1"
+            ]
+          },
+          {
+            "residue_name": "VAL",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "29",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group0-anchored-distal/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      },
+      {
+        "id": "1AKI-group1-distal-distal",
+        "system": "1AKI",
+        "mask_class": "distal-distal",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "40",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "43",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group1-distal-distal/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      },
+      {
+        "id": "1AKI-group1-whole-whole",
+        "system": "1AKI",
+        "mask_class": "whole-whole",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "40",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "OG1",
+              "CG2"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "43",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "CB",
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group1-whole-whole/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      },
+      {
+        "id": "1AKI-group1-anchored-distal",
+        "system": "1AKI",
+        "mask_class": "anchored-distal",
+        "targets": [
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "40",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1"
+            ]
+          },
+          {
+            "residue_name": "THR",
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "43",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "mask": [
+              "OG1",
+              "CG2"
+            ]
+          }
+        ],
+        "source": "1AKI-group1-anchored-distal/source.pdb",
+        "reference": "1AKI-reference.pdb"
+      }
+    ],
+    "artifacts": {
+      "1CRN-reference.pdb": "eab79b9a6fed4bad54583e055bf16a358287cd0bde8681adb458e2ece5a63310",
+      "1CRN-group0-distal-distal/source.pdb": "572445059a972c4ce1e7dd1a722522a4001abbe452958d62674f36b4d7746eb1",
+      "1CRN-group0-whole-whole/source.pdb": "980ac5d2beaf90a21406a425f4fcbc72cc5a9aa11d0b4efd5ef58c860eb0a8ca",
+      "1CRN-group0-anchored-distal/source.pdb": "c810c593b978e8ee67e3da4e40ebc9d37e99c6968fc6c47d0f384c8685d06b14",
+      "1CRN-group1-distal-distal/source.pdb": "715cf583719bcd14bf453fb734d061fe5c68ced7317d7716070d8d9e23d951b0",
+      "1CRN-group1-whole-whole/source.pdb": "4fe22a028380106295fdd6d801cbc40ee7a8324ec4b21bfe2d40831dd85385a6",
+      "1CRN-group1-anchored-distal/source.pdb": "222e29bfb329d5c4f8afbd81603a42cedb8587b6387e97e4a50457d66d80f42b",
+      "1AKI-reference.pdb": "981ca73d0cc89cf51717bb02f18384c3bf2c2b8fe566dc8da6f8383c41de996d",
+      "1AKI-group0-distal-distal/source.pdb": "d20a76165d1d11d638e7303a8ca1dbaa1f98588b6e0895a4890367984ce7cdce",
+      "1AKI-group0-whole-whole/source.pdb": "b3be4da3f5c89c1bfd2402ea12ad4140b5182bf542cf14b819aacba80e3f0f3c",
+      "1AKI-group0-anchored-distal/source.pdb": "65a0cd0b812e488c6967ca129cecdcc0dcfa58696dd3d063d74f7ad199adaf5c",
+      "1AKI-group1-distal-distal/source.pdb": "7616c165e4405829be3feeb9c43d2c72f35546b7c0be14874e662aa1c7a98aad",
+      "1AKI-group1-whole-whole/source.pdb": "0ebdf485ca91c95d941b40c406ed5675fccae64d193bdb816a0a791612fd3e1d",
+      "1AKI-group1-anchored-distal/source.pdb": "72d2441e47f0e0bc28511d27b274d5559380980245b076bf3a67de5340fb7f04"
+    },
+    "source_hashes": {
+      "scripts/research_rosetta_joint.py": "60e75935dead227db831ecf0d67c82097c55a39a82d0f40557f32644156226dd",
+      "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+      "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+      "src/dvbfixer/protein_completion/anchored_source.py": "e6e898a0784ad54ae93fa03ccad4a6489ed454d7ccd5630d52fb0e64a896b1c8",
+      "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+      "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+      "src/dvbfixer/protein_completion/branched_source.py": "bc55103b387fb84b90c22007e1ceaf9225404a59b3cc753c237bd0e3b472cb06",
+      "src/dvbfixer/protein_completion/cohort.py": "c80c611faad2eaba48e4d8c46e0110b677acf7faae7e95f6bc28e72866bac243",
+      "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+      "src/dvbfixer/protein_completion/evidence.py": "d9083f0fa6084cb1d787b06631528c1a0ae8ec27e7c3d4ab8ea6e3bf7925400b",
+      "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+      "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+      "src/dvbfixer/protein_completion/mixed_cohort.py": "1e94d326babc81f8c793328ab3fe0da84f0a335d987a76a227ed6cc2c609a077",
+      "src/dvbfixer/protein_completion/mixed_evidence.py": "67d946fd042ec301f79e69d325d3c43f7cf77f6964517c3bda07027c23194339",
+      "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+      "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+      "src/dvbfixer/protein_completion/source.py": "2963f9f5b56d9d1d5af28d3dcbce034d0839aaa64d2a52a5593a4fb16a2777ed",
+      "src/dvbfixer/protein_completion/validation.py": "13d4b1717ddc63f9eb315330cc11f27e007662974be5d5da7601f5248063d366",
+      "src/dvbfixer/ffutils/dat.py": "af93d009ee7f93968f17a109a2d0726acb52177871b3037e84cc05604e74187b",
+      "src/dvbfixer/diagnose/geometry.py": "dbc48ba03b6e80cb117201ed1bbac152ee99dddba27d00ef434e4a3c3453de0b",
+      "src/dvbfixer/domain/structure_identity.py": "34537947430297a43ea8ab798f493847f7a991c1d33c951345e8522e5a0848fc",
+      "src/dvbfixer/pdb_component_reconstruction.py": "d3c5a4f30f7fb03bdfded3ea980ff122127d586daf01483f9ea0f0a5219b6bd9",
+      "scripts/prospective_branched_cohort.py": "86ee3e7d05c9065ecf2954722a1fc4bf96d17306b332cd5a25d904513b924874",
+      "scripts/unfiltered_branched_comparison.py": "39e2b5b1bafdf932ee41f07fdb7ae830fdfc340c1ddc22ec143c4ad26aaef47e",
+      "scripts/research_rosetta_fixed_scoring.py": "b5983c7ade80e94c67d332db9c5c6a5988f2d0463ab4d3e455cb8ef3993ad9ac",
+      "scripts/research_rosetta_repack.py": "4c5a638e55bcfccbc2a2fca2338ad6e1fcb05bf123b39e4e9ac4872ea7c601e9",
+      "scripts/rosetta_fixed_contract.py": "08a60c0fdffb223085a74106f6154536f546ff64513b4007dbce91a5d444e76e",
+      "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad"
+    },
+    "original_source_hashes": {
+      "1CRN": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+      "1AKI": "c75d7a689617248cdd92dc6633531d2506fb9bef1e6e21e26c8f579ae6955abb"
+    },
+    "single_score_policy_sha256": "c35ae866d2483b10029fa60df4505574c9a646345089da93f83715fa4bdba99b",
+    "selection": "first two VAL/first two THR in file order, consecutive two-target groups; three mask classes; no outcome filtering",
+    "max_targets": 2,
+    "max_combinations": 9,
+    "candidate_gate": "unchanged mixed individual/raw-joint/rounded/global stereo guards; no scoring rescue",
+    "selection_policy": "minimum full-pose ref2015 over every old-gate-feasible joint combination; stable enumeration tie; any missing feasible score blocks selection",
+    "baselines": [
+      "independent per-target clearance choices, which may fail joint guards",
+      "existing raw-joint-clearance choice with canonical rounded materialization"
+    ],
+    "coupling_diagnostic": "E(i,j)-E(i,j0)-E(i0,j)+E(i0,j0); reference is lexicographically first source-feasible indices, never native; full Cartesian score matrix required; a single-option axis is uninformative",
+    "scope": "previously studied systems/constituents; new joint mechanisms only, not independent prospective accuracy validation",
+    "public_capability": false,
+    "score_policy": {
+      "score_function": "ref2015",
+      "seed": 7,
+      "init_flags": "-constant_seed -jran 7 -mute all -multithreading:total_threads 1 -packing:pack_missing_sidechains false -packing:no_optH true",
+      "hydrogen_protocol": "fresh import for each rounded heavy candidate; no H optimization; no repack or minimization",
+      "virtual_atom_policy": "typed virtual atoms are separate scorer-owned pseudoatoms, retained in snapshots; never exempt an input atom by name",
+      "extra_heavy_policy": "only unobserved OXT on Rosetta upper termini without declared outgoing C peptide link",
+      "expected_rosetta_revision": "1a56185c2592611dec4c9c75ddc9468cd2227c1f",
+      "selection_policy": "minimum total score over complete old-source-and-common-gate-feasible own pool; stable index tie; any missing feasible score blocks selection",
+      "native_policy": "native controls scored after own selection committed; never eligible for selection",
+      "topology_scope": "source-derived external links and canonical target internal bonds; not a complete independent context internal bond-order audit"
+    }
+  },
+  "original_enrollment_sha256": "0f59ed64819a3a82d12c90606e7f482d64d8f6056dc332b00452f268f2e32779",
+  "scientific_qualification": false,
+  "scope": "exhaustive small matrices on previously studied systems; not interaction-graph approximation, global conformational optimum or independent-family validation"
+}

@@ -35,6 +35,9 @@ verify that none of the source fixtures changed accidentally.
 | `overlap/8dis_t_u.pdb` | `test/overlap/8dis_t_u.pdb` | Coordinate-identical chains `d`/`D` caused by missing MODEL/ENDMDL separators |
 | `insertion_codes/{7K8S.pdb,7K8S.fasta}` | RCSB PDB entry 7K8S coordinate and FASTA downloads | Antibody heavy-chain insertion-code diffusion benchmark (`H/82A`-`H/82C`) |
 | `protein_context/{1UBQ,1TIM,1A3N}.pdb` | Unmodified RCSB PDB downloads on 2026-10-14 from `https://files.rcsb.org/download/<ID>.pdb` | Frozen protein-context expansion: ubiquitin nonlocal-contact strata, triosephosphate-isomerase dimer, and hemoglobin protein interface |
+| `protein_context/scoring_followup/{1CRN,1AKI,1BTA}.pdb` | Unmodified RCSB PDB downloads on 2026-11-03 from `https://files.rcsb.org/download/<ID>.pdb`, after predeclaring the three-system scoring follow-up | Crambin/lysozyme disulfide-preserving projection and CONECT-order regression; barstar's 714 deposited H coordinates intentionally remain unsupported by the private heavy-only completion contract. Raw deposited sources only; no generated candidates or scoring snapshots. |
+| `protein_context/independent_followup/{2CI2,1R69,1CTF}.pdb` | Unmodified RCSB PDB downloads on 2026-11-03, 14:27 UTC, from `https://files.rcsb.org/download/<ID>.pdb`, after pre-download enrollment of all three sources | New-system three-chi/template scoring controls: first-model/first-ATOM-chain selection preserves 2CI2 chain I, and 1CTF has only one observed THR. Source-only regressions retain raw native gate deviations and template-stereo control inputs, not generated proposals, logs or public completion outputs. |
+| `protein_context/ncac_followup/{1PGB,1BPI,1CSP}.pdb` | Unmodified RCSB downloads on 2026-11-03 from `https://files.rcsb.org/download/<ID>.pdb`, after frozen three-system NCAC/relative-rotamer enrollment | Prospective negative controls: 1BPI retains altloc/occupancy refusals and a single-VAL shortfall; 1CSP retains incomplete context and scorer movement/import blockers. Original sources only, no repairs or generated outputs. |
 | `cc89_apple_handoff/{9WW8,8EK6,9Z0U}.{pdb,fasta}`, `manifest.json` | Whole observed protein references and unchanged FASTAs from the independently audited prospective cc89 cohorts; per-source RCSB CIF URLs and hashes are bound by the manifest and linked cohort manifests | Fresh-clone Apple handoff: four source-only masks, seeds 7/19; no Linux archives or checkpoint needed to materialize inputs |
 
 The protein-context materializer derives protein-only, heavy-atom inputs from
@@ -43,6 +46,37 @@ this is a protein-context mechanism study, not acceptance for complete hemoglobi
 chemistry. Low/high contact counts are structural proxies, not measured solvent
 accessibility. Derived masks, controls, and outcomes live in ignored evidence
 archives; only deposited source inputs and frozen manifests are tracked.
+
+The scoring-follow-up sources retain all original headers, bond annotations,
+waters/other deposited records and (for 1BTA) explicit hydrogens. The research
+projection is separate and preserves chain-A ATOM bytes and relevant linkage
+metadata; it never overwrites these sources. Follow-up SHA-256 values:
+
+- 1CRN: `42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811`
+- 1AKI: `c75d7a689617248cdd92dc6633531d2506fb9bef1e6e21e26c8f579ae6955abb`
+- 1BTA: `d6cf4b679fa9d9dc738d0e1ba588d58bc5d0f1758c7b186b27a5d858926673c9`
+
+See [enrollment, explicit protocol amendment and bounded scoring results](../../docs/research/rosetta-scoring-followup.md).
+
+The independently enrolled follow-up sources preserve every original PDB byte;
+first-model/first-chain projection and deletion masks live only in private research
+artifacts. Source SHA-256 values:
+
+- 2CI2: `8a42f06a0a59074eddf9ac6274962057fc965a1256dce268d96b9d903ba4ae4d`
+- 1R69: `4ceed57b7b51edfd6e873fba0aff4edf6c87d330eea318b67eabd5520d525a1b`
+- 1CTF: `d0d6bbbe48bcb09c737d06d65cd0e22f86c220b3c68fa7166449e42b43294266`
+
+See [pre-download rules, complete denominators and retained stereo failures](../../docs/research/rosetta-independent-controls.md).
+
+The NCAC follow-up also preserves every original download byte. SHA-256 values:
+
+- 1PGB: `1f7a38180b264722853820aa636f9ff66b458f914061f5a12c1687fd951c2f6d`
+- 1BPI: `2289dd009b6eae05ac142836277e23098e178185df9441e2a3b9c1bed7dd75df`
+- 1CSP: `0b3335beb32172e4e8fab1cf6533db795f88de71f46192904aff67a23a6f5b9e`
+
+The private enrollment and all generated evidence remain below
+`tmp/pdbfixer-research/ncac-new-system-*`. The tracked sources are not selected
+successes: unsupported observations and incomplete context are intentionally kept.
 
 The Apple handoff sources are the already-normalized experimental input frames:
 protein heavy atoms only, water/H excluded, original observed chain sequences and

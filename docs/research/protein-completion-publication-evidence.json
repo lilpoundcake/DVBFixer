@@ -1,0 +1,123 @@
+{
+  "schema": "dvbfixer.private-protein-cohort-evidence-controls.v1",
+  "retained_directory": "tmp/pdbfixer-research/source-cohort-01",
+  "retained_record_sha256": "4f2b7c364d74f41bf69a370ad4181f6dd95ee96c3a1971c961b614fd2acfbb32",
+  "output_directory": "tmp/pdbfixer-research/cohort-evidence-01",
+  "source_hashes": {
+    "scripts/probe_protein_completion_evidence.py": "cd552ac32864b59790183b56df9d628973d707cadb3121e02d67fefbf1d8ee3a",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/cohort.py": "089f211173a12b1c02716b2e4be6e499294649f526b99e65c04718794704bd57",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/evidence.py": "f38b40e620f55444b9a81a348ffebc94274bab2eb3386ec68992989cb25cecb4",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "a25496c79393a260942aad10ce2e8e729b18f1a5c8de5d6dc80477a3b0db2911",
+    "src/dvbfixer/protein_completion/source.py": "8b398b09db8668d66abc81b984c3aed6f14ff3bdfba92ef36f165e260693653e",
+    "src/dvbfixer/protein_completion/validation.py": "01626a5a09d160d7c4c44dd0e9af100afa66165456f03d6f5c6504c7ebf53dee"
+  },
+  "public_profile_enabled": false,
+  "scientific_qualification": false,
+  "results": {
+    "ubq-two-ala": {
+      "status": "accepted",
+      "stage": "rounded",
+      "plan_digest": "0d2253beffde0e3fdeb54f21356d46154919275fd6e60db6c8b312aedcdafc62",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "41229b65cbb5f810a3bf911fd53f71393aec2438abda3c0773efba8ca0e22079",
+        "audit.json": "585d274fddb5331c2501afcf27da99ec8759526d9b78605082405526156fa533",
+        "bundle.json": "e669a4bf85fcd5b0012a9f39627c9849be5637a22e27feab6e30901b916d099a",
+        "candidate.dat": "a00acdcc3b95f2dcc2e8a06db0eaccfac5577ff25c107922ea7ec9d03bfc4fc0",
+        "candidate.pdb": "07c2b21387468b018d1b8a78950fe13cef84fcbb7503c84aa62c08e8817c114c",
+        "plan.json": "5951044220fffe9202f448140ed74d004b7b0c9168d4bcd3eeee3a6446b10111",
+        "source.pdb": "fd51b71b61e0c8eab23f2af2abded85c55ea1a85f79c0da6b1da8bd06e61b534",
+        "targets.json": "9676a4c5687c005cce5d9734de76be14f3ac3dea7be0a40222acc5416f9238d7"
+      }
+    },
+    "ubq-three-ser": {
+      "status": "accepted",
+      "stage": "rounded",
+      "plan_digest": "48cd200ed5c5a2ac58b6c8d480a2ff2ecd20fa7d76da96951b08cfa98d7e9bdb",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "303b35c3d762046050210db1d74bead8f5d2793890639efb70b290d8d45410d7",
+        "audit.json": "8b7359809c51cea207851de5c71d54e3790c52235971aa5c21a5d6e1d0bbb1e5",
+        "bundle.json": "686d75521ee4d6a52b76b6fe7bc59e6cce980484f42ff856888f0acc327e555c",
+        "candidate.dat": "2171b90700230062274a701c35b2b2d83fdd1457b97559fe9694868afa69d97d",
+        "candidate.pdb": "42f12341793a3aad6d2ff792120ac57a09a8c533567ac1ef37a176de3213986e",
+        "plan.json": "658c48df2211b64b49c805be05dc401b1ffe7249c465453e93e82336835b8800",
+        "source.pdb": "6af602704df9bb3281f3b8092e7520cfdc04eb368fca4a5060eb1ad67b4cb681",
+        "targets.json": "198bddc8f76ca0f253d648125b7494c087130be8bc192416b6ec2169d0189c2f"
+      }
+    },
+    "ubq-four-mixed": {
+      "status": "accepted",
+      "stage": "rounded",
+      "plan_digest": "9579d61fd70d00435847e82fccd2eb31772b05d855e793cfaf8119403fec60af",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "024f51c76d9bef368dbb3e430b7b7ab6fd730891346ebec3f14ddd63607b8d3b",
+        "audit.json": "bd79266ede9ae846bf02c6a220562e3942cdc15b302af31689e081d9114ac009",
+        "bundle.json": "019b33075dc8b4d2b8ffd247faef8a0a75b251633aa3b5cba7c33d18b66fd392",
+        "candidate.dat": "56d8ec2a422b80f378f8d1b4a7a81c98728cc68ec59129006d9d04dbfb91938a",
+        "candidate.pdb": "0f53b1f85301d7bb8c371f310250fa42cda979fe615b34bdb2f50d9f14c9cba4",
+        "plan.json": "8de03548229435f54fa21b5e14ad5e3409a6c335331ab0e939f6729251de6fac",
+        "source.pdb": "ccb33a30e36d437ac7d3b73bb03caaaa2d389a05762f1b70423d5b43069c8158",
+        "targets.json": "ed61b06d56924f4e64c36861a3061ff883e823fa9038159d4984ccbc293aa6af"
+      }
+    },
+    "synthetic-ser-joint-options": {
+      "status": "accepted",
+      "stage": "rounded",
+      "plan_digest": "dccf3c49fbb2207f96a191259293bb97d2519476650e29bf8dfce31fe5f09df8",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "00f31f6850cb56722910fc91e3d9992cd6b23417cd449faafc6ba95cd4b436a0",
+        "audit.json": "02e4a756fbafb20ddb6197aeb1354ec4a54da1f4dd2badb6106495b47be4e41b",
+        "bundle.json": "a049e7076ab339978797a2f6c72d8a929934302999d8efb0c27346d0308e8835",
+        "candidate.dat": "59304eceb4c2a149843163836188dc93d6b01b38386c174c57a1dce04869ec6f",
+        "candidate.pdb": "21229e7bb01507e2f998880407de3b53fb1ecda8ed3865174032ac1004dcd88d",
+        "plan.json": "287288a44d1150a6ac4b64602421ea37936ee7dc736e683e69fe2faae464fe5e",
+        "source.pdb": "dcf9e7a5b6dd2aae9f6e7f487f2cead50c168ab6976909d8aa71d7ec50c8a4b2",
+        "targets.json": "b6061289e1c390e4b627b62d3ddc7ce62e8e774c224f5dfb9bdddc7294315520"
+      }
+    },
+    "synthetic-ala-no-joint-solution": {
+      "status": "rejected",
+      "stage": "raw",
+      "plan_digest": "f22e13ee58432773746b03d02507d8f7c8c3529dfa0a61f5b1007b16636f0919",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "d189bc9c8ae61ceb6eff50db32393ff7a600e2c05c1395d40816ff37b12d2666",
+        "audit.json": "85ce6433b502d36bbcfc2c9cead513481a835c7a0807b491db688e30f7d9cb5d",
+        "bundle.json": "05fb271f17ac48d2656481c505bef5181b0a6105ddf096799288990df8fb3c00",
+        "plan.json": "f9d5e8ced1f0ac9eab88126f5c2260036705961d1430fb8c4579bd94daa59acb",
+        "source.pdb": "429270030ce2e79e33a9d97d2e7393ecdfc9ef7aea060bf5c9a0acfa35d94909",
+        "targets.json": "b6061289e1c390e4b627b62d3ddc7ce62e8e774c224f5dfb9bdddc7294315520"
+      }
+    },
+    "synthetic-rounding-refusal": {
+      "status": "rejected",
+      "stage": "rounded",
+      "plan_digest": "51bde0c54f464a2967bf5d8aeaa3cb2aba9634a5ccddfdf3ee1fbdcc5b0ef2a4",
+      "independent_readback_passed": true,
+      "retained_attempts_identical": true,
+      "bundle_files": {
+        "attempts.json": "01866dd831a790640c1e71de80c38f9e810c3deacb1bb75603b9b335326cd78f",
+        "audit.json": "703da99f7b99722cd448a0d30ccfc63df62bd6eea652afb552b587a356888905",
+        "bundle.json": "1cfa52e3d7820f7b43d9b57369cfa2705b50f51815956c67eea35adc4bf1f4d8",
+        "plan.json": "943c3f1480bec3bf9df5126b57cddea139cf6b2517695aa745964d9102baf223",
+        "source.pdb": "755d0a927234cf3aad07ade28222c204d4e0c8804b850184c8fc63ddf0d8c86a",
+        "targets.json": "b6061289e1c390e4b627b62d3ddc7ce62e8e774c224f5dfb9bdddc7294315520"
+      }
+    }
+  },
+  "raw_record_sha256": "bd2110e467ccc875f3fa83eeb232282e7f1d8359694452e51f7f83ef212320f5"
+}

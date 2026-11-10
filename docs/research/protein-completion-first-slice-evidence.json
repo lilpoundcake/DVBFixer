@@ -1,0 +1,1084 @@
+{
+  "schema": "dvbfixer.private-protein-completion-control.v1",
+  "source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+  "projection": "1UBQ chain A residues 1-72, protein only; not intact deposited complex",
+  "projection_sha256": "ca1d3dc5af9c1d09bc33ea7265dba052537a8400b8f5f4f1b629e444405d210b",
+  "empirical_rotamer_library": false,
+  "scripts_sha256": {
+    "scripts/benchmark_protein_completion.py": "ab9d74dc538bcaac98538bce18d9f62553ac3fe68ae3b069e9fbad4d6cae4abd",
+    "src/dvbfixer/protein_completion/__init__.py": "45f4161f5682e9b2de714b0c9649f204904e2980c153cc5f37b3ab240abed506",
+    "src/dvbfixer/protein_completion/contracts.py": "323846d872b6f405527199481a6f91b51eb702292ebf9c57718a1b06a678d9fb",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/service.py": "395dc78ca7e4ae9ad497c298c0d1a5493e5f6183f72708694974c05e2ee87be4",
+    "src/dvbfixer/protein_completion/validation.py": "5f75de96019410a4906fee7325187e1c6895322a39f6e8164b8cdf6a2675c113"
+  },
+  "raw_evidence_sha256": "82050c7fcb2d6a2dc53baaa4beb5c9ba98a2dfc08c1e843c871f8728faf45fbb",
+  "cases": {
+    "ALA28-CB": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "ffd025af15ab9e106ac5efdc3cf5d12a2b559c90117e69784f92f9b48e0fac07",
+      "requested_missing": [
+        "CB"
+      ],
+      "observation_count": 573,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "ffd025af15ab9e106ac5efdc3cf5d12a2b559c90117e69784f92f9b48e0fac07",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "28",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  39.24701545387864,
+                  24.336517043033894,
+                  13.553617856094696
+                ]
+              }
+            ],
+            "torsion_degrees": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5076255745784706,
+            "minimum_nonbonded_clearance_angstrom": -0.03779005710423444
+          }
+        }
+      ],
+      "selected_index": 0,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 0.03995510687304081,
+          "maximum_error_angstrom": 0.03995510687304081
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 0.03995510687304081,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.012783375103026628
+    },
+    "ALA46-CB": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "d9f4f340fc2f46b29dad2268f70ebe48a5f3ae4edc07aad8962bfded6149b4ef",
+      "requested_missing": [
+        "CB"
+      ],
+      "observation_count": 573,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "d9f4f340fc2f46b29dad2268f70ebe48a5f3ae4edc07aad8962bfded6149b4ef",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "46",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  17.81870637856835,
+                  27.92798194281176,
+                  18.393878388855587
+                ]
+              }
+            ],
+            "torsion_degrees": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5451741664439362,
+            "minimum_nonbonded_clearance_angstrom": -0.4847697479786508
+          }
+        }
+      ],
+      "selected_index": 0,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 0.08213782437044559,
+          "maximum_error_angstrom": 0.08213782437044559
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 0.08213782437044559,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.012186457868665457
+    },
+    "SER20-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "7c4cc2188ba36053e9929c5b82dc067f43975189e01dc1fd38eb1028ffb1dfbc",
+      "requested_missing": [
+        "OG"
+      ],
+      "observation_count": 573,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "7c4cc2188ba36053e9929c5b82dc067f43975189e01dc1fd38eb1028ffb1dfbc",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  27.42548553754568,
+                  15.297378305522063,
+                  7.453839599288308
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.541900571000005,
+            "minimum_nonbonded_clearance_angstrom": -0.18733318949806788
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "7c4cc2188ba36053e9929c5b82dc067f43975189e01dc1fd38eb1028ffb1dfbc",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  29.419897110828376,
+                  16.4149408976265,
+                  7.260311386140044
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.541900571000005,
+            "minimum_nonbonded_clearance_angstrom": -0.34594257500922976
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "7c4cc2188ba36053e9929c5b82dc067f43975189e01dc1fd38eb1028ffb1dfbc",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  29.189742099634138,
+                  14.73890335713222,
+                  8.810151272668834
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.541900571000005,
+            "minimum_nonbonded_clearance_angstrom": -0.43346314999014623
+          }
+        }
+      ],
+      "selected_index": 0,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 1.9662178362542564,
+          "maximum_error_angstrom": 1.9662178362542564
+        },
+        {
+          "heldout_rmsd_angstrom": 0.5581340255945483,
+          "maximum_error_angstrom": 0.5581340255945483
+        },
+        {
+          "heldout_rmsd_angstrom": 2.5233673097429783,
+          "maximum_error_angstrom": 2.5233673097429783
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 1.9662178362542564,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.02832962479442358
+    },
+    "SER20-CB-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "54222cb668fab5c1583b3d501ca43a66fa7488e5ab233315252e0f0050d19b92",
+      "requested_missing": [
+        "CB",
+        "OG"
+      ],
+      "observation_count": 572,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "54222cb668fab5c1583b3d501ca43a66fa7488e5ab233315252e0f0050d19b92",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  28.478972675647576,
+                  15.794152773553355,
+                  8.172245078955891
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  27.352028140341535,
+                  15.281777279046413,
+                  7.482784154049615
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5126158372992293,
+            "minimum_nonbonded_clearance_angstrom": -0.3053947700606783
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "54222cb668fab5c1583b3d501ca43a66fa7488e5ab233315252e0f0050d19b92",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  28.478972675647576,
+                  15.794152773553355,
+                  8.172245078955891
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  29.35731931763903,
+                  16.364684767301945,
+                  7.217839808323127
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5126158372992293,
+            "minimum_nonbonded_clearance_angstrom": -0.3053947700606783
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "54222cb668fab5c1583b3d501ca43a66fa7488e5ab233315252e0f0050d19b92",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  28.478972675647576,
+                  15.794152773553355,
+                  8.172245078955891
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "20",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  29.146865747764487,
+                  14.709054428571104,
+                  8.792220421961575
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5126158372992293,
+            "minimum_nonbonded_clearance_angstrom": -0.3888253248288662
+          }
+        }
+      ],
+      "selected_index": 0,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 1.4426656446286525,
+          "maximum_error_angstrom": 2.039575122787689
+        },
+        {
+          "heldout_rmsd_angstrom": 0.3473156849288233,
+          "maximum_error_angstrom": 0.4884206456590065
+        },
+        {
+          "heldout_rmsd_angstrom": 1.7871744888543157,
+          "maximum_error_angstrom": 2.5269118829777533
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 1.4426656446286525,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.04019508371129632
+    },
+    "SER57-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "f68a319b64f4e1a9003df7ec7e2f204788f07ac0b8044ffefb288dd54ebfe81e",
+      "requested_missing": [
+        "OG"
+      ],
+      "observation_count": 573,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f68a319b64f4e1a9003df7ec7e2f204788f07ac0b8044ffefb288dd54ebfe81e",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  23.600910841045117,
+                  17.648851728257636,
+                  9.88514681624751
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4628333339999915,
+            "minimum_nonbonded_clearance_angstrom": -0.513780588028349
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "f68a319b64f4e1a9003df7ec7e2f204788f07ac0b8044ffefb288dd54ebfe81e",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  23.912759935411295,
+                  16.376950009668548,
+                  11.76905047641504
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4628333339999915,
+            "minimum_nonbonded_clearance_angstrom": -0.2633292191322376
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "f68a319b64f4e1a9003df7ec7e2f204788f07ac0b8044ffefb288dd54ebfe81e",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  21.796072367860937,
+                  16.71621209609677,
+                  10.951363605852952
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4628333339999915,
+            "minimum_nonbonded_clearance_angstrom": -0.36417928685956213
+          }
+        }
+      ],
+      "selected_index": 1,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.272997999712949,
+          "maximum_error_angstrom": 2.272997999712949
+        },
+        {
+          "heldout_rmsd_angstrom": 0.022907548944382246,
+          "maximum_error_angstrom": 0.022907548944382246
+        },
+        {
+          "heldout_rmsd_angstrom": 2.2879305320867447,
+          "maximum_error_angstrom": 2.2879305320867447
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 0.022907548944382246,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.02754379203543067
+    },
+    "SER57-CB-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "3391726e0971e1cb664b5f50d7906dde55a58ddaa3cc8fb6553a841007050f5a",
+      "requested_missing": [
+        "CB",
+        "OG"
+      ],
+      "observation_count": 572,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "3391726e0971e1cb664b5f50d7906dde55a58ddaa3cc8fb6553a841007050f5a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  23.085015652057578,
+                  17.3238128433796,
+                  11.170938137840878
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  23.641642276049634,
+                  17.640866032334564,
+                  9.90700258693779
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.490938644455931,
+            "minimum_nonbonded_clearance_angstrom": -0.5058721447017971
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "3391726e0971e1cb664b5f50d7906dde55a58ddaa3cc8fb6553a841007050f5a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  23.085015652057578,
+                  17.3238128433796,
+                  11.170938137840878
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  23.940259851529046,
+                  16.390211595078704,
+                  11.807204645242784
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.490938644455931,
+            "minimum_nonbonded_clearance_angstrom": -0.27574381743054865
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "3391726e0971e1cb664b5f50d7906dde55a58ddaa3cc8fb6553a841007050f5a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  23.085015652057578,
+                  17.3238128433796,
+                  11.170938137840878
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "57",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  21.83200936386465,
+                  16.697996077325378,
+                  10.955955308120869
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.490938644455931,
+            "minimum_nonbonded_clearance_angstrom": -0.36341069696304573
+          }
+        }
+      ],
+      "selected_index": 1,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 1.5878324592545492,
+          "maximum_error_angstrom": 2.2453185384272585
+        },
+        {
+          "heldout_rmsd_angstrom": 0.04693789475744653,
+          "maximum_error_angstrom": 0.05863304195539064
+        },
+        {
+          "heldout_rmsd_angstrom": 1.5915295394320599,
+          "maximum_error_angstrom": 2.250547500376313
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 0.04693789475744653,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.03504279116168618
+    },
+    "SER65-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "62e96703271de464479e1b3bddac031b6611be9017d5e7b948116716e344ce93",
+      "requested_missing": [
+        "OG"
+      ],
+      "observation_count": 573,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "62e96703271de464479e1b3bddac031b6611be9017d5e7b948116716e344ce93",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  20.755705475525346,
+                  27.92774020892461,
+                  9.862421862085588
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG:ComponentInstanceRef(model=1, chain_id='A', sequence_number='62', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.8726328480000025,
+            "minimum_nonbonded_clearance_angstrom": -0.8116066131919708
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "62e96703271de464479e1b3bddac031b6611be9017d5e7b948116716e344ce93",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  22.965015664255432,
+                  28.462019741882088,
+                  10.17478496943932
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.8726328480000025,
+            "minimum_nonbonded_clearance_angstrom": -0.41559516031630594
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "62e96703271de464479e1b3bddac031b6611be9017d5e7b948116716e344ce93",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  21.40478021175193,
+                  29.070585014613005,
+                  11.743029364224979
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG:ComponentInstanceRef(model=1, chain_id='A', sequence_number='45', insertion_code='', alternate_location='', occurrence=1):CE1"
+            ],
+            "ca_volume_angstrom3": 2.8726328480000025,
+            "minimum_nonbonded_clearance_angstrom": -0.7001091028271487
+          }
+        }
+      ],
+      "selected_index": 1,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 0.31254610930334026,
+          "maximum_error_angstrom": 0.31254610930334026
+        },
+        {
+          "heldout_rmsd_angstrom": 2.4590576227225966,
+          "maximum_error_angstrom": 2.4590576227225966
+        },
+        {
+          "heldout_rmsd_angstrom": 2.15049383971589,
+          "maximum_error_angstrom": 2.15049383971589
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 2.4590576227225966,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.027250749990344048
+    },
+    "SER65-CB-OG": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "f9624adba8286cbdc5f13ec7d070a798128e99530829b7b1e5049de67b0363f1",
+      "requested_missing": [
+        "CB",
+        "OG"
+      ],
+      "observation_count": 572,
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f9624adba8286cbdc5f13ec7d070a798128e99530829b7b1e5049de67b0363f1",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  21.492923587288768,
+                  28.930779004608524,
+                  10.386268192337598
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  20.530225897096845,
+                  28.01228517443546,
+                  9.898957981862642
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG:ComponentInstanceRef(model=1, chain_id='A', sequence_number='62', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.691267685057266,
+            "minimum_nonbonded_clearance_angstrom": -0.6731432022418784
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "f9624adba8286cbdc5f13ec7d070a798128e99530829b7b1e5049de67b0363f1",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  21.492923587288768,
+                  28.930779004608524,
+                  10.386268192337598
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  22.773830165112713,
+                  28.340586751777117,
+                  10.249007696982462
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.691267685057266,
+            "minimum_nonbonded_clearance_angstrom": -0.31780525746547084
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "f9624adba8286cbdc5f13ec7d070a798128e99530829b7b1e5049de67b0363f1",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  21.492923587288768,
+                  28.930779004608524,
+                  10.386268192337598
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "65",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG"
+                },
+                "element": "O",
+                "xyz": [
+                  21.24765069184194,
+                  29.13490853504394,
+                  11.766869996466271
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG:ComponentInstanceRef(model=1, chain_id='A', sequence_number='45', insertion_code='', alternate_location='', occurrence=1):CE1"
+            ],
+            "ca_volume_angstrom3": 2.691267685057266,
+            "minimum_nonbonded_clearance_angstrom": -0.7704196619701211
+          }
+        }
+      ],
+      "selected_index": 1,
+      "scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 0.15641865430326674,
+          "maximum_error_angstrom": 0.16434199887503342
+        },
+        {
+          "heldout_rmsd_angstrom": 1.5994317692874638,
+          "maximum_error_angstrom": 2.2570863233332936
+        },
+        {
+          "heldout_rmsd_angstrom": 1.5194430722825132,
+          "maximum_error_angstrom": 2.143709215724184
+        }
+      ],
+      "selected_heldout_rmsd_angstrom": 1.5994317692874638,
+      "max_observed_movement_angstrom": 0.0,
+      "preservation_basis": "generated-only result; original immutable observations never rewritten",
+      "elapsed_seconds": 0.035385582596063614
+    }
+  }
+}

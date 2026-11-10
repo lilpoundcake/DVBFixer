@@ -1,0 +1,3289 @@
+{
+  "environment": {
+    "helper_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+    "openmm": "8.5.2",
+    "pdbfixer": "1.12.0",
+    "platform": "Reference",
+    "resource_sha256": {
+      "soft.xml": "f3255082d46c050cb8163af73f11396091e8032d548183376d6e2c02664f7789",
+      "templates/A.pdb": "e8cbac499131cc31f29b93ffa2bbfea8540b525b310d5ea84ec7060dc4aed882",
+      "templates/ACE.pdb": "c80a4a5b5c355612ca0cef9550d70318ea9f2e4515edc0ebdf708ba62abf157d",
+      "templates/ALA.pdb": "5d4afe9fe13cbcd94f682a440fc2d8a1cecd2b356b68488213083a99c018891d",
+      "templates/ARG.pdb": "b563c31e5a4bdb0a8132436621c395ff5d121c12f61dc7914cd5a642b5d03f82",
+      "templates/ASN.pdb": "03e4429faf869ed1debde1935bdfd652d6d2ed0efe3a8c0937f0726bc178510d",
+      "templates/ASP.pdb": "76aa87d2ff758661c78a3b907b3c0043fa08850547ff06dda1c46a301e6e7aff",
+      "templates/C.pdb": "03b933a77d61b7aff4b1c665f8d13c95b0292015feff685d58cf89e404170a0c",
+      "templates/CYS.pdb": "37855be2763394ce872bd222a1bdf705d56f60d2389328ef86620847c1fcb5fd",
+      "templates/DA.pdb": "3dbe2e49912bde8508c7f4aba510b5f368043a48a6b35be26a04dc337ab470e2",
+      "templates/DC.pdb": "16ca41ef7b3cbd51f4013cdf8913d5d5edfd641e4e583150c3be3dd5904817da",
+      "templates/DG.pdb": "8d1d0585b952ed0a50e751a86b61c264237cce4880da72a9ed7296644136d9a7",
+      "templates/DT.pdb": "c9e80cbacc60b0994f031752e5e0521efc35f12a302517b3b668426ed148cd90",
+      "templates/G.pdb": "4c5ff7bee3a55e0d07d4953228e77c2748e5d27641fe58595d569dc54c7963fe",
+      "templates/GLN.pdb": "2a6d372fc3b6a29e3846f95c286dc68dedc5499b5c53f74efed9f79f34724820",
+      "templates/GLU.pdb": "a52934d6cb9e1fb2317ddeabb8424e0bb6c59e1246cd34e78df3f65fea78e681",
+      "templates/GLY.pdb": "00ac8db40e228a7a3950d9570751c72e3d592bad049c8d64f1393d5b33fb1c3e",
+      "templates/HIS.pdb": "9b3250e1e29a1339d8cb07943928cb498bcbececfe8a940be93f995f2369cff1",
+      "templates/ILE.pdb": "3a8f8510be1d78198ef6ba2a6e191e2c185a8a33b870081fe5ec9378711e06c7",
+      "templates/LEU.pdb": "177dcca58b59a036f71f78a04d792e08f6ba17b626c37301a1fc6fda3d5dcf54",
+      "templates/LYS.pdb": "3c62dad1cbad3eb4c5fbed1511e8e129c42ff10b618ab43dfa0aaa9f0c237a0f",
+      "templates/MET.pdb": "a698fdea05abda618ffceb6de5c09f875eb2127b8a01a9e8f0013e65c3fcb6a6",
+      "templates/NME.pdb": "f699e5baa14286e331c4c0e748848d2ba5d830889dd28c33cc3cb59c37b286b1",
+      "templates/PHE.pdb": "68e11ff2b2694189ac8247b065df40b06bd034b1750ce02e98036100ec4a6aef",
+      "templates/PRO.pdb": "aed07c4cc88aef05fa2e4e04ad9569df36c749dbcd29ca04264700f1b27f11bf",
+      "templates/SER.pdb": "8c88c15eaca0008142861d0ef8ae79b4887ba2dea9eb8ec7c828f1f017dbec39",
+      "templates/THR.pdb": "63ded1fd1fcd8a13e3e2289230083c402a5017a57e14362e244ffd6ba2e2a12f",
+      "templates/TRP.pdb": "e49ca09b1f182c750bf725929a050a573ec0987c94b8184af081797e9a9f5d28",
+      "templates/TYR.pdb": "ecd7f527671d90151aefbfa868372e5458aa0fea625f2b32d1c437cc14e30cd9",
+      "templates/U.pdb": "7ef2bcdbec3798731109f7243e959ce94f3c3946888b0a515d6dbe7823cd772b",
+      "templates/VAL.pdb": "0a035bae591b0e82bd2fea54f32d43263114adb3867ae22cbe149d2ee8080be2"
+    },
+    "source_sha256": "a52e39125e3e0e2d1b58b83841fb05b8669e0bcdd73461e1b0ed1d5a8e8261b9"
+  },
+  "plan_root": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/prospective-masks-02",
+  "plan_sha256": "2d123dd54d5642c7f4b6de87b85e0521384a390688fc9f49f984fdb042cac1b9",
+  "python": "3.12.13",
+  "raw_record_sha256": "72e1a1d2c11839f33ebf1da86ef03d89d3bffbcd1458e0277192c38443309d71",
+  "results": {
+    "1AKI-THR40-CB-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3593629890396817,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3758212507063423
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.358490356999998,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.37581700695739584
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.3627963091027893,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.3627963091027893,
+          "maximum_error_angstrom": 0.5459030450042848,
+          "named_chi1_error_degrees": 20.623033770732064,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "0113a2121437ad5dad07a4de828c752be81ff9ddb91fde9a592a7e451d841b1b",
+      "retained_files": {
+        "comparison.json": "a656c853b23214a3a81323bd75055f399099b84dff4a71df7d7baa2705f7f346",
+        "input.pdb": "49ebcd4bfd78c7d7cf8c8b4b92b50ddab74982518a9fd455a38548f3b2ddd266",
+        "own-attempts.json": "1aaa2d76b6227002c17d45bba13af644115cb6191399b32acbc13191bb37e346",
+        "own-proposal.pdb": "9c9f0dfd0d6094a1f9596dd4aa365ecb6e043a0b10d1169dc4c307a24dd5ce54",
+        "source-plan.json": "e272d2d48bfac248e58070427d08f261500cee2b7a8533310fbdde8e8b04b12f",
+        "template-proposal.json": "de04f49cb2d66a0679372a4008241702511bac51c7667c82fba18e15ba6096a4",
+        "template-proposal.pdb": "6ebe4b29117ba00ed9d5e595792db5698edab78c26129438ed014013923bb40f",
+        "template-seed-1.json": "be429a109bcc1cd39daf9abc6e52e2641f3fee225e1f674d87a65ef77668ea6e",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.797356934132863,
+            "findings": [
+              "bond_length:CA-CB",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.0520270608950513
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.7972784950000023,
+            "findings": [
+              "bond_length:CA-CB",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.0519896217960578
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 1.8705549918372812,
+          "generated_only_val_symmetry_rmsd_angstrom": 1.8705549918372812,
+          "maximum_error_angstrom": 2.2788604487738406,
+          "named_chi1_error_degrees": 141.39608482155688,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR40-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4115145772949873
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.41140562954126425
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.30211749131516985,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.30211749131516985,
+          "maximum_error_angstrom": 0.30211749131516985,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "6187186bd85b7b115ebc8cbf0c96d063e73c770f369f64a6241197e1ac4f15e5",
+      "retained_files": {
+        "comparison.json": "77b89691bf70eb53da7077637a2a0e8de3ea07a2d4660f3121186dc5942c9dac",
+        "input.pdb": "184c6d743eb1799025df8c4449eb0505e384190d2679a38557e53943050104e0",
+        "own-attempts.json": "6aed14a41b4c8277dc61bb257587872fdb8c585c4b2acbefb46e6a76112f1abc",
+        "own-proposal.pdb": "e2b68cd3688edce15fd287a40d63318b50479c7474c5950fde8fe28a6fc02b9f",
+        "source-plan.json": "9a25a32d53fc0273f2b9feb7f8d91b8a0257ac680c8cea3af92cc7cc59a44f32",
+        "template-proposal.json": "7ae4daefe0f33822096e66dfa5f5b99c565d53c4489dcb04aa8be28d01db7b31",
+        "template-proposal.pdb": "9fbf3e813472fb99236dd023a17825274304e9c4e0142c60362b835dd11c5905",
+        "template-seed-1.json": "b1e47937ad9752aeccc51b5ff6365cf12e04248167dffdba2b90acd1e27a4d2d",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='40', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9864128621090187
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9868013970987717
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 3.0266400209929136,
+          "generated_only_val_symmetry_rmsd_angstrom": 3.0266400209929136,
+          "maximum_error_angstrom": 3.0266400209929136,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR40-OG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.27311483910104895
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2728133754375166
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.12551838941948887,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.12551838941948887,
+          "maximum_error_angstrom": 0.12551838941948887,
+          "named_chi1_error_degrees": 0.7398037860456839,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "d3c9ca330eefdfa0bcec1ee81936ef563cc5b27f8989d1a80360a7342aa8bcab",
+      "retained_files": {
+        "comparison.json": "8e95df0cf5d7787f0f3f3e22b3f5a3781c8082e35b15d9aa6ca14aa019571042",
+        "input.pdb": "874dae56b797894336755d60ea6e212b5ea797c275738e434d65f8d11b34ffc4",
+        "own-attempts.json": "fa126e768612cf2f449bc12122126423e05d229df186a29a3501dfacdd34407f",
+        "own-proposal.pdb": "e49c7a8013cc282ffb2fb2ead0a44bf51346637d69fd311fffb223fce6e44f86",
+        "source-plan.json": "1d77bc6f15a299f032ef5ef4e701ed1a99420a11e6e4b0de44cebcc47d971b5d",
+        "template-proposal.json": "b99428da0bcc7830da3ff705978e4f572f5d286a885a7da2e57bce9363bbedd2",
+        "template-proposal.pdb": "7d13e57e974ae9b646c4ffa48e32f95fb0b91fb4d4d559a2bfceeb169e304b19",
+        "template-seed-1.json": "ec73a1ade5cce6cc3132a20278cfdcf62864b5f323c3f187d87c9415cb01d454",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='40', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9702184479431775
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='40', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9702126298122475
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 2.431652862531727,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.431652862531727,
+          "maximum_error_angstrom": 2.431652862531727,
+          "named_chi1_error_degrees": 113.81866235797466,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR40-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.21648620641699567
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.21644944001257427
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.46353149835187035,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.46353149835187035,
+          "maximum_error_angstrom": 0.5116558787322267,
+          "named_chi1_error_degrees": 20.623033770732007,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "875048ca5105f2485012f6774c7dd66773876b0bc1a94eb3f5eeb339d21a14d0",
+      "retained_files": {
+        "comparison.json": "f264c906dca8c5834ec1d97a5fb7c4b28c14853437f004d244d4ff027fa70dfa",
+        "input.pdb": "5b852d71df17901857864c41324d2b55582b77ab988359e46ceb0881c4a9233a",
+        "own-attempts.json": "ed0dc0f9b5900f5c72f8eadc818fa3a0f677b35d2ea0766d46eee1049b66064d",
+        "own-proposal.pdb": "41dc00dde26e9e48b457a04927e5f84cb6140dd74b0afe9ae64d3f3d5148627d",
+        "source-plan.json": "592cf6f0cb8dc7c88f332e1df932106406a9d519316aced065a0c3d8a4842700",
+        "template-proposal.json": "8c789aacd0a7dfde154b565971096c84cb937fdd31035e9328dd39c161a01de9",
+        "template-proposal.pdb": "aaf4e3f2743579568acb2f2b24c86cc92b5d51d863912513a5d158fccd9e9621",
+        "template-seed-1.json": "6b2f8d180a82ee4df85fcc4a81013eef8c31b4dabf02a856c37133b5690f5040",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:CA-CB-CG2",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.1890406605154415
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.0742274609999907,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:CA-CB-CG2",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='85', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.1892715592674639
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 2.4241005595389584,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.4241005595389584,
+          "maximum_error_angstrom": 2.5660803229725517,
+          "named_chi1_error_degrees": 128.95420542673455,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR43-CB-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.611302017031603,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3320450468205567
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6113000949999967,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.33214993531196013
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.24748974078156108,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.24748974078156108,
+          "maximum_error_angstrom": 0.28241884798495664,
+          "named_chi1_error_degrees": 5.598806313849764,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "2deb4bc3625776a39dae22ad354ca9e469bf64b86c991aa75b6f01e79bd664d0",
+      "retained_files": {
+        "comparison.json": "df0edfaae96d9e34730550ae18b5a7fdf9406f2ceae5e66399e5e9e6c2f39d1a",
+        "input.pdb": "3ffca62237ebec786af06e615f377fe9abfd3611b31fc29be8cc583ef2f29c8b",
+        "own-attempts.json": "70929ec715c04102d27611411fa3f15b33d9c407d0996fd9fc9868d980bce760",
+        "own-proposal.pdb": "b1978e4f4bd01cbdfa6e1437eec11388c506a40aff1e66d326851dd3fe7b6ffb",
+        "source-plan.json": "b2c185e22bd6c9a1330d75a2f6367d656ec9589a4e9b177109817923ff0dd300",
+        "template-proposal.json": "bf5db5445a30bebd4e341dad6ec1a65e6a41eba9140aafb8590e98a26c430b29",
+        "template-proposal.pdb": "4e69554cee77dcaf8ff38aa28ec8a37a44d566fab112549e3f3190bfd7909763",
+        "template-seed-1.json": "785477e6917f3412280aa647ba3eaec7dc5fcbdae8a78d5b126525f27e19cde5",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 1.439960527415916,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='44', insertion_code='', alternate_location='', occurrence=1):N",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='51', insertion_code='', alternate_location='', occurrence=1):CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.2883675482739734
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 1.4394271949999997,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='44', insertion_code='', alternate_location='', occurrence=1):N",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='51', insertion_code='', alternate_location='', occurrence=1):CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -1.2883710079656505
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 2.4949380402255064,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.4949380402255064,
+          "maximum_error_angstrom": 3.043682409611422,
+          "named_chi1_error_degrees": 116.30638191181501,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR43-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.25509374435661103
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2551961666913791
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.17340519352249933,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.17340519352249933,
+          "maximum_error_angstrom": 0.17340519352249933,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "ac3e64bf67a43e31ee5683d5023ed361440b28919a5a2e9a76d6df2a86dbf3d7",
+      "retained_files": {
+        "comparison.json": "62cdcc3482a8fe00f7cd5491bdf12bc9df1e0903b3e76544b4d17f803285bad2",
+        "input.pdb": "c8fec362432be8281c92a1501bf76f6ed3b5d08a9c61457aedabf75da4bb1eda",
+        "own-attempts.json": "772a8fcdfae33d4a81cef48af18a2f5ad3ca9fb0b65d35648d45f0ca6e374bc9",
+        "own-proposal.pdb": "966be77de62a2f4d87e3187d2d6d228d623e4c0e5d5d60cbe364cd93815fbf08",
+        "source-plan.json": "f2e5fe52622262b3e3ffef3c43e99120fc78020ef75b12e6a9edf6b3cfcd51dc",
+        "template-proposal.json": "5a1316e25f7a4b816122476288168602c0fc8bce7d94e6ac1db34a23b8695640",
+        "template-proposal.pdb": "304ed3b8989eb0776a0a2ef23601af9fa5a8f0fa3a58938cd8ea7f37f07a24d3",
+        "template-seed-1.json": "2c4e1662132325dbdd507b3cb06bbba1f1aa6acb3c4cff1f24e3740b973b253a",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9124490133814844
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_length:CB-CG2",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9121145524763397
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 2.702696370923252,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.702696370923252,
+          "maximum_error_angstrom": 2.702696370923252,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR43-OG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3137162623450449
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.31399501032775246
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.09140046163446106,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.09140046163446106,
+          "maximum_error_angstrom": 0.09140046163446106,
+          "named_chi1_error_degrees": 0.695347448724192,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "195f16c287f77dc591d9bf81be0924eea9714e5cffa514ede700500dd83e8e5a",
+      "retained_files": {
+        "comparison.json": "61bda539dc9ce6bec5f7054afeb3ad80127d972f81efe8592b9ec007e4a62e22",
+        "input.pdb": "0ec9ffbbd77a4542f02e2af5c2283812d0e11320bc4f58504d3a539886c2db2c",
+        "own-attempts.json": "2e880c83b8682e14981d791ef475691c5c58bfa63f1b4613a931dc08b1913b9c",
+        "own-proposal.pdb": "509037977022f9cb5d5944486550cd9d298153875fcb00b15f7a1d2e24db5814",
+        "source-plan.json": "e504877d08e90a30137547d4da993b2368f0e027afc427e0376c919a483496e4",
+        "template-proposal.json": "78511b776b25c626e5e90c4ead59215e72c3abc004480f1fbdb7e995601d1ea3",
+        "template-proposal.pdb": "002d123cf634749d568daaae86737fa166563a75416467879823c7a1dc250055",
+        "template-seed-1.json": "a5a343730a730cf4caafb6e715555918e7249c25ad914aabdfeb3adf64aab8fc",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.8284307266548983
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.8284909101232707
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 2.3011118934178185,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.3011118934178185,
+          "maximum_error_angstrom": 2.3011118934178185,
+          "named_chi1_error_degrees": 105.60597271472541,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-THR43-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.26381130185767376
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2637643869271853
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.14396286383738394,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.14396286383738394,
+          "maximum_error_angstrom": 0.16170662096110866,
+          "named_chi1_error_degrees": 5.598806313849678,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "c74520567cfb9084f457ed9c77a1432d7078dd1cb4db682d2d337002fc930aab",
+      "retained_files": {
+        "comparison.json": "01367abb1a9a4ba08d0ebe4319299ea4186b62bc68f8ff4f0c5609c22ef3fadf",
+        "input.pdb": "d50fa5d07b5497469b1d2fe029792505b83c1be1ba0cf6d1ce3afbfe01365191",
+        "own-attempts.json": "c2dd88d66736c39f118b6fa08bb969198616344dd31c7a7558ddec8a799a9c46",
+        "own-proposal.pdb": "fce62afc1ba5f2a16a6190128d53eeb0704d687cbbedd9d4577d5caae128a92a",
+        "source-plan.json": "cf9fb38f36f93b5d3b75b6c4df3dedfa72ec5e27ba5b83f26fa3c2bbb2514f92",
+        "template-proposal.json": "bd9b91601ad095b0e9176edeea7d6105df5ec855f3bba7256727cef995c6b7c5",
+        "template-proposal.pdb": "1b1fd6c8d3aaa8f834a73571dda4a1bed6cbf51e56df242a1a3f3599e7bdbd76",
+        "template-seed-1.json": "edc5e087127c49b14e32ed20a20e3dcc227b029062986ca1da2b22ad598632e6",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='43', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_length:CB-OG1",
+              "bond_length:CB-CG2",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4912740495044208
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.4918693749999985,
+            "findings": [
+              "bond_length:CB-OG1",
+              "bond_length:CB-CG2",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4916908692506552
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 2.310530604158307,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.310530604158307,
+          "maximum_error_angstrom": 2.5528305032166165,
+          "named_chi1_error_degrees": 103.70115480020364,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL2-CB-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.666859498348378,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.43127763961853294
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6677184819999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4315003789793095
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.23671662969115223,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.23671662969115223,
+          "maximum_error_angstrom": 0.2669539323875392,
+          "named_chi1_error_degrees": 1.8590222756700712,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "8166c64a9a91018b3cb9b7d9cc0fd89fdf41507d57232ea8751579adcd2c59ba",
+      "retained_files": {
+        "comparison.json": "cfb618e68088f2d8400ad2418a73364f4a2f28b31049691d984ca5fc13aa43f6",
+        "input.pdb": "c8e190d435f965227929d70b72a1869fbb332d2ff9003598f64b8b857833982f",
+        "own-attempts.json": "b9063e31ed35a773ec4dad81e2e5fbef5888cf1811633bfab4df6b4249d73f37",
+        "own-proposal.pdb": "ea585a289c5a184f2ad11db1c29136400ac66d76ebb39011e2d322a235fb2f99",
+        "source-plan.json": "4fe47fda67a4197a0195c57465adb20397936d4ce228cf3c08a43a154a28f19d",
+        "template-proposal.json": "496dae8709a1ed4a78dd2dd39039d0358d87dcebed6eafe56d2b8ae9de7750a6",
+        "template-proposal.pdb": "48540c4d8b194c7512103c5b564de7f4d449401dbc32b8c1ba2a3f030183d3c3",
+        "template-seed-1.json": "b05df40b9ade54da8214a20df7325e565f0a67eb69d69e1530b07876fb08c3e9",
+        "template-seed-2.json": "31bceb3f4b415a2d46232117d1e0f968d107a445a554c5234c7460dec714a4ee",
+        "template-seed-3.json": "3358ee77b587df8436627434ac3e97731f16df33dcda4ebe08d2f3dd14420d0b",
+        "template-seed-4.json": "828239f94f5fdb6b5d83126e4281e2fe861ca13ed1b1559c6dcd2729b1adc0b6",
+        "template-seed-5.json": "2158a61da50d33b8e04bcfaf28948220f882b36a03d0a9a35698f919713783f4",
+        "template.log": "9f32b4c4354e43b16960c864f9b2266c6189a7a872f089277d9b5b97c0de1080"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": -0.36296637717873736,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_length:CB-CG2",
+              "bond_angle:CG1-CB-CG2",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7440629717553833
+          },
+          "rdkit_target_cip": {
+            "CA": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": -0.3617849709999924,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "bond_length:CB-CG2",
+              "bond_angle:CG1-CB-CG2",
+              "val_branch_name_orientation",
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7440946929530838
+          }
+        },
+        "helper_attempts": 5,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 1.2590616982247271,
+          "generated_only_val_symmetry_rmsd_angstrom": 1.2590616982247271,
+          "maximum_error_angstrom": 1.363271939522312,
+          "named_chi1_error_degrees": 1.6606562064492323,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL2-CG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.39179840722618176
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3915563824462338
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.07564012855304074,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.07564012855304074,
+          "maximum_error_angstrom": 0.07564012855304074,
+          "named_chi1_error_degrees": 0.9661527605435936,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "5272a211ac7c256589a029b006f4d1361a9d32f11a950eca3c67f7ee76e25046",
+      "retained_files": {
+        "comparison.json": "e54778c93045856b673660e73aaf200df44e5bcd571535b24fb896938e9be977",
+        "input.pdb": "6d7e2b3da06021622abb01f0f9c0c3199f2b15c68a6260046757766ed855888d",
+        "own-attempts.json": "58689450289acc5cccfe1f458f20675ff254ca2736c0512c9c817323d6e3f8e7",
+        "own-proposal.pdb": "c5d0feb2a861ec1dfc38c9b8ab4ef58833e5262e4868938fd5159213d8ab7033",
+        "source-plan.json": "3fe9b828e83cfc33dfc9aad8157b6ba10b202e83492d2a1aff4be178f5dd5d0f",
+        "template-proposal.json": "3f6500327c29a294fece30f600ba27da632c4d74cf0832b3a378e6d3f5271013",
+        "template-proposal.pdb": "b638a8d7bc193dae1b0f5f737d62d72deb01d5c4ce649f03b78c423a767ac360",
+        "template-seed-1.json": "b13dd4d2176efdf85cd5e89ebf60506d5735d75aca0dc3d587f90a50bb818c6c",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.49088016140655055
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.49089377986984006
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.48093813726429596,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.48093813726429596,
+          "maximum_error_angstrom": 0.48093813726429596,
+          "named_chi1_error_degrees": 19.73513143087166,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL2-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3443253586499275
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3439368462022916
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 2.413347371793781,
+          "generated_only_val_symmetry_rmsd_angstrom": 1.7708585564234762,
+          "maximum_error_angstrom": 2.4508896355602308,
+          "named_chi1_error_degrees": 118.1409777243299,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": true
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "7247ee15761ac7d93d829883e27b639ab5873c7a66c04dd17189724778b2bb73",
+      "retained_files": {
+        "comparison.json": "aefc1c3b8a5d5e0c54b0376c605ffbc8cf8f21e262e699594b041f84522aef34",
+        "input.pdb": "d96015f975f5916e0a0649b2a8b8852a17be900bb6a04f0b59fd4c29c0b8cfa6",
+        "own-attempts.json": "f2420c08755ab414f5050444dbabe081ccde88fb9762573d7ef139df210c5685",
+        "own-proposal.pdb": "8f24eb6954bc840b64709be44879a6b6ba2a533e0abe39152c8ba06cebdb298a",
+        "source-plan.json": "ede9c2902b451cf46ca069a803048d8dc7be46438f6ca7c05778750742929ca3",
+        "template-proposal.json": "c79fea83a9c3e3fc672285afd9084a0f7097c856913f9db42cae5d503706531d",
+        "template-proposal.pdb": "c2a8240bad6c793a64698245f4e896cded55f458ba7aaa79a1b8c31818693ec9",
+        "template-seed-1.json": "8a9e627421c4b8dac5df125c4ea7e2a77ca314f31b629eba5791077301cbc832",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "val_branch_name_orientation"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4709274007863016
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "val_branch_name_orientation"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4709214759586966
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.6843186707902073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.6843186707902073,
+          "maximum_error_angstrom": 0.7426551948117142,
+          "named_chi1_error_degrees": 30.932496571826732,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL2-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2991030578007239
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.29942937722209395
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.13495553934620533,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.13495553934620533,
+          "maximum_error_angstrom": 0.13495553934620533,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "2261d6a38400a098f6a3aadefcf1268aa74c5f4a82e8c4cbec98636225a58f09",
+      "retained_files": {
+        "comparison.json": "e9c185ee3311305245e6eec857e8f936abd281550d240db9451c320ed351912d",
+        "input.pdb": "54f4753571246022c214f24c62a9af5c3b39e0f0f82d3197fb2d6a0a0b95318c",
+        "own-attempts.json": "67e53b842a279c365cb9fc5b93cfe1bcce03531e6b4146bc69e837b96c54536e",
+        "own-proposal.pdb": "1cc81b8eae908f35b9839d7546e8235cdc2985a42223266f3d05c3375567f477",
+        "source-plan.json": "7349f409df97113340008d4e6e8215a4980bd21c5f99305539a92300d838d019",
+        "template-proposal.json": "17d9e7263c7b7e7a6b3b3125c6b56944c37144b7ef01d2d6f153158cfd03c97d",
+        "template-proposal.pdb": "8f9a4fd7ca7bd9b10f4ff2a923e485b662d346ad2b6876028978ff67ff13daeb",
+        "template-seed-1.json": "4c88d672f86aaf195fb090e8302ba7edff64bf8127fe9f1c95a659096d800261",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [
+              "bond_angle:CA-CB-CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.1321712749419941
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.3502295919999976,
+            "findings": [
+              "bond_angle:CA-CB-CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.13269892374830183
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.3417290902236799,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.3417290902236799,
+          "maximum_error_angstrom": 0.3417290902236799,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL29-CB-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5216414881089038,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.5016519453855959
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.522420643999992,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.501472615275131
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.1814480210325887,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.1814480210325887,
+          "maximum_error_angstrom": 0.26222744617579474,
+          "named_chi1_error_degrees": 2.059541969212148,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "5fa960a8c7b3f816d626a8775a3f5ef99b09413bb2a2eb7085499fdfb53be2e7",
+      "retained_files": {
+        "comparison.json": "ae272de565c6afd8969c481c9d3f0efaf1f102b444d88685064ff2cd060fad09",
+        "input.pdb": "0cbc5756e902b671ea1cf895ff25dd4a5ddb5d4062321e295c8f83b3d165bc3e",
+        "own-attempts.json": "31b6bf7fdac7e7ea76d65419ec7f97dbb817651510543552bc2078a60f0e06b9",
+        "own-proposal.pdb": "8195ab8564e27f03c0f1907af9e135008e97e9b7224b99260deb99f24febaff5",
+        "source-plan.json": "7989fc9742501ff6996e8cef404ef1f87c3d83c896bf2f355663dc07a6239b30",
+        "template-proposal.json": "c9d8d386788061dd9fe2709b0075b2b437decc644f7f9648f2cfa89d12672672",
+        "template-proposal.pdb": "609123bc18fcd59ecc96c24287e32c5b32944e2646b2f147c6aba290e4d84748",
+        "template-seed-1.json": "5eb3595f348332fbe8a7863f1155ee59e2c8476b07e07f3105e961698a5f7c2d",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.376447286597679,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4598198207686379
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.3755736059999917,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.46014898336667454
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.2075639715950552,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2075639715950552,
+          "maximum_error_angstrom": 0.29483962537810937,
+          "named_chi1_error_degrees": 7.478570201169106,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL29-CG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4152346586669413
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.41504690154099766
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.061772608466739785,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.061772608466739785,
+          "maximum_error_angstrom": 0.061772608466739785,
+          "named_chi1_error_degrees": 2.1574497367138292,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "6addc169a96ea0391efb4cb75df5d7245486889f86e19d1ce898065aedc5c496",
+      "retained_files": {
+        "comparison.json": "057e28ef4c0498d325483670d29e35fdb287899d447236feaee8bb4a16cb9a8a",
+        "input.pdb": "424cce59c93881aaf122560935d5bae1ee339d4956a92beb5fab22529ed5e375",
+        "own-attempts.json": "8736a9423f284add03ef0456c8fa2beaf4411a8c6497c25c7454ecb1dfd0f4b5",
+        "own-proposal.pdb": "0e3fe566632cf5a01e11ca5acc88c775c620400694a9b3438ae84e42e4309843",
+        "source-plan.json": "023ab580323d28b6d3ee2eef7f4761938e5af5ecf7afcb78e87de4fce0d3a3f7",
+        "template-proposal.json": "b82d00672bdfcec417e4dc66a54e49ad4623ea4ac1afa1305407a959792ec614",
+        "template-proposal.pdb": "d55b36fa43363627f43c76a4f5a24591f2ad9fc944064d54d87dbc96c596fcf9",
+        "template-seed-1.json": "bd564afd20ffe3146a2000a398b6c1da1be1eb4b1b637e94714b26145dcdeb8a",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4444544589148829
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.44433408518486317
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.1722954744774476,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.1722954744774476,
+          "maximum_error_angstrom": 0.1722954744774476,
+          "named_chi1_error_degrees": 6.488224403795073,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL29-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.41615812834240806
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4161042243402693
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.0655703797464057,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.0655703797464057,
+          "maximum_error_angstrom": 0.07100396649651014,
+          "named_chi1_error_degrees": 2.059541969212205,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "fc5e9a056eba1666d04bde4d30e88cf3d5a1d1c3ec77393784af8e9aee0bdca4",
+      "retained_files": {
+        "comparison.json": "09addeb66270da55805336cf28c9982cbfc3a5449895a603197f0947b0fdabb6",
+        "input.pdb": "ef47dc7431c12ebc7477897453a1de2729afd034724fef6345302cf75f7031a4",
+        "own-attempts.json": "19fe9ae854ec5999bd1f55f030fd12966f411227756606248f9ff1dcfff8c3cb",
+        "own-proposal.pdb": "dbb518f6225d18ff52da6c65900817bd49978de4e2dde624b289e39920d8ed74",
+        "source-plan.json": "de1b6b11acf2e5d4a59ecd9cf39b9a81574580c0711cca9a470a2fc7a1b52fd2",
+        "template-proposal.json": "555af6be8623396507133a49855994c8bb86d779dde3752123bc676477bdcfaa",
+        "template-proposal.pdb": "a84e20f285edb43e39d68be3e666532b5b02483c21df1c5efd694665585d7ec8",
+        "template-seed-1.json": "c33c08a8bf10b0602c0440d01c5f6d5907f57324395b8221d88c49e7da01c040",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4538638056824289
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4540215547292292
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.23015057260677912,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.23015057260677912,
+          "maximum_error_angstrom": 0.2605463890784209,
+          "named_chi1_error_degrees": 7.598506919038698,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1AKI-VAL29-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.30101015181936264
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3012017702121419
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.06299990818396795,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.06299990818396795,
+          "maximum_error_angstrom": 0.06299990818396795,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "42babd50b27f3236c3136d4cf60f511dcd5c7435813f7f8e22dc51acc550e505",
+      "retained_files": {
+        "comparison.json": "484e701522097560d06fda266b1c4a0460c3f4219846d0be352178a3aa0bf342",
+        "input.pdb": "11758020a35b517505c72ca28e8454e21c763650cc08b71c0871b98eb8736aaa",
+        "own-attempts.json": "a2e61f7d5a4480e0d798b4e1b10c9739fdc579b1dfc46f4a5c74236170b357de",
+        "own-proposal.pdb": "b29bbfc01736f57ccc3c5cefab515a3d78751636862becb140cb895cb8d70354",
+        "source-plan.json": "74bf6c1703bd869ba2d8ed8cc2baf5ec80e2db59c8b9c8889c3f3806e766f7b3",
+        "template-proposal.json": "53b7148ba7d5ff193e92b9116baf1ce0bee9e7174d35244ce81c21443bfd978e",
+        "template-proposal.pdb": "64b90322ce0ccf791f3c9526591cc8e84aae169733c379c6890bad5cc0c307e9",
+        "template-seed-1.json": "840a32837f68d7a4847fd781fc25d0445a1c477b6fc77b0636a2c831d2e58ca1",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.20077905954341402
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.42602581799999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.201269608509143
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.2451016466199555,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2451016466199555,
+          "maximum_error_angstrom": 0.2451016466199555,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 7.993605777301127e-15
+      },
+      "template_executed": true
+    },
+    "1BTA-THR19-CB-OG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "697389819a58b8a45e4eedfc5fd55daaf4eef33c4aa91adf5f66da2969f41e69"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR19-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "7e48f6c9d5501b81fd30ea42bcc8e858d3d17bda548cc493afdeb4b9d2660958"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR19-OG1": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "ed17eef54f5e2adf8766fde0f08ea755684e11b074812b3885e005510c3a1931"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR19-OG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "fc012218048364cce7380aeadc6a8194e56bd4b59f2eafdd93d60c658e4b4d2c"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR42-CB-OG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "b8edd38c1f0334a43c9235d79cfbeebe393fe396e641b8fe2db45f88c267abd9"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR42-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "1f3062b0cbfa72ca69b0f2220003ef07cb4b918484ef6ab4b69b5d2b7822a01a"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR42-OG1": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "69ce21c103b40f5cc304054141a57f342aaa1260c1abb209b7e94efa80af6ab3"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-THR42-OG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "b87760d38c8f285d8ba1f491cbec8f6f81aa04797fa5f33bec4d56867bbfc986"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL4-CB-CG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "29fb1c3dc46f1e3f57a0937ce0632165ff771caf3614a99bc153c3523c204f47"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL4-CG1": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "0f24e682d007f8e18b5d5b84090a6d9e6d10ae03e44d3e4d8c4575868020e043"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL4-CG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "3238d85a3cf5953c5dd383cc0bea2fdabfe70e90388be05453513b56bccdb103"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL4-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "7ef17c05036f4f48ab0471438117a87c397c9e867240799668723f5d4597a643"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL45-CB-CG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "254f4ac5756c08c1c59a3a038c033b4a25bc95d8520ff8d070c3ae651876fee6"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL45-CG1": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "df5d647bc3d3a4a385bd36ebd8248cdc4b77ebb046546ce16448782cbfaa2e0d"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL45-CG1-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "d8e01f24bae304eaad378a53f6bce2a9d812cdf555df1fa78c93097d8e404597"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1BTA-VAL45-CG2": {
+      "own_executed": false,
+      "reason": "source scope requires canonical heavy-atom names/elements",
+      "retained_files": {
+        "comparison.json": "07305f950dc86a185934c6ef1a868888133808073b4bdaf88ba09de582abb906",
+        "input.pdb": "2f2c0732d1082202b69cebca5830b02ad74a56beb634e3962884bd84961dfa74"
+      },
+      "status": "shared_admission_refused",
+      "template_executed": false
+    },
+    "1CRN-THR1-CB-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.646903246022008,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.46397586418173864
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6483707199999964,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4640100477011151
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.28505167702451856,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.28505167702451856,
+          "maximum_error_angstrom": 0.4393582456039679,
+          "named_chi1_error_degrees": 0.6595417728031805,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "369b5a932c5120a2e21081cbbdc1fbcc0552359cea9fbf68c4fc56a578de3fc9",
+      "retained_files": {
+        "comparison.json": "ab678d2fd69d6dd99e52f71016c6c71372cd103332e6eab607e97ec219430024",
+        "input.pdb": "0835221953964716dfbdba0d83b4fede7f6b111144d220350cc8f51296080037",
+        "own-attempts.json": "f0d9384ccb612010c4c97ed30b6b2da4fed16175e19b80a1653abd84be6bedaf",
+        "own-proposal.pdb": "3c95442f11cb020988ed554b873d13152138028814ce561ae42efc29cbd9bffc",
+        "source-plan.json": "2aa7eba63bb5cc83e3913d4242ec893dc6911a5c995c2a5baf5329a18cae5b38",
+        "template-proposal.json": "14a8c332452b7524f94f1eb5c921aeb64436a4a0aaf46d949558b6823f8f38d8",
+        "template-proposal.pdb": "d2094babd7b8586f8aa0579b4366937dee74f8e779ff25c5f5ceb95a68f59175",
+        "template-seed-1.json": "229ef66a6a3fa4e024e8d5a80d0d2b045bb07ed0289690eda219d9fd21b234f6",
+        "template-seed-2.json": "89f205056c0621e8d993521a9e90596b5d2456d4ded9da64721ae3ceff0f6e1c",
+        "template-seed-3.json": "0498ee9c752d8a84ee495e9345e5bacb7cda9e22e5755f43986c98230ad58537",
+        "template-seed-4.json": "880919ca9d0b5e7842b6d7f78033547fc7669540d8b9f32877cb08be1e04afc0",
+        "template-seed-5.json": "60d0e62e7629e28d7fbf5df9042e23ec9a84bc1131885903afc5f6819382b0e4",
+        "template.log": "9f32b4c4354e43b16960c864f9b2266c6189a7a872f089277d9b5b97c0de1080"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": -0.40346299842359334,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.808968417118114
+          },
+          "rdkit_target_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": -0.40439564599999556,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "non_L_or_nearplanar_ca",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.8087574884907496
+          }
+        },
+        "helper_attempts": 5,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 1.3824295843731778,
+          "generated_only_val_symmetry_rmsd_angstrom": 1.3824295843731778,
+          "maximum_error_angstrom": 1.6863361677662472,
+          "named_chi1_error_degrees": 96.02657474796621,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3928001623252366
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.39319837701254423
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.3679834272243742,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.3679834272243742,
+          "maximum_error_angstrom": 0.3679834272243742,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "21a58cfa7936b3aca2612382b44082bb6af8de41dee3884353e0d6fd5477c1eb",
+      "retained_files": {
+        "comparison.json": "bf1e832ead5360ec344ed4386e985347673829693a2d07e08c4e1a9b10462dac",
+        "input.pdb": "916e72173d25d9d35c96ad80a76f4b50aff141dbb9919056640a8d8c91bf8ccc",
+        "own-attempts.json": "ff2807ba1d19ee93d95b749986ae34164991b4fc6e72aa1ed159849e8034b05e",
+        "own-proposal.pdb": "25b98813674cbd98a4eb4aebd76c5bf216b2a1451a25ed710633730b8d01bcdc",
+        "source-plan.json": "32d7a15db7a3e490149a9121fba7b5452e7e148abe1c7f7038c223f24632c1c2",
+        "template-proposal.json": "ebcda00165974524ef272cffc88f5e5bd5136bc2c721c9e94bdab6fdfecc727f",
+        "template-proposal.pdb": "1ea8db4aacdcb67942d0abbdd7dc57cd9be8c782140a03fee7ca579bf0b5071a",
+        "template-seed-1.json": "190c02edbec3ec628e3ee47d20841a5a6a40c19c279fbeeface5286eb575921f",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "bond_angle:OG1-CB-CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.3033486453975054
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [
+              "bond_angle:CA-CB-CG2",
+              "bond_angle:OG1-CB-CG2"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.303548805487158
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.6071997153463926,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.6071997153463926,
+          "maximum_error_angstrom": 0.6071997153463926,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR1-OG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2815125578079507
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2815765372227568
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.20784051734610307,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.20784051734610307,
+          "maximum_error_angstrom": 0.20784051734610307,
+          "named_chi1_error_degrees": 5.250344215174948,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "f1e724a9afb2643767530a912e4e2c3a75dff616b7ef0c6b80c59a6fc566043b",
+      "retained_files": {
+        "comparison.json": "4fad50823ad4121b51f4a60082fbf783ba8147c3df9ba2e0490bbe9abcba5cf8",
+        "input.pdb": "d64a02692183ff8a86ed9204a66d72970318a198f2cd032eca34ba89291bc0fb",
+        "own-attempts.json": "e7cdc54b7c41d0490d80b4704ff17e783c97a5740e6befed0049e06dd985ae94",
+        "own-proposal.pdb": "0689ab9daeddb5a13fb24c1894860dc1a678960aa0ccb0b60bb90b798ac13834",
+        "source-plan.json": "155d48c2f932257bd04df8be1c4c22f4520dad70ed2957ea45de47036fad491d",
+        "template-proposal.json": "40d9d54813199a35141f0d1aee7252f9b9b0fc8da62ce1ae8291ec68f8f06e2e",
+        "template-proposal.pdb": "707d1f641cd9ad6236c075a4610389f0eab955e51ba2edb39a59cdba47b0820a",
+        "template-seed-1.json": "195dad08d917435320d9a46a7efc1c9e39989c98a5632ce27576af2e5a99f864",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4228399856283316
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.42310317360427874
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.3703676837588866,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.3703676837588866,
+          "maximum_error_angstrom": 0.3703676837588866,
+          "named_chi1_error_degrees": 2.3407213088242997,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR1-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4392283821478138
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.439357671045014
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.23096217803816538,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.23096217803816538,
+          "maximum_error_angstrom": 0.28166766756526673,
+          "named_chi1_error_degrees": 0.6595417728031805,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "6fe223ef8d6e7a07306b684ae80c066b093a8245904911e81281e2cbe6149d00",
+      "retained_files": {
+        "comparison.json": "fe66ddf3d158bf80ff5f89fd0e22fdd3b3632cb8c88f9020424b78243f4d7d3b",
+        "input.pdb": "06184c76cb9ba8dc5f53902b5d0de73bbc5393451ae07ba700d6f6a6e5b1bd71",
+        "own-attempts.json": "2256e2f45af6fa668e6211de0589d4eaca0fce95d3914e1de4c8708462eb6c6b",
+        "own-proposal.pdb": "0fae4654e2ca8e57076b957e23c1cd6139bc407c17157aa5263b438193edbecc",
+        "source-plan.json": "69ea0091dcc9e2c2e6a15fd89f6d4767f8519a309ca657a05aa6fb4ad27d4310",
+        "template-proposal.json": "36c09f97749093c864c559368ada99772728c5d6678e0a7795f1d975cde2f23f",
+        "template-proposal.pdb": "c13c30f94b39da5410f8b320812dab1d5a04ada2d5802ba5dc7d1e5d9d4b491a",
+        "template-seed-1.json": "48cc174972c06ed5221f3bfa8b4649f9e823edea5d647c4210745efaf82b5317",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7401837962068618
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.8457105879999984,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='37', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7397569693617152
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.6946953068624493,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.6946953068624493,
+          "maximum_error_angstrom": 0.8106297626446418,
+          "named_chi1_error_degrees": 12.970748075182172,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR2-CB-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.633708645663915,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3384176064238027
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.634027078999999,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.33801786959044544
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.1103955994836777,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.1103955994836777,
+          "maximum_error_angstrom": 0.1461020994240856,
+          "named_chi1_error_degrees": 3.9028461481972556,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "ef7202c2fce7ee72272c5eec9a53ce42d7e03e2bfcdf4780f2daec5fe0f29e1e",
+      "retained_files": {
+        "comparison.json": "6c93ca09320d08cb4b36a82d49451a8782f260973a0750b2d32cc3bc6c80c413",
+        "input.pdb": "3343ca03ba605fce3bda98aa341a89db6e428a2f1e911812ee07d3720f35e9b0",
+        "own-attempts.json": "a8c6bdfb5003ab3f46cf7a41a9848a46944bdb67a7410c6581ec9d45de0ba756",
+        "own-proposal.pdb": "d9359145ef2f78a239559e1372e6da505029f835c8c317f09cda62807a16338c",
+        "source-plan.json": "64cd5d4f9e6f291b9730059bffca19dbff665f537bc8842d4d780c5c80dba3a3",
+        "template-proposal.json": "f06d651de33eea2bb11ab334ebc61a72c20fe8cac49733d028e42a81cd5b793b",
+        "template-proposal.pdb": "97c1c9af5fa3a886f1759bdc21f79e17244f1cdcb103b2d3fd04bb18fcb5e0c9",
+        "template-seed-1.json": "4eacfbb82c60ab008c4b669935995def212cf7479d7ac3d233f08685189e336b",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 0.8129409522822347,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7063359243058183
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 0.813109587999998,
+            "findings": [
+              "bond_angle:N-CA-CB",
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7064448108995172
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 2.6520821759495696,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.6520821759495696,
+          "maximum_error_angstrom": 3.2667114871830703,
+          "named_chi1_error_degrees": 76.2719764498591,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR2-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2588173804297611
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.258963557560691
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.11407474746604862,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.11407474746604862,
+          "maximum_error_angstrom": 0.11407474746604862,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "a82d4ee56c324e49488e17e1b676108880bfaf83acde8a94edc56dd2003e3d1f",
+      "retained_files": {
+        "comparison.json": "f1dc6405e287890afa7fed073a566b98b54647ec70bc05e1ca818c1e1add3e39",
+        "input.pdb": "872c8f8dc7b1cf17f19a20e055ac5fc44b96272d58a06047f552f50a3cd1c5b5",
+        "own-attempts.json": "b0bca285250f4754ae92043ad4e361bfd0e096a2f63a3f599175dd67803225e8",
+        "own-proposal.pdb": "341728045a3fe6fe9fde16ac3165684216396d99156a6f2de83e6c5cec612790",
+        "source-plan.json": "18f24a4ded888ca57895331c8e87401af0811d3f9f929381d57dd09f0f3c82ab",
+        "template-proposal.json": "e127f9e591e83ba9becab4f69227f56c03747fe87d545a0e27bfd1b82c04a488",
+        "template-proposal.pdb": "9738adde385911a5404260d46dc19d4db0c1eb2c21a4cd289ab397ecd43a4749",
+        "template-seed-1.json": "952ffa9a5411ac133b13183b504b3f4884a3399b4add10a43e6b8352d4024b81",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='10', insertion_code='', alternate_location='', occurrence=1):NH1",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7953729293026166
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_angle:OG1-CB-CG2",
+              "thr_cb_not_R_or_nearplanar",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='10', insertion_code='', alternate_location='', occurrence=1):NH1",
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.7956693758280236
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 2.918231289366841,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.918231289366841,
+          "maximum_error_angstrom": 2.918231289366841,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR2-OG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3123157505935874
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.3120547503621476
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.19609349140080148,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.19609349140080148,
+          "maximum_error_angstrom": 0.19609349140080148,
+          "named_chi1_error_degrees": 6.757840674431321,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "587ff00f9d2f3786fd4d635d5bfc30dfb019658c7fc9918fe76706b45bf978f9",
+      "retained_files": {
+        "comparison.json": "ddcd2178dd32678dd56699efa2c534f0d156e4db3f8a88c6870476eee6c621a3",
+        "input.pdb": "72880176e22362cb1766244e342bd830912f67e971b0b558770d7504ff7df5a4",
+        "own-attempts.json": "9bc38aa59f0625066d27deca71860a75510a4728fa4d738c8957d3352eafe805",
+        "own-proposal.pdb": "43f0c4f2e67b84e1cd9bc82673bd0322cea39b4d3ad1011d1a1de561403e8184",
+        "source-plan.json": "0f5d6ab929ce550c4a97c1784adc626be685a3647115a0f84d1aa2029a8ddc45",
+        "template-proposal.json": "97c74b84a12b5a8a9aa74d292bfe05754cb1eb09d72d48d3fd1974147c9353fa",
+        "template-proposal.pdb": "992b14f1dc852420d4ca06916de5d19861d322ff850766e72e126afd38027c11",
+        "template-seed-1.json": "2ec1231358d75ff07ce5cd278341a036475791bb7fb664332336c2085c835abc",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9287488644242139
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:OG1-CB-CG2",
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.9288475065983743
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 2.1194921365264716,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.1194921365264716,
+          "maximum_error_angstrom": 2.1194921365264716,
+          "named_chi1_error_degrees": 95.01560502215284,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-THR2-OG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2726451711373885
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.27269887314030594
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.11828246605328496,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.11828246605328496,
+          "maximum_error_angstrom": 0.14540524109358136,
+          "named_chi1_error_degrees": 3.902846148197284,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "cbdb1e42be1c646fac469c40e169d2fce5d42c5b648732e0b46bd709ad02988e",
+      "retained_files": {
+        "comparison.json": "de6ee79fe84cdf60b3a318a8aa51dde3606cd90fc6f6db1bb24e4a47e15cdb6c",
+        "input.pdb": "3e286e924de6bb8abbdd48e429b7a6cb19db1d5dec34b9b44bb69a7df3947929",
+        "own-attempts.json": "17475f6e27fbd9d3aa324cc3e1d2ebcd2463605dcb75899f4dc6ee3124821da8",
+        "own-proposal.pdb": "8f4a92c0376eacd1f2a2648a27c31ee879753cf1c8fcaebbc72bd0c7413efd9f",
+        "source-plan.json": "b6e75bb6df6d680039e5fef3f6c5b03ea7e6bd9038960e0ac938eab32faefb7f",
+        "template-proposal.json": "d673cc2826829db6f212804c7aba19e484948a7d2a342c1e08a0e84dc8c0daa9",
+        "template-proposal.pdb": "5918f098e177e5922c4817b5c8e12e1bcc573764807d0b9a8f35140c55482252",
+        "template-seed-1.json": "0fe0491abfd3760839ef80140933844d34b159f643dbc876724425af571f250f",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": false,
+          "global_stereo_findings": [
+            "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+            "independent_target_CIP_mismatch"
+          ],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_length:CB-OG1",
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4758863381343743
+          },
+          "rdkit_target_cip": {
+            "CA": "S",
+            "CB": "S"
+          },
+          "rounded": {
+            "accepted": false,
+            "ca_volume_angstrom3": 2.643484653999997,
+            "findings": [
+              "bond_length:CB-OG1",
+              "bond_angle:CA-CB-OG1",
+              "bond_angle:CA-CB-CG2",
+              "thr_cb_not_R_or_nearplanar"
+            ],
+            "minimum_nonbonded_clearance_angstrom": -0.4758144723701281
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 2.3258777808134283,
+          "generated_only_val_symmetry_rmsd_angstrom": 2.3258777808134283,
+          "maximum_error_angstrom": 2.7039385689217923,
+          "named_chi1_error_degrees": 95.254575060739,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL15-CB-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6791552165399874,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4615111064858466
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.678866944,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4614054379686876
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.24819549139495273,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.24819549139495273,
+          "maximum_error_angstrom": 0.3970590720778055,
+          "named_chi1_error_degrees": 8.966595485198411,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "6ef5fb241ab14b5b5b2dfee41fb9c4f2da019fc02a1baf70550667526e7a22ec",
+      "retained_files": {
+        "comparison.json": "524a1a3c42eef1f6bd6949e0d552dd3fec69ddae15d8499f8bb87575e36a6f1a",
+        "input.pdb": "7d93b1415642eeead773153ec567c3f0a97fcc6548022a0bf918ac08e8b92c51",
+        "own-attempts.json": "fa1b4d8968538ed28c2d364a6e8000fb325a3808ccf697c2f7d967afda231333",
+        "own-proposal.pdb": "e9b55c40323fb8bdb7fcb939696f401eec04ae1ac770be84c4d8aca7b77d32f7",
+        "source-plan.json": "356b1635c1078a057be4df957fcbdb3907cb1b95e8fd011942a08e497103a569",
+        "template-proposal.json": "888109993e1f16714e0dc0250ff5f7cb4ce07ecb826e2528f72bcf5f1fdbe607",
+        "template-proposal.pdb": "40dc62869d159f428f0cdc23e441fe38f6ebec2c8ed324a4b19ab143903971be",
+        "template-seed-1.json": "9799152c854765963f0ddf8921dc8422d34b328d66c5e90573ff2732172eb929",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.564532597381217,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4253795845188133
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5639169760000002,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.42556492758708897
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.07254738758671465,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.07254738758671465,
+          "maximum_error_angstrom": 0.10459083137153342,
+          "named_chi1_error_degrees": 2.1591259397841043,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL15-CG1": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.514260694362132
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.5144750910796145
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.028164691475753966,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.028164691475753966,
+          "maximum_error_angstrom": 0.028164691475753966,
+          "named_chi1_error_degrees": 0.6934290234095215,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "a2dc5296e3261d7541a27eb5adf634c55ab4b00aff033d0681256a7e43154c14",
+      "retained_files": {
+        "comparison.json": "fb2369adc8b5b9a78e409c8ee2e9b1614ba72611ac16f868915a0d94956f7fa3",
+        "input.pdb": "b35a5d3d5e90c2b1cdd5a1bc8e2ce827c144c831a116cc08aac9f9ade0068bb4",
+        "own-attempts.json": "9a2f29a2e6902c54973d842407758c31499c01ea96c6c8901e32ac98e1b938a4",
+        "own-proposal.pdb": "cf995b88517c020dfc00c8ac59f3522aef7b207416b5405fe27b31813a0a38e7",
+        "source-plan.json": "c5b59298246cf84cffa0815d39ed861b6694c4c34227486e8f25838a25d8bf4d",
+        "template-proposal.json": "5c417b8394a02ec190bf77188ed0356cfc5da61c8fb89f2d6814bc2272091f55",
+        "template-proposal.pdb": "06d7c66fbb8b5a2296827b4269063b71b01be8ed1f138fb8938a9e1127441bbd",
+        "template-seed-1.json": "c50f16ea5eb2437ebd84759da116c28cdbe3dc0993ef23b2a1ac1a124551b044",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.42578649041513916
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4264052058156951
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.10775810460216062,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.10775810460216062,
+          "maximum_error_angstrom": 0.10775810460216062,
+          "named_chi1_error_degrees": 1.101432626991027,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL15-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4216686646740473
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.42204533278291834
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.24708471041771435,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.24708471041771435,
+          "maximum_error_angstrom": 0.26545923732563176,
+          "named_chi1_error_degrees": 8.966595485198411,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "f998eb999ede9037a6932e4a0c339a90ce503f8139993ba973d5895bb511db4e",
+      "retained_files": {
+        "comparison.json": "3446609bd3739ef0e381b650f3edb1fec3fa08da5df2c225509d1695b2718138",
+        "input.pdb": "f5c51279fd9563cb8d4f7f28a5776fbf391b21d5e91a1876c08ed2af4a186ff7",
+        "own-attempts.json": "dcee35c973982e4d0480e3a1cc381139636afbc8ddbbe4edd3a86ad9d7ba2cc8",
+        "own-proposal.pdb": "a77f8524bbd51f0b05435fa23062ed566c38c7c334a4a5d6c48ce4f196deaba9",
+        "source-plan.json": "14a31c6a53b3e0b569d61eaa9b943ae21164f6fc18321d82a43d36f30ad57b4c",
+        "template-proposal.json": "6b2ac064105a067c77fa437c60ef2c28f833b2ca5c2874d30fc43114648cb486",
+        "template-proposal.pdb": "dd8dfeab49c0c7160bf2370eb0ef0a62c0d9d3112104ff7acf2405c71160bb7c",
+        "template-seed-1.json": "195c972334e39265ed8f1d0144281bec1c64d94cc911009043c430bea3f88e5a",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.42887792152114246
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4283511311058299
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.09122709523016898,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.09122709523016898,
+          "maximum_error_angstrom": 0.11177655386966795,
+          "named_chi1_error_degrees": 2.083573360488515,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL15-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.2212657318410729
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.22157565721050254
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.058010866718317386,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.058010866718317386,
+          "maximum_error_angstrom": 0.058010866718317386,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "31c9ffc61747332e14ffe608b49e37485208c2388f84f79bb75a3e8e8a3ddf99",
+      "retained_files": {
+        "comparison.json": "c1844efcbad02ea98a52a034d09ef028795f169b760df19fc30f0e64884fe8ff",
+        "input.pdb": "ed5b481ab9a765bc8d80ce2223f8a77c6d02b1a5521e035c43dd221c0648dd1f",
+        "own-attempts.json": "2396822619cb72e591708eb427966e3f6b87416e4b822bf149661b905ba85579",
+        "own-proposal.pdb": "76e629a87ac8cdb2c937c59636ac0afb9dd68710ccd55c5a0e40cdeca825bbd9",
+        "source-plan.json": "214717a1050204e3cac469bb1652a0c8344aa9983efd40a51067bfc6d17f8224",
+        "template-proposal.json": "fc82b9ecb9f56056079f10e63deba907d781284ee26385e4f48a0bac65e758a8",
+        "template-proposal.pdb": "07f3ace9296cac0b011a390797f8eed4da7e37b251c7aa9367916065e3aeff8f",
+        "template-seed-1.json": "319bf236f42d41a1524aa6ec9cdbfe0fdaef518937388ae00236d48c2f87c384",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.16980443156709146
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.5604168640000005,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.17015373760312524
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.06769147893660041,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.06769147893660041,
+          "maximum_error_angstrom": 0.06769147893660041,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL8-CB-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.608385477912593,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.47808749712801246
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.608113564000002,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.47763777056984225
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.36348338843305245,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.36348338843305245,
+          "maximum_error_angstrom": 0.52851313722843,
+          "named_chi1_error_degrees": 20.348900772788085,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "7ce4232c00b5c69a1653d1b10e3af3cb3d59dfcb2e2bc5baf08997c3e9690577",
+      "retained_files": {
+        "comparison.json": "ab49a108bfd5eeb6ff9fb78fa5cc374664ed6005d3ce03aa564e124e1e73176f",
+        "input.pdb": "590ad0103154ab13e03cddb2d2a4cc088a224d67135dc051a0f4947ad90af019",
+        "own-attempts.json": "c84dccb89cf5d8b49a46b665ab4a85798813d68768c04ce099bf61e8d18a43d3",
+        "own-proposal.pdb": "20994405903128705aa2b97f7f4983ca402262fc21b0a6074f9e7d824c994e97",
+        "source-plan.json": "c03a960977595fbd6b0f87877c33564f4fb7dd4c64fe55624915ee2c684cc84f",
+        "template-proposal.json": "3f6060d67326767208c3bc796501780c9fdc517241f21579a85ecff78231d575",
+        "template-proposal.pdb": "27fb3c82ac4de19e7659ac9621d180efe65fb028013fd7b052dd918b0dc98b59",
+        "template-seed-1.json": "e989b5557e1abee13b7ebb2d390cadec7f6c449c401ad8f2370a59d3a2b7ede2",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.4726305241343507,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.43052101363188955
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.471536444000002,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4307532941838601
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 3,
+          "exact_name_rmsd_angstrom": 0.26281742429273014,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.26281742429273014,
+          "maximum_error_angstrom": 0.37689841092261894,
+          "named_chi1_error_degrees": 9.427490663898453,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL8-CG1": {
+      "own": {
+        "reason": "anchored_candidate_failed_geometry",
+        "status": "rejected"
+      },
+      "own_executed": true,
+      "request_digest": "270b8f9da8424b866e1e48392b0db8bf497286408e8bfa57d904a4804db91de9",
+      "retained_files": {
+        "comparison.json": "68991d0d2644c0f731a7ab64658b1caff007a49d2a60dce50c1735a690111c59",
+        "input.pdb": "1884a1e6fddd2b13b369f5fcb96d70e58e6df1ae9fafbc795c90a8293a33a484",
+        "own-attempts.json": "0c3c4a10a52e9381df6bd3bb9f3e7c0ae96285275c6127025d27bc2c54b63c66",
+        "source-plan.json": "8aa3e26630db863f884bdd26781a3ef4d364821f912246cead26d7e50c37145e",
+        "template-proposal.json": "faea058e7e418c9866cdd6d3cb1294739e2106fe4fcdafbef4fafcddd8ef1802",
+        "template-proposal.pdb": "37dc6b3ebf6e19b98ba1aa5a3d3cc92a11f50d9f6d4ac3f7fa42de3deccc94fd",
+        "template-seed-1.json": "77bf61d8377998fed096153e0abbcf930080730da561c0443cd9e4433508c46b",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.46638904113833624
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.46609969494531
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.19375929216624782,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.19375929216624782,
+          "maximum_error_angstrom": 0.19375929216624782,
+          "named_chi1_error_degrees": 7.673506706683867,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL8-CG1-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.46116559466551976
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4612164081035157
+          }
+        },
+        "reason": "geometry_candidate_not_native_conformation",
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.441850575232751,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.441850575232751,
+          "maximum_error_angstrom": 0.5107242256197082,
+          "named_chi1_error_degrees": 20.348900772788085,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "2f6e7821551aa1ea4fb3516af63fd958c486b489ac0e0dbef19ec2ba21f362e2",
+      "retained_files": {
+        "comparison.json": "8487abfb4f69d0835305949fc5bec0577dfb25db22c74a9fa65eed597a76097a",
+        "input.pdb": "5fdaa773d1ab3cd67e23f17a76d15595fa1e6b9f01b41acacfc965904b3f0dce",
+        "own-attempts.json": "83238d9cd7c6a0f31d7603f92b85f9e1ae66ecdac728ee6d53effe2a1ce26dda",
+        "own-proposal.pdb": "b32ce68390e183c24b56830d9074c2947d3ebf9f4e632034f11295b06bd21e78",
+        "source-plan.json": "771a26315033432cc3edd5c493ee8b92c83a619e3ab39e5cd55c46882e97e20b",
+        "template-proposal.json": "37d7b03b963dc57a02252c3de33abc37c1bced2bbc018849f986d5a8a34c6d82",
+        "template-proposal.pdb": "8100469c13d6883c3465b2bcd026658f68053efcf349ce2e2bdc0bc96f8934d1",
+        "template-seed-1.json": "06eb011d8841b0307e42596a1be420dd28b74ac7aba75487e45e08edcf9c7747",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.45929112721656606
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.4600117347172965
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 2,
+          "exact_name_rmsd_angstrom": 0.16609512596029566,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16609512596029566,
+          "maximum_error_angstrom": 0.2247368110062542,
+          "named_chi1_error_degrees": 9.074873985937728,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": true,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    },
+    "1CRN-VAL8-CG2": {
+      "own": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.1194647949434815
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.11952751170050968
+          }
+        },
+        "reason": "observed_anchor_geometry_control",
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.09348296533996996,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.09348296533996996,
+          "maximum_error_angstrom": 0.09348296533996996,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "completed"
+      },
+      "own_executed": true,
+      "request_digest": "6d89801bf425070d41416ea845ef20dd5a5d1607f68ca51deb041174c7438194",
+      "retained_files": {
+        "comparison.json": "7ce2fdba92d18be8d8e3529d4b4320ecc65e0b67c12188d9fb6be2bc849d63e7",
+        "input.pdb": "b2ec14cb7560e167ae26825255043f68c93088bcc312e97195e2df19139c6c82",
+        "own-attempts.json": "709f6ddded5c438a38959d8df485f187aec40dc496c4f2b9f6c1a0f1cf82e9e4",
+        "own-proposal.pdb": "0ad2c967045959fa1a970721d669de92773807242bc093bd6b5e2a1d3d2639a3",
+        "source-plan.json": "b5d126f7d30478c58121917f8e6e26132b6f06bacef3b79e9ae465b0b92126f2",
+        "template-proposal.json": "d5fa318f6f43990c6fc26f8d88fd1328f0dd4d8c401e3951dc3cea9e94f8a884",
+        "template-proposal.pdb": "1435c461aa50f9d7fe42ea1745230bff17abe3fff5cd3cf841c17aed1bd6e7f0",
+        "template-seed-1.json": "6488f578b0e5a72f108fc4ddebde98c9e855afe51794a815026da3b0b45f0e09",
+        "template.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": "admitted",
+      "template": {
+        "common_audit": {
+          "accepted": true,
+          "global_stereo_findings": [],
+          "observed_preserved": true,
+          "raw": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.15430705791487664
+          },
+          "rdkit_target_cip": {
+            "CA": "S"
+          },
+          "rounded": {
+            "accepted": true,
+            "ca_volume_angstrom3": 2.6552662200000023,
+            "findings": [],
+            "minimum_nonbonded_clearance_angstrom": -0.15384867940857871
+          }
+        },
+        "helper_attempts": 1,
+        "scores": {
+          "atom_count": 1,
+          "exact_name_rmsd_angstrom": 0.0610225690615846,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.0610225690615846,
+          "maximum_error_angstrom": 0.0610225690615846,
+          "named_chi1_error_degrees": 0.0,
+          "reporting_only_no_reranking": true,
+          "symmetry_minimized": false,
+          "used_for_selection": false,
+          "val_swap_admissible": false,
+          "val_swapped_in_reporting": false
+        },
+        "status": "evaluated",
+        "temporary_observed_motion_angstrom": 3.972054645195637e-15
+      },
+      "template_executed": true
+    }
+  },
+  "retained_directory": "tmp/pdbfixer-research/prospective-reconstruction-02",
+  "schema": "dvbfixer.unfiltered-branched-results.v1"
+}

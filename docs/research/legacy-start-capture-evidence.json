@@ -1,0 +1,3480 @@
+{
+  "audit_script_sha256": "3b0914eb961614547b2e940abb533ccbd5fe5307fe80e6429e262b70bb060e8e",
+  "cases": [
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.275117483722526
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.275117483722526,
+                "ca_volume_angstrom3": 2.146132745600079,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.8935701605130504
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.8935701605130504,
+                "ca_volume_angstrom3": 0.2055003131830482,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.325595326656129
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.325595326656129,
+                "ca_volume_angstrom3": 2.4859600860755693,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.275117483722526
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.275117483722526,
+                "ca_volume_angstrom3": 2.146132745600079,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "6",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [],
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.2675493524868213
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.2675493524868213,
+                "ca_volume_angstrom3": 2.141286316408282,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.8935701605130504
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.8935701605130504,
+                "ca_volume_angstrom3": 0.2055003131830482,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.3004698536207115
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.3004698536207115,
+                "ca_volume_angstrom3": 2.503894297269188,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "6",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -2.2675493524868213
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -2.2675493524868213,
+                "ca_volume_angstrom3": 2.141286316408282,
+                "residue": [
+                  "A",
+                  "6",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5056446685705778,
+                "ca_volume_angstrom3": 2.4575374123224156,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.963813309989784,
+                "ca_volume_angstrom3": 0.25919317365421185,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5121252319524845,
+                "ca_volume_angstrom3": 2.5674301424580737,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5056446685705778,
+                "ca_volume_angstrom3": 2.4575374123224156,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "27",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [],
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.49005007621631,
+                "ca_volume_angstrom3": 2.480647949332924,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.963813309989784,
+                "ca_volume_angstrom3": 0.25919317365421185,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5102995026315176,
+                "ca_volume_angstrom3": 2.5763560756368817,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.49005007621631,
+                "ca_volume_angstrom3": 2.480647949332924,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.3950955309822635e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5459925964394747,
+                "ca_volume_angstrom3": 2.4209739770722565,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5656508207222584,
+                "ca_volume_angstrom3": 0.4034156593929839,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.532456462966336,
+                "ca_volume_angstrom3": 2.5281587016713405,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5459925964394747,
+                "ca_volume_angstrom3": 2.4209739770722565,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "1",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.3950955309822635e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5554566278964788,
+                "ca_volume_angstrom3": 2.417356687349819,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5656508207222584,
+                "ca_volume_angstrom3": 0.4034156593929839,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.531953517230355,
+                "ca_volume_angstrom3": 2.52032203811548,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5554566278964788,
+                "ca_volume_angstrom3": 2.417356687349819,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.399458043831689e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.477210955745059,
+                "ca_volume_angstrom3": 2.342030069656413,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.1983892885655522,
+                "ca_volume_angstrom3": 0.8131107802635412,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4731380262899285,
+                "ca_volume_angstrom3": 2.4828211885175366,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.477210955745059,
+                "ca_volume_angstrom3": 2.342030069656413,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "N"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CA"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "C"
+              ],
+              [
+                "A",
+                "2",
+                "",
+                "THR",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.399458043831689e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4855454188520563,
+                "ca_volume_angstrom3": 2.316987036326964,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.1983892885655522,
+                "ca_volume_angstrom3": 0.8131107802635412,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4732715683825233,
+                "ca_volume_angstrom3": 2.4765550381920347,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4855454188520563,
+                "ca_volume_angstrom3": 2.316987036326964,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "N"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "CA"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "C"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.4048993341231e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4716235932314157,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4715343670987386,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4527183865087285,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4716235932314157,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "N"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "CA"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "C"
+              ],
+              [
+                "A",
+                "8",
+                "",
+                "VAL",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.4048993341231e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.467522168967954,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4715343670987386,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4506750951353466,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.467522168967954,
+                "residue": [
+                  "A",
+                  "8",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "N"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "CA"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "C"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.4133044260119885e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4779820971760658,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.563916653983771,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4507004450148613,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4779820971760658,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "force_inventory": {
+        "compound_terms_containing_target_cb": [
+          {
+            "expression": "0.5*k*step(qmin-q)*(qmin-q)^2;q=v/vref;v=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);ax=x1-x2; ay=y1-y2; az=z1-z2;bx=x3-x2; by=y3-y2; bz=z3-z2;cx=x4-x2; cy=y4-y2; cz=z4-z2",
+            "particles": [
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "N"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "CA"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "C"
+              ],
+              [
+                "A",
+                "15",
+                "",
+                "VAL",
+                "CB"
+              ]
+            ]
+          }
+        ],
+        "forces": [
+          {
+            "name": "HarmonicBondForce",
+            "type": "HarmonicBondForce"
+          },
+          {
+            "name": "PeriodicTorsionForce",
+            "type": "PeriodicTorsionForce"
+          },
+          {
+            "name": "NonbondedForce",
+            "type": "NonbondedForce"
+          },
+          {
+            "name": "CMAPTorsionForce",
+            "type": "CMAPTorsionForce"
+          },
+          {
+            "name": "CMMotionRemover",
+            "type": "CMMotionRemover"
+          },
+          {
+            "name": "HarmonicAngleForce",
+            "type": "HarmonicAngleForce"
+          },
+          {
+            "name": "CustomExternalForce",
+            "type": "CustomExternalForce"
+          },
+          {
+            "name": "CustomCompoundBondForce",
+            "type": "CustomCompoundBondForce"
+          }
+        ],
+        "interpretation": "force inventory only, not a force-isolation or barrier certificate",
+        "target_cb_centered_periodic_impropers": []
+      },
+      "hydrogen_calls": [
+        {
+          "call": 1,
+          "heavy_delta": {
+            "count": 327,
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.4133044260119885e-07
+          },
+          "hydrogen_count": 315
+        }
+      ],
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "phases": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4621870414566813,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.563916653983771,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 1,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4482109306061224,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "ca_volume_angstrom3": 2.4621870414566813,
+                "residue": [
+                  "A",
+                  "15",
+                  "",
+                  "VAL"
+                ],
+                "target_cip": {
+                  "CA": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            }
+          },
+          "phase": 2,
+          "settings": {
+            "max_iterations": 1000,
+            "tolerance_kj_mol_nm": 10
+          }
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    }
+  ],
+  "full_causal_attribution": false,
+  "heavy_coordinate_policy": "report exact/nonexact numerical motion verbatim; no observation-preservation or scientific geometry acceptance claim",
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "5016c0869e8dc74507f9ac70103fb83427f2c96b0c2b954e1076a6a5e17033e5",
+  "production_changed": false,
+  "profile_selected": false,
+  "reporting_amendment_sha256": "ab09e8b8b1364a22d444f6e09b2521da5b0909867315ef3531838d536261748e",
+  "run_sha256": "63c834b9501801defb677ece4a777c9bd0e52f7e124ce14d044c4c029da93a8b",
+  "schema": "dvbfixer.legacy-start-capture-audit.v2",
+  "seed_comparisons": [
+    {
+      "hydrogen_call": null,
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "note": "keep-H branch: seed labels did not intervene in H placement; numerical repeat control only"
+    },
+    {
+      "hydrogen_call": null,
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 467,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 480,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      },
+      "note": "keep-H branch: seed labels did not intervene in H placement; numerical repeat control only"
+    },
+    {
+      "hydrogen_call": 1,
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.048025070886314,
+          "rms_angstrom": 1.0678728472109282
+        }
+      },
+      "post_h_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.048025070886314,
+          "rms_angstrom": 1.0678728472109282
+        }
+      }
+    },
+    {
+      "hydrogen_call": 1,
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.0217870017451878,
+          "rms_angstrom": 1.0835122180847339
+        }
+      },
+      "post_h_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.0217870017451878,
+          "rms_angstrom": 1.0835122180847339
+        }
+      }
+    },
+    {
+      "hydrogen_call": 1,
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.0247652489147936,
+          "rms_angstrom": 1.08019174427598
+        }
+      },
+      "post_h_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.0247652489147936,
+          "rms_angstrom": 1.08019174427598
+        }
+      }
+    },
+    {
+      "hydrogen_call": 1,
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "native_phase1_start_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.024793264410025,
+          "rms_angstrom": 1.0791854201151467
+        }
+      },
+      "post_h_delta": {
+        "heavy": {
+          "count": 327,
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        },
+        "hydrogen": {
+          "count": 315,
+          "exact": false,
+          "maximum_angstrom": 2.024793264410025,
+          "rms_angstrom": 1.0791854201151467
+        }
+      }
+    }
+  ],
+  "summary": {
+    "completed": 12,
+    "enrolled": 12,
+    "native_phases": 24
+  }
+}

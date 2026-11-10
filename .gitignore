@@ -22,3 +22,6 @@ leap.log
 
 # Operator-provided local MODELLER credential (never package or publish).
 /modeller_key.txt
+
+# Retained private stage traces and local tools for reconstruction research.
+/tmp/pdbfixer-research/

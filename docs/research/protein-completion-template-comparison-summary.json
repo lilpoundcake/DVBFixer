@@ -1,0 +1,62 @@
+{
+  "schema": "dvbfixer.retrospective-branched-comparison-summary.v1",
+  "evidence": "docs/research/protein-completion-template-comparison-evidence.json",
+  "evidence_sha256": "4ea98dadd659e3f392588d1fbb8c7159723677b88f56a0eb2143ca5174dcf574",
+  "summary_source_sha256": "9f0826557bc8d9f439bf870b597b4a62af165178135c81542d0336c21a3c57f1",
+  "modes": {
+    "paired": {
+      "arms": {
+        "own": {
+          "common_passes": 16,
+          "total": 16,
+          "raw_proposal_median_rmsd_angstrom_including_rejections": 0.17856703739825422,
+          "arm_specific_accepted_subset_median_rmsd_angstrom": 0.17856703739825422,
+          "both_pass_same_subset_median_rmsd_angstrom": 0.16384487696204308
+        },
+        "template": {
+          "common_passes": 6,
+          "total": 16,
+          "raw_proposal_median_rmsd_angstrom_including_rejections": 0.9924254727185389,
+          "arm_specific_accepted_subset_median_rmsd_angstrom": 0.10673090665237758,
+          "both_pass_same_subset_median_rmsd_angstrom": 0.10673090665237758
+        }
+      },
+      "both_pass_count": 6,
+      "own_lower_raw_error_count_including_rejections": 10,
+      "own_lower_error_count_in_both_pass_subset": 1
+    },
+    "anchored": {
+      "arms": {
+        "own": {
+          "common_passes": 16,
+          "total": 16,
+          "raw_proposal_median_rmsd_angstrom_including_rejections": 0.08530170156059375,
+          "arm_specific_accepted_subset_median_rmsd_angstrom": 0.08530170156059375,
+          "both_pass_same_subset_median_rmsd_angstrom": 0.06854630619865862
+        },
+        "template": {
+          "common_passes": 9,
+          "total": 16,
+          "raw_proposal_median_rmsd_angstrom_including_rejections": 0.37861815459102377,
+          "arm_specific_accepted_subset_median_rmsd_angstrom": 0.13251372270536516,
+          "both_pass_same_subset_median_rmsd_angstrom": 0.13251372270536516
+        }
+      },
+      "both_pass_count": 9,
+      "own_lower_raw_error_count_including_rejections": 13,
+      "own_lower_error_count_in_both_pass_subset": 6
+    }
+  },
+  "template_helper_attempt_counts": {
+    "1": 31,
+    "5": 1
+  },
+  "template_raw_non_L_ca_count": 4,
+  "template_raw_wrong_thr_cb_count": 10,
+  "template_raw_val_name_orientation_count": 2,
+  "template_temporary_max_observed_motion_angstrom": 1.434896150467636e-14,
+  "not_independent_scientific_seeds": true,
+  "not_full_legacy_pipeline": true,
+  "retrospective_own_accepted_cases": true,
+  "production_enabled": false
+}

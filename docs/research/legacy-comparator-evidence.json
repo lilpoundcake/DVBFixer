@@ -1,0 +1,696 @@
+{
+  "aggregate": {
+    "minimize": {
+      "actual_frame_geometry_passes": 4,
+      "enrolled": 6,
+      "maximum_observed_motion_angstrom": 1.306426423492728,
+      "original_frame_target_rmsd_median_angstrom": 1.1637080349136302,
+      "reported": 6
+    },
+    "prepare": {
+      "actual_frame_geometry_passes": 2,
+      "enrolled": 6,
+      "maximum_observed_motion_angstrom": 0.0,
+      "original_frame_target_rmsd_median_angstrom": 1.915500252810332,
+      "reported": 6
+    }
+  },
+  "audit_ledger_sha256": "9b79b1c22a218cc61df61040f662d1048cbd7c4f32afddb02f0de6d642166e6b",
+  "cases": [
+    {
+      "execution_status": "completed",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.472991741000015,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.24050383763486716
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.472991741000015,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.24050383763486716
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 4,
+            "aligned": false,
+            "matched_heavy_count": 463,
+            "maximum_displacement_angstrom": 1.306426423492728,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 463,
+            "observations_restored": false,
+            "original_heavy_count": 463,
+            "rms_displacement_angstrom": 0.21567087055522258
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 1.9463690982613397,
+            "generated_only_val_symmetry_rmsd_angstrom": 1.9463690982613397,
+            "maximum_error_angstrom": 2.403724193829234,
+            "named_chi1_error_degrees": 126.7884346997696,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1)",
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.20550725299998907,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1406828119033405
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.20550725299998907,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='6', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='7', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1406828119033405
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 4,
+            "aligned": false,
+            "matched_heavy_count": 463,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 463,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 1.9967167216875452,
+            "generated_only_val_symmetry_rmsd_angstrom": 1.9967167216875452,
+            "maximum_error_angstrom": 2.7337724850469867,
+            "named_chi1_error_degrees": 149.0892661072475,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    },
+    {
+      "execution_status": "completed",
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.576202860999972,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3542807582520584
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.576202860999972,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3542807582520584
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 4,
+            "aligned": false,
+            "matched_heavy_count": 463,
+            "maximum_displacement_angstrom": 0.9696499368328759,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 463,
+            "observations_restored": false,
+            "original_heavy_count": 463,
+            "rms_displacement_angstrom": 0.20477627785972194
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 1.9106999590028069,
+            "generated_only_val_symmetry_rmsd_angstrom": 1.9106999590028069,
+            "maximum_error_angstrom": 2.4238186813373623,
+            "named_chi1_error_degrees": 110.30538342116256,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1)"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.2591812780000139,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1846027016576164
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.2591812780000139,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='27', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='28', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.1846027016576164
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 4,
+            "aligned": false,
+            "matched_heavy_count": 463,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 463,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 3.110845812101054,
+            "generated_only_val_symmetry_rmsd_angstrom": 3.110845812101054,
+            "maximum_error_angstrom": 3.7662592847545686,
+            "named_chi1_error_degrees": 109.83508058612973,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    },
+    {
+      "execution_status": "completed",
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.496104361999995,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3609387234689587
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.496104361999995,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3609387234689587
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.710229540360016,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 324,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.12465889260767903
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 0.8176262389788295,
+            "generated_only_val_symmetry_rmsd_angstrom": 0.8176262389788295,
+            "maximum_error_angstrom": 1.1584990289162949,
+            "named_chi1_error_degrees": 3.15319806349558,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-L/nearplanar global protein CA: ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1)"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.4034138780000035,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.104836602960047
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.4034138780000035,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "non_L_or_nearplanar_ca",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='1', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -1.104836602960047
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 1.8342837839331185,
+            "generated_only_val_symmetry_rmsd_angstrom": 1.8342837839331185,
+            "maximum_error_angstrom": 2.1911898594142865,
+            "named_chi1_error_degrees": 22.670166702859774,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    },
+    {
+      "execution_status": "completed",
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)",
+              "independent_target_CIP_mismatch"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.464371872000001,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.425574677353624
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "S"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.464371872000001,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.425574677353624
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.7369864313540645,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 324,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.12027406974012257
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 1.5097898308484308,
+            "generated_only_val_symmetry_rmsd_angstrom": 1.5097898308484308,
+            "maximum_error_angstrom": 2.6023593141609016,
+            "named_chi1_error_degrees": 1.1842012940268773,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [
+              "non-R/nearplanar global THR CB: ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1)"
+            ],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.813109587999998,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "bond_angle:OG1-CB-CG2",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.7064448108995172
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 0.813109587999998,
+              "findings": [
+                "bond_angle:N-CA-CB",
+                "bond_angle:OG1-CB-CG2",
+                "thr_cb_not_R_or_nearplanar",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='2', insertion_code='', alternate_location='', occurrence=1):C",
+                "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='3', insertion_code='', alternate_location='', occurrence=1):N"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.7064448108995172
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 2.6520911246285137,
+            "generated_only_val_symmetry_rmsd_angstrom": 2.6520911246285137,
+            "maximum_error_angstrom": 3.2667858821783837,
+            "named_chi1_error_degrees": 76.27157496754992,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": false,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    },
+    {
+      "execution_status": "completed",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4563060310000013,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.44115056145129294
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4563060310000013,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.44115056145129294
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.7413946317582822,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 324,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.12623239395634794
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 0.2706689244569214,
+            "generated_only_val_symmetry_rmsd_angstrom": 0.2706689244569214,
+            "maximum_error_angstrom": 0.377520860350789,
+            "named_chi1_error_degrees": 17.2345570149769,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": true,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.471536444000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4307532941838601
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.471536444000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4307532941838601
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 0.26275273547577016,
+            "generated_only_val_symmetry_rmsd_angstrom": 0.26275273547577016,
+            "maximum_error_angstrom": 0.376575357664306,
+            "named_chi1_error_degrees": 9.397654332939169,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": true,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    },
+    {
+      "execution_status": "completed",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "stages": {
+        "minimize": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4451305660000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4499467801410768
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4451305660000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4499467801410768
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.7491308296953206,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 324,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.12275130433543013
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 0.18686180276700046,
+            "generated_only_val_symmetry_rmsd_angstrom": 0.18686180276700046,
+            "maximum_error_angstrom": 0.21670486842708453,
+            "named_chi1_error_degrees": 3.180815801396278,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": true,
+            "val_swapped_in_reporting": false
+          }
+        },
+        "prepare": {
+          "actual_frame_common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5639169760000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42556492758708897
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5639169760000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42556492758708897
+            }
+          },
+          "geometry_audit_blocker": null,
+          "observation_motion": {
+            "additional_heavy_count": 3,
+            "aligned": false,
+            "matched_heavy_count": 324,
+            "maximum_displacement_angstrom": 0.0,
+            "missing_identities": [],
+            "moved_at_pdb_precision": 0,
+            "observations_restored": false,
+            "original_heavy_count": 324,
+            "rms_displacement_angstrom": 0.0
+          },
+          "original_frame_accuracy": {
+            "atom_count": 3,
+            "exact_name_rmsd_angstrom": 0.07214568594171095,
+            "generated_only_val_symmetry_rmsd_angstrom": 0.07214568594171095,
+            "maximum_error_angstrom": 0.10398557592281708,
+            "named_chi1_error_degrees": 2.157364474972752,
+            "reporting_only_no_reranking": true,
+            "symmetry_minimized": false,
+            "used_for_selection": false,
+            "val_swap_admissible": true,
+            "val_swapped_in_reporting": false
+          }
+        }
+      }
+    }
+  ],
+  "chi_reporting_amendment_plan_sha256": "fd1da6db9ee67485faafb2ae00861198e944f414d90b61c9b22ddce1083e2ba1",
+  "chi_scope": "actual full-output backbone/tip; no hybrid original anchors",
+  "native_reporting_after_geometry_audit": true,
+  "observations_restored": false,
+  "plan_sha256": "20355afefe577ffb5f6f91f2b8db576f4b47fdf80e16d32d60ad57f0e94c36e8",
+  "production_changed": false,
+  "profile_selected": false,
+  "rmsd_unchanged": true,
+  "schema": "dvbfixer.legacy-comparator-report.v2",
+  "scientific_qualification": false,
+  "superseded_report_sha256": "4f2adafc78b655228e524c2af2d197e503cdc51471e5f7f69799a1397a886a65"
+}

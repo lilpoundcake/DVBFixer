@@ -1,0 +1,1596 @@
+{
+  "schema": "dvbfixer.synthetic-rotamer-transport.v1",
+  "python": "3.12.7",
+  "real_dunbrack_statistics_loaded": false,
+  "public_backend_enabled": false,
+  "qualifies_empirical_library": false,
+  "source_hashes": {
+    "scripts/probe_rotamer_transport.py": "e280031ef5fce346196bb5d12b8e98a8d0f71426a8e848a4032a09c7031f324c",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "a25496c79393a260942aad10ce2e8e729b18f1a5c8de5d6dc80477a3b0db2911",
+    "src/dvbfixer/protein_completion/validation.py": "dbe3a62ed09abf28121c1e81b1c93770ba2ef788f158abbb1fb15e465d9c0c24"
+  },
+  "libraries": {
+    "SER": {
+      "authority": {
+        "library_id": "authored-integration-control-v1",
+        "category": "SER",
+        "source": "scripts/probe_rotamer_transport.py, no experimental statistics",
+        "kind": "synthetic-control",
+        "license_label": "synthetic-test-not-dunbrack",
+        "license_evidence_sha256": "3d379b0d108284d21e754e74e8a0d448fe42eac0a3433c3a1629aa6049e654bb"
+      },
+      "data_sha256": "822a463cc0ac28c2dec69b569d552565a24db39a452d7eac3e82f793756aa806",
+      "view_sha256": "42758705a5666e2d7928b9a9c8cc09911afcfe917139f486703c358130b64915",
+      "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+      "cells": 1296
+    },
+    "CYH": {
+      "authority": {
+        "library_id": "authored-integration-control-v1",
+        "category": "CYH",
+        "source": "scripts/probe_rotamer_transport.py, no experimental statistics",
+        "kind": "synthetic-control",
+        "license_label": "synthetic-test-not-dunbrack",
+        "license_evidence_sha256": "3d379b0d108284d21e754e74e8a0d448fe42eac0a3433c3a1629aa6049e654bb"
+      },
+      "data_sha256": "9b0a5613c70b9ef6a50e08859fc728b5f8ccfaf242f362909fadfe5b172ed088",
+      "view_sha256": "42758705a5666e2d7928b9a9c8cc09911afcfe917139f486703c358130b64915",
+      "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+      "cells": 1296
+    }
+  },
+  "cases": {
+    "SER-whole-sidechain": {
+      "request": {
+        "source_sha256": "2efd266b8179bce2529b353481360e27f12443dde5a791f5640e93cff762f786",
+        "residue": {
+          "model": 1,
+          "chain_id": "a",
+          "sequence_number": "82",
+          "insertion_code": "A",
+          "alternate_location": "",
+          "occurrence": 2
+        },
+        "residue_name": "SER",
+        "observations": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              -1.46,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CA"
+            },
+            "element": "C",
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              0.55,
+              1.43,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "O"
+            },
+            "element": "O",
+            "xyz": [
+              1.76,
+              1.66,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              -2.1,
+              -0.7,
+              0.8
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              0.0,
+              2.15,
+              -0.9
+            ],
+            "occupancy": 1.0
+          }
+        ],
+        "missing_atoms": [
+          "CB",
+          "OG"
+        ],
+        "links": [
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            }
+          ],
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            }
+          ]
+        ]
+      },
+      "backbone_angles": [
+        -131.18592516570965,
+        -49.384892808100304
+      ],
+      "result": {
+        "status": "completed",
+        "request_digest": "7a41748efd547105123ec23e8187f5bf8d7784d1c0d146f5cde554eaaf7e165a",
+        "reason": "geometry_candidate_not_native_conformation",
+        "attempts": [
+          {
+            "candidate": {
+              "request_digest": "7a41748efd547105123ec23e8187f5bf8d7784d1c0d146f5cde554eaaf7e165a",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    0.24708603778410948,
+                    -2.15192210320175,
+                    -1.0939468190112518
+                  ]
+                }
+              ],
+              "torsion_degrees": -67.99234578470923,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 3,
+                "probability": 0.3536636359290465,
+                "mean_degrees": -67.99234578470923,
+                "sigma_degrees": 12.000012094460141,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.2657594869323412
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "7a41748efd547105123ec23e8187f5bf8d7784d1c0d146f5cde554eaaf7e165a",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    0.04984438788679896,
+                    -0.2103390485487997,
+                    -2.416984259938965
+                  ]
+                }
+              ],
+              "torsion_degrees": 57.74429322619048,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 1,
+                "probability": 0.33425950523457404,
+                "mean_degrees": 57.74429322619048,
+                "sigma_degrees": 8.00086796123888,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.2657594869323412
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "7a41748efd547105123ec23e8187f5bf8d7784d1c0d146f5cde554eaaf7e165a",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    1.9510420716179304,
+                    -0.7143370898725412,
+                    -1.2536735013352458
+                  ]
+                }
+              ],
+              "torsion_degrees": 176.95152907980082,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 2,
+                "probability": 0.31207685884367414,
+                "mean_degrees": 176.95152907980082,
+                "sigma_degrees": 10.000401470121659,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.3681939600672919
+            }
+          }
+        ],
+        "selected_index": 0,
+        "revision": "canonical-sidechain-rotamer-adapter-v2",
+        "sampling_policy": "bbdep-single-chi-periodic-mixture-v1",
+        "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac"
+      },
+      "observations_digest_unchanged": true
+    },
+    "SER-terminal": {
+      "request": {
+        "source_sha256": "7cc1df59ca147506bb71f6e7a3a8884fdc035f6265a97284d7ee2775482421e3",
+        "residue": {
+          "model": 1,
+          "chain_id": "a",
+          "sequence_number": "82",
+          "insertion_code": "A",
+          "alternate_location": "",
+          "occurrence": 2
+        },
+        "residue_name": "SER",
+        "observations": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              -1.46,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CA"
+            },
+            "element": "C",
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              0.55,
+              1.43,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "O"
+            },
+            "element": "O",
+            "xyz": [
+              1.76,
+              1.66,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CB"
+            },
+            "element": "C",
+            "xyz": [
+              0.5358172933269848,
+              -0.7694325945067375,
+              -1.2090381758581383
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              -2.1,
+              -0.7,
+              0.8
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              0.0,
+              2.15,
+              -0.9
+            ],
+            "occupancy": 1.0
+          }
+        ],
+        "missing_atoms": [
+          "OG"
+        ],
+        "links": [
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            }
+          ],
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            }
+          ]
+        ]
+      },
+      "backbone_angles": [
+        -131.18592516570965,
+        -49.384892808100304
+      ],
+      "result": {
+        "status": "completed",
+        "request_digest": "5433de7b9b6a1879b594878d2c570053e4e95d4693aa8c552861ab3f4334f3d7",
+        "reason": "geometry_candidate_not_native_conformation",
+        "attempts": [
+          {
+            "candidate": {
+              "request_digest": "5433de7b9b6a1879b594878d2c570053e4e95d4693aa8c552861ab3f4334f3d7",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    0.24708603778410948,
+                    -2.15192210320175,
+                    -1.0939468190112518
+                  ]
+                }
+              ],
+              "torsion_degrees": -67.99234578470923,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 3,
+                "probability": 0.3536636359290465,
+                "mean_degrees": -67.99234578470923,
+                "sigma_degrees": 12.000012094460141,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.11337504551718136
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "5433de7b9b6a1879b594878d2c570053e4e95d4693aa8c552861ab3f4334f3d7",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    0.04984438788679896,
+                    -0.2103390485487997,
+                    -2.416984259938965
+                  ]
+                }
+              ],
+              "torsion_degrees": 57.74429322619048,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 1,
+                "probability": 0.33425950523457404,
+                "mean_degrees": 57.74429322619048,
+                "sigma_degrees": 8.00086796123888,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.2637701213174586
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "5433de7b9b6a1879b594878d2c570053e4e95d4693aa8c552861ab3f4334f3d7",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "OG"
+                  },
+                  "element": "O",
+                  "xyz": [
+                    1.9510420716179304,
+                    -0.7143370898725412,
+                    -1.2536735013352458
+                  ]
+                }
+              ],
+              "torsion_degrees": 176.95152907980082,
+              "rotamer_evidence": {
+                "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac",
+                "category": "SER",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 2,
+                "probability": 0.31207685884367414,
+                "mean_degrees": 176.95152907980082,
+                "sigma_degrees": 10.000401470121659,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.3681939600672919
+            }
+          }
+        ],
+        "selected_index": 0,
+        "revision": "canonical-sidechain-rotamer-adapter-v2",
+        "sampling_policy": "bbdep-single-chi-periodic-mixture-v1",
+        "model_digest": "7f314a86886074c45831f9ae10c6a902df87b83e0d87bbf3971c753f3b0fb4ac"
+      },
+      "observations_digest_unchanged": true
+    },
+    "CYS-whole-sidechain": {
+      "request": {
+        "source_sha256": "2efd266b8179bce2529b353481360e27f12443dde5a791f5640e93cff762f786",
+        "residue": {
+          "model": 1,
+          "chain_id": "a",
+          "sequence_number": "82",
+          "insertion_code": "A",
+          "alternate_location": "",
+          "occurrence": 2
+        },
+        "residue_name": "CYS",
+        "observations": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              -1.46,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CA"
+            },
+            "element": "C",
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              0.55,
+              1.43,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "O"
+            },
+            "element": "O",
+            "xyz": [
+              1.76,
+              1.66,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              -2.1,
+              -0.7,
+              0.8
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              0.0,
+              2.15,
+              -0.9
+            ],
+            "occupancy": 1.0
+          }
+        ],
+        "missing_atoms": [
+          "CB",
+          "SG"
+        ],
+        "links": [
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            }
+          ],
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            }
+          ]
+        ]
+      },
+      "backbone_angles": [
+        -131.18592516570965,
+        -49.384892808100304
+      ],
+      "result": {
+        "status": "completed",
+        "request_digest": "64671927888c04d63067fbf1ee5f67133ca5b6d28ef4c546aa832929499d35b0",
+        "reason": "geometry_candidate_not_native_conformation",
+        "attempts": [
+          {
+            "candidate": {
+              "request_digest": "64671927888c04d63067fbf1ee5f67133ca5b6d28ef4c546aa832929499d35b0",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    0.2191082444293187,
+                    -2.5508850330936887,
+                    -1.161893850654146
+                  ]
+                }
+              ],
+              "torsion_degrees": -67.99234578470923,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 3,
+                "probability": 0.3536636359290465,
+                "mean_degrees": -67.99234578470923,
+                "sigma_degrees": 12.000012094460141,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.2657594869323412
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "64671927888c04d63067fbf1ee5f67133ca5b6d28ef4c546aa832929499d35b0",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    -0.026331145932986688,
+                    -0.13485899843060867,
+                    -2.8082271838870794
+                  ]
+                }
+              ],
+              "torsion_degrees": 57.74429322619048,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 1,
+                "probability": 0.33425950523457404,
+                "mean_degrees": 57.74429322619048,
+                "sigma_degrees": 8.00086796123888,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.372987242674113
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "64671927888c04d63067fbf1ee5f67133ca5b6d28ef4c546aa832929499d35b0",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "CB"
+                  },
+                  "element": "C",
+                  "xyz": [
+                    0.5358172933269848,
+                    -0.7694325945067375,
+                    -1.2090381758581383
+                  ]
+                },
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    2.339440995479011,
+                    -0.7620134157187283,
+                    -1.3606511595420254
+                  ]
+                }
+              ],
+              "torsion_degrees": 176.95152907980082,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 2,
+                "probability": 0.31207685884367414,
+                "mean_degrees": 176.95152907980082,
+                "sigma_degrees": 10.000401470121659,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.4821711765636276
+            }
+          }
+        ],
+        "selected_index": 0,
+        "revision": "canonical-sidechain-rotamer-adapter-v2",
+        "sampling_policy": "bbdep-single-chi-periodic-mixture-v1",
+        "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011"
+      },
+      "observations_digest_unchanged": true
+    },
+    "CYS-terminal": {
+      "request": {
+        "source_sha256": "7cc1df59ca147506bb71f6e7a3a8884fdc035f6265a97284d7ee2775482421e3",
+        "residue": {
+          "model": 1,
+          "chain_id": "a",
+          "sequence_number": "82",
+          "insertion_code": "A",
+          "alternate_location": "",
+          "occurrence": 2
+        },
+        "residue_name": "CYS",
+        "observations": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              -1.46,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CA"
+            },
+            "element": "C",
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              0.55,
+              1.43,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "O"
+            },
+            "element": "O",
+            "xyz": [
+              1.76,
+              1.66,
+              0.0
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "CB"
+            },
+            "element": "C",
+            "xyz": [
+              0.5358172933269848,
+              -0.7694325945067375,
+              -1.2090381758581383
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            "element": "C",
+            "xyz": [
+              -2.1,
+              -0.7,
+              0.8
+            ],
+            "occupancy": 1.0
+          },
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            },
+            "element": "N",
+            "xyz": [
+              0.0,
+              2.15,
+              -0.9
+            ],
+            "occupancy": 1.0
+          }
+        ],
+        "missing_atoms": [
+          "SG"
+        ],
+        "links": [
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "81",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "N"
+            }
+          ],
+          [
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "82",
+                "insertion_code": "A",
+                "alternate_location": "",
+                "occurrence": 2
+              },
+              "name": "C"
+            },
+            {
+              "component": {
+                "model": 1,
+                "chain_id": "a",
+                "sequence_number": "83",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "N"
+            }
+          ]
+        ]
+      },
+      "backbone_angles": [
+        -131.18592516570965,
+        -49.384892808100304
+      ],
+      "result": {
+        "status": "completed",
+        "request_digest": "d7730a1dba2d72d384708d808b12c92660d6b6379277a7fa199fa893d51e5c46",
+        "reason": "geometry_candidate_not_native_conformation",
+        "attempts": [
+          {
+            "candidate": {
+              "request_digest": "d7730a1dba2d72d384708d808b12c92660d6b6379277a7fa199fa893d51e5c46",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    0.2191082444293187,
+                    -2.5508850330936887,
+                    -1.161893850654146
+                  ]
+                }
+              ],
+              "torsion_degrees": -67.99234578470923,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 3,
+                "probability": 0.3536636359290465,
+                "mean_degrees": -67.99234578470923,
+                "sigma_degrees": 12.000012094460141,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.08252142030589349
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "d7730a1dba2d72d384708d808b12c92660d6b6379277a7fa199fa893d51e5c46",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    -0.026331145932986688,
+                    -0.13485899843060867,
+                    -2.8082271838870794
+                  ]
+                }
+              ],
+              "torsion_degrees": 57.74429322619048,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 1,
+                "probability": 0.33425950523457404,
+                "mean_degrees": 57.74429322619048,
+                "sigma_degrees": 8.00086796123888,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.372987242674113
+            }
+          },
+          {
+            "candidate": {
+              "request_digest": "d7730a1dba2d72d384708d808b12c92660d6b6379277a7fa199fa893d51e5c46",
+              "additions": [
+                {
+                  "atom": {
+                    "component": {
+                      "model": 1,
+                      "chain_id": "a",
+                      "sequence_number": "82",
+                      "insertion_code": "A",
+                      "alternate_location": "",
+                      "occurrence": 2
+                    },
+                    "name": "SG"
+                  },
+                  "element": "S",
+                  "xyz": [
+                    2.339440995479011,
+                    -0.7620134157187283,
+                    -1.3606511595420254
+                  ]
+                }
+              ],
+              "torsion_degrees": 176.95152907980082,
+              "rotamer_evidence": {
+                "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011",
+                "category": "CYH",
+                "phi_degrees": -131.18592516570965,
+                "psi_degrees": -49.38489280810029,
+                "label": 2,
+                "probability": 0.31207685884367414,
+                "mean_degrees": 176.95152907980082,
+                "sigma_degrees": 10.000401470121659,
+                "lookup_policy": "bbdep-single-chi-periodic-mixture-v1"
+              }
+            },
+            "audit": {
+              "accepted": true,
+              "findings": [],
+              "ca_volume_angstrom3": 2.5242299035566207,
+              "minimum_nonbonded_clearance_angstrom": -0.4821711765636276
+            }
+          }
+        ],
+        "selected_index": 0,
+        "revision": "canonical-sidechain-rotamer-adapter-v2",
+        "sampling_policy": "bbdep-single-chi-periodic-mixture-v1",
+        "model_digest": "de1f66af600d2a3ecd485ef02ecd3251ddfaa92d6c75a221a204c2141d850011"
+      },
+      "observations_digest_unchanged": true
+    }
+  },
+  "authority_probe": {
+    "schema": "dvbfixer.rotamer-authority-probe.v1",
+    "checked_at": "2026-11-02T13:52:05.174460+00:00",
+    "python": "3.12.7",
+    "pages": {
+      "publisher": {
+        "url": "https://dunbrack.fccc.edu/lab/bbdep2010",
+        "status": "unavailable",
+        "error": "URLError: <urlopen error timed out>"
+      },
+      "tutorial": {
+        "url": "https://dunbrack.fccc.edu/lab/bbdep2010_tutorial",
+        "status": "unavailable",
+        "error": "URLError: <urlopen error timed out>"
+      },
+      "linked-terms": {
+        "url": "https://dunbrack.fccc.edu/lab/bbdep2010_lic",
+        "status": "unavailable",
+        "error": "URLError: <urlopen error timed out>"
+      },
+      "legacy-mirror-terms": {
+        "url": "https://graylab.jhu.edu/Sergey/for.Rocco/nobu-3/ExtendedOpt1-5/AcademicLicenseBBDep2010.txt",
+        "status": "retrieved",
+        "final_url": "https://graylab.jhu.edu/Sergey/for.Rocco/nobu-3/ExtendedOpt1-5/AcademicLicenseBBDep2010.txt",
+        "sha256": "0c4c76ad93c504c3a23e12c6d5364763a5f2314bd8d3ac6cd02f29c62998e61a",
+        "bytes": 4699
+      },
+      "legacy-mirror-description": {
+        "url": "https://graylab.jhu.edu/Sergey/for.Rocco/nobu-3/ExtendedOpt1-5/Description.txt",
+        "status": "retrieved",
+        "final_url": "https://graylab.jhu.edu/Sergey/for.Rocco/nobu-3/ExtendedOpt1-5/Description.txt",
+        "sha256": "23037103799a4be257aa8b3e6d371ca0e0b83f4851abefebf0dd11aeabe85faa",
+        "bytes": 880
+      }
+    },
+    "statistics_downloaded": false,
+    "license_accepted": false,
+    "artifact_redistribution_cleared": false,
+    "note": "Publisher search results report CC BY 4.0 from 2019; the old mirror ships restrictive academic terms. No statistics authority selected or relicensed."
+  },
+  "authority_probe_sha256": "be1e62cdba8d8f2d6d4883a0622c76cb01bf2a993ac2adbac0019aaa1e5c49d8",
+  "raw_record_sha256": "617a8ceb0e14fc57e0d93c16a55969324563f350717ce4d56eb4909883153cea",
+  "retained_directory": "tmp/pdbfixer-research/rotamer-transport-02"
+}

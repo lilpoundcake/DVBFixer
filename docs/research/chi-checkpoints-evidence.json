@@ -1,0 +1,1245 @@
+{
+  "audit_script_sha256": "3f64ba657fdd505a7c9741089743bd67d28e3164e27858effba2375858d06589",
+  "cases": [
+    {
+      "checkpoint_count": 13,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.882816624319634e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.01720169262412756,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 5.8981175840169116e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 4.1705989398939745e-05,
+        "component_max_upper_bound": 5.8981175840169116e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.058917865684739744,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "c756a171ebe9029612e65ced9be5771d8aa5419f5fc34d816160586b335b0bf1",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 18,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 1.0803670707167839e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.0542750355600269,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 1.196644107057687e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 8.461551627674114e-06,
+        "component_max_upper_bound": 1.196644107057687e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.32223847462712224,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "7f8826bab76dd08cf23088f73c2259cff49eab008f50220a28b756b966cd4701",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 20,
+      "endpoint_above_mode_c_gmax": true,
+      "endpoint_analytic_maximum_per_degree": 0.0018442925380874572,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.7989071688724071,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 0.00010337240519550166,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 7.309532870130271e-05,
+        "component_max_upper_bound": 0.00010337240519550166
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 3.6609302343100487,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "54b23898ab47a78238cdeef02d4e17a7f65bc5227f84f774f64e2dddb2971331",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 6,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 3.323105839404605e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.023715634003415354,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 3.3231058393619754e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 3.3231058393619754e-05,
+        "component_max_upper_bound": 3.3231058393619754e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.03879243197862009,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "72f39007a9f589834b156c43da0260b50eb52c7687a04916fb77889f9ee76a99",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 6,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 2.6310002757459744e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.029225722263067782,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 2.631000275581657e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 2.631000275581657e-05,
+        "component_max_upper_bound": 2.631000275581657e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.039017953873926245,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "845cd1f2ae24be8193bd3dfd318cdf33ce024c76e1de5dd6ddb32c84a03ffe8f",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.620351150416526e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.019489443303592244,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 9.620351150287281e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 9.620351150287281e-05,
+        "component_max_upper_bound": 9.620351150287281e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.043884661926498134,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "0ef1375b39deeb1f3c747d9753ad29d037da2a37c36fee83a9fcbce31728e6ec",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 26,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.719369925663082e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.10374792670197933,
+      "id": "2CI2-VAL32-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 9.719369925808797e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 9.719369925808797e-05,
+        "component_max_upper_bound": 9.719369925808797e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.12288644747042098,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "a44f864e66d96425625c32d145b407cc8460935010f781ca922589fd9cde78f3",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 63,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.975364690247891e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 2.238388825343821,
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 9.977020319982887e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 7.054818724295877e-05,
+        "component_max_upper_bound": 9.977020319982887e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.7515138831166068,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "dabacfb16ace56076029614df716bb79233a3138fbd0d0d65dafcb7de41c15de",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 30,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.928570140031894e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.06435139743837978,
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 0.00010177941570538266,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 7.196891503048067e-05,
+        "component_max_upper_bound": 0.00010177941570538266
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.2793267066796614,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "9b727666005a3984299228e9aac2e06faa5fe68315c424528723fbe8bb10ba72",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 9,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 7.913733542153978e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.3099898618448515,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 7.9137335418889e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 7.9137335418889e-05,
+        "component_max_upper_bound": 7.9137335418889e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.4023519265194069,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "ce2b3d2ad8f45917497524c4e336b59ceadacdae2825c71d9b70211df3986061",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 8,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.105474489826079e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.8798779910190904,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 5.1054744897795745e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.1054744897795745e-05,
+        "component_max_upper_bound": 5.1054744897795745e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.2813851787199241,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "47bb0e4c222be7d361a35941fb04171332a36b32840876aae672b8b8a3641091",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 9,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 4.420215469706178e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 3.0879358013512057,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 4.4202154712935464e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 4.4202154712935464e-05,
+        "component_max_upper_bound": 4.4202154712935464e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.2280484949594163,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "4f7cc01d485f6ae469cbb5999fda4b60d505edeacb3410af381e62d05a20e7c1",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 10,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.9069301932012425e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.691068166056548,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 5.9069301915704697e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.9069301915704697e-05,
+        "component_max_upper_bound": 5.9069301915704697e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.5213832548684832,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "642db3d9a9d29d1240595ecc7e2772af9a562cc6298ae38fba287e45f5c473e2",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.159813912804194e-06,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.04924414656379803,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 5.159813912571669e-06,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.159813912571669e-06,
+        "component_max_upper_bound": 5.159813912571669e-06
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.07093252223945418,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "357f465e10ef6b128babf6f502317dda2ac1c947770a4d8d96b4b6ae940ac2e1",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 3.138221420267765e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.5896486336351927,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 3.138221418043667e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 3.138221418043667e-05,
+        "component_max_upper_bound": 3.138221418043667e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.08360384917805594,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "bde8104f78db9afbaab3a6ab63b4ae82a22fe76e4dc90570ec8a3a2cb40296fb",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 20,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.210014381063009e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.487749353483815,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 0.00012250992604599952,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 8.662759946978869e-05,
+        "component_max_upper_bound": 0.00012250992604599952
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.17885395940265778,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "289f588d499340a627989d8609fd0e461f2739ca36c6a655cfd57ab1dc2003f7",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 27,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 8.902677302928698e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.13365850296944473,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 9.057261804070203e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 6.404451240639943e-05,
+        "component_max_upper_bound": 9.057261804070203e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.1688975582057976,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "2ee426180fce3c3e21117968a44e4a302b647458b95fe57a4c65cc9a63d33f68",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 18,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.37329745657495e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.8665259666349344,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 9.948246695402179e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 7.034472699235542e-05,
+        "component_max_upper_bound": 9.948246695402179e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.9188499977125115,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "57ffcc62d8e4ffdacb87ed3f37a2099b97cd68067eb64cd9f8fd2f36d79e23f4",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 19,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 6.830738282404506e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.02377749871229498,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 8.906849381392569e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 6.298093596589891e-05,
+        "component_max_upper_bound": 8.906849381392569e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.4142580648578607,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "1e649a4de8c043243d374acf6cc4ddce0656344851ed9d1da7356ffb6b443482",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 201,
+      "endpoint_above_mode_c_gmax": true,
+      "endpoint_analytic_maximum_per_degree": 0.0002965614813227854,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": true,
+      "first_analytic_l2_norm_per_degree": 0.04210864607996442,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 0.0002971688695343149,
+      "last_component_bounds": {
+        "certainly_above_gmax": true,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 0.00021013012280525446,
+        "component_max_upper_bound": 0.0002971688695343149
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.13202919615944142,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "74764358d43a272239dd89b53fc529d288448420aef8e0c106a039da44a893dd",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 31,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.620798098949285e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.059191519933469244,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 9.738326981283402e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 6.886037045877415e-05,
+        "component_max_upper_bound": 9.738326981283402e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.2837659947867992,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "e5b25ceb3f962ad885dad0e33b108812045a1a887d0f6e3e470e11e14046f9c9",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 9,
+      "endpoint_above_mode_c_gmax": true,
+      "endpoint_analytic_maximum_per_degree": 0.007424845243012498,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.187776109142136,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 5.66662530972411e-06,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.66662530972411e-06,
+        "component_max_upper_bound": 5.66662530972411e-06
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 3.8057543861697387,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "71a4b202f5ca7d1a9a369d4a5054fc84b72484f982272b7c968f349f88a389da",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 6,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 6.507545680686905e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.07004200907334164,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 6.507545680727984e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 6.507545680727984e-05,
+        "component_max_upper_bound": 6.507545680727984e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.07796467564937593,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "b5555eaafd2bdffc976e4ce165ba830e7ebfa7d19eef782acd49d043abc7d098",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 9,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.355871712503203e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.20781103136480142,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 5.3558717122737784e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.3558717122737784e-05,
+        "component_max_upper_bound": 5.3558717122737784e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.2800932776021574,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "ab5d7b06aa96b9c4c00cf7f35b84bd2981d5a649abe3a38ebdc5e30a4dce8ee5",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 59,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.941760599959802e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.026290906586735944,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 9.941760599858267e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 9.941760599858267e-05,
+        "component_max_upper_bound": 9.941760599858267e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.0974210561720138,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "48f0a9d906dbe336c7e9026d2f7c9b50090f0c37fb93ee5990e4f989cb782e69",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 6.348282521755281e-07,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.005185834371280969,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 6.348282513277823e-07,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 6.348282513277823e-07,
+        "component_max_upper_bound": 6.348282513277823e-07
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.006020799625991751,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "8d743d87994a22971046a0d204a78671dc63df49f9a8608583d493b7fb4b8395",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 1.9563494615493672e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.05560779751200804,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 1.9563494614935613e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 1.9563494614935613e-05,
+        "component_max_upper_bound": 1.9563494614935613e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.28264428403699743,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "5518184a710d3745d20512ea0dffcf12fe6a74c72efb481e4b872d5d95db1cd9",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 20,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 1.4402034702218936e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.039375767731861695,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 1.9064349680825063e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 1.3480530938222994e-05,
+        "component_max_upper_bound": 1.9064349680825063e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.8654183187682642,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "d5738d65d302046684f2df0cc025a32b956825a94f9d35b9703d3c8ad3893fda",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 22,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.319637596802609e-06,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 1.838886906068836,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 5.746156324803901e-06,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 4.063146103026808e-06,
+        "component_max_upper_bound": 5.746156324803901e-06
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.7310802962652625,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "0c057c02fc9cb3eae58c22ea88a47b3a279668f5b05f184c653721701de962a7",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 201,
+      "endpoint_above_mode_c_gmax": true,
+      "endpoint_analytic_maximum_per_degree": 0.0009510258844904373,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": true,
+      "first_analytic_l2_norm_per_degree": 0.05698738533345347,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 0.0009541052527571635,
+      "last_component_bounds": {
+        "certainly_above_gmax": true,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 0.0006746542941902952,
+        "component_max_upper_bound": 0.0009541052527571635
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.100984940057631,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "ca5999246131f67ae352fa8c826766c9a96a34b28e144a5dd40e437e20cc238f",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 22,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 3.5971390527528425e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.29525729779419724,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 3.597448640977396e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 2.5437803290054463e-05,
+        "component_max_upper_bound": 3.597448640977396e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.815848290740508,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "0711e1c03955b32623ba8e8618e2110865d864f0785d191226aeefdf8543e98c",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 16,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 1.2672925871739447e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.027483480758347542,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 1.5173417724318428e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 1.0729226566641713e-05,
+        "component_max_upper_bound": 1.5173417724318428e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.2874681986503671,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "3d96d4923ed827e1bf4756a117462af096863490cad12a35f4ab338e36f216fc",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 15,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 7.534422271159718e-07,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.0272257194766805,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 7.573706028765451e-07,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.355418891653487e-07,
+        "component_max_upper_bound": 7.573706028765451e-07
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.1159872153978634,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "7d90045a90677181750e9825b5aeed262603c15aae2972ece5150af5b4e72b0e",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 61,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.89094159395237e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.0007013309538872133,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 0.00010655825377337449,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": false,
+        "component_max_lower_bound": 7.534806383455011e-05,
+        "component_max_upper_bound": 0.00010655825377337449
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.001318975647523777,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "3a704791c2155b8f174c38804bad0015c853dc476fe57c9773c0ae714385b0cf",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 21,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 4.527403497370518e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.004519360655925503,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 4.866516404576818e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 3.441146750431844e-05,
+        "component_max_upper_bound": 4.866516404576818e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.5608375056656122,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "9b972e291753f11f875925a48147e1c2d9746db124f28b252eb428ae2ea85626",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 22,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.856369957377576e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.03759906160816928,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 7.226914260301055e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.110200080512637e-05,
+        "component_max_upper_bound": 7.226914260301055e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 1.2876699392614253,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "b8eefcd7a0a5d35a348429eb907b2d52838eedc77a201f3065746b7815ccbc57",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 9.190367866420465e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.016408068728803547,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 9.190367866428215e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 9.190367866428215e-05,
+        "component_max_upper_bound": 9.190367866428215e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.06901833917345879,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "743d23a30fbb8bc18411b374389cfedd21050c92162e3254dbf818478db1777e",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 3.1400077680822382e-06,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.006528380755301884,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 3.140007768599605e-06,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 3.140007768599605e-06,
+        "component_max_upper_bound": 3.140007768599605e-06
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.011202746129557713,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "4263dcdaa807a92b913adb948aebbbd12445e86eda5b92902a44ba9976140a06",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 8,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 5.747808959806806e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.01487119351476426,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 5.7478089597444116e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 5.7478089597444116e-05,
+        "component_max_upper_bound": 5.7478089597444116e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.13915436214913182,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "b173e22a177be3b54539785695cfb52c0fee114017d28ed306eeafdf37c4932a",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 9,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 2.2426971569878246e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.002804981920340573,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 0,
+      "last_analytic_l2_norm_per_degree": 2.2426971569885513e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 2.2426971569885513e-05,
+        "component_max_upper_bound": 2.2426971569885513e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.009468049346786946,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "ebd003bd6b5c6700f95169b00fb7d1169a1d8fc001cd8e6f53766a818889f23c",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 1.213509679958558e-06,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.013191227887479375,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 1,
+      "last_analytic_l2_norm_per_degree": 1.2135096792648598e-06,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 1.2135096792648598e-06,
+        "component_max_upper_bound": 1.2135096792648598e-06
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.024156786862990828,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "4c3fca6c6499ab46d2645f026a408582473bb66a017729fc880ec1e08b690209",
+      "status": "audited"
+    },
+    {
+      "checkpoint_count": 7,
+      "endpoint_above_mode_c_gmax": false,
+      "endpoint_analytic_maximum_per_degree": 2.405488428392838e-05,
+      "endpoint_exact": true,
+      "exact": {
+        "after-atoms.json": true,
+        "before-atoms.json": true,
+        "pose-snapshot.json.gz": true,
+        "result.json": true
+      },
+      "explicit_max200_warning": false,
+      "first_analytic_l2_norm_per_degree": 0.008599417434814294,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 2,
+      "last_analytic_l2_norm_per_degree": 2.4054884282750255e-05,
+      "last_component_bounds": {
+        "certainly_above_gmax": false,
+        "certainly_at_or_below_gmax": true,
+        "component_max_lower_bound": 2.4054884282750255e-05,
+        "component_max_upper_bound": 2.4054884282750255e-05
+      },
+      "movement": {
+        "mobile_max_motion_angstrom": 0.04515356295367648,
+        "protected_max_motion_angstrom": 0.0
+      },
+      "native_trace_sha256": "af7431de11e57585799cd54d72cc77745f2656038a1af6df46e97c7ea1ed5ea6",
+      "status": "audited"
+    }
+  ],
+  "checkpoint_index_sha256": "edafbb6b24fbb947a990446aa2babefed9c75c0ed02511f6a2ffbfb632fd6180",
+  "convergence_certified": false,
+  "endpoint_derivative_evidence_sha256": "ff99cd09edf908ba82e059661af684a77b1375cecf8be5b0424dcb72f01bccba",
+  "full_function_trace": false,
+  "interpretation": "native derivative-check norm sequence, exact-versus-changed replay retained, sparse rows absent not zero",
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "9f0ae69a37d59b5052d5e6e80b8bb5d9c1498a86d1a3b3f814f7569861088285",
+  "production_changed": false,
+  "profile_selected": false,
+  "return_branch_recorded": false,
+  "schema": "dvbfixer.chi-checkpoints-audit.v1",
+  "summary": {
+    "audited": 42,
+    "changed_endpoint_replays": 0,
+    "derivative_checkpoints": 1097,
+    "exact_above_endpoint_but_last_norm_below_gmax": 1,
+    "exact_endpoint_repeats": 42,
+    "execution_blockers": 0,
+    "protected_max_motion_angstrom": 0.0,
+    "starts": 42
+  }
+}

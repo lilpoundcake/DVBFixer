@@ -615,6 +615,20 @@ command parser merely to inspect generated labels.
 
 ## Current agent notes and recently established invariants
 
+- **PyRosetta rotamer use is research-only (user instruction, 2026-11-03).**
+  The user explicitly authorizes local reconstruction experiments with the
+  rotamer library already available in the installed PyRosetta environment,
+  subject to applicable licenses. Do not block this research on obtaining the
+  original upstream Dunbrack archive. Keep bundled tables out of tracked files,
+  packages and public artifacts; this is NOT production/redistribution permission.
+  The user will try to obtain original licensed tables. Before ANY production
+  integration, public capability, packaging or redistribution of this route,
+  **stop and ask the user for the original tables and documented source/version/
+  license permissions**, verify intended-use/distribution suitability and obtain
+  explicit production approval. Never presume the materials arrived or transfer
+  research permission into production. Scientific qualification remains separate.
+  See `docs/plans/pdbfixer-reconstruction-handoff.md` for the canonical gate.
+
 - **Installation profiles are approved for implementation (2026-10-28).** Continue
   on `feature/installation-profiles` from `cc0716c` using
   `docs/plans/installation-profiles-handoff.md`. Standard includes **PySCF/RESP**,

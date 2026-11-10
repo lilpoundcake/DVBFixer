@@ -1,0 +1,5205 @@
+{
+  "audit_script_sha256": "baee78ca52317d788dec9f38b495132ad6de7b5570e359b4b100296e439b8c64",
+  "cases": [
+    {
+      "arm": "unchanged",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 1,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "wall",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 1,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "drive",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 1,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 1,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "unchanged",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 2,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "wall",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 2,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "drive",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 2,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1ENH-THR6-CB-OG1-CG2",
+      "seed": 2,
+      "status": "refused_initial_non_R_beta"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.3014087403912304,
+              "rms_angstrom": 0.16503769006569044
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.386707404562265,
+              "rms_angstrom": 0.314124344218033
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4846639369433388,
+                "ca_volume_angstrom3": 2.5047771313155964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.340048137224205
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4829294580000005,
+                "ca_volume_angstrom3": 2.5021383699999964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.502138369999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3403674239927492
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.213446760339732,
+              "rms_angstrom": 0.2587629229668277
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.6427298805611077,
+              "rms_angstrom": 0.42325790690822485
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5079841750878034,
+                "ca_volume_angstrom3": 2.5836235438353685,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5836235438353685,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3564596199139938
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.511829245999983,
+                "ca_volume_angstrom3": 2.5864601749999827,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.586460174999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35595246909712297
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.3014087403912304,
+              "rms_angstrom": 0.16503769006569044
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.386707404562265,
+              "rms_angstrom": 0.314124344218033
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4846639369433388,
+                "ca_volume_angstrom3": 2.5047771313155964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.340048137224205
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4829294580000005,
+                "ca_volume_angstrom3": 2.5021383699999964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.502138369999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3403674239927492
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.213446760339732,
+              "rms_angstrom": 0.2587629229668277
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.6427298805611077,
+              "rms_angstrom": 0.42325790690822485
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5079841750878034,
+                "ca_volume_angstrom3": 2.5836235438353685,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5836235438353685,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3564596199139938
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.511829245999983,
+                "ca_volume_angstrom3": 2.5864601749999827,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.586460174999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35595246909712297
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.731927863228426,
+              "rms_angstrom": 0.21824479823954218
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 4.93644385245359,
+              "rms_angstrom": 0.3535575317728974
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.98581787336658
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.98581787336658,
+                "ca_volume_angstrom3": 2.4999139030784656,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4999139030784656,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.056762638340856375
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9868588159999978
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.9868588159999978,
+                "ca_volume_angstrom3": 2.4989475770000054,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.498947577000006,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.056382766515522986
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.8920615816652995,
+              "rms_angstrom": 0.30424032724868716
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 5.092654707713162,
+              "rms_angstrom": 0.45903550458666326
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.959600160436771
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.959600160436771,
+                "ca_volume_angstrom3": 2.580134825483489,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5801348254834884,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.1731494226237531
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9576931430000026
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.9576931430000026,
+                "ca_volume_angstrom3": 2.582445206000025,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5824452060000254,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.17274238043450407
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.0404512599235285,
+              "rms_angstrom": 0.19544477434805477
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.9133762546423227,
+              "rms_angstrom": 0.34402119313183
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7068075198103484,
+                "ca_volume_angstrom3": 2.4761094299388366,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.476109429938837,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.32508664247072017
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7068927379999886,
+                "ca_volume_angstrom3": 2.4748277579999893,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4748277579999893,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.32516903981319945
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.9114528309756555,
+              "rms_angstrom": 0.2825698554919982
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.758669836539514,
+              "rms_angstrom": 0.4495694729302155
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7091771742739308,
+                "ca_volume_angstrom3": 2.5355662263741188,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5355662263741188,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.347198186184156
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.707792734999995,
+                "ca_volume_angstrom3": 2.5349680229999865,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5349680229999865,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3475612036264255
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.3014087403912304,
+              "rms_angstrom": 0.16503769006569044
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.386707404562265,
+              "rms_angstrom": 0.314124344218033
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4846639369433388,
+                "ca_volume_angstrom3": 2.5047771313155964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.340048137224205
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4829294580000005,
+                "ca_volume_angstrom3": 2.5021383699999964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.502138369999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3403674239927492
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.213446760339732,
+              "rms_angstrom": 0.2587629229668277
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.6427298805611077,
+              "rms_angstrom": 0.42325790690822485
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5079841750878034,
+                "ca_volume_angstrom3": 2.5836235438353685,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5836235438353685,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3564596199139938
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.511829245999983,
+                "ca_volume_angstrom3": 2.5864601749999827,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.586460174999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35595246909712297
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.3014087403912304,
+              "rms_angstrom": 0.16503769006569044
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.386707404562265,
+              "rms_angstrom": 0.314124344218033
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4846639369433388,
+                "ca_volume_angstrom3": 2.5047771313155964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5047771313155964,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.340048137224205
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.4829294580000005,
+                "ca_volume_angstrom3": 2.5021383699999964,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.502138369999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3403674239927492
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.213446760339732,
+              "rms_angstrom": 0.2587629229668277
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.6427298805611077,
+              "rms_angstrom": 0.42325790690822485
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.5079841750878034,
+                "ca_volume_angstrom3": 2.5836235438353685,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5836235438353685,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3564596199139938
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 2.511829245999983,
+                "ca_volume_angstrom3": 2.5864601749999827,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.586460174999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35595246909712297
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.731927863228426,
+              "rms_angstrom": 0.21824479823954218
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 4.93644385245359,
+              "rms_angstrom": 0.3535575317728974
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.98581787336658
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.98581787336658,
+                "ca_volume_angstrom3": 2.4999139030784656,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4999139030784656,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.056762638340856375
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9868588159999978
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.9868588159999978,
+                "ca_volume_angstrom3": 2.4989475770000054,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.498947577000006,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.056382766515522986
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.8920615816652995,
+              "rms_angstrom": 0.30424032724868716
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 5.092654707713162,
+              "rms_angstrom": 0.45903550458666326
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.959600160436771
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.959600160436771,
+                "ca_volume_angstrom3": 2.580134825483489,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5801348254834884,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.1731494226237531
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "27",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9576931430000026
+                }
+              ],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": -1.9576931430000026,
+                "ca_volume_angstrom3": 2.582445206000025,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5824452060000254,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.17274238043450407
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1ENH-THR27-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 3.0404512599235285,
+              "rms_angstrom": 0.19544477434805477
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.9133762546423227,
+              "rms_angstrom": 0.34402119313183
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7068075198103484,
+                "ca_volume_angstrom3": 2.4761094299388366,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.476109429938837,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.32508664247072017
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7068927379999886,
+                "ca_volume_angstrom3": 2.4748277579999893,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4748277579999893,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.32516903981319945
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 467,
+              "exact": false,
+              "maximum_angstrom": 2.9114528309756555,
+              "rms_angstrom": 0.2825698554919982
+            },
+            "hydrogen": {
+              "count": 480,
+              "exact": false,
+              "maximum_angstrom": 3.758669836539514,
+              "rms_angstrom": 0.4495694729302155
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.7091771742739308,
+                "ca_volume_angstrom3": 2.5355662263741188,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5355662263741188,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.347198186184156
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 947,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 53,
+              "target": {
+                "beta_volume_angstrom3": 0.707792734999995,
+                "ca_volume_angstrom3": 2.5349680229999865,
+                "residue": [
+                  "A",
+                  "27",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 2
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5349680229999865,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3475612036264255
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.486535589501363,
+              "rms_angstrom": 0.13228612956019864
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.1179621814560208,
+              "rms_angstrom": 0.2436730542771997
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.542942785107773,
+                "ca_volume_angstrom3": 2.440876988804878,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4408769888048782,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37133224978460455
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5430347209999997,
+                "ca_volume_angstrom3": 2.439418980000005,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4394189800000055,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37093238321082667
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.7837244322401002,
+              "rms_angstrom": 0.19666802393805252
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.8773686383952026,
+              "rms_angstrom": 0.33746649727608313
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.507463517024689,
+                "ca_volume_angstrom3": 2.5582076393404045,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.558207639340405,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3820392970317743
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.507124764000001,
+                "ca_volume_angstrom3": 2.559184924999995,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.559184924999995,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.38177735297092563
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.486535589501363,
+              "rms_angstrom": 0.13228612956019864
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.1179621814560208,
+              "rms_angstrom": 0.2436730542771997
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.542942785107773,
+                "ca_volume_angstrom3": 2.440876988804878,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4408769888048782,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37133224978460455
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5430347209999997,
+                "ca_volume_angstrom3": 2.439418980000005,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4394189800000055,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37093238321082667
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.7837244322401002,
+              "rms_angstrom": 0.19666802393805252
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.8773686383952026,
+              "rms_angstrom": 0.33746649727608313
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.507463517024689,
+                "ca_volume_angstrom3": 2.5582076393404045,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.558207639340405,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3820392970317743
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.507124764000001,
+                "ca_volume_angstrom3": 2.559184924999995,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.559184924999995,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.38177735297092563
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.5714628963783843,
+              "rms_angstrom": 0.18820860948419055
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.5605732317539056,
+              "rms_angstrom": 0.3828368941727391
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.915191777615837
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.915191777615837,
+                "ca_volume_angstrom3": 2.3529716739918607,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.352971673991861,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.42254805353052927
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9185708619999995
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9185708619999995,
+                "ca_volume_angstrom3": 2.3495192279999992,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3495192279999992,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.4222720070496706
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.6439637135081067,
+              "rms_angstrom": 0.22706367807145242
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.6650661249224767,
+              "rms_angstrom": 0.43021950717953167
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9226976616485203
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9226976616485203,
+                "ca_volume_angstrom3": 2.4511456271075573,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4511456271075573,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.4371252875506242
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.922275624000003
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.922275624000003,
+                "ca_volume_angstrom3": 2.451252929000004,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.451252929000004,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.4375656969309829
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.9692571998523591,
+              "rms_angstrom": 0.1666180299485722
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.067650635210608,
+              "rms_angstrom": 0.3224940644365004
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7137602173578736,
+                "ca_volume_angstrom3": 2.398259444638119,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3982594446381187,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.379912445984099
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7132588700000034,
+                "ca_volume_angstrom3": 2.3979903700000005,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.39799037,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3796244625993115
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.120824777209829,
+              "rms_angstrom": 0.21271275807607068
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.101956098826118,
+              "rms_angstrom": 0.38004901730811674
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7123474358526448,
+                "ca_volume_angstrom3": 2.492883300255109,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.492883300255109,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38348010974793256
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7097808500000024,
+                "ca_volume_angstrom3": 2.490944322000003,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.490944322000003,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38408565650170123
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.3035486473314761,
+              "rms_angstrom": 0.11306289555225493
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.8288726644166347,
+              "rms_angstrom": 0.24687054332811526
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.6104948727444888,
+                "ca_volume_angstrom3": 2.2958920784785555,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2958920784785555,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3729989150013664
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.608755101999999,
+                "ca_volume_angstrom3": 2.2950062630000043,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2950062630000043,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37281387368242513
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.4023562808264087,
+              "rms_angstrom": 0.1683002265896588
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.025561179767713,
+              "rms_angstrom": 0.3098907338473848
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5579124481477593,
+                "ca_volume_angstrom3": 2.4838845304305956,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4838845304305956,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.367048381044768
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5607552660000024,
+                "ca_volume_angstrom3": 2.4827271539999987,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.482727153999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3667732244593316
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.3035486473314761,
+              "rms_angstrom": 0.11306289555225493
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.8288726644166347,
+              "rms_angstrom": 0.24687054332811526
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.6104948727444888,
+                "ca_volume_angstrom3": 2.2958920784785555,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2958920784785555,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3729989150013664
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.608755101999999,
+                "ca_volume_angstrom3": 2.2950062630000043,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2950062630000043,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37281387368242513
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.4023562808264087,
+              "rms_angstrom": 0.1683002265896588
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.025561179767713,
+              "rms_angstrom": 0.3098907338473848
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5579124481477593,
+                "ca_volume_angstrom3": 2.4838845304305956,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4838845304305956,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.367048381044768
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.5607552660000024,
+                "ca_volume_angstrom3": 2.4827271539999987,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.482727153999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3667732244593316
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.669680489032385,
+              "rms_angstrom": 0.19186400789777347
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.719190181836619,
+              "rms_angstrom": 0.4109996143493117
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9129958177944697
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9129958177944697,
+                "ca_volume_angstrom3": 2.3391114670336437,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3391114670336437,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3973208542034561
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.911027101999999
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.911027101999999,
+                "ca_volume_angstrom3": 2.3386131479999976,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3386131479999976,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3972344413857414
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.6771844360710646,
+              "rms_angstrom": 0.2246494922797636
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.810927820136881,
+              "rms_angstrom": 0.45026695477167217
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9247014409397105
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9247014409397105,
+                "ca_volume_angstrom3": 2.4493332570146475,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4493332570146475,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.4293456393511703
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "1",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.928328377999996
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.928328377999996,
+                "ca_volume_angstrom3": 2.4486439859999996,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4486439860000004,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.4290745549576642
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1CRN-THR1-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.0281158519809734,
+              "rms_angstrom": 0.16898386367328105
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.0518849945553703,
+              "rms_angstrom": 0.3476433168722951
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.713797360818415,
+                "ca_volume_angstrom3": 2.429963940844123,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4299639408441225,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38185593582723465
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7132541669999986,
+                "ca_volume_angstrom3": 2.431141228999996,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4311412289999956,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38138663961831565
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.1666762903496006,
+              "rms_angstrom": 0.21061584825259477
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.2044758994772797,
+              "rms_angstrom": 0.4028426580403879
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7123146952590311,
+                "ca_volume_angstrom3": 2.4956505129066917,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4956505129066917,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38567629179962326
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7164883919999938,
+                "ca_volume_angstrom3": 2.4997384349999967,
+                "residue": [
+                  "A",
+                  "1",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4997384349999967,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.38521978310821403
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.0046323662811445,
+              "rms_angstrom": 0.0863330609150462
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.3309931596617341,
+              "rms_angstrom": 0.17713164467462392
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4704489618428624,
+                "ca_volume_angstrom3": 2.3527256378837444,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3527256378837444,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4432291819788228
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.469551610000002,
+                "ca_volume_angstrom3": 2.3500593250000024,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3500593250000024,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.44302705457083924
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9339744364569004,
+              "rms_angstrom": 0.15235848246908118
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2444142173839183,
+              "rms_angstrom": 0.25111459101364253
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.469921637287771,
+                "ca_volume_angstrom3": 2.4870785151175063,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4870785151175063,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45404305922996624
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.470108362000004,
+                "ca_volume_angstrom3": 2.488492725000005,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.488492725000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4545659063560774
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.984181210891095,
+              "rms_angstrom": 0.08563234197264405
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.3050702567886083,
+              "rms_angstrom": 0.17466031245579264
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.471709472538096,
+                "ca_volume_angstrom3": 2.3550963367228057,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.355096336722806,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45137644956988954
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4713334499999986,
+                "ca_volume_angstrom3": 2.3524622769999963,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3524622769999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45144764333410636
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9368442063765517,
+              "rms_angstrom": 0.15130638131887403
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2479650045191142,
+              "rms_angstrom": 0.2487573299203781
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4697012903782447,
+                "ca_volume_angstrom3": 2.4825246005050836,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4825246005050836,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4525225369728183
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4727034030000032,
+                "ca_volume_angstrom3": 2.4834887040000053,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.483488704000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4525583975250669
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.529618343593353,
+              "rms_angstrom": 0.16296939322733056
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.2042369726738857,
+              "rms_angstrom": 0.24565434171205425
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9847195649623806
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9847195649623806,
+                "ca_volume_angstrom3": 2.36255999463068,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.36255999463068,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.35439558152711514
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9877525919999979
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9877525919999979,
+                "ca_volume_angstrom3": 2.3604341960000084,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.360434196000008,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.35471282142389704
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.6095632739524333,
+              "rms_angstrom": 0.20434034416879895
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.311018922378148,
+              "rms_angstrom": 0.3153212125070522
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9651881376137585
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9651881376137585,
+                "ca_volume_angstrom3": 2.426357168896453,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.426357168896453,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.317751093737483
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9672497029999925
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9672497029999925,
+                "ca_volume_angstrom3": 2.4258824610000067,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4258824610000067,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3182952769611438
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.8969086255071803,
+              "rms_angstrom": 0.13885185972242822
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.1287376454650735,
+              "rms_angstrom": 0.2285169316351304
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7068166965824212,
+                "ca_volume_angstrom3": 2.4751100740733474,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4751100740733474,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.30186070999174586
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.708212547000005,
+                "ca_volume_angstrom3": 2.4756559800000018,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4756559800000013,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.30160912730495015
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.9797741722038085,
+              "rms_angstrom": 0.18891434964901385
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.241110436230386,
+              "rms_angstrom": 0.29794764656619915
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7074487718646583,
+                "ca_volume_angstrom3": 2.510848129881072,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.510848129881072,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.28527418998413623
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7073967359999987,
+                "ca_volume_angstrom3": 2.507237579999998,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.507237579999998,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.28478668467149726
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 0
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9548122346595408,
+              "rms_angstrom": 0.08168238389888774
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2084260324681122,
+              "rms_angstrom": 0.15513858512523337
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.485273526763337,
+                "ca_volume_angstrom3": 2.2906598513122263,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2906598513122263,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.44321138775914726
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4869252270000053,
+                "ca_volume_angstrom3": 2.2922350560000035,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.2922350560000035,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4435120497455083
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9205886361044436,
+              "rms_angstrom": 0.14818169697771164
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2139658823705934,
+              "rms_angstrom": 0.23859924603943497
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4773665998199346,
+                "ca_volume_angstrom3": 2.467485263896568,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4674852638965685,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45726143025056754
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4791479319999943,
+                "ca_volume_angstrom3": 2.467727207999996,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.467727207999996,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45791162607239233
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9387506644499677,
+              "rms_angstrom": 0.08119396707649762
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2055483031137755,
+              "rms_angstrom": 0.15473939686517707
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4741515070963924,
+                "ca_volume_angstrom3": 2.3104533982836926,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.310453398283693,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4508863009813817
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.472444791999999,
+                "ca_volume_angstrom3": 2.310150621999998,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.310150621999998,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45037358297698926
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 0.9233717942659877,
+              "rms_angstrom": 0.1486881127750271
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 1.2189788971243174,
+              "rms_angstrom": 0.239376247000374
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4742015644022066,
+                "ca_volume_angstrom3": 2.470726647747305,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.470726647747305,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45617257071327355
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 2.4721461780000022,
+                "ca_volume_angstrom3": 2.4701301900000026,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.470130190000003,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4561988857940831
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive",
+      "final_geometry_accepted": false,
+      "final_output_policy": "refused_geometry",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 1
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.599410520024682,
+              "rms_angstrom": 0.1673556779067252
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.3184504078044723,
+              "rms_angstrom": 0.2455763874195828
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9809607889759044
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9809607889759044,
+                "ca_volume_angstrom3": 2.3926875715878952,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3926875715878957,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3522176372114605
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9820846719999983
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9820846719999983,
+                "ca_volume_angstrom3": 2.3893669149999983,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.3893669149999983,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.3524795324723411
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.6479669810573476,
+              "rms_angstrom": 0.20563474871610998
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 3.398266553598054,
+              "rms_angstrom": 0.31399282007567364
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9674689576005033
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9674689576005033,
+                "ca_volume_angstrom3": 2.4372318661410106,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.437231866141011,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.2954407598970952
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [
+              {
+                "centre": "CB",
+                "reason": "non_R_or_nearplanar",
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ]
+              }
+            ],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [
+                {
+                  "residue": [
+                    "A",
+                    "2",
+                    "",
+                    "THR"
+                  ],
+                  "volume_angstrom3": -1.9659958699999986
+                }
+              ],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": -1.9659958699999986,
+                "ca_volume_angstrom3": 2.440073868000001,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "S"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4400738680000007,
+              "findings": [
+                "thr_cb_not_R_or_nearplanar"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.2958732306814533
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "drive_wall",
+      "final_geometry_accepted": true,
+      "final_output_policy": "eligible_for_research_only",
+      "force_audit": {
+        "original_forces_preserved": true,
+        "phase2_only_restraints_reduced": true,
+        "research_forces": 2
+      },
+      "id": "1CRN-THR2-CB-OG1-CG2",
+      "initial_coordinates_exact": true,
+      "phases": [
+        {
+          "accepted": false,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 1.978499011799095,
+              "rms_angstrom": 0.14419205280417152
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.2639373282691357,
+              "rms_angstrom": 0.22947070639436867
+            }
+          },
+          "raw": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7060334646788663,
+                "ca_volume_angstrom3": 2.50897557339649,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5089755733964894,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.2988061767372421
+            }
+          },
+          "rounded": {
+            "accepted": false,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.703468800000002,
+                "ca_volume_angstrom3": 2.5065880419999993,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.5065880419999993,
+              "findings": [
+                "bond_angle:CA-CB-CG2"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.2992839536648968
+            }
+          },
+          "stage": "phase1"
+        },
+        {
+          "accepted": true,
+          "movement": {
+            "heavy": {
+              "count": 327,
+              "exact": false,
+              "maximum_angstrom": 2.011438796327691,
+              "rms_angstrom": 0.19123436121940707
+            },
+            "hydrogen": {
+              "count": 315,
+              "exact": false,
+              "maximum_angstrom": 2.320415284704221,
+              "rms_angstrom": 0.29769250131318825
+            }
+          },
+          "raw": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": false,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7069132490109523,
+                "ca_volume_angstrom3": 2.51732302196266,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.51732302196266,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.2796561040305785
+            }
+          },
+          "rounded": {
+            "accepted": true,
+            "global_stereo_failures": [],
+            "rounded_all_coordinates": true,
+            "scope": "actual-frame abstract heavy-only view, no original-observation or H-geometry guarantee",
+            "stereo": {
+              "atom_count": 642,
+              "negative_ca": [],
+              "negative_thr_beta": [],
+              "protein_ca_centres": 42,
+              "target": {
+                "beta_volume_angstrom3": 0.7081551420000026,
+                "ca_volume_angstrom3": 2.5151103900000047,
+                "residue": [
+                  "A",
+                  "2",
+                  "",
+                  "THR"
+                ],
+                "target_cip": {
+                  "CA": "S",
+                  "CB": "R"
+                }
+              },
+              "thr_beta_centres": 6
+            },
+            "target_geometry": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.5151103900000047,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.27943771092452074
+            }
+          },
+          "stage": "phase2"
+        }
+      ],
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "arm": "unchanged",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "wall",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "unchanged",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "wall",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1CRN-VAL8-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "unchanged",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "wall",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 1,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "unchanged",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "wall",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    },
+    {
+      "arm": "drive_wall",
+      "id": "1CRN-VAL15-CB-CG1-CG2",
+      "seed": 2,
+      "status": "not_applicable_non_THR"
+    }
+  ],
+  "interpretation": "artificial-drive stress and finite beta wall, all observations may move; final geometry rejection is separate from CB sign",
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "original_failure_causally_explained": false,
+  "plan_sha256": "8efc51ef6a9f17d8102d4504f0fbf1fde76790e402e0907c80daee4a0e8ee1e3",
+  "production_changed": false,
+  "production_qualified": false,
+  "profile_selected": false,
+  "run_sha256": "d15e7fae6adf73951e4528d397c1d27bd7054192c5501d29f2fd0d9577c67d56",
+  "schema": "dvbfixer.private-beta-wall-audit.v1",
+  "summary": {
+    "drive": {
+      "enrolled": 12,
+      "executed": 6,
+      "execution_blockers": 0,
+      "final_geometry_passes": 0,
+      "final_target_CB_R": 0,
+      "initial_refusals": 2,
+      "not_applicable": 4
+    },
+    "drive_wall": {
+      "enrolled": 12,
+      "executed": 6,
+      "execution_blockers": 0,
+      "final_geometry_passes": 2,
+      "final_target_CB_R": 6,
+      "initial_refusals": 2,
+      "not_applicable": 4
+    },
+    "unchanged": {
+      "enrolled": 12,
+      "executed": 6,
+      "execution_blockers": 0,
+      "final_geometry_passes": 6,
+      "final_target_CB_R": 6,
+      "initial_refusals": 2,
+      "not_applicable": 4
+    },
+    "wall": {
+      "enrolled": 12,
+      "executed": 6,
+      "execution_blockers": 0,
+      "final_geometry_passes": 6,
+      "final_target_CB_R": 6,
+      "initial_refusals": 2,
+      "not_applicable": 4
+    }
+  }
+}

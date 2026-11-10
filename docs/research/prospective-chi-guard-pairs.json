@@ -1,0 +1,328 @@
+{
+  "native_accuracy_read": true,
+  "native_coordinates_read": false,
+  "pair_count": 15,
+  "pairs": [
+    {
+      "first": "stock",
+      "matched_count": 2,
+      "matched_mask_ids": [
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2"
+      ],
+      "medians": {
+        "own": {
+          "exact_name_rmsd_angstrom": 0.30599192679460896,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.30599192679460896
+        },
+        "stock": {
+          "exact_name_rmsd_angstrom": 0.16744921070874055,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16744921070874055
+        }
+      },
+      "second": "own"
+    },
+    {
+      "first": "stock",
+      "matched_count": 2,
+      "matched_mask_ids": [
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2"
+      ],
+      "medians": {
+        "mean_prior": {
+          "exact_name_rmsd_angstrom": 0.1785286318620789,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.1785286318620789
+        },
+        "stock": {
+          "exact_name_rmsd_angstrom": 0.16744921070874055,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16744921070874055
+        }
+      },
+      "second": "mean_prior"
+    },
+    {
+      "first": "stock",
+      "matched_count": 2,
+      "matched_mask_ids": [
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2"
+      ],
+      "medians": {
+        "mean_fixed": {
+          "exact_name_rmsd_angstrom": 0.1785286318620789,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.1785286318620789
+        },
+        "stock": {
+          "exact_name_rmsd_angstrom": 0.16744921070874055,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16744921070874055
+        }
+      },
+      "second": "mean_fixed"
+    },
+    {
+      "first": "stock",
+      "matched_count": 2,
+      "matched_mask_ids": [
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2"
+      ],
+      "medians": {
+        "mean_c": {
+          "exact_name_rmsd_angstrom": 0.17966400780804417,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.17966400780804417
+        },
+        "stock": {
+          "exact_name_rmsd_angstrom": 0.16744921070874055,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16744921070874055
+        }
+      },
+      "second": "mean_c"
+    },
+    {
+      "first": "stock",
+      "matched_count": 2,
+      "matched_mask_ids": [
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2"
+      ],
+      "medians": {
+        "mean_guard": {
+          "exact_name_rmsd_angstrom": 0.17966400780804417,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.17966400780804417
+        },
+        "stock": {
+          "exact_name_rmsd_angstrom": 0.16744921070874055,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.16744921070874055
+        }
+      },
+      "second": "mean_guard"
+    },
+    {
+      "first": "own",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_prior": {
+          "exact_name_rmsd_angstrom": 0.283034744628052,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.283034744628052
+        },
+        "own": {
+          "exact_name_rmsd_angstrom": 0.13564782833990896,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.13564782833990896
+        }
+      },
+      "second": "mean_prior"
+    },
+    {
+      "first": "own",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_fixed": {
+          "exact_name_rmsd_angstrom": 0.2785737484640853,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2785737484640853
+        },
+        "own": {
+          "exact_name_rmsd_angstrom": 0.13564782833990896,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.13564782833990896
+        }
+      },
+      "second": "mean_fixed"
+    },
+    {
+      "first": "own",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_c": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "own": {
+          "exact_name_rmsd_angstrom": 0.13564782833990896,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.13564782833990896
+        }
+      },
+      "second": "mean_c"
+    },
+    {
+      "first": "own",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_guard": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "own": {
+          "exact_name_rmsd_angstrom": 0.13564782833990896,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.13564782833990896
+        }
+      },
+      "second": "mean_guard"
+    },
+    {
+      "first": "mean_prior",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_fixed": {
+          "exact_name_rmsd_angstrom": 0.2785737484640853,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2785737484640853
+        },
+        "mean_prior": {
+          "exact_name_rmsd_angstrom": 0.283034744628052,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.283034744628052
+        }
+      },
+      "second": "mean_fixed"
+    },
+    {
+      "first": "mean_prior",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_c": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "mean_prior": {
+          "exact_name_rmsd_angstrom": 0.283034744628052,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.283034744628052
+        }
+      },
+      "second": "mean_c"
+    },
+    {
+      "first": "mean_prior",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_guard": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "mean_prior": {
+          "exact_name_rmsd_angstrom": 0.283034744628052,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.283034744628052
+        }
+      },
+      "second": "mean_guard"
+    },
+    {
+      "first": "mean_fixed",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_c": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "mean_fixed": {
+          "exact_name_rmsd_angstrom": 0.2785737484640853,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2785737484640853
+        }
+      },
+      "second": "mean_c"
+    },
+    {
+      "first": "mean_fixed",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_fixed": {
+          "exact_name_rmsd_angstrom": 0.2785737484640853,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2785737484640853
+        },
+        "mean_guard": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        }
+      },
+      "second": "mean_guard"
+    },
+    {
+      "first": "mean_c",
+      "matched_count": 5,
+      "matched_mask_ids": [
+        "1CRN-THR2-CB-OG1-CG2",
+        "1CRN-VAL15-CB-CG1-CG2",
+        "1CRN-VAL8-CB-CG1-CG2",
+        "1ENH-THR27-CB-OG1-CG2",
+        "1ENH-THR6-CB-OG1-CG2"
+      ],
+      "medians": {
+        "mean_c": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        },
+        "mean_guard": {
+          "exact_name_rmsd_angstrom": 0.2813408371827073,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.2813408371827073
+        }
+      },
+      "second": "mean_guard"
+    }
+  ],
+  "plan_sha256": "e26954fdbeb062ee7e64f6b7d33b10b85cbd080a57c05e6fa3953593954eb931",
+  "production_changed": false,
+  "profile_selected": false,
+  "report_sha256": "749ac9fb2bd8a6f845fe866b0434b354c3ba8138b82981ce045f1844037c5193",
+  "schema": "dvbfixer.prospective-guard-pairs-audit.v1",
+  "scientific_qualification": false
+}

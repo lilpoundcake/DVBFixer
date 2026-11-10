@@ -1,0 +1,3647 @@
+{
+  "schema": "dvbfixer.private-anchored-source-controls.v1",
+  "policy": "singleton-val-thr-source-fixed-partner-global-thr-beta-v1",
+  "source_mode": "anchored",
+  "projection": "Unmodified ATOM chain A records within declared bounds, masks withheld; bare TER/END. Not intact deposited complex.",
+  "fixture_sha256": {
+    "1UBQ": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+    "1FR2": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+    "1A3N": "a4db006269e9b6f9db0eb5447a5d40e59d67857484a9294b9ca71d642ffe9861"
+  },
+  "cases": [
+    {
+      "id": "1UBQ-A1-72-VAL5-CG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "5",
+      "missing": [
+        "CG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-VAL5-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "5",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-VAL26-CG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "26",
+      "missing": [
+        "CG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-VAL26-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "26",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-THR7-OG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "7",
+      "missing": [
+        "OG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-THR7-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "7",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-THR55-OG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "55",
+      "missing": [
+        "OG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1UBQ-A1-72-THR55-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "55",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1FR2-A1-end-VAL19-CG1",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "VAL",
+      "number": "19",
+      "missing": [
+        "CG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1FR2-A1-end-VAL19-CG2",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "VAL",
+      "number": "19",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1FR2-A1-end-THR11-OG1",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "THR",
+      "number": "11",
+      "missing": [
+        "OG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1FR2-A1-end-THR11-CG2",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "THR",
+      "number": "11",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1A3N-A1-59-VAL1-CG1",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "VAL",
+      "number": "1",
+      "missing": [
+        "CG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1A3N-A1-59-VAL1-CG2",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "VAL",
+      "number": "1",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1A3N-A1-59-THR8-OG1",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "THR",
+      "number": "8",
+      "missing": [
+        "OG1"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1A3N-A1-59-THR8-CG2",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "THR",
+      "number": "8",
+      "missing": [
+        "CG2"
+      ],
+      "admission_control": false
+    },
+    {
+      "id": "1A3N-full-A-VAL1-occupancy-refusal",
+      "fixture": "1A3N",
+      "stop": null,
+      "residue_name": "VAL",
+      "number": "1",
+      "missing": [
+        "CG1"
+      ],
+      "admission_control": true
+    },
+    {
+      "id": "1A3N-full-A-THR8-occupancy-refusal",
+      "fixture": "1A3N",
+      "stop": null,
+      "residue_name": "THR",
+      "number": "8",
+      "missing": [
+        "OG1"
+      ],
+      "admission_control": true
+    }
+  ],
+  "default_cohort_evidence_capability_expanded": false,
+  "production_enabled": false,
+  "empirical_rotamer_data_loaded": false,
+  "retained_directory": "tmp/pdbfixer-research/anchored-source-01",
+  "python": "3.12.13",
+  "rdkit": "2025.09.6",
+  "source_hashes": {
+    "scripts/probe_branched_source.py": "64575c3196bde2bb3ec219ae99e2a20070085bd844b125dc28d66725b22ad1d7",
+    "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+    "src/dvbfixer/protein_completion/anchored_source.py": "e6e898a0784ad54ae93fa03ccad4a6489ed454d7ccd5630d52fb0e64a896b1c8",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+    "src/dvbfixer/protein_completion/branched_source.py": "5884b48d375db1e0608c5e8cf2de39831ef877ef2b5cb78f981d58d2eb15b3fd",
+    "src/dvbfixer/protein_completion/cohort.py": "089f211173a12b1c02716b2e4be6e499294649f526b99e65c04718794704bd57",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/evidence.py": "f38b40e620f55444b9a81a348ffebc94274bab2eb3386ec68992989cb25cecb4",
+    "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+    "src/dvbfixer/protein_completion/source.py": "6870b2217eb18dd3f8fd320e3bdeb3a5a734ac7378cf9ea9f7326391747abbb2",
+    "src/dvbfixer/protein_completion/validation.py": "9d9883edd63ea01ec2edbd478262a9dd87827269786de4ec0a03ec9baf250e9f"
+  },
+  "results": {
+    "1UBQ-A1-72-VAL5-CG1": {
+      "status": "accepted",
+      "plan_digest": "7672f9c488120a633593687e207b6eb92bb3e094e57160358bdce4ef199beb25",
+      "independent_readback": {
+        "plan_digest": "7672f9c488120a633593687e207b6eb92bb3e094e57160358bdce4ef199beb25",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "5",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG1"
+            },
+            "element": "C",
+            "xyz": [
+              30.225,
+              33.38,
+              14.32
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "5",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.025455844122715,
+      "retained_files": {
+        "attempts.json": "cbd920bbaac49f83b3d1436bf21919a4107d8cd014ec71c4d181fef4ab16a187",
+        "audit.json": "1a5d4ed4fecf928032ca7aefd02df1c9e14638db656dd5b16c6701dd1ab6e08d",
+        "completed.dat": "d1e5444ee641032a5c9db8db3423342ab6471b6ef3db45782c9d801cb518fb5d",
+        "completed.pdb": "05a86220b1743bec5a2da982bf34eaa9228d25ed7fe9e0824f106d06884ff344",
+        "input.pdb": "6b630875dfae5b5b8f2eefbb6fe4ca9dc12d3af9d29e9d534c173b87a1a2ab0b",
+        "source-plan.json": "55ddfe127c1200aba127ac2a25be18fea100226096b0cf4aa1fabd6bda884b73"
+      }
+    },
+    "1UBQ-A1-72-VAL5-CG2": {
+      "status": "accepted",
+      "plan_digest": "bb7404dcbd79072424049b37278bccf036ba846ebc873c8bcbc6d0d6969a5107",
+      "independent_readback": {
+        "plan_digest": "bb7404dcbd79072424049b37278bccf036ba846ebc873c8bcbc6d0d6969a5107",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "5",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              29.941,
+              31.851,
+              12.376
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "5",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.031638584039112225,
+      "retained_files": {
+        "attempts.json": "6a36e76bf97b7b214f2c7c6dc3859f58aaf1687858a5294ebac2cca6f0299afe",
+        "audit.json": "71e8e71733f5558a2beb9efe17445898a442cc60fd1b2974edf6b921661c2326",
+        "completed.dat": "dcb96afff21722b6bc76914c86cb27bd28f3ba0d5fe13a9304f078a0a85efcad",
+        "completed.pdb": "ada8711912ec449b892f0c24c74f9d4d795d5613b2eea1eae3832c4c70a0bb3f",
+        "input.pdb": "36aefbe39c893287f2133ce4a8493587599198926f8f22f696027eccde45cf6f",
+        "source-plan.json": "3a78001b867809a88e6c42fc1348dbc5f1f82df8f47cef896bb9e971a937b6b3"
+      }
+    },
+    "1UBQ-A1-72-VAL26-CG1": {
+      "status": "accepted",
+      "plan_digest": "2615f288a7c74eeef495a03b9b019cf64deed9d380fac06385353a95303b735b",
+      "independent_readback": {
+        "plan_digest": "2615f288a7c74eeef495a03b9b019cf64deed9d380fac06385353a95303b735b",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "26",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG1"
+            },
+            "element": "C",
+            "xyz": [
+              31.662,
+              26.73,
+              13.257
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "26",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.08983317872590378,
+      "retained_files": {
+        "attempts.json": "8983ed2a82a943a19409bb21d202c75560ffbd21d22979ac651a98cce6ddfd5f",
+        "audit.json": "4f37877f1df00a400c208236bd9a62907c302bbc8bc091f23e86d7c8a4b218d8",
+        "completed.dat": "a4a0a68bc4d65264a0a879b24deb2dee437713836356bd28da89e7f5f4300177",
+        "completed.pdb": "3395eb1a1efc366f5270a6e45a35d3062e82219efca7a8214255f3cd41bc8b2d",
+        "input.pdb": "f252e91fd963580e24376321db69c291b4c0618308a68a71be6c08fc82b6fd24",
+        "source-plan.json": "f18db5466acd472c0d6b9d41d5c87c3dd757c681f8bccc25c0d4f4e1c7c4be29"
+      }
+    },
+    "1UBQ-A1-72-VAL26-CG2": {
+      "status": "accepted",
+      "plan_digest": "9506201f947300c37b7fc9daf49f040f3d2075d5825efae07e752419a4aab6a5",
+      "independent_readback": {
+        "plan_digest": "9506201f947300c37b7fc9daf49f040f3d2075d5825efae07e752419a4aab6a5",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "26",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              31.186,
+              24.496,
+              12.366
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "26",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.1382099851674978,
+      "retained_files": {
+        "attempts.json": "95e6bede2acce0e58c9c0ac74f3a566588e6c80303644a626e51fc20741454ac",
+        "audit.json": "31a47ecc971bcba0059811ce5380dc5432151cd6adc27a98a58748ec8e52146c",
+        "completed.dat": "5398b8eeb249105699dff26daabafc82c0eb5b3d2c4deed39099b9d4a2f0e569",
+        "completed.pdb": "017815b150cb6aacd6706c3601998b8af17cc2152f020b994144fc0eac794610",
+        "input.pdb": "dc04fc33a4ad3f3277542d5a33cb0640241a92abee86d83fc7af9114d263b660",
+        "source-plan.json": "b8c4cbe801859e8506941ca3dbbd869baf832b367c571b6baa4265791978f983"
+      }
+    },
+    "1UBQ-A1-72-THR7-OG1": {
+      "status": "accepted",
+      "plan_digest": "a26ed7576ecdc62e9a1b46a4a4553e6305e6076945ddeb934905000d841bdeb8",
+      "independent_readback": {
+        "plan_digest": "a26ed7576ecdc62e9a1b46a4a4553e6305e6076945ddeb934905000d841bdeb8",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "7",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "OG1"
+            },
+            "element": "O",
+            "xyz": [
+              31.94,
+              40.248,
+              15.934
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5213263979999962
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.23106276203664033,
+      "retained_files": {
+        "attempts.json": "7cdb055a5d1fa6ffa4c06d1bfabe49074dc052c763987d67750bc164caf5c50d",
+        "audit.json": "9b65be81d9323449fb0455b86b68b6fb749a084c8ff0d4ea56eab70f45bf4e50",
+        "completed.dat": "c51c3cc990ce1f84585a5e658061075c952fa2977a82ac595312707274b6305c",
+        "completed.pdb": "7c473de50107418fb5c008af9b1eb843b3ebfbec6ef6c8bc8b7ae828a4471508",
+        "input.pdb": "ae692790808a263c84fd1ae75ce37ca131c4d1d1e2050c847040d29c7beb4a18",
+        "source-plan.json": "f030e4ef35d7784fae0d87a04713f8daf5bfddfb22170c18847937c7e1248840"
+      }
+    },
+    "1UBQ-A1-72-THR7-CG2": {
+      "status": "accepted",
+      "plan_digest": "37485f2bf01f6951abee9926b09e0eb292da20a9c50d7df94fea48d3474c202e",
+      "independent_readback": {
+        "plan_digest": "37485f2bf01f6951abee9926b09e0eb292da20a9c50d7df94fea48d3474c202e",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "7",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              32.146,
+              37.947,
+              15.154
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.9173926139999917
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.679339030000002
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.1173413822996784,
+      "retained_files": {
+        "attempts.json": "3f5fc022ae365275aaa26ab08fce82c97918937672a1b63d03818cb2c5fbbab5",
+        "audit.json": "e31a48a517dc7de630f9a6f403d72d65e0615daac9f3077cac8d629b1c1c14a8",
+        "completed.dat": "bec518e35ec16088a8a0747aaa17903ed89702f697706aad2c495463ffdda18b",
+        "completed.pdb": "573609337d43268f575c039294597ed1e32618245b5a2ef05081c85da2017e4c",
+        "input.pdb": "26a712cc14225228e75632ead129937339c3c37d84dd2f17f773a6286df6dac8",
+        "source-plan.json": "29187ca64053ff38f7a25ebfabe5daf465a9c75c290826fb578aa73ff96a4e22"
+      }
+    },
+    "1UBQ-A1-72-THR55-OG1": {
+      "status": "accepted",
+      "plan_digest": "3868de70b4cfc67bb9e544ff228ccc94b9a5cacab7463ae9494ad18b27de40a5",
+      "independent_readback": {
+        "plan_digest": "3868de70b4cfc67bb9e544ff228ccc94b9a5cacab7463ae9494ad18b27de40a5",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "55",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "OG1"
+            },
+            "element": "O",
+            "xyz": [
+              25.949,
+              16.603,
+              13.671
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.319800841999998
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.2433187210224492,
+      "retained_files": {
+        "attempts.json": "23a6e5fd6812880dc9d79d0cb8f6b6d66ae1164d09064f7d9437204fb36bee6e",
+        "audit.json": "949d30880566b17bad1c119a37e12a8117db612a26c4fa5b4cd265f2e8c60c1c",
+        "completed.dat": "39d492888155eeba8d22bfae8c7d9c987a7fa2d6bc0aa7f6fc1bab6009d8e79f",
+        "completed.pdb": "3c1280aff4510115e6345eb243d335c2d0b4fdd55c178660f44ded34b9f2d627",
+        "input.pdb": "64ecf82ec7bb40589f093d9b2f083a2a8e3c5658ab0b340134b89ba7876d4209",
+        "source-plan.json": "e42940ff10e268c0944ebdcaf3dc2c40a11566d6ad4c380ef930169205bdf401"
+      }
+    },
+    "1UBQ-A1-72-THR55-CG2": {
+      "status": "accepted",
+      "plan_digest": "e4390031d2cd7e57e797746faac3046845034275e0407f950ace559ac6eb84d6",
+      "independent_readback": {
+        "plan_digest": "e4390031d2cd7e57e797746faac3046845034275e0407f950ace559ac6eb84d6",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "55",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              28.287,
+              15.909,
+              13.762
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "7",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.8216059879999955
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7531363029999913
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "12",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.692779516999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "14",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.913973111999993
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "22",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.7747246499999974
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "55",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.9500981620000015
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "66",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.76965723499999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "7",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "9",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "12",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "14",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "22",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "55",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "66",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.2150395312494893,
+      "retained_files": {
+        "attempts.json": "dcecb87c37f78c63eaaad0af0e92d43286d54c86d4b7b3267b13e05d86c2dc65",
+        "audit.json": "e1211d37873dbc98a94ab90d193773a3c0f218ccbdaee8ff320de750db271f49",
+        "completed.dat": "c2aa764b7b7fd8640fc8521d438eceb219e6fe63cb7875273171cbdd0ff82a79",
+        "completed.pdb": "5f83b112575889f2cf46804f80223558f1bd1fbf046cdd1ba953ac6dff271a60",
+        "input.pdb": "59aa5fd8ec542f5e3fda91e3766baf37ac925b7156aceed8228ffa89f3a7bbc7",
+        "source-plan.json": "a6347bc3d2abf76e3ce3dc3b96b7e14745a72ee30bcebcbc29e74c209fd6ef06"
+      }
+    },
+    "1FR2-A1-end-VAL19-CG1": {
+      "status": "accepted",
+      "plan_digest": "59b9e523e5f1d681eb8d2baa356d315c819600d10da7cf27d5087f0644fe8d69",
+      "independent_readback": {
+        "plan_digest": "59b9e523e5f1d681eb8d2baa356d315c819600d10da7cf27d5087f0644fe8d69",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "19",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG1"
+            },
+            "element": "C",
+            "xyz": [
+              -4.497,
+              -7.453,
+              51.834
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "11",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5686675029999937
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5834802479999834
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "21",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.556694700000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "27",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.565528253999989
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.530831348000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "44",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.589899154000004
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "70",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.604364375999999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "11",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "19",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "20",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "21",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "27",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "44",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "70",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.06835934464284957,
+      "retained_files": {
+        "attempts.json": "d7ba8467a04cf8b77c63bc7ed3ef3b316c8b452d979048c64dca13e2a8bae1bc",
+        "audit.json": "3b0abf158d34b960822621f8cd93ff23f3b8febcfac7bf04613d0592214b1a1e",
+        "completed.dat": "ea7c59db219101fbd121d3aa739187fc3df2da747c5d16d4f039a5e93b78a313",
+        "completed.pdb": "ea48419dff8d26eac4b678d2fefb9f2839e385c6eaedb06070fa97dfaf61a5dc",
+        "input.pdb": "653b66959beb6f52d633811563307e7a8fc95e7e338886f5a5342e8421a68bc2",
+        "source-plan.json": "36e47b89cf283ca27c2aff5361d67968724f6a28a518083195f01b3cdf87a963"
+      }
+    },
+    "1FR2-A1-end-VAL19-CG2": {
+      "status": "accepted",
+      "plan_digest": "74952a86b4eec2e00b09c1afbe4e6142405821ddf7346c5f77e0741e8be1afde",
+      "independent_readback": {
+        "plan_digest": "74952a86b4eec2e00b09c1afbe4e6142405821ddf7346c5f77e0741e8be1afde",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "19",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              -3.282,
+              -7.04,
+              53.952
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "11",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5686675029999937
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5834802479999834
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "21",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.556694700000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "27",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.565528253999989
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.530831348000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "44",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.589899154000004
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "70",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.604364375999999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "11",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "19",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "20",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "21",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "27",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "44",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "70",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.03786819245752203,
+      "retained_files": {
+        "attempts.json": "006d134c58474394d5985e7dff30f9a7c00bb6abda6b221830ba7bbca941ae04",
+        "audit.json": "63fe34bc50b6f6b079fa932647aaebab567ea8ad9e90cc86649ee84f9d9016c3",
+        "completed.dat": "5ca1d9424c76b2598f7cd26fede65f1707724e3ab2a0ac8dec95a9fecefe2394",
+        "completed.pdb": "1f5949c0b1799817c8b0c89bf4d0858d77b22e8d2e9bf876362ef31532b5848a",
+        "input.pdb": "989973b50eb275e6a6f485cea589caa0c552a3ce3be4dafcd42f86c74d525b1c",
+        "source-plan.json": "f4b3d7f32af19c107d06aa16fb63b7d1b6713d2bf8cbc3cb83f14e7348e59d85"
+      }
+    },
+    "1FR2-A1-end-THR11-OG1": {
+      "status": "accepted",
+      "plan_digest": "a10ae0fe36adc767724b7a28c294784968a70b66d18c9abb61603a5d83746085",
+      "independent_readback": {
+        "plan_digest": "a10ae0fe36adc767724b7a28c294784968a70b66d18c9abb61603a5d83746085",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "11",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "OG1"
+            },
+            "element": "O",
+            "xyz": [
+              -7.558,
+              -7.25,
+              64.737
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "11",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5477965360000017
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5834802479999834
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "21",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.556694700000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "27",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.565528253999989
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.530831348000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "44",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.589899154000004
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "70",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.604364375999999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "11",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "20",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "21",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "27",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "44",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "70",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.011575836902792019,
+      "retained_files": {
+        "attempts.json": "037c35a9001278b222a2ab02e0d692578018149b098d161da5b6cae40f4501f4",
+        "audit.json": "6f9505c0e68c592b7419629c1f0c883e1e00f9986a33871f021c5e08e8211221",
+        "completed.dat": "66a940ad12e4135a20f1cc2eb24423d0657cf39ef5f09e8c5399b18e0442a089",
+        "completed.pdb": "c76be2c85510c9b70b36d7edf23f160100c8dbcf9e8b50efaea0363d409115ed",
+        "input.pdb": "e52b3906b223c54ee5f9df864cdf018ac3ebe442000ce6be5ac67b2df9fc3d14",
+        "source-plan.json": "4ad791b3f8e70264a5e218303fe6c895fd1e4b9f68cf07826bad2b8c9f7f74d9"
+      }
+    },
+    "1FR2-A1-end-THR11-CG2": {
+      "status": "accepted",
+      "plan_digest": "2c7b5c99475bd133a14ddb450a6481602533497904037080be1e96e767913797",
+      "independent_readback": {
+        "plan_digest": "2c7b5c99475bd133a14ddb450a6481602533497904037080be1e96e767913797",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "11",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              -6.841,
+              -7.587,
+              67.026
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "11",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.595135265999988
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "20",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5834802479999834
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "21",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.556694700000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "27",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.565528253999989
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.530831348000003
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "44",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.589899154000004
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "70",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.604364375999999
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "11",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "20",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "21",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "27",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "44",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "70",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.024596747752497306,
+      "retained_files": {
+        "attempts.json": "2e0e294726039b69cf00bc0ec90ac59fcbc0ac79bf1afc21e225f96880df8cb5",
+        "audit.json": "e9c12469e055c816db8970d6f9b1d86f244db6377e3a05fd59cc2fc202a23c95",
+        "completed.dat": "3cba8d7276b8a1389f4286639ac66239487311ff77ff0a9999d38fbdfd0819eb",
+        "completed.pdb": "7976dbf2519687c79334c4ce6101dab29b25df8580603a6ee8a0b37c2889ae71",
+        "input.pdb": "52bb165e2dec44f83ad72f6bd89857d46231eecbb4bd8d0d5dd9b2189abe140e",
+        "source-plan.json": "45c0a10ca2b4a5202ebc8501ce0bba10643ad8bcd495cd8b512d81c6c2798ea2"
+      }
+    },
+    "1A3N-A1-59-VAL1-CG1": {
+      "status": "accepted",
+      "plan_digest": "544db689c3583a0ba87a0101b809ca24a2d61fd5829e991d289b9f9c952fc06d",
+      "independent_readback": {
+        "plan_digest": "544db689c3583a0ba87a0101b809ca24a2d61fd5829e991d289b9f9c952fc06d",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "1",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG1"
+            },
+            "element": "C",
+            "xyz": [
+              10.35,
+              23.267,
+              6.785
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.576071942999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.6262349429999965
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "39",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.505043079999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "41",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5765410429999958
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "1",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "8",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "39",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "41",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.0995740930162054,
+      "retained_files": {
+        "attempts.json": "2dd9013cd0fa480027464aee12025edb7e63cafc14eceb9ee8d5ba0cfee45da3",
+        "audit.json": "fd07bcb8735d156f7ba713594058e05de9871ec1c213357e53f08c0e17251b71",
+        "completed.dat": "f26b998e1ada33091169f73fff9a7de16eb340c41cd87c2e857421666e9b159d",
+        "completed.pdb": "69873dab97b81026894cb996d897bd1660bb9f8356b38f72489de4370998a7ec",
+        "input.pdb": "0b4fb78d358bb0341e43538027bd6b96cf75dee62ee4688fb309c8b1f42d30e4",
+        "source-plan.json": "b5e650509415659261711054a5fa2c51fc450982755c0656474dfb4323a9c42c"
+      }
+    },
+    "1A3N-A1-59-VAL1-CG2": {
+      "status": "accepted",
+      "plan_digest": "897dc757d55661e95be90b87600ea37261f769299cef653b79f819b585483613",
+      "independent_readback": {
+        "plan_digest": "897dc757d55661e95be90b87600ea37261f769299cef653b79f819b585483613",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "1",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              12.088,
+              21.944,
+              5.608
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.576071942999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.6262349429999965
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "39",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.505043079999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "41",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5765410429999958
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "1",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "8",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "39",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "41",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.06836665854054894,
+      "retained_files": {
+        "attempts.json": "0d7fdff47ab17efdfb041eb46f09df2989ab45906e42ce4679f811d50080f44d",
+        "audit.json": "41cc3135fe56e8d798ea0b9bb6067ad8b0be8ee040bf6635784f479acc3e9c11",
+        "completed.dat": "d922dc4da2889f2e1113d94cd6c0defabe0e64b95d8b3c17328ab37f2b7a07bb",
+        "completed.pdb": "ff829104e0217079faf7da0880697428e0884dd8d18e5e1c757b6d6b1de66a49",
+        "input.pdb": "e4400318853aa34511644632252ef33d1ed8183321778841c3134d2ff735fab0",
+        "source-plan.json": "97bf483089690f23955e0cc4ffc55cd500e133ffa61ce393b159693ad7b5cd12"
+      }
+    },
+    "1A3N-A1-59-THR8-OG1": {
+      "status": "accepted",
+      "plan_digest": "c0ff514ea7e59d44ee20059effd4f655c6da73e0e91bcdbec70172d6e218108d",
+      "independent_readback": {
+        "plan_digest": "c0ff514ea7e59d44ee20059effd4f655c6da73e0e91bcdbec70172d6e218108d",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "8",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "OG1"
+            },
+            "element": "O",
+            "xyz": [
+              -2.526,
+              26.135,
+              7.051
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.4884930380000014
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.6262349429999965
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "39",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.505043079999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "41",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5765410429999958
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "8",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "39",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "41",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.08006872048434369,
+      "retained_files": {
+        "attempts.json": "4c96a527de119464a1d88e2994dd0bc7b1fb15deb7b2ce24f43cf65e8a5fff59",
+        "audit.json": "40af8486041a6abb7d2bb05534c649168037bc4c398c5eb97370180dcb8374a3",
+        "completed.dat": "1caf4021d01f8148fa49bc597a88c2d254ff4f96961ec4adada41020486dd2b9",
+        "completed.pdb": "6296f1a9779edca0bb813d2afd659ab8aafef72571678e74d05177ec50e6cf9e",
+        "input.pdb": "7abc6ac8b0be54f41524f11537c83509bedcfbf6cbc43d6a65947c2537a63866",
+        "source-plan.json": "c9d8a0cf0bd3cdb4e0aee9f37184b6e84ed570836ff2e400d58c0f180d36f30c"
+      }
+    },
+    "1A3N-A1-59-THR8-CG2": {
+      "status": "accepted",
+      "plan_digest": "da8d5748d593f2bcf6c024290c62674ac22d275a38801b71ae65148b16e0c3ef",
+      "independent_readback": {
+        "plan_digest": "da8d5748d593f2bcf6c024290c62674ac22d275a38801b71ae65148b16e0c3ef",
+        "generated": [
+          {
+            "atom": {
+              "component": {
+                "model": 1,
+                "chain_id": "A",
+                "sequence_number": "8",
+                "insertion_code": "",
+                "alternate_location": "",
+                "occurrence": 1
+              },
+              "name": "CG2"
+            },
+            "element": "C",
+            "xyz": [
+              -4.71,
+              25.187,
+              7.586
+            ]
+          }
+        ],
+        "thr_beta": [
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "8",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.658364849999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "38",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.6262349429999965
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "39",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.505043079999999
+          },
+          {
+            "residue": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "41",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "state": "observed_R",
+            "volume_angstrom3": 2.5765410429999958
+          }
+        ]
+      },
+      "rdkit_rounded_checks": [
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "8",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "38",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "39",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "residue": {
+            "model": 1,
+            "chain_id": "A",
+            "sequence_number": "41",
+            "insertion_code": "",
+            "alternate_location": "",
+            "occurrence": 1
+          },
+          "labels": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "selected_index": 0,
+      "generated": 1,
+      "heldout_exact_name_rmsd_not_used_for_selection": 0.1044078541106943,
+      "retained_files": {
+        "attempts.json": "368489d705e7a549e8b38373c663be8c689e138ee399b6f6a4d59d72daddd31e",
+        "audit.json": "3301c3f98dde857573fac02f44e51359b5a98868d4231ebfb1fbf0ab1f284487",
+        "completed.dat": "eca8ec6518d87f3e957129689b76bd66591e16d81557d9cf7591923b1f90be9c",
+        "completed.pdb": "6cb4ef4930ea4514665ca69b2282774a95562d5c768aefeebe9219fe4ca0c836",
+        "input.pdb": "5700a0a009e64196e4fdd937e30bcd4d95b89f96d0f4d106b09c98e53726a147",
+        "source-plan.json": "df51420610856afe79ebf88df796bfc535f3dbdec2f7dcf76c1052cb1f6a02a4"
+      }
+    },
+    "1A3N-full-A-VAL1-occupancy-refusal": {
+      "status": "admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "retained_files": {
+        "audit.json": "0ce6b0ceb46e52d4314ae5bd0f836283676bd60655fb0200b15c6b5bde173639",
+        "input.pdb": "d86564a02da15f49858fb514960275b1ae1fde441b0ecc56fe689b2f5159a014"
+      }
+    },
+    "1A3N-full-A-THR8-occupancy-refusal": {
+      "status": "admission_refused",
+      "reason": "altloc/partial occupancy or noncanonical residue number",
+      "retained_files": {
+        "audit.json": "0ce6b0ceb46e52d4314ae5bd0f836283676bd60655fb0200b15c6b5bde173639",
+        "input.pdb": "155778c9120a0533c9b1337858b5944f523c5c96738b6a2aa7c3acc319e2bce0"
+      }
+    }
+  },
+  "raw_record_sha256": "4a6d3945c971889fa292bd5c2b323f429fa7bf10c9c60fab20a32fdae7e0e9e8"
+}

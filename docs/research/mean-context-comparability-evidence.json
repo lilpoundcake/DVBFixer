@@ -1,0 +1,297 @@
+{
+  "aggregate": {
+    "new_inputs_eleven": {
+      "audited": 4,
+      "cross_arm_context_equal": 4,
+      "mean_accuracy_medians": {
+        "prior_accuracy": {
+          "exact_name_rmsd_angstrom": 1.210567954925396,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.8796346827368491
+        },
+        "scored_accuracy": {
+          "exact_name_rmsd_angstrom": 1.9301664560500686,
+          "generated_only_val_symmetry_rmsd_angstrom": 1.4638077536207659
+        }
+      },
+      "planned": 11
+    },
+    "old_eleven": {
+      "audited": 11,
+      "cross_arm_context_equal": 11,
+      "mean_accuracy_medians": {
+        "prior_accuracy": {
+          "exact_name_rmsd_angstrom": 0.19849097376623034,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.19849097376623034
+        },
+        "scored_accuracy": {
+          "exact_name_rmsd_angstrom": 0.19849097376623034,
+          "generated_only_val_symmetry_rmsd_angstrom": 0.19849097376623034
+        }
+      },
+      "planned": 11
+    }
+  },
+  "cases": {
+    "1BPI-THR11-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1BPI-THR32-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1BPI-VAL34-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1CSP-THR40-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1CSP-THR64-CB-OG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1CSP-VAL20-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1CSP-VAL6-CB-CG1-CG2": {
+      "group": "new_inputs_eleven",
+      "status": "inherited_nonexecution"
+    },
+    "1CTF-THR76-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1CTF-VAL56-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1CTF-VAL66-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1PGB-THR11-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "new_inputs_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1PGB-THR2-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "new_inputs_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1PGB-VAL21-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "new_inputs_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1PGB-VAL29-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "new_inputs_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1R69-THR27-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1R69-VAL24-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "1R69-VAL6-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "2CI2-THR22-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "2CI2-THR55-CB-OG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 2,
+      "parent_snapshots": 2,
+      "status": "audited"
+    },
+    "2CI2-VAL28-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 3,
+      "parent_snapshots": 3,
+      "status": "audited"
+    },
+    "2CI2-VAL32-CB-CG1-CG2": {
+      "all_context_equal": true,
+      "context_equal": {
+        "external": true,
+        "heavy": true,
+        "hydrogens": true,
+        "residues": true,
+        "target_internal": true,
+        "virtual": true
+      },
+      "group": "old_eleven",
+      "mean_snapshots": 1,
+      "parent_snapshots": 1,
+      "status": "audited"
+    }
+  },
+  "new_scores_evaluated": false,
+  "new_selectors": false,
+  "plan_sha256": "b706f08072f85221cfbefd5455fcd06c88f4d974214489e730e5a0665867b3b1",
+  "production_changed": false,
+  "schema": "dvbfixer.mean-comparability-audit.v1",
+  "snapshots": 84,
+  "table_data_included": false,
+  "weights_modified": false
+}

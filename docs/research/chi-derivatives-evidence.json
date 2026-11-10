@@ -1,0 +1,2783 @@
+{
+  "audit_script_sha256": "777502bc41fceffe40c8a2095c7c33f1e7a25de8fd7abcc07f30a235e08e180e",
+  "convergence_certified": false,
+  "endpoints": [
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.882816624319634e-05,
+          "analytic_per_radian": 0.0033706056422291297,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2432804063739302e-08,
+                "bound_per_degree": 1.0588281662431963e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.8815733439132594e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0588157334391325e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.88157334391326e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.5638096359817315e-09,
+                "bound_per_degree": 1.0588281662431963e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.882460243356036e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0588246024335604e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.882460243356036e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 4.245698994075884e-06,
+          "analytic_per_radian": 0.00024326063344348728,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.613687297120235e-08,
+                "bound_per_degree": 1.0042456989940758e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.209562121104681e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 8.470329472543003e-22,
+                "bound_per_degree": 1.0042095621211046e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.209562121104682e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.577850991631964e-09,
+                "bound_per_degree": 1.0042456989940758e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.240121143084251e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 8.470329472543003e-22,
+                "bound_per_degree": 1.0042401211430842e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.240121143084252e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 5.882816624319634e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.1455234079064625e-06,
+          "analytic_per_radian": 0.0002948167746588126,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.440737133810569e-09,
+                "bound_per_degree": 1.0051455234079065e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.142082670772652e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0051420826707727e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.142082670772652e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.040995671470112e-10,
+                "bound_per_degree": 1.0051455234079065e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.1446164661683724e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709430404007e-12,
+                "bound_per_degree": 1.0051446193083394e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.1446193083393155e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -1.0803670707167839e-05,
+          "analytic_per_radian": -0.0006190047347698347,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.0944350100543996e-08,
+                "bound_per_degree": 1.0108036707071678e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.0792726357067293e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0107927263570672e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.0792726357067295e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.770266468359804e-09,
+                "bound_per_degree": 1.0108036707071678e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.0800900440699479e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0108009004406994e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.0800900440699479e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 1.0803670707167839e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": true,
+      "chis": [
+        {
+          "analytic_per_degree": -8.065338097570173e-05,
+          "analytic_per_radian": -0.004621098333368434,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.162401101130364e-08,
+                "bound_per_degree": 1.080665004986713e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.066500356562756e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854715202004e-12,
+                "bound_per_degree": 1.080665004986713e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.066500498671303e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.649856258653575e-09,
+                "bound_per_degree": 1.0806560308319602e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.065603083196037e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0806560308319602e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.065603083196038e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 0.0018442925380874572,
+          "analytic_per_radian": 0.10567017861988193,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2751113656985814e-07,
+                "bound_per_degree": 2.844420049224027e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 0.0018444200492240268,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.168404344971009e-19,
+                "bound_per_degree": 2.844420049224027e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 0.001844420049224027,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.609536478954914e-09,
+                "bound_per_degree": 2.844296147623936e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 0.001844296147623936,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.168404344971009e-19,
+                "bound_per_degree": 2.844296147623936e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 0.0018442961476239361,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 0.0018442925380874572,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -3.323105839404605e-05,
+          "analytic_per_radian": -0.0019039993947316258,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.4928060043462024e-09,
+                "bound_per_degree": 1.0332355512000503e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.323555120005039e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0332355512000503e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.3235551200050395e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1305177787294084e-09,
+                "bound_per_degree": 1.0332321889118248e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.323218891182478e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0332321889118248e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.323218891182478e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 3.323105839404605e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 2.6310002757459744e-05,
+          "analytic_per_radian": 0.0015074521169800015,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.397782999039906e-10,
+                "bound_per_degree": 1.0263104425357596e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 2.631044253575965e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0263104425357596e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 2.631044253575965e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1292864145434449e-10,
+                "bound_per_degree": 1.0263101156861011e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 2.63101156861012e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0263101156861011e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 2.63101156861012e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 2.6310002757459744e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 9.620351150416526e-05,
+          "analytic_per_radian": 0.005512055183526932,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.859809829108332e-09,
+                "bound_per_degree": 1.0962073713139944e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.620737131399437e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0962073713139944e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.620737131399437e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.0448003050581006e-09,
+                "bound_per_degree": 1.0962035115041651e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.620146670386019e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0962014667038602e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.62014667038602e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 9.620351150416526e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -9.719369925663082e-05,
+          "analytic_per_radian": -0.005568788762668752,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.5850200024171684e-08,
+                "bound_per_degree": 1.0971936992566308e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.717784905660665e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0971778490566066e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.717784905660665e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.9613989694336875e-09,
+                "bound_per_degree": 1.0971936992566308e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.718973785766138e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0971897378576613e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.718973785766138e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-VAL32-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 9.719369925663082e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 9.975364690247891e-05,
+          "analytic_per_radian": 0.005715462958550299,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2248908809009244e-08,
+                "bound_per_degree": 1.0997658958112878e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.976589439020245e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854715202004e-12,
+                "bound_per_degree": 1.0997658958112878e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.976589581128792e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.290385996545901e-09,
+                "bound_per_degree": 1.0997569372884755e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.97569401306464e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709430404007e-12,
+                "bound_per_degree": 1.0997569401306463e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.975693728847546e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -1.8220071152638823e-06,
+          "analytic_per_radian": -0.00010439331794742657,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.955915322575061e-08,
+                "bound_per_degree": 1.0018220071152638e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.7224479620381317e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.001722447962038e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.7224479620381317e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.4558525295328995e-08,
+                "bound_per_degree": 1.0018220071152638e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.7974485899685533e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0017974485899686e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.7974485899685533e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 9.975364690247891e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -2.239189653863468e-05,
+          "analytic_per_radian": -0.001282961166957364,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.094563442333545e-10,
+                "bound_per_degree": 1.0223918965386346e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.2391687082290446e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0223916870822905e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.2391687082290446e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1992795952758188e-10,
+                "bound_per_degree": 1.0223918965386346e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.239177376850421e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709430404007e-12,
+                "bound_per_degree": 1.0223917766106751e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.239177661067515e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -9.928570140031894e-05,
+          "analytic_per_radian": -0.005688651656234403,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.4573742362537284e-09,
+                "bound_per_degree": 1.099285701400319e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.928324402608268e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0992832440260827e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.928324402608268e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.611222002521951e-10,
+                "bound_per_degree": 1.099285701400319e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.928504027811867e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0992850402781186e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.928504027811869e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 9.928570140031894e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 7.913733542153978e-05,
+          "analytic_per_radian": 0.004534235321565383,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.038054953253882e-07,
+                "bound_per_degree": 1.0791373354215397e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.883352992621438e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0788335299262144e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.88335299262144e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 7.596144059108297e-08,
+                "bound_per_degree": 1.0791373354215397e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.90613739809487e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0790613739809486e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.90613739809487e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 7.913733542153978e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.105474489826079e-05,
+          "analytic_per_radian": 0.002925221406787415,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.0939398291597523e-07,
+                "bound_per_degree": 1.0511641388811768e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.116413888117677e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0511641388811768e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.116413888117677e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.7448510286234395e-08,
+                "bound_per_degree": 1.051082193408547e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.108219340854702e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.051082193408547e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.108219340854703e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 5.105474489826079e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 4.420215469706178e-05,
+          "analytic_per_radian": 0.002532596909526008,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.572365926179957e-07,
+                "bound_per_degree": 1.0442021546970618e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.3944918104443786e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0439449181044438e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.3944918104443786e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.430860791894176e-08,
+                "bound_per_degree": 1.0442021546970618e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.413784608914284e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0441378460891428e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.413784608914284e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 4.420215469706178e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.9069301932012425e-05,
+          "analytic_per_radian": 0.003384421699488272,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1004970645981334e-06,
+                "bound_per_degree": 1.0590693019320125e-06,
+                "within_reporting_bound": false
+              },
+              "external_chi_numeric_per_degree": 5.796880486741429e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0579688048674142e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.796880486741429e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.7511072754259975e-07,
+                "bound_per_degree": 1.0590693019320125e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.879419120446982e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0587941912044699e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.8794191204469826e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 5.9069301932012425e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.159813912804194e-06,
+          "analytic_per_radian": 0.0002956355602765637,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.5236519822255005e-08,
+                "bound_per_degree": 1.0051750504326264e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.175050432626448e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 8.470329472543003e-22,
+                "bound_per_degree": 1.0051750504326264e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.175050432626449e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.805308289346513e-09,
+                "bound_per_degree": 1.0051636192210936e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.163622063264483e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709421933678e-12,
+                "bound_per_degree": 1.0051636220632644e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.1636192210935405e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 5.159813912804194e-06,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 3.138221420267765e-05,
+          "analytic_per_radian": 0.0017980684255889392,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.04746897232332e-07,
+                "bound_per_degree": 1.0313822142026777e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.0477467305445313e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 3.3881317890172014e-21,
+                "bound_per_degree": 1.0304774673054452e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.0477467305445316e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.2618000566690784e-07,
+                "bound_per_degree": 1.0313822142026777e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.115603419701074e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0311560341970107e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.115603419701074e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 3.138221420267765e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -8.078643870518527e-05,
+          "analytic_per_radian": -0.004628721979699435,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.847578472270738e-09,
+                "bound_per_degree": 1.0807962862836575e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.079628628365752e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0807962862836575e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.079628628365754e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.676781182979807e-09,
+                "bound_per_degree": 1.0807891154863681e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.078910980202635e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 5.684341899633329e-12,
+                "bound_per_degree": 1.0807891154863681e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.078911548636825e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 9.210014381063009e-05,
+          "analytic_per_radian": 0.005276949532897035,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.2218161836501295e-07,
+                "bound_per_degree": 1.092322325428995e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.23223254289951e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.092322325428995e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.23223254289951e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.3461646210217995e-08,
+                "bound_per_degree": 1.0921436054568402e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.21436054568403e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0921436054568402e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.21436054568403e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 9.210014381063009e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 1.6662317445313967e-05,
+          "analytic_per_radian": 0.0009546804665236941,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.202056549849423e-10,
+                "bound_per_degree": 1.016662317445314e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.6661397239658978e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 3.3881317890172014e-21,
+                "bound_per_degree": 1.0166613972396589e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.666139723965898e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.84305466712589e-10,
+                "bound_per_degree": 1.016662317445314e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.666163313984725e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 3.3881317890172014e-21,
+                "bound_per_degree": 1.0166616331398473e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.6661633139847254e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -8.902677302928698e-05,
+          "analytic_per_radian": -0.005100858358247251,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.873571670208074e-08,
+                "bound_per_degree": 1.089065508745989e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.90645935669454e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 9.15179043659009e-10,
+                "bound_per_degree": 1.089065508745989e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.906550874598906e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2246683512944206e-08,
+                "bound_per_degree": 1.0890390197127999e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -8.903901971279991e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0890390197127999e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -8.903901971279993e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 8.902677302928698e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 3.332999251688624e-05,
+          "analytic_per_radian": 0.001909667902420198,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.596233138151351e-10,
+                "bound_per_degree": 1.0333299925168863e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.3329335735743364e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.842170936264137e-12,
+                "bound_per_degree": 1.0333293357357433e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.332933289357243e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.145113370384798e-11,
+                "bound_per_degree": 1.0333299925168863e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.332995106575253e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0333299510657525e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.332995106575254e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 9.37329745657495e-05,
+          "analytic_per_radian": 0.005370503843824538,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.8449964370451306e-07,
+                "bound_per_degree": 1.0937329745657494e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.354847492204497e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.093548474922045e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.354847492204499e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.677798740307588e-08,
+                "bound_per_degree": 1.0937329745657494e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.368619657834643e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0936861965783464e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.368619657834643e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 9.37329745657495e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -6.830738282404506e-05,
+          "analytic_per_radian": -0.003913724745402192,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.897363981956764e-09,
+                "bound_per_degree": 1.068311280188027e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -6.8311280188027e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.068311280188027e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -6.831128018802701e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.130844917643434e-10,
+                "bound_per_degree": 1.0683082959085368e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -6.830829875070776e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709430404007e-12,
+                "bound_per_degree": 1.0683082987507078e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -6.830829590853682e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 5.716028378215206e-05,
+          "analytic_per_radian": 0.0032750430164874,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.050791355035278e-09,
+                "bound_per_degree": 1.057160283782152e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.715423299079703e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.057154232990797e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.715423299079703e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.4720539657971923e-09,
+                "bound_per_degree": 1.057160283782152e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.715881172818626e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0571588117281862e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.7158811728186265e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 6.830738282404506e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": true,
+      "chis": [
+        {
+          "analytic_per_degree": 0.0002965614813227854,
+          "analytic_per_radian": 0.016991721245943392,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.4557198178096546e-09,
+                "bound_per_degree": 1.2965614813227853e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 0.0002965560256029675,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 5.421010862427522e-20,
+                "bound_per_degree": 1.2965560256029676e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 0.00029655602560296757,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 7.704010182075539e-10,
+                "bound_per_degree": 1.2965614813227853e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 0.00029656070807959617,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709972505094e-12,
+                "bound_per_degree": 1.296560710921767e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 0.00029656071092176717,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -1.8979837749806015e-05,
+          "analytic_per_radian": -0.001087464598906962,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.989737966926884e-09,
+                "bound_per_degree": 1.0189838274877728e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.898382748777294e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 3.3881317890172014e-21,
+                "bound_per_degree": 1.0189838274877728e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.8983827487772942e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.58632610415691e-10,
+                "bound_per_degree": 1.018979837749806e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.8979184801537482e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 5.68434188269267e-12,
+                "bound_per_degree": 1.0189791848015375e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.89791791171956e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": true,
+      "finite_resolved_descent": true,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 0.0002965614813227854,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 1.5083941773090967e-05,
+          "analytic_per_radian": 0.000864246202019192,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.1686018075956024e-10,
+                "bound_per_degree": 1.0150841586332716e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.5084158633271725e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0150841586332716e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.5084158633271727e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.62775224777776e-11,
+                "bound_per_degree": 1.0150839980506134e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.50839952084425e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709447344666e-12,
+                "bound_per_degree": 1.0150839980506134e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.5083998050613445e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -9.620798098949285e-05,
+          "analytic_per_radian": -0.005512311266172798,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1057495885098039e-08,
+                "bound_per_degree": 1.0962079809894928e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.619692349360774e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0961969234936078e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.619692349360776e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.6944078852016596e-09,
+                "bound_per_degree": 1.0962079809894928e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.620528658160765e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0962052865816076e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.620528658160765e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 9.620798098949285e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": true,
+      "chis": [
+        {
+          "analytic_per_degree": -0.007424845243012498,
+          "analytic_per_radian": -0.42541229596240226,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.8923380549802395e-08,
+                "bound_per_degree": 8.424845243012498e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -0.007424786319631949,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 8.42478631963195e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -0.007424786319631949,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.6999938054484964e-08,
+                "bound_per_degree": 8.424845243012498e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -0.007424828243074443,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 8.673617379884035e-19,
+                "bound_per_degree": 8.424828243074443e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -0.007424828243074444,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 0.007424845243012498,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 6.507545680686905e-05,
+          "analytic_per_radian": 0.0037285490249194812,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.0938419903736615e-09,
+                "bound_per_degree": 1.065075456806869e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 6.507436296487867e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0650743629648787e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 6.507436296487867e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.7245458783498565e-10,
+                "bound_per_degree": 1.065075456806869e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 6.50751843522812e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0650751843522812e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 6.507518435228121e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 6.507545680686905e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -5.355871712503203e-05,
+          "analytic_per_radian": -0.003068688447399382,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2136729104740362e-07,
+                "bound_per_degree": 1.053558717125032e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -5.3437349833984626e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0534373498339846e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -5.3437349833984626e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.230057800936541e-09,
+                "bound_per_degree": 1.053558717125032e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -5.355448706723109e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.053554487067231e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -5.3554487067231094e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 5.355871712503203e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 9.941760599959802e-05,
+          "analytic_per_radian": 0.005696209233071459,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.78837713564846e-09,
+                "bound_per_degree": 1.099417605999598e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.941381762246237e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0994138176224623e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.941381762246237e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.561537909087009e-10,
+                "bound_per_degree": 1.099417605999598e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 9.94166498458071e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.099416649845807e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 9.941664984580711e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 9.941760599959802e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 6.348282521755281e-07,
+          "analytic_per_radian": 3.637297956532448e-05,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.346034928129973e-10,
+                "bound_per_degree": 1.0006348282521754e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 6.338950697681866e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854714143213e-12,
+                "bound_per_degree": 1.0006338950697682e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 6.338936486827151e-07,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.3400835535353856e-10,
+                "bound_per_degree": 1.0006348282521754e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 6.345942438201745e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.0587911840678754e-22,
+                "bound_per_degree": 1.00063459424382e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 6.345942438201746e-07,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 6.348282521755281e-07,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 1.9563494615493672e-05,
+          "analytic_per_radian": 0.0011209056739946988,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.749503019625079e-09,
+                "bound_per_degree": 1.0195634946154936e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.9559745112474044e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 3.3881317890172014e-21,
+                "bound_per_degree": 1.019559745112474e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.9559745112474047e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.428592133726836e-10,
+                "bound_per_degree": 1.0195634946154936e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.95625517562803e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0195625517562803e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.95625517562803e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 1.9563494615493672e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -1.4402034702218936e-05,
+          "analytic_per_radian": -0.0008251758048380965,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.658699795441869e-09,
+                "bound_per_degree": 1.0144020347022188e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.4396374581338021e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854732142663e-12,
+                "bound_per_degree": 1.0143963760024235e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.4396376002423494e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.97666733873303e-09,
+                "bound_per_degree": 1.0144020347022188e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.4400058034880202e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0144000580348802e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.4400058034880203e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 1.2491478340852084e-05,
+          "analytic_per_radian": 0.0007157089888099044,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.9777960470917924e-09,
+                "bound_per_degree": 1.012491478340852e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.248868528591629e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.8474111129762605e-10,
+                "bound_per_degree": 1.0124886852859162e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.2488500544804992e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.1720405847398388e-09,
+                "bound_per_degree": 1.012491478340852e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.2489306300267344e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0124893063002673e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.2489306300267344e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 1.4402034702218936e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.319637596802609e-06,
+          "analytic_per_radian": 0.0003047927828359054,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 8.06064075627117e-09,
+                "bound_per_degree": 1.0053196375968026e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.311578377131809e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854715202004e-12,
+                "bound_per_degree": 1.0053115783771317e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.311576956046338e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.9272358611899847e-09,
+                "bound_per_degree": 1.0053196375968026e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.317718887454247e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 8.52651282827417e-12,
+                "bound_per_degree": 1.0053177188874542e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.317710360941419e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -2.1725959883606857e-06,
+          "analytic_per_radian": -0.000124480580720121,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2746921660248964e-07,
+                "bound_per_degree": 1.0023000652049632e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.300065204963175e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 4.235164736271502e-22,
+                "bound_per_degree": 1.0023000652049632e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.3000652049631753e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.155305270223372e-08,
+                "bound_per_degree": 1.002204149041063e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.204149041062919e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 4.235164736271502e-22,
+                "bound_per_degree": 1.002204149041063e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.2041490410629194e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 5.319637596802609e-06,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": true,
+      "chis": [
+        {
+          "analytic_per_degree": -0.0009510258844904373,
+          "analytic_per_radian": -0.054489769388998195,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.9368978243745305e-09,
+                "bound_per_degree": 1.951025884490437e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -0.0009510199461715274,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854715202004e-12,
+                "bound_per_degree": 1.9510199475926127e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -0.0009510199475926129,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.6821679226430505e-09,
+                "bound_per_degree": 1.951025884490437e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -0.0009510242023225145,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.0842021724855044e-19,
+                "bound_per_degree": 1.9510242023225145e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -0.0009510242023225146,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -7.659381983357175e-05,
+          "analytic_per_radian": -0.004388502613249079,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.189180889226408e-08,
+                "bound_per_degree": 1.0766257116424639e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -7.6625711642464e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0766257116424639e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -7.662571164246401e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.92760041406872e-09,
+                "bound_per_degree": 1.0766007474339859e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -7.660074743398582e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0766007474339859e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -7.660074743398582e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": true,
+      "finite_resolved_descent": true,
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 0.0009510258844904373,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 4.719491744582421e-07,
+          "analytic_per_radian": 2.7040695841140664e-05,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.8837770404468022e-11,
+                "bound_per_degree": 1.0004719780122286e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.7197801222864655e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0004719780122286e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.7197801222864655e-07,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 7.521488331665017e-12,
+                "bound_per_degree": 1.0004719566959465e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.719566959465737e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 5.293955920339377e-23,
+                "bound_per_degree": 1.0004719566959465e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.7195669594657375e-07,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -3.5971390527528425e-05,
+          "analytic_per_radian": -0.0020610088604442467,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.2528605758265366e-08,
+                "bound_per_degree": 1.0359839191332867e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.5983919133286684e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0359839191332867e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.598391913328669e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.1352307915168414e-09,
+                "bound_per_degree": 1.03597452575832e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.5974525758319935e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.03597452575832e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.597452575831994e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 3.5971390527528425e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 8.344432592542856e-06,
+          "analytic_per_radian": 0.0004781007699841134,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.261461132161321e-09,
+                "bound_per_degree": 1.0083444325925427e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 8.339171131410693e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0083391711314106e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 8.339171131410694e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.657588376386093e-09,
+                "bound_per_degree": 1.0083444325925427e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 8.342775004166468e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0083427750041663e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 8.34277500416647e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 1.2672925871739447e-05,
+          "analytic_per_radian": 0.0007261051665328199,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1013109015787416e-08,
+                "bound_per_degree": 1.0126729258717394e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.2661912762723658e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0126619127627237e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.266191276272366e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.7101507776451064e-09,
+                "bound_per_degree": 1.0126729258717394e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 1.26692157209618e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.6940658945086007e-21,
+                "bound_per_degree": 1.0126692157209617e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 1.2669215720961802e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 1.2672925871739447e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 7.703921866530462e-08,
+          "analytic_per_radian": 4.41402208650743e-06,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.3088276313475006e-10,
+                "bound_per_degree": 1.0000772701014285e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.727010142843936e-08,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3234889800848443e-23,
+                "bound_per_degree": 1.0000772701014285e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.727010142843938e-08,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.610986095210225e-10,
+                "bound_per_degree": 1.0000775003172747e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.750031727482565e-08,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0000775003172747e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.750031727482565e-08,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 7.534422271159718e-07,
+          "analytic_per_radian": 4.316905972068241e-05,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 6.174853232135504e-09,
+                "bound_per_degree": 1.000759617080348e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.596170803481073e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.000759617080348e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.596170803481073e-07,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.609349784091321e-09,
+                "bound_per_degree": 1.0007560515769e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 7.56256213207962e-07,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.0463630789890885e-10,
+                "bound_per_degree": 1.0007562562132079e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 7.560515769000631e-07,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 7.534422271159718e-07,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -3.964328697179366e-05,
+          "analytic_per_radian": -0.0022713930295097384,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1909843353405934e-08,
+                "bound_per_degree": 1.039655196815147e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.9655198236232536e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854715202004e-12,
+                "bound_per_degree": 1.0396551982362325e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.9655196815147065e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.0507965239490046e-09,
+                "bound_per_degree": 1.0396463377683176e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -3.964633776831761e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0396463377683176e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -3.964633776831761e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -9.89094159395237e-05,
+          "analytic_per_radian": -0.005667092087438701,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.8053654422009284e-08,
+                "bound_per_degree": 1.0989274695939456e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.89274695939457e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0989274695939456e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.892746959394572e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.1781758780860476e-09,
+                "bound_per_degree": 1.0989135941154018e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.891359411540178e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0989135941154018e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.891359411540179e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 9.89094159395237e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -1.78475428692815e-05,
+          "analytic_per_radian": -0.0010225888810886374,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 9.660307165579903e-10,
+                "bound_per_degree": 1.0178475428692814e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.7846575417479468e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.4210854749083322e-12,
+                "bound_per_degree": 1.017846576838565e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.7846576838564943e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.1001324570924375e-10,
+                "bound_per_degree": 1.0178475428692814e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.7847330013864845e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.8421709464285325e-12,
+                "bound_per_degree": 1.0178473328560358e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.784733285603579e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": -4.527403497370518e-05,
+          "analytic_per_radian": -0.00259401112552099,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.1883848635431101e-07,
+                "bound_per_degree": 1.0453928734600594e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -4.5392873460059484e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0453928734600594e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -4.539287346005949e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.609169998172043e-08,
+                "bound_per_degree": 1.045320126673687e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -4.5320126673686893e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.045320126673687e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -4.53201266736869e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 4.527403497370518e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 4.234520785804755e-05,
+          "analytic_per_radian": 0.0024262016928703334,
+          "chi": 2,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.512463665813188e-09,
+                "bound_per_degree": 1.0423452078580475e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.2342695394381735e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0423426953943816e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.2342695394381735e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.954193647324376e-10,
+                "bound_per_degree": 1.0423452078580475e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 4.234461243868281e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0423446124386828e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 4.2344612438682816e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        },
+        {
+          "analytic_per_degree": 5.856369957377576e-05,
+          "analytic_per_radian": 0.003355452818249449,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.6796293010202927e-09,
+                "bound_per_degree": 1.0585636995737757e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.8562019944474735e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.0585620199444747e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.856201994447474e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 4.5181145362683953e-10,
+                "bound_per_degree": 1.0585636995737757e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.8563247762322135e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0585632477623221e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.8563247762322135e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 5.856369957377576e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -9.190367866420465e-05,
+          "analytic_per_radian": -0.005265692909185438,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.115138892684997e-10,
+                "bound_per_degree": 1.0919037901780938e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.19037901780939e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 1.3552527156068805e-20,
+                "bound_per_degree": 1.0919037901780938e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.190379017809391e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 3.051201739184828e-11,
+                "bound_per_degree": 1.091903709176222e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -9.190370917622204e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.091903709176222e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -9.190370917622204e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 9.190367866420465e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 3.1400077680822382e-06,
+          "analytic_per_radian": 0.00017990919274940567,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.642185109413391e-10,
+                "bound_per_degree": 1.0031400077680822e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.139443549571297e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0031394435495713e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.139443549571297e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.4499829684288e-10,
+                "bound_per_degree": 1.0031400077680822e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 3.1398627697853954e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0031398627697854e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 3.1398627697853954e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 3.1400077680822382e-06,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 5.747808959806806e-05,
+          "analytic_per_radian": 0.003293251948444098,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.2877024335568098e-09,
+                "bound_per_degree": 1.057478089598068e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.7475801895634504e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0574758018956345e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.7475801895634504e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.681890130173673e-10,
+                "bound_per_degree": 1.057478089598068e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 5.747752140905504e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 6.776263578034403e-21,
+                "bound_per_degree": 1.057477521409055e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 5.7477521409055043e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": true,
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 5.747808959806806e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": 2.2426971569878246e-05,
+          "analytic_per_radian": 0.0012849708182139097,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.252064056934729e-09,
+                "bound_per_degree": 1.022429223633935e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 2.242922363393518e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.022429223633935e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 2.242922363393518e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 5.595512603541702e-10,
+                "bound_per_degree": 1.0224275311211386e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": 2.24275311211386e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0224275311211386e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": 2.24275311211386e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 0,
+      "maximum_analytic_derivative_per_degree": 2.2426971569878246e-05,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -1.213509679958558e-06,
+          "analytic_per_radian": -6.952898305989663e-05,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 1.02392371733625e-09,
+                "bound_per_degree": 1.0012135096799585e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.2124857562412215e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 2.117582368135751e-22,
+                "bound_per_degree": 1.001212485756241e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.2124857562412217e-06,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.5795864818686207e-10,
+                "bound_per_degree": 1.0012135096799585e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -1.213251721310371e-06,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0012132517213103e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -1.213251721310371e-06,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 1,
+      "maximum_analytic_derivative_per_degree": 1.213509679958558e-06,
+      "status": "audited"
+    },
+    {
+      "above_mode_c_gmax": false,
+      "chis": [
+        {
+          "analytic_per_degree": -2.405488428392838e-05,
+          "analytic_per_radian": -0.0013782433461446697,
+          "chi": 1,
+          "steps": [
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 2.8620888902757967e-09,
+                "bound_per_degree": 1.0240577463728187e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.4057746372818656e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0240577463728187e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.4057746372818656e-05,
+              "step_degrees": 0.01
+            },
+            {
+              "analytic_comparison": {
+                "absolute_error_per_degree": 7.190919992233345e-10,
+                "bound_per_degree": 1.0240556033759275e-06,
+                "within_reporting_bound": true
+              },
+              "external_chi_numeric_per_degree": -2.4055603375927603e-05,
+              "numeric_path_comparison": {
+                "absolute_error_per_degree": 0.0,
+                "bound_per_degree": 1.0240556033759275e-06,
+                "within_reporting_bound": true
+              },
+              "numeric_per_degree": -2.4055603375927603e-05,
+              "step_degrees": 0.005
+            }
+          ]
+        }
+      ],
+      "explicit_max200_warning": false,
+      "finite_resolved_descent": false,
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 2,
+      "maximum_analytic_derivative_per_degree": 2.405488428392838e-05,
+      "status": "audited"
+    }
+  ],
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "86b8bce604409454958f16c790a823c0188e88f57d0b801de70709538f5a39ac",
+  "production_changed": false,
+  "profile_selected": false,
+  "run_sha256": "e67f0382f088b4394c79fa706a140ac9e343156ecda159ef29123eb507336951",
+  "schema": "dvbfixer.chi-derivatives-audit.v1",
+  "summary": {
+    "above_gmax_with_explicit_max200": 2,
+    "analytic_dofs": 62,
+    "analytic_numeric_mismatches": 1,
+    "audited": 42,
+    "blockers": 0,
+    "endpoints_above_mode_c_gmax": 4,
+    "enrolled": 42,
+    "external_vs_minmap_numeric_mismatches": 0,
+    "finite_comparisons": 124,
+    "maximum_analytic_numeric_error_per_degree": 1.1004970645981334e-06,
+    "protected_max_motion_angstrom": 0.0
+  },
+  "table_data_included": false
+}

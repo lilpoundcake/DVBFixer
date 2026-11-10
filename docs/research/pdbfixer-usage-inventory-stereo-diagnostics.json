@@ -1,0 +1,1243 @@
+{
+  "changed_source_bindings": [
+    {
+      "after_source_sha256": "cb3c6b64a441e0b46d5fe5528d73995de913c6dd3bb0593287fa40ff91a77971",
+      "before_source_sha256": "08639f0c34d0888f932c245f183602cb655d5afb0e39301cd49a23dddba09209",
+      "path": "src/dvbfixer/diagnose/pipeline.py"
+    }
+  ],
+  "coordinates_generated": false,
+  "files": [
+    {
+      "imports": [
+        {
+          "line": 108,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/diagnose/pipeline.py",
+      "source_sha256": "cb3c6b64a441e0b46d5fe5528d73995de913c6dd3bb0593287fa40ff91a77971",
+      "uses": [
+        {
+          "function": "_load_topology_and_fixer",
+          "kind": "constructor",
+          "line": 111,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "_load_topology_and_fixer",
+          "kind": "method",
+          "line": 112,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "_load_topology_and_fixer",
+          "kind": "method",
+          "line": 113,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "_load_topology_and_fixer",
+          "kind": "method",
+          "line": 117,
+          "name": "findMissingTerminals"
+        }
+      ]
+    },
+    {
+      "imports": [],
+      "path": "src/dvbfixer/diagnose/structural.py",
+      "source_sha256": "f086a6fbbe58c7c98c120b8603545dbd410c55891957c069cf0025b99dde8e8e",
+      "uses": [
+        {
+          "function": "check_missing_atoms",
+          "kind": "state_read",
+          "line": 40,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "check_missing_residues",
+          "kind": "state_read",
+          "line": 62,
+          "name": "topology"
+        },
+        {
+          "function": "check_missing_residues",
+          "kind": "state_read",
+          "line": 63,
+          "name": "missingResidues"
+        },
+        {
+          "function": "check_missing_terminals",
+          "kind": "state_read",
+          "line": 84,
+          "name": "missingTerminals"
+        }
+      ]
+    },
+    {
+      "imports": [],
+      "path": "src/dvbfixer/ffutils/geometry.py",
+      "source_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+      "uses": [
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1077,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1077,
+          "name": "missingResidues"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "method",
+          "line": 1079,
+          "name": "addMissingAtoms"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1082,
+          "name": "topology"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1083,
+          "name": "positions"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_write",
+          "line": 1090,
+          "name": "topology"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_write",
+          "line": 1091,
+          "name": "positions"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "method",
+          "line": 1092,
+          "name": "addMissingAtoms"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1095,
+          "name": "topology"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1105,
+          "name": "topology"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1105,
+          "name": "positions"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1109,
+          "name": "topology"
+        },
+        {
+          "function": "rebuild_missing_atoms_with_retry",
+          "kind": "state_read",
+          "line": 1109,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 524,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        },
+        {
+          "line": 667,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/minimize/pipeline.py",
+      "source_sha256": "28c68ba4a495077809d4a1d1ef8606582d68e72faab3cf5b178dc50fe74742ae",
+      "uses": [
+        {
+          "function": "minimize",
+          "kind": "constructor",
+          "line": 532,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "minimize",
+          "kind": "method",
+          "line": 535,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "minimize",
+          "kind": "method",
+          "line": 536,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 537,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 538,
+          "name": "missingTerminals"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 547,
+          "name": "topology"
+        },
+        {
+          "function": "minimize",
+          "kind": "seeded_rebuild",
+          "line": 549,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 551,
+          "name": "topology"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 551,
+          "name": "positions"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 552,
+          "name": "topology"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 552,
+          "name": "positions"
+        },
+        {
+          "function": "minimize",
+          "kind": "constructor",
+          "line": 673,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "minimize",
+          "kind": "method",
+          "line": 676,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "minimize",
+          "kind": "method",
+          "line": 677,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 678,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 679,
+          "name": "missingTerminals"
+        },
+        {
+          "function": "minimize",
+          "kind": "seeded_rebuild",
+          "line": 694,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 696,
+          "name": "topology"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 696,
+          "name": "positions"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 697,
+          "name": "topology"
+        },
+        {
+          "function": "minimize",
+          "kind": "state_read",
+          "line": 697,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 16,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/model/diffusion/atom_completion_benchmark.py",
+      "source_sha256": "3bbfe042acde17257df728f5ab830ed1cde9e5cec23a8dad2154849ae118936a",
+      "uses": [
+        {
+          "function": "template_completion_proposal",
+          "kind": "constructor",
+          "line": 70,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_write",
+          "line": 71,
+          "name": "platform"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_read",
+          "line": 72,
+          "name": "topology"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "method",
+          "line": 78,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_write",
+          "line": 79,
+          "name": "missingResidues"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "method",
+          "line": 85,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "seeded_rebuild",
+          "line": 86,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_read",
+          "line": 87,
+          "name": "topology"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_read",
+          "line": 87,
+          "name": "positions"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_read",
+          "line": 88,
+          "name": "topology"
+        },
+        {
+          "function": "template_completion_proposal",
+          "kind": "state_read",
+          "line": 93,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 23,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/model/diffusion/boundary_refinement.py",
+      "source_sha256": "25df45c7f5763943c8f42ba47eb036cb9bdfc98fb293ae640c3dbd581bbb9c9e",
+      "uses": [
+        {
+          "function": "refine_generated_region",
+          "kind": "constructor",
+          "line": 170,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "state_write",
+          "line": 171,
+          "name": "platform"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "method",
+          "line": 172,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "state_write",
+          "line": 173,
+          "name": "missingResidues"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "method",
+          "line": 174,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "seeded_rebuild",
+          "line": 175,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "state_read",
+          "line": 176,
+          "name": "topology"
+        },
+        {
+          "function": "refine_generated_region",
+          "kind": "state_read",
+          "line": 177,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 106,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/model/diffusion/observed_completion.py",
+      "source_sha256": "23fca8bbc0c41986926cd22badc6cc91ad33b7f51a57b9439a41d20c3cfb83a9",
+      "uses": [
+        {
+          "function": "_rebuild",
+          "kind": "constructor",
+          "line": 116,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "method",
+          "line": 117,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "state_write",
+          "line": 118,
+          "name": "missingResidues"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "method",
+          "line": 119,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "seeded_rebuild",
+          "line": 120,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "state_read",
+          "line": 121,
+          "name": "topology"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "state_read",
+          "line": 121,
+          "name": "positions"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "state_read",
+          "line": 122,
+          "name": "positions"
+        },
+        {
+          "function": "_rebuild",
+          "kind": "state_read",
+          "line": 124,
+          "name": "topology"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 27,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/model/diffusion/rfdiffusion_v1.py",
+      "source_sha256": "ef83d7b7502bdf349d30285a5783d9f3d3e226ff663540ad453e402f33e41ebd",
+      "uses": [
+        {
+          "function": "materialize_candidate",
+          "kind": "constructor",
+          "line": 555,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "state_write",
+          "line": 556,
+          "name": "platform"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "method",
+          "line": 557,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "state_write",
+          "line": 558,
+          "name": "missingResidues"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "method",
+          "line": 559,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "seeded_rebuild",
+          "line": 560,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "state_read",
+          "line": 562,
+          "name": "topology"
+        },
+        {
+          "function": "materialize_candidate",
+          "kind": "state_read",
+          "line": 562,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [],
+      "path": "src/dvbfixer/prepare/glycan.py",
+      "source_sha256": "de136eaad458e7015a3f509d97badbaa0cbc62bd47e91f4747a72b43221f9b37",
+      "uses": [
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_read",
+          "line": 178,
+          "name": "topology"
+        },
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_read",
+          "line": 186,
+          "name": "topology"
+        },
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_read",
+          "line": 202,
+          "name": "topology"
+        },
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_read",
+          "line": 202,
+          "name": "positions"
+        },
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_write",
+          "line": 204,
+          "name": "topology"
+        },
+        {
+          "function": "remove_extra_glycan_hydrogens",
+          "kind": "state_write",
+          "line": 205,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [],
+      "path": "src/dvbfixer/prepare/mutations.py",
+      "source_sha256": "ad20a5cc56da0d45bff38a2defc5957a3e87b4bcc17f1870c151e6f7b8ae900d",
+      "uses": [
+        {
+          "function": "apply_mutations",
+          "kind": "state_read",
+          "line": 558,
+          "name": "topology"
+        },
+        {
+          "function": "apply_mutations",
+          "kind": "method",
+          "line": 573,
+          "name": "applyMutations"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 12,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        },
+        {
+          "line": 663,
+          "module": "pdbfixer.pdbfixer",
+          "name": "dnaResidues"
+        },
+        {
+          "line": 663,
+          "module": "pdbfixer.pdbfixer",
+          "name": "proteinResidues"
+        },
+        {
+          "line": 663,
+          "module": "pdbfixer.pdbfixer",
+          "name": "rnaResidues"
+        }
+      ],
+      "path": "src/dvbfixer/prepare/pipeline.py",
+      "source_sha256": "b9489c69eb179d1d615e9951fd3c88448b51e9041d8b95005108b507eed9467e",
+      "uses": [
+        {
+          "function": "build_dat",
+          "kind": "state_read",
+          "line": 40,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "constructor",
+          "line": 418,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 477,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 477,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "constructor",
+          "line": 526,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 532,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "method",
+          "line": 536,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 544,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 564,
+          "name": "missingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 601,
+          "name": "missingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "method",
+          "line": 606,
+          "name": "findNonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_write",
+          "line": 614,
+          "name": "nonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 615,
+          "name": "nonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 620,
+          "name": "missingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 622,
+          "name": "missingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 623,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 625,
+          "name": "nonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 627,
+          "name": "nonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "method",
+          "line": 653,
+          "name": "replaceNonstandardResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 661,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 668,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 670,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 670,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_write",
+          "line": 672,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_write",
+          "line": 673,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "method",
+          "line": 675,
+          "name": "removeHeterogens"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "method",
+          "line": 677,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 680,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 682,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 684,
+          "name": "missingTerminals"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 686,
+          "name": "missingTerminals"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 689,
+          "name": "missingResidues"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 690,
+          "name": "missingAtoms"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "seeded_rebuild",
+          "line": 698,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 704,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 704,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 716,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 716,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 762,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 801,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 801,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 905,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 905,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_write",
+          "line": 924,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_write",
+          "line": 925,
+          "name": "positions"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 942,
+          "name": "topology"
+        },
+        {
+          "function": "run_pdbfixer",
+          "kind": "state_read",
+          "line": 951,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1301,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1311,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1311,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1357,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1360,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_write",
+          "line": 1371,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_write",
+          "line": 1371,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1372,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1372,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1378,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1378,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1380,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1382,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1406,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1421,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1421,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1426,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1426,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1429,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1432,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_write",
+          "line": 1434,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_write",
+          "line": 1435,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1437,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1437,
+          "name": "positions"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1439,
+          "name": "topology"
+        },
+        {
+          "function": "main",
+          "kind": "state_read",
+          "line": 1440,
+          "name": "topology"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 515,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/protonate.py",
+      "source_sha256": "fb6a9fc5e463ab9f0103d79aa8ebd2e7977ef78a3488660972c82aa097187013",
+      "uses": [
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "constructor",
+          "line": 521,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "method",
+          "line": 522,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "state_write",
+          "line": 523,
+          "name": "missingResidues"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "state_write",
+          "line": 533,
+          "name": "nonstandardResidues"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "method",
+          "line": 534,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "seeded_rebuild",
+          "line": 536,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "state_read",
+          "line": 540,
+          "name": "topology"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "state_read",
+          "line": 542,
+          "name": "topology"
+        },
+        {
+          "function": "_add_hydrogens_to_output",
+          "kind": "state_read",
+          "line": 542,
+          "name": "positions"
+        }
+      ]
+    },
+    {
+      "imports": [
+        {
+          "line": 325,
+          "module": "pdbfixer",
+          "name": "PDBFixer"
+        }
+      ],
+      "path": "src/dvbfixer/top/pipeline.py",
+      "source_sha256": "f359c4d599ee40fc0eaebea3b0e8b8f8d3869a1b542683a1f10702ceba701c41",
+      "uses": [
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "constructor",
+          "line": 419,
+          "name": "PDBFixer"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "method",
+          "line": 420,
+          "name": "findMissingResidues"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "state_write",
+          "line": 421,
+          "name": "missingResidues"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "method",
+          "line": 422,
+          "name": "findMissingAtoms"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "seeded_rebuild",
+          "line": 424,
+          "name": "rebuild_missing_atoms_with_retry"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "state_read",
+          "line": 426,
+          "name": "topology"
+        },
+        {
+          "function": "_add_protonation_hydrogens",
+          "kind": "state_read",
+          "line": 426,
+          "name": "positions"
+        }
+      ]
+    }
+  ],
+  "generator_source_sha256": "9e5b3b6b22b113f77a994fea038c16361607f42b11a523fa81bdd3e7d88b6c32",
+  "historical_inventory": {
+    "path": "docs/research/pdbfixer-usage-inventory.json",
+    "sha256": "98a04f00d27643c5edb301684edc67c6bad1093bc157a74b520748824d93d221"
+  },
+  "historical_template_probe_rerun": false,
+  "network_allowed": false,
+  "reason": "diagnostic-only 039e1ba/9e71372 cherry-picks as 471844a/8eeeada; unchanged PDBFixer consumers",
+  "schema": "dvbfixer.pdbfixer-usage-source-amendment.v1",
+  "scientific_results_changed": false,
+  "source_git_head": "8eeeada10e8ede512b944b1e51947beb77212086",
+  "totals": {
+    "constructor": 11,
+    "method": 27,
+    "seeded_rebuild": 9
+  }
+}

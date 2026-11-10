@@ -1,0 +1,3420 @@
+{
+  "schema": "dvbfixer.template-causality-audit.v1",
+  "aggregate": {
+    "cases": 4,
+    "arms": 16,
+    "returned_seeds": 60,
+    "independently_checked_stage_snapshots": 300,
+    "independently_checked_minimizer_iterates": 75,
+    "dynamics_step_calls": 0,
+    "exact_untraced_baseline_arms": 4,
+    "exact_untraced_baseline_seed_states": 16
+  },
+  "cases": {
+    "2CI2-VAL28-CB-CG1-CG2-stock-normal": {
+      "case_id": "2CI2-VAL28-CB-CG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.6273863127948031,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.6273863127948031
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.6273863127948031,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.6273863127948031
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.6273863127948031,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.6273863127948031
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.6273863127948031,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.6273863127948031
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.6273863127948031,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.6273863127948031
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": true,
+      "arm_evidence_sha256": "7867a77731f9b0f804dd94a75eb9d1dad57a3ba18b76f78a722a126958c49e9c"
+    },
+    "2CI2-VAL28-CB-CG1-CG2-stock-none": {
+      "case_id": "2CI2-VAL28-CB-CG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "none"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.3886305778156429,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.3886305778156429
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.3886305778156429,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.3886305778156429
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.3886305778156429,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.3886305778156429
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.3886305778156429,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.3886305778156429
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -0.3886305778156429,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -0.3886305778156429,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.3886305778156429,
+              "after_volume": -0.3886305778156429
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": -0.9999999999999997,
+          "fully_transformed_template_volume_angstrom3": -2.4078560000000073,
+          "actual_hybrid_volume_angstrom3": -0.3886305778156429,
+          "fully_transformed_template_cip": {
+            "CA": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "90a870f341912fe3d395f56307f621198a8e552ac7df5c4661f9a36b7802ce66"
+    },
+    "2CI2-VAL28-CB-CG1-CG2-proper-normal": {
+      "case_id": "2CI2-VAL28-CB-CG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5325138723534995,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5325138723534995
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5325138723534995,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5325138723534995
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5325138723534995,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5325138723534995
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5325138723534995,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5325138723534995
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5325138723534995,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5325138723534995
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "7b768909a5b6b46c61dde1d1320b71b98bfea9d8401382e076a802829ead03fb"
+    },
+    "2CI2-VAL28-CB-CG1-CG2-proper-none": {
+      "case_id": "2CI2-VAL28-CB-CG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "none"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5553343808146929,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5553343808146929
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5553343808146929,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5553343808146929
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5553343808146929,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5553343808146929
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5553343808146929,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5553343808146929
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.5553343808146929,
+          "initial_cip": {
+            "CA": "R"
+          },
+          "returned_volume": -1.5553343808146929,
+          "returned_cip": {
+            "CA": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.5553343808146929,
+              "after_volume": -1.5553343808146929
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999998,
+          "fully_transformed_template_volume_angstrom3": 2.4078559999999927,
+          "actual_hybrid_volume_angstrom3": -1.5553343808146929,
+          "fully_transformed_template_cip": {
+            "CA": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "33e5255db239a8b63d7aaf48f186e439bbad56502ab39bdd2a8f1a560b231dad"
+    },
+    "2CI2-THR55-CB-OG1-CG2-stock-normal": {
+      "case_id": "2CI2-THR55-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.5551615014367092,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.5551615014367092
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.5551615014367092,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.5551615014367092
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.5551615014367092,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.5551615014367092
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.5551615014367092,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.5551615014367092
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.5551615014367092,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.5551615014367092
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": true,
+      "arm_evidence_sha256": "481eaa4ba02248cd576df97d4935e5d32b0bbc9af6bbea4755b8dbddef584e25"
+    },
+    "2CI2-THR55-CB-OG1-CG2-stock-none": {
+      "case_id": "2CI2-THR55-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "none"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.6202217279137621,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.6202217279137621
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.6202217279137621,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.6202217279137621
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.6202217279137621,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.6202217279137621
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.6202217279137621,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.6202217279137621
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -0.6202217279137621,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "returned_volume": -0.6202217279137621,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -0.6202217279137621,
+              "after_volume": -0.6202217279137621
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": -1.0,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000053,
+          "actual_hybrid_volume_angstrom3": -0.6202217279137621,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "S"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "f470445df455b97b25698cb93b739bdd4d93d97e1ae3095924b351b89f8efb3f"
+    },
+    "2CI2-THR55-CB-OG1-CG2-proper-normal": {
+      "case_id": "2CI2-THR55-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.88048487232781,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -0.88048487232781
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.88048487232781,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -0.88048487232781
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.88048487232781,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -0.88048487232781
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.88048487232781,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -0.88048487232781
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.88048487232781,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -0.88048487232781
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "d52bb593ed6448888edc76b2ba3632b072f1b7e0e77275ea32286b9a846faa2e"
+    },
+    "2CI2-THR55-CB-OG1-CG2-proper-none": {
+      "case_id": "2CI2-THR55-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "none"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.2752847985694917,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -1.2752847985694917
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.2752847985694917,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -1.2752847985694917
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.2752847985694917,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -1.2752847985694917
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.2752847985694917,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -1.2752847985694917
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.2752847985694917,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.2752847985694917,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.2752847985694917,
+              "after_volume": -1.2752847985694917
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 0.9999999999999993,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999946,
+          "actual_hybrid_volume_angstrom3": -1.2752847985694917,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "92ca88a638292a7684fd21fa205ea9be5dea2b20d750f8c3c5f4af9b4d1b1ba2"
+    },
+    "1R69-THR27-CB-OG1-CG2-stock-normal": {
+      "case_id": "1R69-THR27-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": -0.08247381917640123,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": -0.08247381917640123
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": -0.08247381917640123,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": -0.08247381917640123
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": -0.08247381917640123,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": -0.08247381917640123
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": -0.08247381917640123,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": -0.08247381917640123
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": -0.08247381917640123,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": -0.08247381917640123
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": true,
+      "arm_evidence_sha256": "1bfc81650fdc72e894cbd4fec95c68e0072dd7aaee0d0f7bb833bbae55713838"
+    },
+    "1R69-THR27-CB-OG1-CG2-stock-none": {
+      "case_id": "1R69-THR27-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "none"
+      },
+      "seed_count": 1,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 0.06178502066900551,
+          "initial_cip": {
+            "CB": "S"
+          },
+          "returned_volume": 0.06178502066900551,
+          "returned_cip": {
+            "CB": "S"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 0.06178502066900551,
+              "after_volume": 0.06178502066900551
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": -1.0000000000000009,
+          "fully_transformed_template_volume_angstrom3": -2.4571120000000084,
+          "actual_hybrid_volume_angstrom3": 0.06178502066900551,
+          "fully_transformed_template_cip": {
+            "CA": "R",
+            "CB": "S"
+          },
+          "actual_hybrid_cip": {
+            "CB": "S"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "e1531d18cdeb95689f0432a92d2782203e60c8c962111508f5006902eb2eae4d"
+    },
+    "1R69-THR27-CB-OG1-CG2-proper-normal": {
+      "case_id": "1R69-THR27-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "normal"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.4875462919139442,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -0.4875462919139442
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.4875462919139442,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -0.4875462919139442
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.4875462919139442,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -0.4875462919139442
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.4875462919139442,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -0.4875462919139442
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -0.4875462919139442,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -0.4875462919139442
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "1f84985d287e41cf17be28406d23ef367256f78ff8c8956149f60a182bf39dde"
+    },
+    "1R69-THR27-CB-OG1-CG2-proper-none": {
+      "case_id": "1R69-THR27-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "none"
+      },
+      "seed_count": 5,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.0834447931711968,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -1.0834447931711968
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.0834447931711968,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -1.0834447931711968
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.0834447931711968,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -1.0834447931711968
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.0834447931711968,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -1.0834447931711968
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "initial_volume": -1.0834447931711968,
+          "initial_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "returned_volume": -1.0834447931711968,
+          "returned_cip": {
+            "CA": "R",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": -1.0834447931711968,
+              "after_volume": -1.0834447931711968
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 2,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 3,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 4,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 5,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000022,
+          "fully_transformed_template_volume_angstrom3": 2.4571119999999973,
+          "actual_hybrid_volume_angstrom3": -1.0834447931711968,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "R",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "910074522be9bab805561f1a6175f4c64ebd866eca12c6c422cc6c0ab5c1e405"
+    },
+    "2CI2-THR22-CB-OG1-CG2-stock-normal": {
+      "case_id": "2CI2-THR22-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "normal"
+      },
+      "seed_count": 1,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 3.093773042856446,
+          "initial_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "returned_volume": 3.093773042856446,
+          "returned_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 3.093773042856446,
+              "after_volume": 3.093773042856446
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.000000000000002,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.093773042856446,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.000000000000002,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.093773042856446,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": true,
+      "arm_evidence_sha256": "78905d443c956ca41cd8feb601513b05a567fda37022f02547e9a8a92451e8b9"
+    },
+    "2CI2-THR22-CB-OG1-CG2-stock-none": {
+      "case_id": "2CI2-THR22-CB-OG1-CG2",
+      "arm": {
+        "overlay": "stock",
+        "relaxation": "none"
+      },
+      "seed_count": 1,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 3.093773042856446,
+          "initial_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "returned_volume": 3.093773042856446,
+          "returned_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 3.093773042856446,
+              "after_volume": 3.093773042856446
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.000000000000002,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.093773042856446,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.000000000000002,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.093773042856446,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "dd68c26ca7c31986912bc2a76fb94f57ac6581256914c2c61a51d23ad7c01cc8"
+    },
+    "2CI2-THR22-CB-OG1-CG2-proper-normal": {
+      "case_id": "2CI2-THR22-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "normal"
+      },
+      "seed_count": 1,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 3.0937730428564523,
+          "initial_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "returned_volume": 3.0937730428564523,
+          "returned_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 3.0937730428564523,
+              "after_volume": 3.0937730428564523
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000027,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.0937730428564523,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000027,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.0937730428564523,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "b19435b3e4d2be4416fca28261e5a374dd34c313b35b3105274af6cbd19d287b"
+    },
+    "2CI2-THR22-CB-OG1-CG2-proper-none": {
+      "case_id": "2CI2-THR22-CB-OG1-CG2",
+      "arm": {
+        "overlay": "proper",
+        "relaxation": "none"
+      },
+      "seed_count": 1,
+      "seeds": [
+        {
+          "seed": 1,
+          "initial_volume": 3.0937730428564523,
+          "initial_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "returned_volume": 3.0937730428564523,
+          "returned_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "minimize_calls": 1,
+          "dynamics_calls": 0,
+          "minimization_boundaries": [
+            {
+              "before_volume": 3.0937730428564523,
+              "after_volume": 3.0937730428564523
+            }
+          ]
+        }
+      ],
+      "hybrid_checks": [
+        {
+          "seed": 1,
+          "stage": "construction-heavy",
+          "determinant": 1.0000000000000027,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.0937730428564523,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        {
+          "seed": 1,
+          "stage": "construction-all",
+          "determinant": 1.0000000000000027,
+          "fully_transformed_template_volume_angstrom3": 2.4571120000000164,
+          "actual_hybrid_volume_angstrom3": 3.0937730428564523,
+          "fully_transformed_template_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "actual_hybrid_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        }
+      ],
+      "identical_returned_seed_payloads": true,
+      "stock_normal_exact_seed_reproduction": null,
+      "arm_evidence_sha256": "9a400dcba211a071e6f518ef67ff3a4f5dfe61c4b062ef7a838fb47844b4a1aa"
+    }
+  },
+  "case_roles": {
+    "2CI2-VAL28-CB-CG1-CG2": "previously confirmed D-CA endpoint",
+    "2CI2-THR55-CB-OG1-CG2": "previously confirmed D-CA endpoint",
+    "1R69-THR27-CB-OG1-CG2": "previously small-volume CA-unassigned endpoint, not confirmed D",
+    "2CI2-THR22-CB-OG1-CG2": "first whole-sidechain case by original enrollment order, not success-selected"
+  },
+  "original_template_evidence": {
+    "VAL": {
+      "resource": "templates/VAL.pdb",
+      "sha256": "0a035bae591b0e82bd2fea54f32d43263114adb3867ae22cbe149d2ee8080be2",
+      "points_angstrom": {
+        "N": [
+          -0.89,
+          1.753,
+          -0.437
+        ],
+        "CA": [
+          -0.04,
+          0.623,
+          -0.007
+        ],
+        "CB": [
+          -0.83,
+          -0.697,
+          0.103
+        ],
+        "CG1": [
+          0.06,
+          -1.927,
+          0.323
+        ],
+        "CG2": [
+          -1.82,
+          -0.647,
+          1.273
+        ],
+        "C": [
+          1.21,
+          0.483,
+          -0.897
+        ],
+        "O": [
+          2.31,
+          0.413,
+          -0.357
+        ]
+      },
+      "ca_volume_angstrom3": 2.4078559999999998
+    },
+    "THR": {
+      "resource": "templates/THR.pdb",
+      "sha256": "63ded1fd1fcd8a13e3e2289230083c402a5017a57e14362e244ffd6ba2e2a12f",
+      "points_angstrom": {
+        "N": [
+          -1.233,
+          0.087,
+          1.536
+        ],
+        "CA": [
+          -0.113,
+          -0.063,
+          0.586
+        ],
+        "CB": [
+          -0.633,
+          -0.183,
+          -0.854
+        ],
+        "CG2": [
+          0.457,
+          -0.443,
+          -1.884
+        ],
+        "OG1": [
+          -1.493,
+          -1.293,
+          -0.954
+        ],
+        "C": [
+          0.907,
+          1.067,
+          0.716
+        ],
+        "O": [
+          2.107,
+          0.827,
+          0.856
+        ]
+      },
+      "ca_volume_angstrom3": 2.457112
+    }
+  },
+  "experiment_plan": {
+    "admissibility": "original source observations must survive; stock-normal must exactly reproduce all saved untraced seed atoms/positions; mismatch is an instrumentation blocker",
+    "arms": [
+      {
+        "overlay": "stock",
+        "relaxation": "normal"
+      },
+      {
+        "overlay": "stock",
+        "relaxation": "none"
+      },
+      {
+        "overlay": "proper",
+        "relaxation": "normal"
+      },
+      {
+        "overlay": "proper",
+        "relaxation": "none"
+      }
+    ],
+    "cases": [
+      {
+        "id": "2CI2-VAL28-CB-CG1-CG2",
+        "input_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-VAL28-CB-CG1-CG2/input.pdb",
+        "input_sha256": "348ac3a26b593608f234c329467257ec4a4113197c81ab4a1f594bc67f35375c",
+        "prior_proposal_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-VAL28-CB-CG1-CG2/template-proposal.json",
+        "prior_proposal_sha256": "3433f1d974295722bc06a1acca743cb6509af66b343330d76ec367252896c71d",
+        "prior_seed_count": 5,
+        "residue_name": "VAL",
+        "scope": "previously confirmed D-CA endpoint",
+        "target": {
+          "alternate_location": "",
+          "chain_id": "I",
+          "insertion_code": "",
+          "model": 1,
+          "occurrence": 1,
+          "sequence_number": "28"
+        }
+      },
+      {
+        "id": "2CI2-THR55-CB-OG1-CG2",
+        "input_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-THR55-CB-OG1-CG2/input.pdb",
+        "input_sha256": "f91fd66787a2c3754063c94750a0791aa5edb1443e8ea1fc6ff98c5c4b5a681b",
+        "prior_proposal_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-THR55-CB-OG1-CG2/template-proposal.json",
+        "prior_proposal_sha256": "42f0fd9147418f96349608a95d57162fdfd926728e534eda2cc944bc0a5d42f2",
+        "prior_seed_count": 5,
+        "residue_name": "THR",
+        "scope": "previously confirmed D-CA endpoint",
+        "target": {
+          "alternate_location": "",
+          "chain_id": "I",
+          "insertion_code": "",
+          "model": 1,
+          "occurrence": 1,
+          "sequence_number": "55"
+        }
+      },
+      {
+        "id": "1R69-THR27-CB-OG1-CG2",
+        "input_path": "tmp/pdbfixer-research/independent-comparison-01/1R69-THR27-CB-OG1-CG2/input.pdb",
+        "input_sha256": "e7f7cab77984a610584999800b89be28a8ac36222e0101df6fbf2703bdbf4d63",
+        "prior_proposal_path": "tmp/pdbfixer-research/independent-comparison-01/1R69-THR27-CB-OG1-CG2/template-proposal.json",
+        "prior_proposal_sha256": "a72a6efa3661b9e9cd17778886f31e77e39e3547d7833d45a4e596c58d840d48",
+        "prior_seed_count": 5,
+        "residue_name": "THR",
+        "scope": "previously small-volume CA-unassigned endpoint, not confirmed D",
+        "target": {
+          "alternate_location": "",
+          "chain_id": "A",
+          "insertion_code": "",
+          "model": 1,
+          "occurrence": 1,
+          "sequence_number": "27"
+        }
+      },
+      {
+        "id": "2CI2-THR22-CB-OG1-CG2",
+        "input_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-THR22-CB-OG1-CG2/input.pdb",
+        "input_sha256": "26040b78bb10fb1d01aa4784bf6edf13ee20c7e4195e976251a9bec1c2e950ec",
+        "prior_proposal_path": "tmp/pdbfixer-research/independent-comparison-01/2CI2-THR22-CB-OG1-CG2/template-proposal.json",
+        "prior_proposal_sha256": "5100d933c892ca54bc654e2d33c9eee3465efbe2e4c9c043c5ede502441051f3",
+        "prior_seed_count": 1,
+        "residue_name": "THR",
+        "scope": "first whole-sidechain case by original enrollment order, not success-selected",
+        "target": {
+          "alternate_location": "",
+          "chain_id": "I",
+          "insertion_code": "",
+          "model": 1,
+          "occurrence": 1,
+          "sequence_number": "22"
+        }
+      }
+    ],
+    "environment": {
+      "helper_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+      "openmm": "8.5.2",
+      "pdbfixer": "1.12.0",
+      "platform": "Reference",
+      "resource_sha256": {
+        "soft.xml": "f3255082d46c050cb8163af73f11396091e8032d548183376d6e2c02664f7789",
+        "templates/A.pdb": "e8cbac499131cc31f29b93ffa2bbfea8540b525b310d5ea84ec7060dc4aed882",
+        "templates/ACE.pdb": "c80a4a5b5c355612ca0cef9550d70318ea9f2e4515edc0ebdf708ba62abf157d",
+        "templates/ALA.pdb": "5d4afe9fe13cbcd94f682a440fc2d8a1cecd2b356b68488213083a99c018891d",
+        "templates/ARG.pdb": "b563c31e5a4bdb0a8132436621c395ff5d121c12f61dc7914cd5a642b5d03f82",
+        "templates/ASN.pdb": "03e4429faf869ed1debde1935bdfd652d6d2ed0efe3a8c0937f0726bc178510d",
+        "templates/ASP.pdb": "76aa87d2ff758661c78a3b907b3c0043fa08850547ff06dda1c46a301e6e7aff",
+        "templates/C.pdb": "03b933a77d61b7aff4b1c665f8d13c95b0292015feff685d58cf89e404170a0c",
+        "templates/CYS.pdb": "37855be2763394ce872bd222a1bdf705d56f60d2389328ef86620847c1fcb5fd",
+        "templates/DA.pdb": "3dbe2e49912bde8508c7f4aba510b5f368043a48a6b35be26a04dc337ab470e2",
+        "templates/DC.pdb": "16ca41ef7b3cbd51f4013cdf8913d5d5edfd641e4e583150c3be3dd5904817da",
+        "templates/DG.pdb": "8d1d0585b952ed0a50e751a86b61c264237cce4880da72a9ed7296644136d9a7",
+        "templates/DT.pdb": "c9e80cbacc60b0994f031752e5e0521efc35f12a302517b3b668426ed148cd90",
+        "templates/G.pdb": "4c5ff7bee3a55e0d07d4953228e77c2748e5d27641fe58595d569dc54c7963fe",
+        "templates/GLN.pdb": "2a6d372fc3b6a29e3846f95c286dc68dedc5499b5c53f74efed9f79f34724820",
+        "templates/GLU.pdb": "a52934d6cb9e1fb2317ddeabb8424e0bb6c59e1246cd34e78df3f65fea78e681",
+        "templates/GLY.pdb": "00ac8db40e228a7a3950d9570751c72e3d592bad049c8d64f1393d5b33fb1c3e",
+        "templates/HIS.pdb": "9b3250e1e29a1339d8cb07943928cb498bcbececfe8a940be93f995f2369cff1",
+        "templates/ILE.pdb": "3a8f8510be1d78198ef6ba2a6e191e2c185a8a33b870081fe5ec9378711e06c7",
+        "templates/LEU.pdb": "177dcca58b59a036f71f78a04d792e08f6ba17b626c37301a1fc6fda3d5dcf54",
+        "templates/LYS.pdb": "3c62dad1cbad3eb4c5fbed1511e8e129c42ff10b618ab43dfa0aaa9f0c237a0f",
+        "templates/MET.pdb": "a698fdea05abda618ffceb6de5c09f875eb2127b8a01a9e8f0013e65c3fcb6a6",
+        "templates/NME.pdb": "f699e5baa14286e331c4c0e748848d2ba5d830889dd28c33cc3cb59c37b286b1",
+        "templates/PHE.pdb": "68e11ff2b2694189ac8247b065df40b06bd034b1750ce02e98036100ec4a6aef",
+        "templates/PRO.pdb": "aed07c4cc88aef05fa2e4e04ad9569df36c749dbcd29ca04264700f1b27f11bf",
+        "templates/SER.pdb": "8c88c15eaca0008142861d0ef8ae79b4887ba2dea9eb8ec7c828f1f017dbec39",
+        "templates/THR.pdb": "63ded1fd1fcd8a13e3e2289230083c402a5017a57e14362e244ffd6ba2e2a12f",
+        "templates/TRP.pdb": "e49ca09b1f182c750bf725929a050a573ec0987c94b8184af081797e9a9f5d28",
+        "templates/TYR.pdb": "ecd7f527671d90151aefbfa868372e5458aa0fea625f2b32d1c437cc14e30cd9",
+        "templates/U.pdb": "7ef2bcdbec3798731109f7243e959ce94f3c3946888b0a515d6dbe7823cd772b",
+        "templates/VAL.pdb": "0a035bae591b0e82bd2fea54f32d43263114adb3867ae22cbe149d2ee8080be2"
+      },
+      "source_sha256": "a52e39125e3e0e2d1b58b83841fb05b8669e0bcdd73461e1b0ed1d5a8e8261b9"
+    },
+    "installed_pdbfixer_sha256": "a52e39125e3e0e2d1b58b83841fb05b8669e0bcdd73461e1b0ed1d5a8e8261b9",
+    "interventions": "proper determinant-corrected fit; relaxation-none bypasses BOTH minimization and escape dynamics, not a geometry remedy",
+    "parent_comparison_path": "tmp/pdbfixer-research/independent-comparison-01/evidence.json",
+    "parent_comparison_sha256": "3c9889e9bc812d09ce5dd9eef2356bf80da9f757b1d5d7f9c1116ae1248e0013",
+    "public_capability": false,
+    "schema": "dvbfixer.template-causality-plan.v1",
+    "scope": "retrospectively chosen endpoint failures plus identity-chosen first whole control; causal mechanisms only, not new accuracy qualification",
+    "seeds": "unchanged shared helper 1..5; max five attempts per arm, no independent extra rebuild",
+    "source_hashes": {
+      "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+      "scripts/branched_template_baseline.py": "b170d65b4c1182417f15adfd6060b7ba783d3f69ceb01db1bb534cd63b5ccfa0",
+      "scripts/research_template_causality.py": "842e908f84fdc3d0011e64c395aaf1c6c34f5e5551b2990e83dfd6f4da0d37d3",
+      "src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c"
+    },
+    "tracing": "exact heavy/all construction boundaries, before/after minimization, accepted minimizer reporter iterates, before/after escape step calls, returned helper seed states"
+  },
+  "experiment_plan_sha256": "cf2f2e0b07e0ce79ef217c3c58fc5d0e1453ffb2bfb863ca794e3a46a9b4c556",
+  "run_path": "tmp/pdbfixer-research/causality-run-01",
+  "run_evidence_sha256": "933fa1ac9e6ce89d9f6122ae697fbd3e1441fea09db407d5cafee6792950315b",
+  "audit_script_sha256": "85f57a7544abd122cce2d7200c52098e2f6c582e45c068da3bdc85c284a1b85c",
+  "production_changed": false,
+  "scientific_qualification": false,
+  "scope": "retrospective case-specific initialization/relaxation ablations; not a production repair or guarantee"
+}

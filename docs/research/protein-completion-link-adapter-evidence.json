@@ -1,0 +1,315 @@
+{
+  "schema": "dvbfixer.private-protein-link-controls.v1",
+  "fixture": "tests/fixtures/regressions/1DQJ.pdb",
+  "fixture_sha256": "9eba9510d5129e63f55c9c1a1ff76ca5759250a118994f209cad4177271ae7cc",
+  "projection": "Unmodified A9 (CB withheld), A23 and A88 ATOM bytes; explicit bare TER boundaries; deposited first SSBOND where declared",
+  "cases": [
+    {
+      "id": "unannotated-control",
+      "target": {
+        "model": 1,
+        "chain_id": "A",
+        "sequence_number": "9",
+        "insertion_code": "",
+        "alternate_location": "",
+        "occurrence": 1
+      },
+      "expected_admission": true
+    },
+    {
+      "id": "deposited-ssbond",
+      "target": {
+        "model": 1,
+        "chain_id": "A",
+        "sequence_number": "9",
+        "insertion_code": "",
+        "alternate_location": "",
+        "occurrence": 1
+      },
+      "expected_admission": true
+    },
+    {
+      "id": "ssbond-and-target-conect",
+      "target": {
+        "model": 1,
+        "chain_id": "A",
+        "sequence_number": "9",
+        "insertion_code": "",
+        "alternate_location": "",
+        "occurrence": 1
+      },
+      "expected_admission": true
+    },
+    {
+      "id": "nonidentity-symmetry",
+      "target": {
+        "model": 1,
+        "chain_id": "A",
+        "sequence_number": "9",
+        "insertion_code": "",
+        "alternate_location": "",
+        "occurrence": 1
+      },
+      "expected_admission": false
+    },
+    {
+      "id": "linked-target-refusal",
+      "target": {
+        "model": 1,
+        "chain_id": "A",
+        "sequence_number": "23",
+        "insertion_code": "",
+        "alternate_location": "",
+        "occurrence": 1
+      },
+      "expected_admission": false
+    }
+  ],
+  "production_enabled": false,
+  "authentic_rotamer_statistics_loaded": false,
+  "source_hashes": {
+    "scripts/probe_protein_completion_links.py": "4b1a7c94268e0903338cc06ece315fc41bf658ee04113ca4c1728da6c61cc91e",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "a25496c79393a260942aad10ce2e8e729b18f1a5c8de5d6dc80477a3b0db2911",
+    "src/dvbfixer/protein_completion/source.py": "87182906bbcca9304fc41cdd37af4801528597c08aad86754abca5e8c4a25822",
+    "src/dvbfixer/protein_completion/validation.py": "01626a5a09d160d7c4c44dd0e9af100afa66165456f03d6f5c6504c7ebf53dee"
+  },
+  "retained_directory": "tmp/pdbfixer-research/source-links-01",
+  "results": {
+    "unannotated-control": {
+      "admitted": true,
+      "readback_passed": true,
+      "request_digest": "9a2e387efac3cef7a4038fb29bdf4f08627e41fe7f570f5bc3c4984a4569194f",
+      "links": [],
+      "declared_metadata": [],
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            54.579,
+            48.618,
+            16.273
+          ]
+        }
+      ],
+      "output_sha256": "cb75c3a54cdfbeeb5831dbe6835b2a82a82e63fd887096fafe43fc1731cf49f0",
+      "retained_files": {
+        "attempts.json": "ceb873e623e55f7f9aefc7399239c283620119781a459ce0643eece6b654619c",
+        "completed.dat": "5431bd4a14445bb535d574fd53ff99f3c0fdafa18aae17544d386a252957d69c",
+        "completed.pdb": "cb75c3a54cdfbeeb5831dbe6835b2a82a82e63fd887096fafe43fc1731cf49f0",
+        "input.pdb": "a748d2af8c71ec119478626eeef6ceda981a6570c0826f6abe2ab236f5d8939d",
+        "request.json": "7b4a15ff37fe0f22613c08fd0536557152d2bf16fa3c91d26028d872162b8051"
+      }
+    },
+    "deposited-ssbond": {
+      "admitted": true,
+      "readback_passed": true,
+      "request_digest": "c442b0aea8809fc833277ec3135365d71a81621078e657d1c64e3e416b5ee729",
+      "links": [
+        [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "23",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "88",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          }
+        ]
+      ],
+      "declared_metadata": [
+        {
+          "record": "SSBOND",
+          "left": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "23",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          "right": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "88",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          "reported_distance": 2.03
+        }
+      ],
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            54.579,
+            48.618,
+            16.273
+          ]
+        }
+      ],
+      "output_sha256": "65ae005e80dc38b4103e0a1b4c75fab85073d2812cadc7a5ad7c6f6c2c1013ad",
+      "retained_files": {
+        "attempts.json": "425bb99b5443ccf51fee674cbe0c98bd6886ae92c332e372c01eb624b3d1e7b1",
+        "completed.dat": "5431bd4a14445bb535d574fd53ff99f3c0fdafa18aae17544d386a252957d69c",
+        "completed.pdb": "65ae005e80dc38b4103e0a1b4c75fab85073d2812cadc7a5ad7c6f6c2c1013ad",
+        "input.pdb": "2c412d88fbaa57696e59225dcc0572f39f169f7cc6350fb752e9a10744eea022",
+        "request.json": "f2a818be950d1cfa059ebe6a1c48f3179d17fb9f01cd8de18dec1900c4ebb96e"
+      }
+    },
+    "ssbond-and-target-conect": {
+      "admitted": true,
+      "readback_passed": true,
+      "request_digest": "79e7b21219eae4dbbd2dc90ea8e6793ea42f816922b632a184d225022d5a1cf8",
+      "links": [
+        [
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "23",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "88",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          }
+        ]
+      ],
+      "declared_metadata": [
+        {
+          "record": "SSBOND",
+          "left": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "23",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          "right": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "88",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "SG"
+          },
+          "reported_distance": 2.03
+        }
+      ],
+      "generated": [
+        {
+          "atom": {
+            "component": {
+              "model": 1,
+              "chain_id": "A",
+              "sequence_number": "9",
+              "insertion_code": "",
+              "alternate_location": "",
+              "occurrence": 1
+            },
+            "name": "CB"
+          },
+          "element": "C",
+          "xyz": [
+            54.579,
+            48.618,
+            16.273
+          ]
+        }
+      ],
+      "output_sha256": "68139b92f0e6ab2056b4dafb1a593b24499863f8e2cd3512a942ac90fd76d9d7",
+      "retained_files": {
+        "attempts.json": "d28a00e3955d263c4c2c7823a9b97510253d6b45d11b9c05544c684ca8805f13",
+        "completed.dat": "5431bd4a14445bb535d574fd53ff99f3c0fdafa18aae17544d386a252957d69c",
+        "completed.pdb": "68139b92f0e6ab2056b4dafb1a593b24499863f8e2cd3512a942ac90fd76d9d7",
+        "input.pdb": "82d20bb434016a8e6b9bd160bf9d9373ffa866d498c747757232f7bf857a3650",
+        "request.json": "ffcdfce650cc97e094a7627d2272552cbefd1f69f5252cd77985d3816c380f01"
+      }
+    },
+    "nonidentity-symmetry": {
+      "admitted": false,
+      "refusal": "nonidentity link symmetry requires crystal-frame support",
+      "retained_files": {
+        "input.pdb": "4c42cd2e88c6c7e1bbf166e9f784959b0238b83ccf50b1b27471b4724b9886e3",
+        "refusal.json": "0e46d716173053bd7373af93961fa7365665be358bce448a30ce35758dc41e78"
+      }
+    },
+    "linked-target-refusal": {
+      "admitted": false,
+      "refusal": "disulfide-linked target requires coupled reconstruction",
+      "retained_files": {
+        "input.pdb": "2c412d88fbaa57696e59225dcc0572f39f169f7cc6350fb752e9a10744eea022",
+        "refusal.json": "35359aa48e1b7df64a5da0ce0da76766d6a17669a406b4a1cdea1e9dd06c9855"
+      }
+    }
+  },
+  "all_expected_outcomes_matched": true,
+  "raw_record_sha256": "a89ed62ca1de0d28cf27117ce198d09bafdaafe2e42df0ad0a9971a659fde40d"
+}

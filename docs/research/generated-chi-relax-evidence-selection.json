@@ -1,0 +1,1556 @@
+{
+  "audit_script_sha256": "645e3612da3a10adbb1487ae2249fe9de8de04b5bf246058fc4fb8c303b3b3c5",
+  "cases": {
+    "1CTF-THR76-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.43959150530244706
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.43958272579187696
+            }
+          },
+          "final_raw_score": -57.47074387983456,
+          "index": 0,
+          "initial_score": -57.47071286590513,
+          "mobile_h_max_motion_angstrom": 2.688062610286284e-05,
+          "mobile_heavy_max_motion_angstrom": 1.2568211200552693e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 2.688062610286284e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45374994538248004
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45391072776129215
+            }
+          },
+          "final_raw_score": -42.346296761603455,
+          "index": 1,
+          "initial_score": -33.60123053521953,
+          "mobile_h_max_motion_angstrom": 0.42389279661685986,
+          "mobile_heavy_max_motion_angstrom": 0.2767245930903207,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.42389279661685986,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": false,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4158875849077712
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3104121589999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4158977899542382
+            }
+          },
+          "final_raw_score": -54.605034355162516,
+          "index": 2,
+          "initial_score": -54.60496941899352,
+          "mobile_h_max_motion_angstrom": 4.226525580536744e-05,
+          "mobile_heavy_max_motion_angstrom": 2.7598880476521752e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.226525580536744e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 0,
+      "selection_status": "selected"
+    },
+    "1CTF-VAL56-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4190007971655767
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.41903807471480725
+            }
+          },
+          "final_raw_score": -26.20798422538392,
+          "index": 0,
+          "initial_score": -26.207278974716285,
+          "mobile_h_max_motion_angstrom": 0.00014106587579944266,
+          "mobile_heavy_max_motion_angstrom": 9.455014536788115e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.00014106587579944266,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3279352359765748
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.32794889365427293
+            }
+          },
+          "final_raw_score": -55.408575900507046,
+          "index": 1,
+          "initial_score": -55.408477815854454,
+          "mobile_h_max_motion_angstrom": 5.259401368224227e-05,
+          "mobile_heavy_max_motion_angstrom": 3.523471010508658e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 5.259401368224227e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3687137099862938
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.485931995999999,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.36867108350149635
+            }
+          },
+          "final_raw_score": -31.207224901097202,
+          "index": 2,
+          "initial_score": -31.206361173776582,
+          "mobile_h_max_motion_angstrom": 0.00015608201324571533,
+          "mobile_heavy_max_motion_angstrom": 0.0001045930328886337,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.00015608201324571533,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "1CTF-VAL66-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3543721504037758
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35436673251686424
+            }
+          },
+          "final_raw_score": -49.868368593060055,
+          "index": 0,
+          "initial_score": -49.86835477020601,
+          "mobile_h_max_motion_angstrom": 1.972432283305161e-05,
+          "mobile_heavy_max_motion_angstrom": 1.3159638371313443e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.972432283305161e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45000612551885144
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45000525424196747
+            }
+          },
+          "final_raw_score": -54.75229977770131,
+          "index": 1,
+          "initial_score": -54.75229924001742,
+          "mobile_h_max_motion_angstrom": 3.8893046741265586e-06,
+          "mobile_heavy_max_motion_angstrom": 2.594321471846366e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 3.8893046741265586e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.31376261846315767
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3687419360000086,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3137743115578866
+            }
+          },
+          "final_raw_score": -47.319164553727475,
+          "index": 2,
+          "initial_score": -47.319102712566874,
+          "mobile_h_max_motion_angstrom": 4.1722757155477514e-05,
+          "mobile_heavy_max_motion_angstrom": 2.7839595075934332e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.1722757155477514e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "1PGB-THR11-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.23179884454003252
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.23179871446584954
+            }
+          },
+          "final_raw_score": 8.405143930688688,
+          "index": 0,
+          "initial_score": 8.405143940524361,
+          "mobile_h_max_motion_angstrom": 5.109868661304894e-07,
+          "mobile_heavy_max_motion_angstrom": 3.3262312903030577e-07,
+          "movement": {
+            "mobile_max_motion_angstrom": 5.109868661304894e-07,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.33988922529097687
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.33989003465561707
+            }
+          },
+          "final_raw_score": 10.41015688563538,
+          "index": 1,
+          "initial_score": 10.410157294119237,
+          "mobile_h_max_motion_angstrom": 3.366134840494913e-06,
+          "mobile_heavy_max_motion_angstrom": 1.997405655692168e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 3.366134840494913e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4063160595596238
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3494619859999997,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4063103033213338
+            }
+          },
+          "final_raw_score": 8.553114655906903,
+          "index": 2,
+          "initial_score": 8.553142928205453,
+          "mobile_h_max_motion_angstrom": 2.769024486620084e-05,
+          "mobile_heavy_max_motion_angstrom": 1.5104644210463711e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 2.769024486620084e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "new_inputs_eleven",
+      "selected_index": 0,
+      "selection_status": "selected"
+    },
+    "1PGB-THR2-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.30199528273840426
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.30210572501332744
+            }
+          },
+          "final_raw_score": 17.485957586110906,
+          "index": 0,
+          "initial_score": 17.487701023990063,
+          "mobile_h_max_motion_angstrom": 0.00021936021039895793,
+          "mobile_heavy_max_motion_angstrom": 0.00014370113709947894,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.00021936021039895793,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3695741426848729
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.36957940212913787
+            }
+          },
+          "final_raw_score": 14.762909379512472,
+          "index": 1,
+          "initial_score": 14.76292448578581,
+          "mobile_h_max_motion_angstrom": 2.041323262666937e-05,
+          "mobile_heavy_max_motion_angstrom": 1.3374959278738242e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 2.041323262666937e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.363812756881126
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4290972270000033,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.36381390557166204
+            }
+          },
+          "final_raw_score": 10.95089733752507,
+          "index": 2,
+          "initial_score": 10.950912162125,
+          "mobile_h_max_motion_angstrom": 4.440695441597483e-06,
+          "mobile_heavy_max_motion_angstrom": 2.9095235643941483e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.440695441597483e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "new_inputs_eleven",
+      "selected_index": 2,
+      "selection_status": "selected"
+    },
+    "1PGB-VAL21-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3832767429268005
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3832797610650065
+            }
+          },
+          "final_raw_score": 9.393768834152858,
+          "index": 0,
+          "initial_score": 9.393774218156658,
+          "mobile_h_max_motion_angstrom": 1.2309220502324514e-05,
+          "mobile_heavy_max_motion_angstrom": 8.214390835024508e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.2309220502324514e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4247636722514807
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42476253048601187
+            }
+          },
+          "final_raw_score": 8.222418419136424,
+          "index": 1,
+          "initial_score": 8.222419271346006,
+          "mobile_h_max_motion_angstrom": 4.897753421921475e-06,
+          "mobile_heavy_max_motion_angstrom": 3.2686498373007642e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.897753421921475e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35278413351530924
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3793421520000004,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.35278717513856384
+            }
+          },
+          "final_raw_score": 9.779021679729475,
+          "index": 2,
+          "initial_score": 9.779026102610253,
+          "mobile_h_max_motion_angstrom": 1.1156901275555235e-05,
+          "mobile_heavy_max_motion_angstrom": 7.4459976259503275e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.1156901275555235e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "new_inputs_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "1PGB-VAL29-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3450176151188349
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.34501702132401224
+            }
+          },
+          "final_raw_score": 10.584899215863565,
+          "index": 0,
+          "initial_score": 10.584899373204614,
+          "mobile_h_max_motion_angstrom": 2.104035999441402e-06,
+          "mobile_heavy_max_motion_angstrom": 1.4044002996268067e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 2.104035999441402e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.44578027228170436
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4457825063140657
+            }
+          },
+          "final_raw_score": 10.989703498275553,
+          "index": 1,
+          "initial_score": 10.989706977732162,
+          "mobile_h_max_motion_angstrom": 9.9000338200761e-06,
+          "mobile_heavy_max_motion_angstrom": 6.610376317143417e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 9.9000338200761e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3019022758138168
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3507986100000005,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.30190042122593974
+            }
+          },
+          "final_raw_score": 10.66970549962317,
+          "index": 2,
+          "initial_score": 10.66970697851351,
+          "mobile_h_max_motion_angstrom": 6.451330043687586e-06,
+          "mobile_heavy_max_motion_angstrom": 4.306638656867836e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 6.451330043687586e-06,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "new_inputs_eleven",
+      "selected_index": 0,
+      "selection_status": "selected"
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.38865675587215476
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3887518457847796
+            }
+          },
+          "final_raw_score": -9.009189295535432,
+          "index": 0,
+          "initial_score": -9.004437601113747,
+          "mobile_h_max_motion_angstrom": 0.0003692018666695947,
+          "mobile_heavy_max_motion_angstrom": 0.0002485286732424307,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0003692018666695947,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42663458707979807
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4266592862572911
+            }
+          },
+          "final_raw_score": -18.910836680484433,
+          "index": 1,
+          "initial_score": -18.910479557624424,
+          "mobile_h_max_motion_angstrom": 0.00010084584194830678,
+          "mobile_heavy_max_motion_angstrom": 6.785396059926733e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.00010084584194830678,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.5528004688980097
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4973866319999978,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.553030218930882
+            }
+          },
+          "final_raw_score": 12.958037132226622,
+          "index": 2,
+          "initial_score": 12.973054057801619,
+          "mobile_h_max_motion_angstrom": 0.0006560245077949726,
+          "mobile_heavy_max_motion_angstrom": 0.0004415917851205237,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0006560245077949726,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "1R69-THR27-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.1582446923115468
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.1582480505436099
+            }
+          },
+          "final_raw_score": -19.639563783271196,
+          "index": 0,
+          "initial_score": -19.639552476799135,
+          "mobile_h_max_motion_angstrom": 1.7059615236490253e-05,
+          "mobile_heavy_max_motion_angstrom": 9.061251673641085e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.7059615236490253e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.22684339384893093
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.22683576364101476
+            }
+          },
+          "final_raw_score": -17.65600932240687,
+          "index": 1,
+          "initial_score": -17.655973863387967,
+          "mobile_h_max_motion_angstrom": 3.1094286587939744e-05,
+          "mobile_heavy_max_motion_angstrom": 2.021522239025835e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 3.1094286587939744e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4138180164865961
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.3074067589999983,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.41382703113164965
+            }
+          },
+          "final_raw_score": -16.68921249281504,
+          "index": 2,
+          "initial_score": -16.689142430855238,
+          "mobile_h_max_motion_angstrom": 4.338999470138725e-05,
+          "mobile_heavy_max_motion_angstrom": 2.820893855467846e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.338999470138725e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 0,
+      "selection_status": "selected"
+    },
+    "1R69-VAL24-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.5101543545384359
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.5103226823743783
+            }
+          },
+          "final_raw_score": 29.3187199249918,
+          "index": 0,
+          "initial_score": 29.32827921652677,
+          "mobile_h_max_motion_angstrom": 0.0005185507319537142,
+          "mobile_heavy_max_motion_angstrom": 0.00034551677431059907,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0005185507319537142,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42967385327547225
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42966500205784763
+            }
+          },
+          "final_raw_score": -19.707108200025058,
+          "index": 1,
+          "initial_score": -19.707059714074685,
+          "mobile_h_max_motion_angstrom": 3.694661184742914e-05,
+          "mobile_heavy_max_motion_angstrom": 2.4612881539779617e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 3.694661184742914e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3546776381473744
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4305902819999963,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3546565650868312
+            }
+          },
+          "final_raw_score": 14.269767305266924,
+          "index": 2,
+          "initial_score": 14.276707739794688,
+          "mobile_h_max_motion_angstrom": 0.0004425987742774131,
+          "mobile_heavy_max_motion_angstrom": 0.00029501218074168875,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0004425987742774131,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "1R69-VAL6-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.39165571461750215
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3917141093306973
+            }
+          },
+          "final_raw_score": -3.620438166871309,
+          "index": 0,
+          "initial_score": -3.6185154089145035,
+          "mobile_h_max_motion_angstrom": 0.00023249075584471084,
+          "mobile_heavy_max_motion_angstrom": 0.00015531596786359968,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.00023249075584471084,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.43314848963136043
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.43299056287311366
+            }
+          },
+          "final_raw_score": -18.114112736446625,
+          "index": 1,
+          "initial_score": -18.09866102831276,
+          "mobile_h_max_motion_angstrom": 0.0006600323139949384,
+          "mobile_heavy_max_motion_angstrom": 0.0004410165732526783,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0006600323139949384,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3956592909247776
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4389615349999993,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.39526744628805655
+            }
+          },
+          "final_raw_score": -3.0366874341031282,
+          "index": 2,
+          "initial_score": 8.030697255503242,
+          "mobile_h_max_motion_angstrom": 0.2280131539463241,
+          "mobile_heavy_max_motion_angstrom": 0.15235164924309938,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.2280131539463241,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": false,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "2CI2-THR22-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.26233605362469925
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.26233920934788824
+            }
+          },
+          "final_raw_score": 175.43768966639408,
+          "index": 0,
+          "initial_score": 175.43769558333727,
+          "mobile_h_max_motion_angstrom": 1.2555079056758818e-05,
+          "mobile_heavy_max_motion_angstrom": 8.197986356521626e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.2555079056758818e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.37791217307270975
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3779222379296714
+            }
+          },
+          "final_raw_score": 182.86065021472336,
+          "index": 1,
+          "initial_score": 182.86070912588502,
+          "mobile_h_max_motion_angstrom": 3.957127569369516e-05,
+          "mobile_heavy_max_motion_angstrom": 2.5828559263665002e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 3.957127569369516e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4582484142739125
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.365577640000002,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.45808562768502914
+            }
+          },
+          "final_raw_score": 205.20337429923342,
+          "index": 2,
+          "initial_score": 205.216143399139,
+          "mobile_h_max_motion_angstrom": 0.0005926521973735977,
+          "mobile_heavy_max_motion_angstrom": 0.0003868574513174163,
+          "movement": {
+            "mobile_max_motion_angstrom": 0.0005926521973735977,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 0,
+      "selection_status": "selected"
+    },
+    "2CI2-THR55-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": false,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4578475470000036,
+              "findings": [
+                "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='52', insertion_code='', alternate_location='', occurrence=1):O"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.8223273032630609
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": false,
+              "ca_volume_angstrom3": 2.4578475470000036,
+              "findings": [
+                "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='I', sequence_number='52', insertion_code='', alternate_location='', occurrence=1):O"
+              ],
+              "minimum_nonbonded_clearance_angstrom": -0.8224010732325833
+            }
+          },
+          "final_raw_score": 187.25675903143303,
+          "index": 0,
+          "initial_score": 220.19954231189234,
+          "mobile_h_max_motion_angstrom": 1.1912556304274402,
+          "mobile_heavy_max_motion_angstrom": 0.7787248885244795,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.1912556304274402,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": false,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4578475470000036,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3713280133821626
+            },
+            "rdkit_target_cip": {
+              "CA": "S",
+              "CB": "R"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4578475470000036,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3713156321597322
+            }
+          },
+          "final_raw_score": 175.08543216109584,
+          "index": 2,
+          "initial_score": 175.08551497111765,
+          "mobile_h_max_motion_angstrom": 4.767729569494194e-05,
+          "mobile_heavy_max_motion_angstrom": 3.1169976026280995e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 4.767729569494194e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 2,
+      "selection_status": "selected"
+    },
+    "2CI2-VAL28-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.36912519429021007
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.3691299928898313
+            }
+          },
+          "final_raw_score": 179.1427604508608,
+          "index": 0,
+          "initial_score": 179.1427716968784,
+          "mobile_h_max_motion_angstrom": 1.7791457305469286e-05,
+          "mobile_heavy_max_motion_angstrom": 1.1870841876551168e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.7791457305469286e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42236389689565224
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.4223690624928014
+            }
+          },
+          "final_raw_score": 175.12608972627115,
+          "index": 1,
+          "initial_score": 175.12610680434892,
+          "mobile_h_max_motion_angstrom": 2.1928716037160016e-05,
+          "mobile_heavy_max_motion_angstrom": 1.463361642367399e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 2.1928716037160016e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        },
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.30972640683329367
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.4237082440000015,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.30972234257178677
+            }
+          },
+          "final_raw_score": 179.2536000037013,
+          "index": 2,
+          "initial_score": 179.25360759918107,
+          "mobile_h_max_motion_angstrom": 1.462015065902468e-05,
+          "mobile_heavy_max_motion_angstrom": 9.752955732284579e-06,
+          "movement": {
+            "mobile_max_motion_angstrom": 1.462015065902468e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    },
+    "2CI2-VAL32-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "common_audit": {
+            "accepted": true,
+            "global_stereo_findings": [],
+            "observed_preserved": true,
+            "raw": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.425230167,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42560588310391223
+            },
+            "rdkit_target_cip": {
+              "CA": "S"
+            },
+            "rounded": {
+              "accepted": true,
+              "ca_volume_angstrom3": 2.425230167,
+              "findings": [],
+              "minimum_nonbonded_clearance_angstrom": -0.42558762105857273
+            }
+          },
+          "final_raw_score": 171.62062378385357,
+          "index": 1,
+          "initial_score": 171.62083898561207,
+          "mobile_h_max_motion_angstrom": 7.786993203529887e-05,
+          "mobile_heavy_max_motion_angstrom": 5.202885087948429e-05,
+          "movement": {
+            "mobile_max_motion_angstrom": 7.786993203529887e-05,
+            "protected_max_motion_angstrom": 0.0
+          },
+          "rounded_heavy_output_equals_start": true,
+          "status": "audited"
+        }
+      ],
+      "group": "old_eleven",
+      "selected_index": 1,
+      "selection_status": "selected"
+    }
+  },
+  "inherited_nonexecutions": [
+    {
+      "group": "new_inputs_eleven",
+      "id": "1BPI-THR11-CB-OG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1BPI-THR32-CB-OG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1BPI-VAL34-CB-CG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1CSP-VAL6-CB-CG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1CSP-VAL20-CB-CG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1CSP-THR40-CB-OG1-CG2"
+    },
+    {
+      "group": "new_inputs_eleven",
+      "id": "1CSP-THR64-CB-OG1-CG2"
+    }
+  ],
+  "native_coordinates_read": false,
+  "plan_sha256": "060dc92eebe8d0f265df8d8f7603776469da59f74bab7f6ba56f86febfcb00ed",
+  "run_sha256": "3186731652456112f50c0f0e9cea2613344be8707b4257aa608c9a51bcda7439",
+  "schema": "dvbfixer.generated-chi-relax-selection.v1",
+  "score_semantics": "raw relaxed state with target sidechain H; NOT fresh rounded-heavy import scoring; no claim equivalent to old fixed-heavy score protocol",
+  "table_data_included": false
+}

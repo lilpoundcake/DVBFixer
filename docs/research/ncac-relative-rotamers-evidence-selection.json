@@ -1,0 +1,306 @@
+{
+  "cases": {
+    "2CI2-THR22-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": 175.5193142106777
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": true
+    },
+    "2CI2-VAL28-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 175.49181805639708
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": true
+    },
+    "2CI2-VAL32-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": false
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": false
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 171.45172373194882
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 1,
+      "ncac_previously_executed": false
+    },
+    "2CI2-THR55-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": false
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": 175.19749124701943
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 2,
+      "ncac_previously_executed": true
+    },
+    "1R69-VAL6-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": -19.558845440937997
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    },
+    "1R69-VAL24-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": -19.70717192013336
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    },
+    "1R69-THR26-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 2,
+        "total_score": -16.730741693269973
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    },
+    "1R69-THR27-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": -19.346925148476256
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": true
+    },
+    "1CTF-VAL56-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": -52.48313917621961
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    },
+    "1CTF-VAL66-CB-CG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 0,
+        "total_score": -54.72833262889428
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    },
+    "1CTF-THR76-CB-OG1-CG2": {
+      "candidates": [
+        {
+          "index": 0,
+          "relative_angle_degrees": 0.0,
+          "common_accepted": true
+        },
+        {
+          "index": 1,
+          "relative_angle_degrees": 120.0,
+          "common_accepted": true
+        },
+        {
+          "index": 2,
+          "relative_angle_degrees": -120.0,
+          "common_accepted": true
+        }
+      ],
+      "selection": {
+        "status": "selected",
+        "selected_index": 1,
+        "total_score": -57.52124252286596
+      },
+      "context_coordinates_identical": true,
+      "feasible_count": 3,
+      "ncac_previously_executed": false
+    }
+  },
+  "native_coordinates_read": false,
+  "score_plan_sha256": "2b9834b86db65dc91a091e40d0eceefe06ebee79ead62d7c09ac946491439330",
+  "run_sha256": "931157afe487f6d41e65292090d5e9ddb30448e06cab67e6be3a3fa748a10402",
+  "validated_snapshots": 30,
+  "audit_script_sha256": "26e79d13e8caf88b7f16d4112c1ef54447a5fd0d99796a4f7fe1cade5a4474f9"
+}

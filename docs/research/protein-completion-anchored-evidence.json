@@ -1,0 +1,1088 @@
+{
+  "schema": "dvbfixer.private-observed-branch-controls.v1",
+  "revision": "canonical-val-thr-observed-branch-anchor-v1",
+  "policy": "observed-partner-two-angle-closure-v1; no empirical rotamer probabilities",
+  "cases": [
+    {
+      "id": "1UBQ-VAL5-CG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "5",
+      "missing": "CG1"
+    },
+    {
+      "id": "1UBQ-VAL5-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "5",
+      "missing": "CG2"
+    },
+    {
+      "id": "1UBQ-VAL26-CG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "26",
+      "missing": "CG1"
+    },
+    {
+      "id": "1UBQ-VAL26-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "VAL",
+      "number": "26",
+      "missing": "CG2"
+    },
+    {
+      "id": "1UBQ-THR7-OG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "7",
+      "missing": "OG1"
+    },
+    {
+      "id": "1UBQ-THR7-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "7",
+      "missing": "CG2"
+    },
+    {
+      "id": "1UBQ-THR55-OG1",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "55",
+      "missing": "OG1"
+    },
+    {
+      "id": "1UBQ-THR55-CG2",
+      "fixture": "1UBQ",
+      "stop": 72,
+      "residue_name": "THR",
+      "number": "55",
+      "missing": "CG2"
+    },
+    {
+      "id": "1FR2-VAL19-CG1",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "VAL",
+      "number": "19",
+      "missing": "CG1"
+    },
+    {
+      "id": "1FR2-VAL19-CG2",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "VAL",
+      "number": "19",
+      "missing": "CG2"
+    },
+    {
+      "id": "1FR2-THR11-OG1",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "THR",
+      "number": "11",
+      "missing": "OG1"
+    },
+    {
+      "id": "1FR2-THR11-CG2",
+      "fixture": "1FR2",
+      "stop": null,
+      "residue_name": "THR",
+      "number": "11",
+      "missing": "CG2"
+    },
+    {
+      "id": "1A3N-VAL1-CG1",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "VAL",
+      "number": "1",
+      "missing": "CG1"
+    },
+    {
+      "id": "1A3N-VAL1-CG2",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "VAL",
+      "number": "1",
+      "missing": "CG2"
+    },
+    {
+      "id": "1A3N-THR8-OG1",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "THR",
+      "number": "8",
+      "missing": "OG1"
+    },
+    {
+      "id": "1A3N-THR8-CG2",
+      "fixture": "1A3N",
+      "stop": 59,
+      "residue_name": "THR",
+      "number": "8",
+      "missing": "CG2"
+    }
+  ],
+  "fixture_sha256": {
+    "1UBQ": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+    "1FR2": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+    "1A3N": "a4db006269e9b6f9db0eb5447a5d40e59d67857484a9294b9ca71d642ffe9861"
+  },
+  "projection": "Unmodified ATOM chain A within declared bounds minus one atom; bare TER/END. Not an intact deposited complex.",
+  "source_writer_enabled": false,
+  "production_enabled": false,
+  "empirical_statistics_loaded": false,
+  "retained_directory": "tmp/pdbfixer-research/anchored-branch-01",
+  "python": "3.12.13",
+  "rdkit": "2025.09.6",
+  "source_hashes": {
+    "scripts/probe_anchored_branch.py": "806fd1d8d41697079eb1620e6edc59cd17e09f10d8e7c2523f339e6eda11d275",
+    "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/anchored_branch.py": "7e84e3c2d8de929d1e901ea58acd5485ee21c4dc29e5973d8623fd477a58b5d7",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+    "src/dvbfixer/protein_completion/branched_source.py": "5884b48d375db1e0608c5e8cf2de39831ef877ef2b5cb78f981d58d2eb15b3fd",
+    "src/dvbfixer/protein_completion/cohort.py": "089f211173a12b1c02716b2e4be6e499294649f526b99e65c04718794704bd57",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/evidence.py": "f38b40e620f55444b9a81a348ffebc94274bab2eb3386ec68992989cb25cecb4",
+    "src/dvbfixer/protein_completion/geometry.py": "dced3f6be448ed707660331fa2c60a3f6854ca8390412f7754a20ce61d191f3a",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+    "src/dvbfixer/protein_completion/source.py": "62363d59634870f180383436d3892a672b1db52a7d2527e9ad5d759f05863db0",
+    "src/dvbfixer/protein_completion/validation.py": "9d9883edd63ea01ec2edbd478262a9dd87827269786de4ec0a03ec9baf250e9f"
+  },
+  "results": {
+    "1UBQ-VAL5-CG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "e1a6a1bb092cfc772648b69a8be6c7dbb3140f296d6180c7cdabc8c0c42edcfb",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "e1a6a1bb092cfc772648b69a8be6c7dbb3140f296d6180c7cdabc8c0c42edcfb",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  30.225078187595958,
+                  33.37978523308146,
+                  14.320078695850029
+                ]
+              }
+            ],
+            "torsion_degrees": -179.46003522413662,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.4222667040196906
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.02566669875096972
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "cbd920bbaac49f83b3d1436bf21919a4107d8cd014ec71c4d181fef4ab16a187",
+        "audit.json": "21dcc5efc9d3f92d02381627976eef1a439a28afec271c7cca1e29e945396965",
+        "input.pdb": "6b630875dfae5b5b8f2eefbb6fe4ca9dc12d3af9d29e9d534c173b87a1a2ab0b",
+        "request.json": "ddd77676957bbbf0edea95a2dd4b735e5d39512d24834aa955d04ddb741dd570"
+      }
+    },
+    "1UBQ-VAL5-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "31518da7f65e41b9936cc0b5263c7a34afa314c4330dea725714359ca6965810",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "31518da7f65e41b9936cc0b5263c7a34afa314c4330dea725714359ca6965810",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  29.941003501942863,
+                  31.85128317901887,
+                  12.375718863323787
+                ]
+              }
+            ],
+            "torsion_degrees": -179.78512750891585,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.2769994278732004
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.0315422775384378
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "6a36e76bf97b7b214f2c7c6dc3859f58aaf1687858a5294ebac2cca6f0299afe",
+        "audit.json": "851494a511a69c65cecfb018acfc1807cfbd8be64b116c2ee59616649b6b6da0",
+        "input.pdb": "36aefbe39c893287f2133ce4a8493587599198926f8f22f696027eccde45cf6f",
+        "request.json": "909d00a499d7641d05196a5cbde475c2a480b4aa9a3d5996d42e9c603e416519"
+      }
+    },
+    "1UBQ-VAL26-CG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "30b4a506efb351904a7f3ff88b7266c8f2dbae721fff13b7d4d983bd3f10ed1b",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "30b4a506efb351904a7f3ff88b7266c8f2dbae721fff13b7d4d983bd3f10ed1b",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.661834293534145,
+                  26.73038977757581,
+                  13.256824286661304
+                ]
+              }
+            ],
+            "torsion_degrees": 171.77403899614438,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.5181786722127413
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.08995866308790966
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "8983ed2a82a943a19409bb21d202c75560ffbd21d22979ac651a98cce6ddfd5f",
+        "audit.json": "ca577ab27ca8824bcf93c118c6506db967766083f672c86aff37ec63f75a87d0",
+        "input.pdb": "f252e91fd963580e24376321db69c291b4c0618308a68a71be6c08fc82b6fd24",
+        "request.json": "41d9281ece6e59d4408ca3ed16949a65319c9122e2cfecb3f4224a5d124f2b1f"
+      }
+    },
+    "1UBQ-VAL26-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "f048f6e4bf159ca799e4755ad42af4422a1825476f3e6bb89b5e562c7346e136",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f048f6e4bf159ca799e4755ad42af4422a1825476f3e6bb89b5e562c7346e136",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.185552008212934,
+                  24.495907331989358,
+                  12.365511812608682
+                ]
+              }
+            ],
+            "torsion_degrees": 168.22821859969758,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.19930336722423192
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.138442990319793
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "95e6bede2acce0e58c9c0ac74f3a566588e6c80303644a626e51fc20741454ac",
+        "audit.json": "4c4623c1e94ab31cf5ec6fbb66ffd448d76315f829e3a8b928078ad3193d7861",
+        "input.pdb": "dc04fc33a4ad3f3277542d5a33cb0640241a92abee86d83fc7af9114d263b660",
+        "request.json": "48208e449b258c66107ec2bc981e4a530071cf26c357cc715f8931858c8bc367"
+      }
+    },
+    "1UBQ-THR7-OG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "f68a2ed4043c9a215da7966e76d372d7e9e22aa453d1d3856f6ba8f724e8a3d4",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f68a2ed4043c9a215da7966e76d372d7e9e22aa453d1d3856f6ba8f724e8a3d4",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  31.939865681312238,
+                  40.24780509503069,
+                  15.934432795355763
+                ]
+              }
+            ],
+            "torsion_degrees": 82.45380213325177,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.4640268494881161
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.23115889172117415
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "7cdb055a5d1fa6ffa4c06d1bfabe49074dc052c763987d67750bc164caf5c50d",
+        "audit.json": "a33ff9283f203025d940f581a4d25a8c96c75cb284a7133aa324c9f2bca39c8e",
+        "input.pdb": "ae692790808a263c84fd1ae75ce37ca131c4d1d1e2050c847040d29c7beb4a18",
+        "request.json": "dbca7a45f8be387593d7adc962192261182d1ea6d4a27795dace09aa0f34da5c"
+      }
+    },
+    "1UBQ-THR7-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "f0942af323244b5d7cde19cf377d4292c2d075b863229dbb19a696877c607710",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f0942af323244b5d7cde19cf377d4292c2d075b863229dbb19a696877c607710",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.14551466258619,
+                  37.9469177682627,
+                  15.154050791952795
+                ]
+              }
+            ],
+            "torsion_degrees": 76.71377972568384,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.47252582681297417
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.1178210214464354
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "3f5fc022ae365275aaa26ab08fce82c97918937672a1b63d03818cb2c5fbbab5",
+        "audit.json": "83e6ed13399ee0500d01ff9c8f297d7422b61b650fdbb35e4785975b929a3fd9",
+        "input.pdb": "26a712cc14225228e75632ead129937339c3c37d84dd2f17f773a6286df6dac8",
+        "request.json": "c5b6e6f1ec5e1a078a3e3b2e285a3c0a0007d35690b8abdebdd1922d29038496"
+      }
+    },
+    "1UBQ-THR55-OG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "bc590a876ef3f37cba332dfd969221903dce63aa5fbfd2df8a9c4305ff6787e3",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "bc590a876ef3f37cba332dfd969221903dce63aa5fbfd2df8a9c4305ff6787e3",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  25.94945771213561,
+                  16.60275466324412,
+                  13.671238086822383
+                ]
+              }
+            ],
+            "torsion_degrees": 65.72013539190058,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.38627408345714964
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.24313573971020408
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "23a6e5fd6812880dc9d79d0cb8f6b6d66ae1164d09064f7d9437204fb36bee6e",
+        "audit.json": "a7b8fa4ddfcc8e71f3384bf913563a3e3761bddedc0d04090248314191fc218a",
+        "input.pdb": "64ecf82ec7bb40589f093d9b2f083a2a8e3c5658ab0b340134b89ba7876d4209",
+        "request.json": "b79a95e54ff11eca26657aa763491f1ee7b029c75f24bc60dc722e5c6bfa27a0"
+      }
+    },
+    "1UBQ-THR55-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "75c37718ee605643b7e4ad6a290edaea11258bb3c64247b8685647df3ad963ab",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "75c37718ee605643b7e4ad6a290edaea11258bb3c64247b8685647df3ad963ab",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  28.286823797702567,
+                  15.90932634209379,
+                  13.762207360859732
+                ]
+              }
+            ],
+            "torsion_degrees": 59.8457516996471,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.32174992285293813
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.21526305286744232
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "dcecb87c37f78c63eaaad0af0e92d43286d54c86d4b7b3267b13e05d86c2dc65",
+        "audit.json": "8dd4e4e18f52ad0b4c0dd0678775db5ca2df1154d9b66ed0716c984b04273d06",
+        "input.pdb": "59aa5fd8ec542f5e3fda91e3766baf37ac925b7156aceed8228ffa89f3a7bbc7",
+        "request.json": "c6762ff3a3064cb6c4719982bd544c4586f204b1fa098b14aecd1a46011b0df3"
+      }
+    },
+    "1FR2-VAL19-CG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "4f3643472d80434a867cb0b94dc282e30d89086a7bc7428aa3b812e658cd18cd",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "4f3643472d80434a867cb0b94dc282e30d89086a7bc7428aa3b812e658cd18cd",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "19",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  -4.497280543612862,
+                  -7.452935415858453,
+                  51.83389853725292
+                ]
+              }
+            ],
+            "torsion_degrees": 174.33553146252427,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.5415121278072315
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.06818579832776782
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "d7ba8467a04cf8b77c63bc7ed3ef3b316c8b452d979048c64dca13e2a8bae1bc",
+        "audit.json": "cb54471ecf008905df713bd73c92bc017ff08d08f70a5e933455d636a6fb8020",
+        "input.pdb": "653b66959beb6f52d633811563307e7a8fc95e7e338886f5a5342e8421a68bc2",
+        "request.json": "e2a4f4007accd641f7361d0ce9a9a58c8419c351d4f1ac6dfd655859481b5b5b"
+      }
+    },
+    "1FR2-VAL19-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "69f6005236a4732e27a687a5acc62dc68264c30c6f7465091ae78aa85f7c7589",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "69f6005236a4732e27a687a5acc62dc68264c30c6f7465091ae78aa85f7c7589",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "19",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  -3.2823050508287883,
+                  -7.04010039295265,
+                  53.95217122182364
+                ]
+              }
+            ],
+            "torsion_degrees": 171.91006462211146,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4981090899999985,
+            "minimum_nonbonded_clearance_angstrom": -0.26183455979265746
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.037656171254707244
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "006d134c58474394d5985e7dff30f9a7c00bb6abda6b221830ba7bbca941ae04",
+        "audit.json": "eb056de1d22c8f6cc72273c39886a10a9253082efe0d9842c2b34dad613842e9",
+        "input.pdb": "989973b50eb275e6a6f485cea589caa0c552a3ce3be4dafcd42f86c74d525b1c",
+        "request.json": "fed4614b5b472137080edb59979847632daa3a90b5e7fb9b8c86c55f7461d0cc"
+      }
+    },
+    "1FR2-THR11-OG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "49e622a97dd7ec475799074fcf811a530dadc7306164260fea5de27a2a522e6b",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "49e622a97dd7ec475799074fcf811a530dadc7306164260fea5de27a2a522e6b",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "11",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  -7.557654739646955,
+                  -7.249506378221343,
+                  64.73687750768357
+                ]
+              }
+            ],
+            "torsion_degrees": 64.63736356883143,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.43214096561672677
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.011042490640989664
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "037c35a9001278b222a2ab02e0d692578018149b098d161da5b6cae40f4501f4",
+        "audit.json": "1fa0b90198f95ea2317a135d156b800f6996785f2e0a7356c4bc5fd329f35974",
+        "input.pdb": "e52b3906b223c54ee5f9df864cdf018ac3ebe442000ce6be5ac67b2df9fc3d14",
+        "request.json": "39a9f1e5ae7c10ae8e9e7cc8f0ded442eeaa4cc63ca699d5ac2c50ab55ebf0b7"
+      }
+    },
+    "1FR2-THR11-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "43a5be972b8959028085ef82dc15085ad62eaa8b22da22595fabee7da96e0f8e",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "43a5be972b8959028085ef82dc15085ad62eaa8b22da22595fabee7da96e0f8e",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "11",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  -6.841267758340077,
+                  -7.587426089888073,
+                  67.02592199025847
+                ]
+              }
+            ],
+            "torsion_degrees": 64.21015787799878,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.676682298000016,
+            "minimum_nonbonded_clearance_angstrom": -0.35963764988867286
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.024245288088010308
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "2e0e294726039b69cf00bc0ec90ac59fcbc0ac79bf1afc21e225f96880df8cb5",
+        "audit.json": "48c8fed930f18a03a60456773bdbd90a725c84d3a533cd1a8782f4e2681febb5",
+        "input.pdb": "52bb165e2dec44f83ad72f6bd89857d46231eecbb4bd8d0d5dd9b2189abe140e",
+        "request.json": "4fb759b16f15ca946cb2ae6af2712251f96561bd353036de8e7cb8806c4465e3"
+      }
+    },
+    "1A3N-VAL1-CG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "f7e6599cb0eb35d474fdf6bff71cd64f63851146aa357560c45728e20ef64bc5",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f7e6599cb0eb35d474fdf6bff71cd64f63851146aa357560c45728e20ef64bc5",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "1",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  10.349630296036985,
+                  23.26743843297719,
+                  6.78502951786486
+                ]
+              }
+            ],
+            "torsion_degrees": -168.13479545302073,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.36133250384380533
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.0993132627564408
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "2dd9013cd0fa480027464aee12025edb7e63cafc14eceb9ee8d5ba0cfee45da3",
+        "audit.json": "5d23b32dd178ce890ca0fe650b5840a2d7d76c2b0dbfafabeecc0a358a7fc1db",
+        "input.pdb": "0b4fb78d358bb0341e43538027bd6b96cf75dee62ee4688fb309c8b1f42d30e4",
+        "request.json": "a57aa1851c3bbc5e19d3a401c4a1008f95a582e8989c440b5ce1faa60c1a0b92"
+      }
+    },
+    "1A3N-VAL1-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "6ffc7061f8a480c4fcdc77d24cfe2774609b01ab28b4a6c123d4b2a0501acdb6",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "6ffc7061f8a480c4fcdc77d24cfe2774609b01ab28b4a6c123d4b2a0501acdb6",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "1",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  12.088454062211934,
+                  21.943616705030195,
+                  5.607984295062365
+                ]
+              }
+            ],
+            "torsion_degrees": -171.02949575570705,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7328821540000003,
+            "minimum_nonbonded_clearance_angstrom": -0.41449401591479607
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.06854630619865862
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "0d7fdff47ab17efdfb041eb46f09df2989ab45906e42ce4679f811d50080f44d",
+        "audit.json": "5504e9dcb444bc49b3486d46d485ab8fe01fdce475d52e0e23e98f08583e352c",
+        "input.pdb": "e4400318853aa34511644632252ef33d1ed8183321778841c3134d2ff735fab0",
+        "request.json": "ce4b24d111e50a29bfe2e8688cb7b403bacd5ba1b67db7051c844927a71bbdc9"
+      }
+    },
+    "1A3N-THR8-OG1": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "f8b9cca0a376ddb057efb6ffb9ed2c39592daa2de5f25282426a6928a0b68e2f",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "f8b9cca0a376ddb057efb6ffb9ed2c39592daa2de5f25282426a6928a0b68e2f",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "8",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  -2.525547682792821,
+                  26.134783264783888,
+                  7.050621655706147
+                ]
+              }
+            ],
+            "torsion_degrees": -57.415309656488105,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.218743845702978
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.08064474003327783
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "4c96a527de119464a1d88e2994dd0bc7b1fb15deb7b2ce24f43cf65e8a5fff59",
+        "audit.json": "daba7050159096f663faeb22d0e228e6b3229ff6e05efee77eb97d741465e8ea",
+        "input.pdb": "7abc6ac8b0be54f41524f11537c83509bedcfbf6cbc43d6a65947c2537a63866",
+        "request.json": "f8849e18dd77b8949c7a013f8c1b6f6ca8db86dcc77e76f04bb876a192e1be83"
+      }
+    },
+    "1A3N-THR8-CG2": {
+      "status": "completed",
+      "reason": "observed_anchor_geometry_control",
+      "request_digest": "a6b1eda72fecfeee388ab332c58f0dcdd0bc666f6df4375a5f30f46702dd6c2f",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "a6b1eda72fecfeee388ab332c58f0dcdd0bc666f6df4375a5f30f46702dd6c2f",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "8",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  -4.710177088528441,
+                  25.18729926853099,
+                  7.5860141646895105
+                ]
+              }
+            ],
+            "torsion_degrees": -60.33694177288991,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6863233189999995,
+            "minimum_nonbonded_clearance_angstrom": -0.48374584062327486
+          }
+        }
+      ],
+      "selected_index": 0,
+      "independent_checks": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "heldout_exact_name_error_not_used_for_selection": 0.10439335319063939
+        }
+      ],
+      "observations_digest_unchanged": true,
+      "retained_files": {
+        "attempts.json": "368489d705e7a549e8b38373c663be8c689e138ee399b6f6a4d59d72daddd31e",
+        "audit.json": "98c27cae94055fd52b26f3dd8f1cab8e824b678b57bf62bfd590fddc46279a58",
+        "input.pdb": "5700a0a009e64196e4fdd937e30bcd4d95b89f96d0f4d106b09c98e53726a147",
+        "request.json": "85943f0663d0c6beab5cac4379bfb9ad211dc3b6409f91ec1a88b588c0ef48f3"
+      }
+    }
+  },
+  "raw_record_sha256": "a13a10b717504ca38112a2bd0e1c17e28c2938c2fb98b915e4403191c506832a"
+}

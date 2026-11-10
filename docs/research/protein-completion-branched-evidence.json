@@ -1,0 +1,2188 @@
+{
+  "schema": "dvbfixer.private-branched-controls.v1",
+  "source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+  "cases": [
+    [
+      5,
+      "VAL",
+      [
+        "CG1",
+        "CG2"
+      ]
+    ],
+    [
+      5,
+      "VAL",
+      [
+        "CB",
+        "CG1",
+        "CG2"
+      ]
+    ],
+    [
+      26,
+      "VAL",
+      [
+        "CG1",
+        "CG2"
+      ]
+    ],
+    [
+      26,
+      "VAL",
+      [
+        "CB",
+        "CG1",
+        "CG2"
+      ]
+    ],
+    [
+      7,
+      "THR",
+      [
+        "OG1",
+        "CG2"
+      ]
+    ],
+    [
+      7,
+      "THR",
+      [
+        "CB",
+        "OG1",
+        "CG2"
+      ]
+    ],
+    [
+      55,
+      "THR",
+      [
+        "OG1",
+        "CG2"
+      ]
+    ],
+    [
+      55,
+      "THR",
+      [
+        "CB",
+        "OG1",
+        "CG2"
+      ]
+    ]
+  ],
+  "source_scope": "Explicit 1UBQ protein-only A1--72 projection",
+  "admitted_masks": "paired distal branches, optionally including CB; no retained distal branch closure",
+  "sampling": "three-staggered-chi control, no empirical statistics",
+  "source_cohort_publication_capability_enabled": false,
+  "raw_record_sha256": "b4bc481c9bbb5f9b9ebce415928b0ffd18434e3ebf37173f2f5322c69c5f8bca",
+  "retained_directory": "tmp/pdbfixer-research/branched-controls-01",
+  "results": {
+    "VAL5-CG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "d1c67202f584756336fe118b11e3e8517a927d1c791863343ee8df5574105bab",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "d1c67202f584756336fe118b11e3e8517a927d1c791863343ee8df5574105bab",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  29.942438352706393,
+                  31.852428084835385,
+                  12.371839029343814
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.06763691549142,
+                  34.061489770735434,
+                  12.061396341887775
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.6463579614268957
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "d1c67202f584756336fe118b11e3e8517a927d1c791863343ee8df5574105bab",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.06763691549142,
+                  34.061489770735434,
+                  12.061396341887775
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  30.2311922437861,
+                  33.391817528990615,
+                  14.31845181302982
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.6463579614268957
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "d1c67202f584756336fe118b11e3e8517a927d1c791863343ee8df5574105bab",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  30.2311922437861,
+                  33.391817528990615,
+                  14.31845181302982
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  29.942438352706393,
+                  31.852428084835385,
+                  12.371839029343814
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.627601837999991,
+            "minimum_nonbonded_clearance_angstrom": -0.42816838130417123
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.768787064713126,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7687870647131287,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7687870647131216,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        }
+      ],
+      "selected_index": 2,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.494362338281471,
+          "maximum_error_angstrom": 2.5023731945346626
+        },
+        {
+          "heldout_rmsd_angstrom": 2.5065019049779966,
+          "maximum_error_angstrom": 2.5212026957226623
+        },
+        {
+          "heldout_rmsd_angstrom": 0.026787525808650552,
+          "maximum_error_angstrom": 0.028527150036853733
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.026787525808650552,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "VAL5-CB-CG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "9816d38450006067b9831294370fb61f040e47a54ac8c6c1abd051cd020a2060",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "9816d38450006067b9831294370fb61f040e47a54ac8c6c1abd051cd020a2060",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  29.979175720204996,
+                  33.33093096254229,
+                  12.727716589811552
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  29.9563506387623,
+                  31.8795013481523,
+                  12.244259156184906
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.035806324833317,
+                  34.11275289559373,
+                  11.944654503918933
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.707239557472517,
+            "minimum_nonbonded_clearance_angstrom": -0.6914475747710409
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "9816d38450006067b9831294370fb61f040e47a54ac8c6c1abd051cd020a2060",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  29.979175720204996,
+                  33.33093096254229,
+                  12.727716589811552
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.035806324833317,
+                  34.11275289559373,
+                  11.944654503918933
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  30.319545917224367,
+                  33.36646960642313,
+                  14.218952699142367
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='5', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.707239557472517,
+            "minimum_nonbonded_clearance_angstrom": -0.6914475747710409
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "9816d38450006067b9831294370fb61f040e47a54ac8c6c1abd051cd020a2060",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  29.979175720204996,
+                  33.33093096254229,
+                  12.727716589811552
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  30.319545917224367,
+                  33.36646960642313,
+                  14.218952699142367
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "5",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  29.9563506387623,
+                  31.8795013481523,
+                  12.244259156184906
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.707239557472517,
+            "minimum_nonbonded_clearance_angstrom": -0.40762795362506177
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7570992600978332,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.757099260097838,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.757099260097831,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        }
+      ],
+      "selected_index": 2,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.090712760082279,
+          "maximum_error_angstrom": 2.5692576373939966
+        },
+        {
+          "heldout_rmsd_angstrom": 2.059489757317978,
+          "maximum_error_angstrom": 2.6006580644689596
+        },
+        {
+          "heldout_rmsd_angstrom": 0.11691108816740799,
+          "maximum_error_angstrom": 0.140617147246506
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.11691108816740799,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "VAL26-CG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "48b38bc7ba4129c66aa1308e4acf46ab567b7eb6a6a6a4586ab908283d3659c7",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "48b38bc7ba4129c66aa1308e4acf46ab567b7eb6a6a6a4586ab908283d3659c7",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.21154048082967,
+                  24.27173574431254,
+                  12.557606305335986
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.890401057600293,
+                  24.97248250021795,
+                  14.857715498699358
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='23', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.7998031944855903
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "48b38bc7ba4129c66aa1308e4acf46ab567b7eb6a6a6a4586ab908283d3659c7",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.890401057600293,
+                  24.97248250021795,
+                  14.857715498699358
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.60613486288194,
+                  26.686664834756748,
+                  13.062396124745113
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='23', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.7998031944855903
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "48b38bc7ba4129c66aa1308e4acf46ab567b7eb6a6a6a4586ab908283d3659c7",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.60613486288194,
+                  26.686664834756748,
+                  13.062396124745113
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.21154048082967,
+                  24.27173574431254,
+                  12.557606305335986
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.4506163119999993,
+            "minimum_nonbonded_clearance_angstrom": -0.438885061097936
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7591154960378157,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.759115496037813,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.759115496037814,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        }
+      ],
+      "selected_index": 2,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.5973549058272023,
+          "maximum_error_angstrom": 2.6410849395636755
+        },
+        {
+          "heldout_rmsd_angstrom": 2.3641249476933894,
+          "maximum_error_angstrom": 2.383729061786326
+        },
+        {
+          "heldout_rmsd_angstrom": 0.24540705247113978,
+          "maximum_error_angstrom": 0.2968618861724559
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.24540705247113978,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "VAL26-CB-CG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "a88ffb59afd0e701c35511873c820d850daf6163c9637d9d1e08e68442a6e800",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "a88ffb59afd0e701c35511873c820d850daf6163c9637d9d1e08e68442a6e800",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  32.09013966676327,
+                  25.265689956887197,
+                  13.458205952917488
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.189649975683263,
+                  24.267098623290778,
+                  12.728251389451543
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.020683642384576,
+                  25.008412579562304,
+                  14.964819444093752
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='23', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.5732630859427528,
+            "minimum_nonbonded_clearance_angstrom": -0.9168068445991591
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "a88ffb59afd0e701c35511873c820d850daf6163c9637d9d1e08e68442a6e800",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  32.09013966676327,
+                  25.265689956887197,
+                  13.458205952917488
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  32.020683642384576,
+                  25.008412579562304,
+                  14.964819444093752
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.617225048985247,
+                  26.690248624695705,
+                  13.161752978124658
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='23', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.5732630859427528,
+            "minimum_nonbonded_clearance_angstrom": -0.9168068445991591
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "a88ffb59afd0e701c35511873c820d850daf6163c9637d9d1e08e68442a6e800",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  32.09013966676327,
+                  25.265689956887197,
+                  13.458205952917488
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG1"
+                },
+                "element": "C",
+                "xyz": [
+                  31.617225048985247,
+                  26.690248624695705,
+                  13.161752978124658
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "26",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.189649975683263,
+                  24.267098623290778,
+                  12.728251389451543
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5732630859427528,
+            "minimum_nonbonded_clearance_angstrom": -0.4681026856247832
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.757099260097836,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7570992600978372,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S"
+          },
+          "named_beta_volume_angstrom3": -2.7570992600978346,
+          "branch_policy": {
+            "first": "CG1",
+            "first_length": 1.53,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": 120.0,
+            "expected_named_volume_sign": -1
+          }
+        }
+      ],
+      "selected_index": 2,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.166385070358542,
+          "maximum_error_angstrom": 2.6997982138644208
+        },
+        {
+          "heldout_rmsd_angstrom": 1.968181256535223,
+          "maximum_error_angstrom": 2.415535201138097
+        },
+        {
+          "heldout_rmsd_angstrom": 0.21485553179579966,
+          "maximum_error_angstrom": 0.29703605020817725
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.21485553179579966,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "THR7-OG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "67d786871ff17d1131c48bdc789925f7a93b0998839d39b666413408402ab462",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "67d786871ff17d1131c48bdc789925f7a93b0998839d39b666413408402ab462",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.54723973447355,
+                  39.09700589448651,
+                  17.582814378690312
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  32.252059316261075,
+                  37.73518895798584,
+                  15.607283272338442
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.43930085271973196
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "67d786871ff17d1131c48bdc789925f7a93b0998839d39b666413408402ab462",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.28758793977584,
+                  37.65520217183101,
+                  15.55891147320127
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  31.860425030973403,
+                  40.03271620401994,
+                  15.462170188900602
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.2832262957235159
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "67d786871ff17d1131c48bdc789925f7a93b0998839d39b666413408402ab462",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.868566641530986,
+                  40.113395658846514,
+                  15.403650621690854
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  32.494740405422995,
+                  39.08275714321288,
+                  17.498904942174605
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.6561832549999886,
+            "minimum_nonbonded_clearance_angstrom": -0.4305752355875867
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.660269946896604,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.660269946896601,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.6602699468966073,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        }
+      ],
+      "selected_index": 1,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.6309252869717024,
+          "maximum_error_angstrom": 2.678012800625508
+        },
+        {
+          "heldout_rmsd_angstrom": 0.4723151776282806,
+          "maximum_error_angstrom": 0.4997053956341008
+        },
+        {
+          "heldout_rmsd_angstrom": 2.1867901707322464,
+          "maximum_error_angstrom": 2.192208732665583
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.4723151776282806,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "THR7-CB-OG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "971dbec65c4d50b78b5483c2d22bbb3116f231c4bcef95dcfe1483ec77ad8b1a",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "971dbec65c4d50b78b5483c2d22bbb3116f231c4bcef95dcfe1483ec77ad8b1a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  31.691636942796922,
+                  38.889996180421264,
+                  16.30301676239606
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.50028904405204,
+                  39.1083292414627,
+                  17.5833731399691
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  32.20789464769413,
+                  37.75638627008218,
+                  15.60065890964913
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5986058206639693,
+            "minimum_nonbonded_clearance_angstrom": -0.48370787311527197
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "971dbec65c4d50b78b5483c2d22bbb3116f231c4bcef95dcfe1483ec77ad8b1a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  31.691636942796922,
+                  38.889996180421264,
+                  16.30301676239606
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  32.24399658509953,
+                  37.677112849778744,
+                  15.551542975890605
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  31.790358534242706,
+                  40.05039580364477,
+                  15.473181380042929
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5986058206639693,
+            "minimum_nonbonded_clearance_angstrom": -0.3312531568563961
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "971dbec65c4d50b78b5483c2d22bbb3116f231c4bcef95dcfe1483ec77ad8b1a",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  31.691636942796922,
+                  38.889996180421264,
+                  16.30301676239606
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  31.797262142036118,
+                  40.13154263044361,
+                  15.415150933724528
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "7",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  32.44743596553863,
+                  39.09405910675411,
+                  17.499689716598315
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.5986058206639693,
+            "minimum_nonbonded_clearance_angstrom": -0.46088588880457393
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.576896694078352,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.5768966940783664,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.576896694078365,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        }
+      ],
+      "selected_index": 1,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.1372041775671193,
+          "maximum_error_angstrom": 2.6786851460348586
+        },
+        {
+          "heldout_rmsd_angstrom": 0.36594728473410915,
+          "maximum_error_angstrom": 0.4798616198993635
+        },
+        {
+          "heldout_rmsd_angstrom": 1.7905578628711296,
+          "maximum_error_angstrom": 2.2249329500273776
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.36594728473410915,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "THR55-OG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "093c07d1e6739f7ef30e64d97c847a8540bc4b78ba341a51315962213c51183f",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "093c07d1e6739f7ef30e64d97c847a8540bc4b78ba341a51315962213c51183f",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  27.37591523927758,
+                  17.622529153152517,
+                  12.114234795221964
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  28.278207948064118,
+                  16.024435346278374,
+                  13.687881531977439
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -1.059322247337178
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "093c07d1e6739f7ef30e64d97c847a8540bc4b78ba341a51315962213c51183f",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  28.346684028348324,
+                  15.95236788797616,
+                  13.698712408339498
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  25.995597305243614,
+                  16.511955607787584,
+                  13.75915084211304
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.3301239943564924
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "093c07d1e6739f7ef30e64d97c847a8540bc4b78ba341a51315962213c51183f",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  25.904450263652258,
+                  16.47398047546504,
+                  13.77496558631675
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  27.370888099455517,
+                  17.58543574444974,
+                  12.206964547168242
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.77214563700001,
+            "minimum_nonbonded_clearance_angstrom": -0.7943018842090641
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.625098575404802,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.6250985754048046,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.6250985754048015,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        }
+      ],
+      "selected_index": 1,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 2.4340247132182675,
+          "maximum_error_angstrom": 2.4356362750773215
+        },
+        {
+          "heldout_rmsd_angstrom": 0.19789284238748348,
+          "maximum_error_angstrom": 0.19964924146482826
+        },
+        {
+          "heldout_rmsd_angstrom": 2.429603753874777,
+          "maximum_error_angstrom": 2.439400414554212
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.19789284238748348,
+      "max_observed_movement_angstrom": 0.0
+    },
+    "THR55-CB-OG1-CG2": {
+      "status": "completed",
+      "reason": "geometry_candidate_not_native_conformation",
+      "request_digest": "1abda1f79105f02e843514ea1dde0e39aa9c021e56c7b62055401203fe91fedd",
+      "revision": "canonical-branched-sidechain-staggered-v1",
+      "attempts": [
+        {
+          "candidate": {
+            "request_digest": "1abda1f79105f02e843514ea1dde0e39aa9c021e56c7b62055401203fe91fedd",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  27.308403505410865,
+                  17.058280783590682,
+                  13.570508569101877
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  27.380066141938123,
+                  17.603223235191102,
+                  12.142642261995471
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  28.293324443231455,
+                  16.035551855639284,
+                  13.74037995037017
+                ]
+              }
+            ],
+            "torsion_degrees": -60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:CG2:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.7303086438775654,
+            "minimum_nonbonded_clearance_angstrom": -1.027328151777893
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "1abda1f79105f02e843514ea1dde0e39aa9c021e56c7b62055401203fe91fedd",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  27.308403505410865,
+                  17.058280783590682,
+                  13.570508569101877
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  28.362200033288836,
+                  15.964032350188138,
+                  13.752259067941377
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  26.008266516939006,
+                  16.512064492421867,
+                  13.80755618977989
+                ]
+              }
+            ],
+            "torsion_degrees": 60.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": true,
+            "findings": [],
+            "ca_volume_angstrom3": 2.7303086438775654,
+            "minimum_nonbonded_clearance_angstrom": -0.3432274230994323
+          }
+        },
+        {
+          "candidate": {
+            "request_digest": "1abda1f79105f02e843514ea1dde0e39aa9c021e56c7b62055401203fe91fedd",
+            "additions": [
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CB"
+                },
+                "element": "C",
+                "xyz": [
+                  27.308403505410865,
+                  17.058280783590682,
+                  13.570508569101877
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "CG2"
+                },
+                "element": "C",
+                "xyz": [
+                  25.917347846416497,
+                  16.47386754898349,
+                  13.824132946470659
+                ]
+              },
+              {
+                "atom": {
+                  "component": {
+                    "model": 1,
+                    "chain_id": "A",
+                    "sequence_number": "55",
+                    "insertion_code": "",
+                    "alternate_location": "",
+                    "occurrence": 1
+                  },
+                  "name": "OG1"
+                },
+                "element": "O",
+                "xyz": [
+                  27.37538230948536,
+                  17.56760608149173,
+                  12.235966857231183
+                ]
+              }
+            ],
+            "torsion_degrees": 180.0,
+            "rotamer_evidence": null
+          },
+          "audit": {
+            "accepted": false,
+            "findings": [
+              "generated_clash:OG1:ComponentInstanceRef(model=1, chain_id='A', sequence_number='19', insertion_code='', alternate_location='', occurrence=1):O"
+            ],
+            "ca_volume_angstrom3": 2.7303086438775654,
+            "minimum_nonbonded_clearance_angstrom": -0.7620468091598469
+          }
+        }
+      ],
+      "independent_stereo": [
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.576896694078364,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.576896694078362,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        },
+        {
+          "rdkit_cip": {
+            "CA": "S",
+            "CB": "R"
+          },
+          "named_beta_volume_angstrom3": 2.576896694078368,
+          "branch_policy": {
+            "first": "OG1",
+            "first_length": 1.43,
+            "second": "CG2",
+            "second_length": 1.53,
+            "second_chi_offset": -120.0,
+            "expected_named_volume_sign": 1
+          }
+        }
+      ],
+      "selected_index": 1,
+      "heldout_scores_not_used_for_selection": [
+        {
+          "heldout_rmsd_angstrom": 1.9775542771089425,
+          "maximum_error_angstrom": 2.4433376591846607
+        },
+        {
+          "heldout_rmsd_angstrom": 0.17608287044400492,
+          "maximum_error_angstrom": 0.2523281691839379
+        },
+        {
+          "heldout_rmsd_angstrom": 1.970749710540708,
+          "maximum_error_angstrom": 2.4147762216735735
+        }
+      ],
+      "selected_exact_name_rmsd_angstrom": 0.17608287044400492,
+      "max_observed_movement_angstrom": 0.0
+    }
+  },
+  "source_hashes": {
+    "scripts/benchmark_protein_completion.py": "2d9757024dc2d752bede020a8ba88cd11caae677d81cef01e19b5715688f5ea4",
+    "src/dvbfixer/protein_completion/__init__.py": "638ddd657736cbe8f203ab1a52c5fa89f08009205e0879409990cc1234294b4e",
+    "src/dvbfixer/protein_completion/backbone.py": "24aedbe7270b111dd9249a05940589f29053131b13526cf0fff508a38042c6f0",
+    "src/dvbfixer/protein_completion/branched.py": "d815e63d73cedc9d952707de571b7a489b667732407c55a594a6a68124ecd7fd",
+    "src/dvbfixer/protein_completion/cohort.py": "089f211173a12b1c02716b2e4be6e499294649f526b99e65c04718794704bd57",
+    "src/dvbfixer/protein_completion/contracts.py": "d8ab90a2710f6d6398f76a7a3bc16cc5505d683142d56bbcbaaadeac87c8dded",
+    "src/dvbfixer/protein_completion/evidence.py": "f38b40e620f55444b9a81a348ffebc94274bab2eb3386ec68992989cb25cecb4",
+    "src/dvbfixer/protein_completion/geometry.py": "5e86fe6aeebf57dc9d42fef63ea0bd9e677c54f68459166fa9ea60e0b0cfd5a8",
+    "src/dvbfixer/protein_completion/links.py": "ae57e1f43960644a55fa5fd8039a1eb69fb62a86957c8025b1ef5165fe41456f",
+    "src/dvbfixer/protein_completion/rotamers.py": "52e6f8a8823f43fa6a8497b2576697754f364ffce63ba8f480fb2eb960752e01",
+    "src/dvbfixer/protein_completion/service.py": "4a4bfeaab31c6dd86e2becb98446779a4534e44ab7337c036976ff26001adcdd",
+    "src/dvbfixer/protein_completion/source.py": "4a5ffc394644552abfde7fdb87e9f8391f4efddfd9d509ec05963686192d519a",
+    "src/dvbfixer/protein_completion/validation.py": "36da525bb591738e34c8d1d5d315a035676ccc0727a30866db0a3c2a7300f8d5",
+    "scripts/probe_branched_completion.py": "a77a17d195f4ef3a51d17f7288e4ca6ac8f3dbf599df8d4b8bd13857cb6134fa",
+    "scripts/branched_stereo_oracle.py": "c6fb922ba332dfe996dc7abe5a786f9fed9ec514428ba1f1131502b6a4f2abad"
+  },
+  "retained_evidence_sha256": "80d43cc569c336a6f875938b0fd555fdfd7b12abdfae9bd77cb9fc29c9d54840"
+}

@@ -2,6 +2,19 @@ schema_version = 1
 verified_on = "2026-09-18"
 verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
 
+[contracts.private-canonical-sidechain]
+status = "research"
+owner = "src/dvbfixer/protein_completion/contracts.py::CompletionRequest"
+description = "Private immutable sidechain kernels, paired/singleton source modes and separate mixed joint/global-THR evidence with admission/raw/rounded replay. Original cohort/evidence stay ALA/SER/CYS and reject mixed kinds. Empirical/native qualification remains open."
+producers = ["src/dvbfixer/protein_completion/service.py::complete_sidechain"]
+consumers = ["scripts/benchmark_protein_completion.py::run_controls", "scripts/probe_rotamer_transport.py", "src/dvbfixer/protein_completion/source.py::materialize_source", "src/dvbfixer/protein_completion/cohort.py::complete_cohort", "src/dvbfixer/protein_completion/evidence.py::write_cohort_evidence", "src/dvbfixer/protein_completion/mixed_cohort.py::complete_mixed_cohort", "src/dvbfixer/protein_completion/mixed_evidence.py::write_mixed_evidence"]
+identity_keys = ["model", "case-sensitive chain", "resid", "icode", "altloc", "occurrence", "atom name", "source digest", "observation/context/link request digest"]
+source_mutation = "Typed observations are immutable; candidates contain missing atoms only. Private source adapter preserves original records and evidence snapshots never rewrite caller inputs. No observed-atom optimization or reflection."
+commit_behavior = "Private mixed evidence commits stage-specific exact flat artifacts manifest-last after replay, with accepted PDB/generated-only DatRecord only on rounded success. Admission/raw/rounded refusals retain source/diagnostics, never accepted candidates. Old formats unchanged; no production/public CLI registration."
+failure_behavior = "Unsupported chemistry, backbone/terminal/closure defects and linked sidechains refuse; degenerate, D/nearplanar, clashing or malformed proposals reject with no selected candidate; rejected attempts survive."
+test_files = ["tests/test_protein_completion.py", "tests/test_protein_rotamers.py", "tests/test_protein_rotamer_conventions.py", "tests/test_protein_completion_source.py", "tests/test_protein_completion_links.py", "tests/test_protein_completion_cohort.py", "tests/test_protein_completion_evidence.py", "tests/test_protein_completion_branched.py", "tests/test_protein_branched_stereo.py", "tests/test_protein_branched_source.py", "tests/test_protein_anchored_branch.py", "tests/test_protein_anchored_stereo.py", "tests/test_protein_anchored_source.py", "tests/test_protein_mixed_cohort.py", "tests/test_protein_mixed_evidence.py", "tests/test_branched_template_comparison.py", "tests/test_unfiltered_branched_comparison.py", "tests/test_pdbfixer_usage_inventory.py"]
+known_divergences = ["Five sidechains and separate mixed evidence; original cohort/evidence still three target types. No OXT/caps, Cartesian refinement or whole gaps. Authentic empirical data are not loaded; integrity/replay is not scientific qualification or authentication.", "Mixed plans/evidence rederive bytes/links/modes/partners and global THR-CB before/after rounding, not all ILE/ligand stereocentres or unselected defects. Linked targets refuse; library terms are caller-attested.", "Rule-selected 48 masks retain 16 shared admission refusals; own/template pass 31/18 of 32 admitted. Native references pass 29/32: 1TIM VAL39 1–4 contact exposes coarse VDW gate limitations without a threshold change. Symmetry reporting swaps only both-generated VAL methyls. No calibrated/broad/full-legacy superiority or replacement qualification."]
+
 [contracts.diagnostic-geometry-evidence]
 status = "implemented"
 owner = "src/dvbfixer/diagnose/geometry.py::GeometryMeasurement"

@@ -1,0 +1,2023 @@
+{
+  "analytic_derivatives_validated": false,
+  "audit_script_sha256": "4342afe111cfdf610b83bc5dcae159583ae5819a44cc0207efd005976010fd6f",
+  "convergence_certified": false,
+  "endpoints": [
+    {
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -4.969399469700875e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024230725797327247,
+            "slope_step_discrepancy": 1.7509029854769073e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 9.553438360399014e-07,
+                "curvature_per_radian_squared": 65.48801168031359,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00024119014313743698,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.281996955844079e-07,
+                "curvature_per_radian_squared": 65.49863142415369,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00024294104612291388,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 5.081559492359222e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -4.969399469700875e-07,
+                "curvature_per_radian_squared": 5.988980373158463,
+                "resolved_descent": true,
+                "slope_per_radian": 0.003369893295028764,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.7131866886520584e-07,
+                "curvature_per_radian_squared": 5.988979440128781,
+                "resolved_descent": true,
+                "slope_per_radian": 0.003370401450978,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.003370401450978,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -1.2328627008173498e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024211705685183856,
+            "slope_step_discrepancy": 4.683404935112035e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.8337726121208107e-07,
+                "curvature_per_radian_squared": 25.691539574903047,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0006183776696995598,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.3821643203045824e-08,
+                "curvature_per_radian_squared": 25.691543307021774,
+                "resolved_descent": false,
+                "slope_per_radian": -0.000618846010193071,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.4517578232446648e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.1569519503827905e-09,
+                "curvature_per_radian_squared": 3.5177094399672977,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00029461963494263133,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.2328627008173498e-08,
+                "curvature_per_radian_squared": 3.517712239056344,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0002947648107249558,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.000618846010193071,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "2CI2-THR22-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -1.8031574967380948e-05,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024216248815148218,
+            "slope_step_discrepancy": 7.099038760130516e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.8031574967380948e-05,
+                "curvature_per_radian_squared": 27.091393863702244,
+                "resolved_descent": true,
+                "slope_per_radian": 0.10567748446984829,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -9.118018141407447e-06,
+                "curvature_per_radian_squared": 27.171813558050015,
+                "resolved_descent": true,
+                "slope_per_radian": 0.10567038543108816,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 5.140997698244165e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -6.85652366883005e-07,
+                "curvature_per_radian_squared": 7.944238307710204,
+                "resolved_descent": true,
+                "slope_per_radian": -0.004621764258718196,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.7303075828276633e-07,
+                "curvature_per_radian_squared": 7.944232709532113,
+                "resolved_descent": true,
+                "slope_per_radian": -0.004621250158948371,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.10567748446984829,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 1.1780383601944777e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002502746049217545,
+            "slope_step_discrepancy": 1.9264492483422706e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 8.03503496626945e-07,
+                "curvature_per_radian_squared": 74.57610332480465,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0019042568135538458,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 1.1780383601944777e-07,
+                "curvature_per_radian_squared": 74.5761107890421,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0019040641686290116,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0019042568135538458,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 2.2209556505004002e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002503550856999882,
+            "slope_step_discrepancy": 1.872710596447988e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.1514800632994593e-06,
+                "curvature_per_radian_squared": 92.87613883982995,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0015074773144205073,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.2209556505004002e-07,
+                "curvature_per_radian_squared": 92.87614443800804,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0015074585873145429,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0015074773144205073,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "2CI2-VAL28-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -2.736861972607585e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002502112443317487,
+            "slope_step_discrepancy": 3.383092403580479e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.3290920719555288e-07,
+                "curvature_per_radian_squared": 54.43973010637192,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005512276334339862,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.736861972607585e-07,
+                "curvature_per_radian_squared": 54.44761140809546,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005511938025099504,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005512276334339862,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "2CI2-VAL32-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -1.0462773047947849e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025074646053987055,
+            "slope_step_discrepancy": 6.811781239068893e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 5.535051172955718e-07,
+                "curvature_per_radian_squared": 100.14421426914015,
+                "resolved_descent": false,
+                "slope_per_radian": -0.005567880613102929,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.0462773047947849e-07,
+                "curvature_per_radian_squared": 100.14422919761506,
+                "resolved_descent": true,
+                "slope_per_radian": -0.005568561791226836,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005568561791226836,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -8.886279374564765e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002426334458847479,
+            "slope_step_discrepancy": 4.297219441244164e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 3.348545561721039e-06,
+                "curvature_per_radian_squared": 220.98342528789806,
+                "resolved_descent": false,
+                "slope_per_radian": -9.868899865569478e-05,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 8.324552425165166e-07,
+                "curvature_per_radian_squared": 220.98341875669027,
+                "resolved_descent": false,
+                "slope_per_radian": -0.00010298621809693894,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 5.130412812264298e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -8.886279374564765e-07,
+                "curvature_per_radian_squared": 7.158553606152323,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005716164687906496,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -4.715269028565672e-07,
+                "curvature_per_radian_squared": 7.158565735538189,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005715651646625269,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005716164687906496,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "2CI2-THR55-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.1877107769796567e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.000242724879620439,
+            "slope_step_discrepancy": 1.0291766060384344e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.1778428188335965e-07,
+                "curvature_per_radian_squared": 72.91879255768326,
+                "resolved_descent": false,
+                "slope_per_radian": -0.005688510859061981,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.1877107769796567e-07,
+                "curvature_per_radian_squared": 72.91877762920835,
+                "resolved_descent": true,
+                "slope_per_radian": -0.005688613776722585,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 4.966754190652983e-09,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.7344845559819078e-07,
+                "curvature_per_radian_squared": 3.313560679494388,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0012829491659928469,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -9.934174727277423e-08,
+                "curvature_per_radian_squared": 3.313565344642798,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0012829541327470375,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005688613776722585,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 9.25403497831212e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002505178182592024,
+            "slope_step_discrepancy": 1.3054502723423844e-05,
+            "steps": [
+              {
+                "best_signed_energy_change": 4.49450732276091e-06,
+                "curvature_per_radian_squared": 346.85098611379937,
+                "resolved_descent": false,
+                "slope_per_radian": 0.004516828548890356,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 9.25403497831212e-07,
+                "curvature_per_radian_squared": 346.8509105383951,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00452988305161378,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.00452988305161378,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 6.022375771408406e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025061234564703133,
+            "slope_step_discrepancy": 4.695129731889167e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.9189575059263007e-06,
+                "curvature_per_radian_squared": 225.23983671978797,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0029314892203126264,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 6.022375771408406e-07,
+                "curvature_per_radian_squared": 225.23952695393356,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0029267940905807373,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0029314892203126264,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-VAL6-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 7.00959034816151e-06,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025063792734890395,
+            "slope_step_discrepancy": 1.1053959273220337e-05,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.8481680374170537e-05,
+                "curvature_per_radian_squared": 1898.8493550674405,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0025178583384326708,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 7.00959034816151e-06,
+                "curvature_per_radian_squared": 1898.848617040962,
+                "resolved_descent": false,
+                "slope_per_radian": 0.002528912297705891,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.002528912297705891,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 3.263871775516236e-06,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002499874771281109,
+            "slope_step_discrepancy": 4.7291153581044236e-05,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.3651686884941228e-05,
+                "curvature_per_radian_squared": 934.3769600294098,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0033213678623202625,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 3.263871775516236e-06,
+                "curvature_per_radian_squared": 934.3766969150395,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0033686590159013067,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0033686590159013067,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 2.8019834985570924e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002499066714201109,
+            "slope_step_discrepancy": 6.547973311572591e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.1723154216269904e-06,
+                "curvature_per_radian_squared": 80.36742789104699,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0002965085485568463,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.8019834985570924e-07,
+                "curvature_per_radian_squared": 80.3674222928689,
+                "resolved_descent": false,
+                "slope_per_radian": 0.000295853751225689,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0002965085485568463,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-VAL24-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 4.746156378132582e-06,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025015930171286114,
+            "slope_step_discrepancy": 3.88790190040103e-05,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.930297528929259e-05,
+                "curvature_per_radian_squared": 1287.3689217167077,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0017462302468499698,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.746156378132582e-06,
+                "curvature_per_radian_squared": 1287.3686744638421,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00178510926585398,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.00178510926585398,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -7.689024812407297e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002548382768310811,
+            "slope_step_discrepancy": 1.0239900119165396e-05,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.8475599265220808e-06,
+                "curvature_per_radian_squared": 247.57501940974433,
+                "resolved_descent": false,
+                "slope_per_radian": 0.005289679601914736,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.82212072938637e-07,
+                "curvature_per_radian_squared": 247.6365536502995,
+                "resolved_descent": false,
+                "slope_per_radian": 0.005279439701795571,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 4.111821092197057e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -7.689024812407297e-07,
+                "curvature_per_radian_squared": 2.564553374734481,
+                "resolved_descent": true,
+                "slope_per_radian": -0.004629286204384319,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.9418046071659774e-07,
+                "curvature_per_radian_squared": 2.564551508675117,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0046288750222750995,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005289679601914736,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -5.5033268608895014e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025460713009025607,
+            "slope_step_discrepancy": 1.4652739084193567e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.2068020086862816e-06,
+                "curvature_per_radian_squared": 203.3664356112366,
+                "resolved_descent": false,
+                "slope_per_radian": -0.005103025315433994,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 3.29161537138134e-07,
+                "curvature_per_radian_squared": 203.36503046853556,
+                "resolved_descent": false,
+                "slope_per_radian": -0.005101560041525574,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.3516085174366567e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": -5.3514384035224793e-08,
+                "curvature_per_radian_squared": 7.4256809371280665,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0009546277426233793,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -5.5033268608895014e-08,
+                "curvature_per_radian_squared": 7.4256809371280665,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0009546412587085537,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005103025315433994,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-THR26-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": -5.684341886080802e-14,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -1.0554379059612984e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002548114092996188,
+            "slope_step_discrepancy": 7.890869653624268e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 4.4675559820461785e-06,
+                "curvature_per_radian_squared": 354.7427284394836,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0053599327929186,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 8.823292318993481e-07,
+                "curvature_per_radian_squared": 354.74273683675074,
+                "resolved_descent": false,
+                "slope_per_radian": 0.005367823662572224,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 3.525581253305786e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": -8.886956948117586e-08,
+                "curvature_per_radian_squared": 16.04791925868205,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0019096302716326474,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.0554379059612984e-07,
+                "curvature_per_radian_squared": 16.04792392383046,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0019096655274451805,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005367823662572224,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -6.360874920119386e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024035353440931756,
+            "slope_step_discrepancy": 2.62342327901708e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.2152349881944247e-07,
+                "curvature_per_radian_squared": 45.50401807045004,
+                "resolved_descent": false,
+                "slope_per_radian": 0.003274696331680042,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.12527658302497e-07,
+                "curvature_per_radian_squared": 45.504003141975126,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0032749586740079438,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.7082377527528197e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -6.360874920119386e-07,
+                "curvature_per_radian_squared": 3.087499716940573,
+                "resolved_descent": true,
+                "slope_per_radian": -0.003913948047909584,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.2978519470816536e-07,
+                "curvature_per_radian_squared": 3.0874922527031172,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0039137772241343086,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.003913948047909584,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.9109727393006324e-06,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024022073762241093,
+            "slope_step_discrepancy": 2.6600632689523923e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 4.4637855012297223e-07,
+                "curvature_per_radian_squared": 41.77153266193227,
+                "resolved_descent": false,
+                "slope_per_radian": -0.00108769319405383,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 6.415820053007337e-08,
+                "curvature_per_radian_squared": 41.771511202249584,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0010874271877269347,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 2.6828614849150334e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -2.9109727393006324e-06,
+                "curvature_per_radian_squared": 3.58400493098951,
+                "resolved_descent": true,
+                "slope_per_radian": 0.016991408656223624,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.4691566718738613e-06,
+                "curvature_per_radian_squared": 3.5840021319004642,
+                "resolved_descent": true,
+                "slope_per_radian": 0.016991676942372115,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.016991676942372115,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1R69-THR27-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.3494885681429878e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002402522227022361,
+            "slope_step_discrepancy": 4.791696460908559e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.234088469776907e-08,
+                "curvature_per_radian_squared": 64.62599022229621,
+                "resolved_descent": false,
+                "slope_per_radian": -0.005511677718326598,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.3494885681429878e-07,
+                "curvature_per_radian_squared": 64.62600235168208,
+                "resolved_descent": true,
+                "slope_per_radian": -0.005512156887972689,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 9.36355298223994e-09,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.4780619039811427e-07,
+                "curvature_per_radian_squared": 0.19929234097829132,
+                "resolved_descent": true,
+                "slope_per_radian": 0.000864258627192294,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -7.466115903298487e-08,
+                "curvature_per_radian_squared": 0.19928394371115365,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0008642492636393118,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005512156887972689,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -7.255945678252829e-05,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002517629790548466,
+            "slope_step_discrepancy": 2.4020363176280313e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": -7.255945678252829e-05,
+                "curvature_per_radian_squared": 110.85422593188606,
+                "resolved_descent": true,
+                "slope_per_radian": -0.4254089199013821,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.670210264772322e-05,
+                "curvature_per_radian_squared": 110.83767118623899,
+                "resolved_descent": true,
+                "slope_per_radian": -0.4254113219376997,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.4254113219376997,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 9.46841680615762e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002515255525010244,
+            "slope_step_discrepancy": 4.7062031510551605e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.0294965591128857e-06,
+                "curvature_per_radian_squared": 110.31806322423496,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0037284863523899783,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 9.46841680615762e-08,
+                "curvature_per_radian_squared": 110.31807442059115,
+                "resolved_descent": false,
+                "slope_per_radian": 0.003728533414421489,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.003728533414421489,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-VAL56-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 4.2623733520485985e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025165418816247125,
+            "slope_step_discrepancy": 6.711469088861895e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.242710138489201e-06,
+                "curvature_per_radian_squared": 182.33255594992207,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0030617346138514293,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.2623733520485985e-07,
+                "curvature_per_radian_squared": 182.26397453617903,
+                "resolved_descent": false,
+                "slope_per_radian": -0.003068446082940291,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.003068446082940291,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": -2.842170943040401e-14,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -4.767941561567568e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002502697712282095,
+            "slope_step_discrepancy": 1.622744442916768e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -4.767941561567568e-07,
+                "curvature_per_radian_squared": 33.966804684387924,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005695992175050382,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.6774727618649194e-07,
+                "curvature_per_radian_squared": 33.966796287120786,
+                "resolved_descent": true,
+                "slope_per_radian": 0.005696154449494673,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005696154449494673,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 4.0073510376714694e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002501353960326694,
+            "slope_step_discrepancy": 4.005972232396898e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.6092933208256e-06,
+                "curvature_per_radian_squared": 106.07615760481053,
+                "resolved_descent": false,
+                "slope_per_radian": 3.6319512151867955e-05,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.0073510376714694e-07,
+                "curvature_per_radian_squared": 106.0761594708699,
+                "resolved_descent": false,
+                "slope_per_radian": 3.6359571874191924e-05,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 3.6359571874191924e-05,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-VAL66-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 1.3255032627057517e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025032096475221144,
+            "slope_step_discrepancy": 1.6080884469491484e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 2.4867378556336917e-07,
+                "curvature_per_radian_squared": 29.16912873854593,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0011206908432964025,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 1.3255032627057517e-08,
+                "curvature_per_radian_squared": 29.16912407339752,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0011208516521410974,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0011208516521410974,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.163659473808366e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024241841079349112,
+            "slope_step_discrepancy": 3.558150133244672e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.28262448129135e-06,
+                "curvature_per_radian_squared": 92.41174290925609,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0007155489585501352,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.8943233587597206e-07,
+                "curvature_per_radian_squared": 92.41201442089354,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0007155845400514676,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 2.110463419994265e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 5.749106435359863e-08,
+                "curvature_per_radian_squared": 13.22674260113137,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0008248515038000861,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.163659473808366e-08,
+                "curvature_per_radian_squared": 13.226740735072006,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0008250625501420855,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0008250625501420855,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": 3.329230935378291e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024212042190192162,
+            "slope_step_discrepancy": 5.4955913785697315e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 3.025577228754628e-06,
+                "curvature_per_radian_squared": 200.15781651219135,
+                "resolved_descent": false,
+                "slope_per_radian": -0.00013178402884928258,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 7.511235367019253e-07,
+                "curvature_per_radian_squared": 200.1577670616182,
+                "resolved_descent": false,
+                "slope_per_radian": -0.00012628843747071285,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 3.518253255322518e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.8640784560375323e-07,
+                "curvature_per_radian_squared": 15.726193829806869,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00030433102356259976,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 3.329230935378291e-08,
+                "curvature_per_radian_squared": 15.726192896777187,
+                "resolved_descent": false,
+                "slope_per_radian": 0.000304682848888132,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.000304682848888132,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1CTF-THR76-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -9.467275759789118e-06,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024227127568692702,
+            "slope_step_discrepancy": 1.4303437846849287e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.9414812868490117e-07,
+                "curvature_per_radian_squared": 63.05648874460373,
+                "resolved_descent": false,
+                "slope_per_radian": -0.004390329879299643,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.4289062733041646e-07,
+                "curvature_per_radian_squared": 63.059587336177536,
+                "resolved_descent": true,
+                "slope_per_radian": -0.004388899535514958,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 2.4385948853289374e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -9.467275759789118e-06,
+                "curvature_per_radian_squared": 2.8182040249839475,
+                "resolved_descent": true,
+                "slope_per_radian": -0.05448942914838725,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -4.74439011100003e-06,
+                "curvature_per_radian_squared": 2.818197493776174,
+                "resolved_descent": true,
+                "slope_per_radian": -0.054489673007875786,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.054489673007875786,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": -5.684341886080802e-14,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -1.6598562524450244e-09,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024341004335414433,
+            "slope_step_discrepancy": 5.382007409785415e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 9.384808379309106e-07,
+                "curvature_per_radian_squared": 85.24266472829122,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0020617266966773784,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 1.4470739984062675e-07,
+                "curvature_per_radian_squared": 85.24267032646931,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0020611884959364,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.2213329976845015e-09,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.6598562524450244e-09,
+                "curvature_per_radian_squared": 0.2009027502093598,
+                "resolved_descent": false,
+                "slope_per_radian": 2.7042348123675404e-05,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.5947989595588297e-09,
+                "curvature_per_radian_squared": 0.20090368323904176,
+                "resolved_descent": false,
+                "slope_per_radian": 2.704112679067772e-05,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0020617266966773784,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.642187268975249e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024347683445623066,
+            "slope_step_discrepancy": 4.1842868500586387e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.9978412524324085e-07,
+                "curvature_per_radian_squared": 21.430373423753842,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0007254741618668977,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 1.8254723954669316e-08,
+                "curvature_per_radian_squared": 21.430370624664796,
+                "resolved_descent": false,
+                "slope_per_radian": 0.0007258925905519036,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 2.064866988080909e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -2.2223645146368654e-08,
+                "curvature_per_radian_squared": 4.016058320667795,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00047779931046716836,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.642187268975249e-08,
+                "curvature_per_radian_squared": 4.016054588549067,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00047800579716597645,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0007258925905519036,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR2-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": 4.353103122411994e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002434799642989795,
+            "slope_step_discrepancy": 1.9256350263452892e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.6224433068146027e-06,
+                "curvature_per_radian_squared": 107.0220789578894,
+                "resolved_descent": false,
+                "slope_per_radian": 4.352285274999649e-05,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.037262328893121e-07,
+                "curvature_per_radian_squared": 107.02146035921027,
+                "resolved_descent": false,
+                "slope_per_radian": 4.333028924736196e-05,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.319039637496585e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.7492092752036115e-07,
+                "curvature_per_radian_squared": 11.535363188202776,
+                "resolved_descent": false,
+                "slope_per_radian": 4.4272506943973694e-06,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 4.353103122411994e-08,
+                "curvature_per_radian_squared": 11.534083071479122,
+                "resolved_descent": false,
+                "slope_per_radian": 4.440441090772335e-06,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 4.352285274999649e-05,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -3.204162908332364e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024119052904876946,
+            "slope_step_discrepancy": 7.95006359291181e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.7832360299507855e-07,
+                "curvature_per_radian_squared": 53.24390794933539,
+                "resolved_descent": true,
+                "slope_per_radian": -0.005668126485641869,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.9183019023548695e-07,
+                "curvature_per_radian_squared": 53.24390981539475,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0056673314792825774,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 5.07667416036351e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -3.204162908332364e-07,
+                "curvature_per_radian_squared": 4.99877463228457,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0022720754946907503,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.791977979337389e-07,
+                "curvature_per_radian_squared": 4.998766235017432,
+                "resolved_descent": true,
+                "slope_per_radian": -0.002271567827274714,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005668126485641869,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -2.1819192852490232e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002413402611649072,
+            "slope_step_discrepancy": 4.168083832289341e-06,
+            "steps": [
+              {
+                "best_signed_energy_change": -2.1819192852490232e-07,
+                "curvature_per_radian_squared": 15.47756567833541,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0026008200692328146,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.6759162235757685e-07,
+                "curvature_per_radian_squared": 15.497212484348509,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0025966519854005252,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 4.3235188118030676e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.6419915027654497e-07,
+                "curvature_per_radian_squared": 0.9366899574055308,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0010225334501834987,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -8.56699671203387e-08,
+                "curvature_per_radian_squared": 0.9366983546726685,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0010225766853716167,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0026008200692328146,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-THR11-CB-OG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 8,
+      "sensitivity": {
+        "best_signed_energy_change": -3.9066281942723435e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00024132321341514162,
+            "slope_step_discrepancy": 7.034878066669234e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": -1.0266944627801422e-08,
+                "curvature_per_radian_squared": 37.7754663682599,
+                "resolved_descent": false,
+                "slope_per_radian": 0.003355356582579354,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -1.4897796063451096e-07,
+                "curvature_per_radian_squared": 37.77545703796308,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0033554269313600207,
+                "step_degrees": 0.005
+              }
+            ]
+          },
+          {
+            "chi": 2,
+            "heavy_moving_above_1e-9": false,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0,
+            "slope_step_discrepancy": 1.098385475914801e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": -3.9066281942723435e-07,
+                "curvature_per_radian_squared": 2.151166176873552,
+                "resolved_descent": true,
+                "slope_per_radian": 0.002426057739306102,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.035320676441188e-07,
+                "curvature_per_radian_squared": 2.1511559135470506,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0024261675778536936,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0033554269313600207,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 2
+    },
+    {
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -4.819028447400342e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002503155904792661,
+            "slope_step_discrepancy": 4.6410653905051835e-09,
+            "steps": [
+              {
+                "best_signed_energy_change": -4.819028447400342e-07,
+                "curvature_per_radian_squared": 28.700594821332565,
+                "resolved_descent": true,
+                "slope_per_radian": -0.005265699298460649,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.5023478517359763e-07,
+                "curvature_per_radian_squared": 28.700593888302883,
+                "resolved_descent": true,
+                "slope_per_radian": -0.0052656946573952585,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.005265699298460649,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 2.5797561420404236e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002503415438899892,
+            "slope_step_discrepancy": 2.40195489544133e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.0633052625053097e-06,
+                "curvature_per_radian_squared": 71.87374239907389,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00017987686541000555,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.5797561420404236e-07,
+                "curvature_per_radian_squared": 71.87374333210357,
+                "resolved_descent": false,
+                "slope_per_radian": 0.00017990088495895996,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.00017990088495895996,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1PGB-VAL21-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -3.5878105109077296e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025034969820991493,
+            "slope_step_discrepancy": 9.852086181290701e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": -3.5878105109077296e-07,
+                "curvature_per_radian_squared": 14.180211231307645,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0032931208727498733,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -2.3339330823546334e-07,
+                "curvature_per_radian_squared": 14.180226159782556,
+                "resolved_descent": true,
+                "slope_per_radian": 0.0032932193936116862,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0032932193936116862,
+        "resolved_descent": true
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 0,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 2.545181132518337e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.00025034034747303433,
+            "slope_step_discrepancy": 9.697384001599967e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 3.260655603298801e-07,
+                "curvature_per_radian_squared": 36.13436139368453,
+                "resolved_descent": false,
+                "slope_per_radian": 0.001285099851979565,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.545181132518337e-08,
+                "curvature_per_radian_squared": 36.13436605883294,
+                "resolved_descent": false,
+                "slope_per_radian": 0.001285002878139549,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.001285099851979565,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 1,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": 2.5006474402289314e-07,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002505595523137668,
+            "slope_step_discrepancy": 4.3886565716713525e-08,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.0123994229616073e-06,
+                "curvature_per_radian_squared": 67.26629627690927,
+                "resolved_descent": false,
+                "slope_per_radian": -6.947031655234991e-05,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": 2.5006474402289314e-07,
+                "curvature_per_radian_squared": 67.26627854934532,
+                "resolved_descent": false,
+                "slope_per_radian": -6.951420311806662e-05,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 6.951420311806662e-05,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    },
+    {
+      "id": "1PGB-VAL29-CB-CG1-CG2",
+      "index": 2,
+      "materialized_score_difference": 0.0,
+      "probes": 4,
+      "sensitivity": {
+        "best_signed_energy_change": -3.228620926165604e-08,
+        "chis": [
+          {
+            "chi": 1,
+            "heavy_moving_above_1e-9": true,
+            "maximum_generated_heavy_probe_motion_angstrom": 0.0002504029303942223,
+            "slope_step_discrepancy": 1.2278467736688906e-07,
+            "steps": [
+              {
+                "best_signed_energy_change": 1.1138976674374135e-07,
+                "curvature_per_radian_squared": 23.108805183785833,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0013784073317586736,
+                "step_degrees": 0.01
+              },
+              {
+                "best_signed_energy_change": -3.228620926165604e-08,
+                "curvature_per_radian_squared": 23.108805183785833,
+                "resolved_descent": false,
+                "slope_per_radian": -0.0013782845470813067,
+                "step_degrees": 0.005
+              }
+            ]
+          }
+        ],
+        "maximum_absolute_slope_per_radian": 0.0013784073317586736,
+        "resolved_descent": false
+      },
+      "status": "audited",
+      "target_chi_count": 1
+    }
+  ],
+  "native_accuracy_reported": false,
+  "native_coordinates_read": false,
+  "plan_sha256": "324dbcb6cdeaffe055c6e2be32438640a1114d2bc0aafbe40ab26aea0f704428",
+  "production_changed": false,
+  "profile_selected": false,
+  "retained_probe_binding_sha256": "d9c78b1366e5fd4d720f6d6fa140426c3f8f0ac429fdb7b4924077b7d812b32a",
+  "run_sha256": "95527438ea3e46c83660c42365a2c09d1367054261e395626dcd3167214e14d9",
+  "schema": "dvbfixer.chi-stationarity-audit.v1",
+  "summary": {
+    "audited": 42,
+    "blockers": 0,
+    "endpoints_with_heavy_moving_chi_descent": 14,
+    "endpoints_with_resolved_descent": 19,
+    "enrolled": 42,
+    "maximum_absolute_materialized_score_difference": 5.684341886080802e-14,
+    "maximum_absolute_slope_per_radian": 0.4254113219376997,
+    "minimum_signed_energy_change": -7.255945678252829e-05,
+    "probes": 248,
+    "protected_max_motion_angstrom": 0.0,
+    "target_chis": 62
+  },
+  "table_data_included": false
+}
