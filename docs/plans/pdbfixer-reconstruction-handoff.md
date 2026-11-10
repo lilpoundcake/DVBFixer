@@ -59,7 +59,52 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: HA-containing angles dominate the GLN16 flattening component
+## Latest checkpoint: paired one-HA intervention prevents the GLN16 failure
+
+The angle-attribution checkpoint was committed/pushed as `d972aff`. The subsequent
+[paired HA-start study](../research/ha-start-control.md) and
+[complete evidence](../research/ha-start-control-evidence.json) execute all 48
+declared cells (24 original starts × unchanged/outward HA), with zero execution
+blockers/timeouts/nonexecutions. Plan SHA256:
+`ec5500f041906f721a5ad10aecebe6c230304f75905687060cfb66ad8346d1ae`.
+Private plan/run: `tmp/pdbfixer-research/ha-start-plan-01.json` and
+`tmp/pdbfixer-research/ha-start-run-01/`; no private force exports in Git.
+
+All 24 unchanged controls reproduce BOTH saved native-phase endpoints exactly,
+all heavy atoms and hydrogens (maximum 0.0 Å difference). Independent audit
+confirms only generated GLN16 HA changes at the paired starts, CA–HA distance is
+preserved, and every saved System matches its original phase's parameters,
+anchors and reference volumes. No H regeneration, force-strength search,
+reflection, observation restoration, solvent or production code change.
+
+For full-generated THR24 seed 1, final GLN16 Cα volume changes from 0.482378 to
+2.546770 Å³, with HA angles restored to 109.488/107.942/108.227° (N/CB/C).
+This supports a causal H-start effect under the reproduced physics for this
+specific GLN16 failure, NOT original 1CRN THR2 causality or a production repair.
+The original 469 heavy observations move during minimization: final RMS
+0.219522/0.218545 Å and maximum 1.077288/1.097194 Å (unchanged/outward).
+Never claim observation-immutable final coordinates.
+
+Whole-cohort raw/rounded passes change only 10/24→11/24, specifically full-heavy
+5/8→6/8. Raw stays 2/8 and distal-only stays 3/8. Seven remaining THR Cα failures
+and six VAL23 naming failures remain retained. No native RMSD or earlier accuracy
+result was recomputed. All controls are one protein, not independent diversity.
+
+Driver/auditor: 18 focused tests passed; combined angle/HA set 40 passed; targeted
+Ruff passed; independent audit/publication regenerate byte-identically. The new
+full fast suite passed **2,830 tests**, three optional Torch/Biotite skips and
+33 slow deselected. Prior angle fast suite: 2,812 passed, three optional skips,
+33 slow deselected. Driver enrollment initially failed on an absent historical
+trace `settings` key before writing a plan or running any cell; corrected before
+freezing, with historical CLI/OpenMM defaults independently read back.
+
+**Resume:** inspect the original H-placement stage's local geometry provenance
+with separately frozen settings/observations, not a public HA-fix integration.
+Keep the upstream H-placement origin, remaining target THR flattening and original
+unforced THR2 event separate. Original empirical-table production/license gate
+and all historical failure/source bindings remain unchanged.
+
+## Preceding checkpoint: HA-containing angles dominate the GLN16 flattening component
 
 On explicit user request, the complete earlier research checkpoint was committed
 and pushed as `421b2a3` on `research/pdbfixer-reconstruction`. Private raw runs,

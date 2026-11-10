@@ -88,7 +88,15 @@ failures, all source-H refusals and old frozen source/result bindings remain
 unchanged. No accepted candidate, public completion route or H-placement repair
 has been introduced; the independent PyRosetta production/license gate is unchanged.
 
-## Next bounded mechanism control
+## Subsequent bounded mechanism control
+
+The [paired one-HA replay](ha-start-control.md) has now executed all 48 declared
+cells. All 24 unchanged controls reproduce both original saved endpoints exactly;
+the one-HA intervention prevents the known GLN16 failure, but total raw/rounded
+passes improve only 10/24→11/24. This is a case-specific causal initial-condition
+result, not original THR2 causality or a general reconstruction repair.
+
+The scope declared before execution was:
 
 Use paired saved-System replays to change **only generated GLN16 HA's initial
 position**, preserving its CA–HA distance, every other starting coordinate and
