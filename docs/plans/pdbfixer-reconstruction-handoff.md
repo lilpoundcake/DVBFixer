@@ -59,7 +59,60 @@ that a paid agreement is necessary. The user's original-table acquisition and
 the mandatory production approval/license check remain pending. Local installed
 PyRosetta research remains authorized and does not depend on that application.
 
-## Latest checkpoint: native guard is present; adverse snapshots are not stationary minima
+## Latest checkpoint: exact Reference replay identifies rejected-trial Context leakage
+
+Snapshot-force attribution was committed/pushed as `f82eabc`. The
+[whole native-path replay](../research/carbon-H-whole-path.md) and
+[independent evidence](../research/carbon-H-whole-path-evidence.json) retain all 24
+paths/48 phases and 3,991 callbacks: original two seeds/three conditioning states/
+four arms. All starts and both original nm endpoints exact. Native physical
+gradient/objective closure at every callback, max force-component error 0.0.
+No new seed/force/H/phase/iteration change, no retry/early exit, no PDB or repair.
+Max callback count 188 < frozen 1,000; these are computational replays, not samples.
+
+17/48 returned Contexts differ from last reported iterate and all 17 fail the
+source-defined native gradient criterion. Five returned energies higher, 12 lower;
+do not equate a lower-energy rejected trial with convergence. All three negative
+CA boundary snapshots have positive last reported CA:
+seed 1/beta-only/methyl phase 1 +0.021875→−0.002076 Å³, ΔE +357.415 kJ/mol;
+seed 2/raw/CH2 phase 2 +0.020362→−0.006118, ΔE +943.606;
+seed 2/raw/combined phase 2 +0.017283→−0.006974, ΔE +1093.030. Last reported states
+also not converged; never silently restore/publish them as qualified candidates.
+
+[Pinned source metadata](../research/openmm-minimizer-source-36a30cb.json): runtime
+declares 8.5.2.dev-36a30cb, revision 36a30cbca54e727b216b606f3c011b67201eb8b4,
+Darwin arm64. Exact upstream C++/L-BFGS files with notices private/checksummed;
+public URLs/hashes only. This is NOT attestation of an unmodified compiled binary.
+Reference evaluate() writes trial coordinates into Context; L-BFGS failed search
+restores its own x/g buffers; Reference ignores return code and does not restore
+Context to accepted x. Unconstrained check then exits. Source-consistent rejected-
+trial leak explains these controlled returns. Exact native error enum unobserved;
+do NOT assert MAXIMUMLINESEARCH specifically or extrapolate to other builds/platforms.
+
+Preserve adverse accepted states too: 16 target-CA negative measurements in eight
+phase-1 paths; 137 target-beta negative measurements in 16 phase-1 paths (raw 8,
+beta-only 8; full-generated 0). Min beta volume −19.101650 Å³ is badly distorted,
+not 137 valid independent D residues or minima. All saved beta endpoints positive.
+Thus not every adverse sign is a terminal leak and no finite CA guard protects CB.
+
+Plan SHA `748b13a82a83656dd99677084ac19b1b08e490c69f066adf8c5a0dfa8e0e8bea`;
+private `carbon-H-whole-path-{plan,run,audit}-01*`, independent audit02.
+Eleven focused replay/audit/source-provenance tests and Ruff pass. Full fast suite
+through this checkpoint: **3,066 passed**, three optional skips/33 slow deselected.
+Log: `tmp/pdbfixer-research/carbon-H-whole-path-fast-suite-01.log`.
+Production/defaults/thresholds unchanged.
+
+**Authorization/access boundary:** this fixed Reference replay question is
+complete. Original unforced 1CRN THR2 pre-min System/State/checkpoint was never
+retained (original comparator folder has input/prepared/output PDBs/logs only).
+For that ORIGINAL cause, ask user for an original failing checkpoint or explicit
+approval of a separately declared bounded fresh capture on original input/platform.
+Do NOT silently expand seeds/platforms until inversion, claim Reference proof
+transfers to the uncaptured original event, change production or publish an
+upstream issue without permission. Empirical-table production provenance/license
+approval remains separate and closed; no original tables presumed received.
+
+## Preceding checkpoint: native guard is present; adverse snapshots are not stationary minima
 
 Complete whole results were committed/pushed as `cac26cc`. The
 [saved-only attribution](../research/carbon-H-whole-attribution.md) and

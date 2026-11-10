@@ -1,0 +1,45 @@
+{
+  "capture_script_sha256": "b6cf06196c43a7225609b6f030f40a6dd8235c76023800bf64c0337319cc5a05",
+  "files": [
+    {
+      "bytes": 2566,
+      "path": "openmmapi/src/LocalEnergyMinimizer.cpp",
+      "sha256": "3d3fa60d4fe8191c7de5d37f0cd64c94c91c715a68d9a5fbbf0c97b448e80203",
+      "url": "https://raw.githubusercontent.com/openmm/openmm/36a30cbca54e727b216b606f3c011b67201eb8b4/openmmapi/src/LocalEnergyMinimizer.cpp"
+    },
+    {
+      "bytes": 22580,
+      "path": "openmmapi/src/ContextImpl.cpp",
+      "sha256": "1b6cb31e72bb13f646ff9721bdad14423b7f310c3eb202c06d8a8f9a84cc98c7",
+      "url": "https://raw.githubusercontent.com/openmm/openmm/36a30cbca54e727b216b606f3c011b67201eb8b4/openmmapi/src/ContextImpl.cpp"
+    },
+    {
+      "bytes": 160775,
+      "path": "platforms/reference/src/ReferenceKernels.cpp",
+      "sha256": "01fa2e8df9deaf659b54c12553cd792941e0f0df1f7789e9b405653508f82541",
+      "url": "https://raw.githubusercontent.com/openmm/openmm/36a30cbca54e727b216b606f3c011b67201eb8b4/platforms/reference/src/ReferenceKernels.cpp"
+    },
+    {
+      "bytes": 10508,
+      "path": "platforms/reference/src/SimTKReference/ReferenceMinimize.cpp",
+      "sha256": "decb3a0672e6e23438e2f20f73000d26bfe1935679b064cd71329414335a58ec",
+      "url": "https://raw.githubusercontent.com/openmm/openmm/36a30cbca54e727b216b606f3c011b67201eb8b4/platforms/reference/src/SimTKReference/ReferenceMinimize.cpp"
+    },
+    {
+      "bytes": 46613,
+      "path": "libraries/lbfgs/src/lbfgs.cpp",
+      "sha256": "a1bbe12570430294d55e4e9981130d18757f515b55933b6a53c9363ac8f5bc51",
+      "url": "https://raw.githubusercontent.com/openmm/openmm/36a30cbca54e727b216b606f3c011b67201eb8b4/libraries/lbfgs/src/lbfgs.cpp"
+    }
+  ],
+  "installed_runtime_modified": false,
+  "machine": "arm64",
+  "platform": "Darwin",
+  "production_changed": false,
+  "runtime_binary_attestation": false,
+  "runtime_declared_git_revision": "36a30cbca54e727b216b606f3c011b67201eb8b4",
+  "runtime_full_version": "8.5.2.dev-36a30cb",
+  "runtime_version": "8.5.2",
+  "schema": "dvbfixer.openmm-minimizer-source.v1",
+  "upstream_notices_retained": true
+}

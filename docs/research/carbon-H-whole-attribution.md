@@ -114,5 +114,15 @@ requesting an early exit. These would be computational replays, not new samples.
 Until exact trajectory transport is established, do not claim a termination or
 crossing mechanism from these sparse snapshots.
 
+That [exact observational replay](carbon-H-whole-path.md) is now complete: all
+48 phases reproduce original nm endpoints and 3,991 native gradients exactly.
+Seventeen returned Contexts differ from their last reported iterate, including
+all three negative-Cα boundary snapshots. Source at the runtime-declared revision
+shows L-BFGS rollback of its own buffers without Reference Context restoration
+and ignored error status. This is a source-consistent rejected-trial return
+mechanism, not an observed exact L-BFGS error enum or original THR2 explanation.
+Accepted iterates also retain negative Cα/Cβ transients; no automatic rollback
+or production repair qualification follows.
+
 Code: `scripts/attribute_carbon_H_whole.py`,
 `scripts/audit_carbon_H_whole_attribution.py`.
