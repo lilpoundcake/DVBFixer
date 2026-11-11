@@ -2,6 +2,14 @@
 
 ## Authorization and baseline
 
+**2026-11-12 continuation:** the user approved a separate bounded original-input
+1CRN/THR2 native capture and instructed autonomous continuation until genuine
+input is needed. The prospectively frozen three-run protocol and separate
+saved-state OpenCL/Reference observations are documented in
+[THR2 native capture](../research/thr2-native-capture.md). Historical findings and
+uncaptured original trajectory remain unchanged; production integration and
+upstream issue publication are not authorized by this approval.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.
