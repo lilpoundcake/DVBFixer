@@ -1,0 +1,12 @@
+diff --git a/protenix/model/sample_confidence.py b/protenix/model/sample_confidence.py
+--- a/protenix/model/sample_confidence.py
++++ b/protenix/model/sample_confidence.py
+@@ -703,7 +703,7 @@
+     batch_shape = token_pair_pae.shape[:-2]
+     device = token_pair_pae.device
+ 
+     if contact_probs is None:
+-        contact_probs = torch.ones(token_pair_pae.shape[1:], dtype=float).to(device)
++        contact_probs = torch.ones(token_pair_pae.shape[1:], dtype=token_pair_pae.dtype, device=device)
+   
+     mask = token_has_frame[:, None] & token_has_frame[None, :]  # [N_token, N_token]

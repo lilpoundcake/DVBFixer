@@ -145,3 +145,30 @@ controlled `9eho` ordering investigation are recorded in
 [`linux-protenix-local-deployment-evidence.md`](../../docs/research/linux-protenix-local-deployment-evidence.md).
 The GitHub dispatch and final OCI build remain separate infrastructure checks;
 native usage does not require either.
+## Private native-MPS research entry
+
+`mps_research_smoke.py` is a separate research-only MPS entry for the same pinned
+official v1 source, **not a change to the frozen CUDA runner or public profile**.
+It uses FP32/Torch kernels, no remote MSA/download preprocessing, one sample,
+explicit development seeds and exact per-update observation reinjection. All
+model computation and coordinate transforms stay on MPS; the 3x3 covariance SVD
+is explicitly calculated with NumPy on CPU because Torch 2.7.1's MPS SVD uses a
+built-in CPU fallback even when generic fallback is disabled. Uniform fitting
+weights only are supported by this private hook.
+
+The separate `mps-confidence-dtype.patch` fixes an upstream confidence allocation
+that requested float64 on MPS. Apply it only to an owned clone alongside the
+unchanged maintained callback patch, recording both digests. Native arrays and
+pre/post-overwrite evidence remain retained. The upstream extra terminal OXT is
+kept in native arrays but excluded from the request-owned output projection;
+upstream post-hoc terminal regularization is not called.
+
+See the [Mac feasibility log](../../docs/research/mac-reconstruction-feasibility-2026-11-11.md)
+for exact runtime dependencies, checksum receipts, original technical failures,
+materialization-only recovery, six-seed case results and remaining qualification
+gates. None of this changes historical CUDA/hardware-repeat outcomes.
+
+```bash
+PYTHONPATH="$PWD/src:$PWD/deploy/protenix-v1" PYTORCH_ENABLE_MPS_FALLBACK=0 \
+  /path/to/owned/protenix/bin/python -m pytest deploy/protenix-v1/test_mps_research_hooks.py -q
+```

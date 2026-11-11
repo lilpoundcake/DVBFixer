@@ -73,3 +73,41 @@ gate; generated-only boundary refinement closed both junctions and passed every
 frozen gate. Two diffusion steps exercise the callback but remain too immature
 for candidate materialization: a generated coordinate exceeded PDB's fixed
 column range. Use the 200-step schedule for scientific smoke evidence.
+
+## Separate private native-MPS fork experiment
+
+The Mac research route uses owned fork revision
+`1431d573c3a02a2cb6b5c3b775e7128c7a98d539`, **not the CUDA revision above**.
+Its separate `mps-fork-per-step-callback.patch` applies to that fork only; the
+original `per-step-callback.patch`, CUDA drivers and frozen evidence are unchanged.
+
+`mps_research_smoke.py` and `mps_research_reinjection.py` implement the private
+`private-boltz-mps-post-update-reinjection-v1` arm: one seed-7 FP32 sample,
+200 updates, one recycle, no steering, source-only template. The canonical
+`atom_mapping.py` verifies token/atom identities, element/name features and real
+unpadded prefix, repeated at the actual model input. Only the 3x3 fit covariance
+SVD explicitly runs on CPU; coordinate transformations and overwrite run on MPS.
+Lightning may subsequently transport the returned prediction to CPU. This is
+not a generic unsupported-operation CPU fallback.
+
+**Post-update fixation is not fixed noisy-input inpainting:** augmentation and
+noise still move coordinates inside each iteration. Keep this intervention arm
+separate from the original stock template-proposal cohorts. Native arrays,
+pre/post-overwrite drift, actual returned device and source-custody audits are
+retained; no CUDA profile or public sampler trace is fabricated.
+
+Nine isolated synthetic controls pass using the real fork sampler and a fake
+score model (not checkpoint qualification):
+
+```bash
+PYTHONPATH="$PWD/src:$PWD/deploy/boltz-2" PYTORCH_ENABLE_MPS_FALLBACK=0 \
+  /path/to/owned/boltz/bin/python -m pytest deploy/boltz-2/test_mps_fork_hook.py -q
+```
+
+The actual 1UBQ/1FR2/1A3N seed-7 fixation pilots passed raw geometry with exact
+observations. Held-out accuracy did **not** consistently improve; in particular
+1FR2 worsened substantially. See the [Mac feasibility log](../../docs/research/mac-reconstruction-feasibility-2026-11-11.md)
+for declarations, original technical failures, explicit callback-state recovery,
+source snapshots, resources, per-case results and qualification limitations.
+All launches use the serial ML lock and `pressure-v2`; no new public capability
+or production motion policy is enabled.

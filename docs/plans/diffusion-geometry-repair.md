@@ -7,6 +7,19 @@ or needed for the initial retained-coordinate controls.
 
 ## Evidence and invariants
 
+The [Mac reconstruction and multi-seed portfolio handoff](mac-reconstruction-portfolios-handoff.md)
+records the subsequent RFD3/Protenix v1/Boltz-2 evaluation design, six development
+seeds including 42, manual/automatic compatible assembly, shared all-generated
+minimization and anchor calibration. Documentation is approved; execution needs
+separate user permission. Junction checking is required, not automatic rebuilding
+of already valid stubs; MODELLER local repair is an optional evaluated route.
+
+The [1HE8 motif/portfolio/joint-generation experiment record](../research/1he8-motif-portfolios-and-joint-generation.md)
+separates executed local, pair-joint, all-gap, complete-context, component and
+multi-seed trials from user visual review and unproven explanatory hypotheses.
+It also records the joint all-generated/direct-anchor patchwork control and
+the exact per-gap visual donor preferences; these are not accepted structures.
+
 The ten-complex, five-seed cc94 MPS cohort produced 27 accepted and 23 rejected
 candidates. Nine cases used the original code; 1N8Z was a separately versioned
 input-preparation fix follow-up. This is neither an accuracy benchmark nor broad
@@ -149,6 +162,58 @@ coverage, not proof that a recombined complex will pass.
   whole-complex acceptance after assembly. Local cleanliness is not publication
   authority, and original rejected candidates remain rejected.
 - [ ] Predeclare a separate evaluation and resource budget before new sampling.
+
+## Generated-loop intersection/threading detector (requested follow-up, 2026-11-10)
+
+**Status: private diagnostic prototype implemented; not qualified.** The initial
+segment screen and straight-chord/fan surface probe, controls and retained 1HE8
+findings are recorded in the
+[Mac feasibility log](../research/mac-reconstruction-feasibility-2026-11-11.md).
+False-positive calibration, full disulfide topology, closure robustness and
+trajectory qualification remain open; no fatal public gate has been added.
+User visual review of
+1HE8 found interwoven reconstructed loops even after joint all-generated/anchor
+minimization. Local geometry, clash removal and L-chirality alone do not establish
+plausible loop placement or absence of threading. This is a separate validation
+work item, **not P3**, and does not authorize automatic topology repair.
+
+- [ ] Define separate findings for backbone-segment intersections/near-crossings
+  and suspected loop threading/entanglement. Open protein paths do not have a
+  unique knot/link invariant without a closure convention: do not label every
+  projected crossing, contact or visually intertwined pair a proven topological
+  defect. Legitimate threading/knots and uncertainty must remain distinguishable.
+- [ ] Bind checks to original source coordinates and exact generated ownership.
+  Check generated–generated and generated–observed paths across case-sensitive
+  chains/insertion codes; honor peptide connectivity, real chain breaks and
+  disulfides. Source-only findings are reported separately, not attributed to
+  diffusion. Exclude bonded neighbors, not whole neighboring loops.
+- [ ] Start with a spatially indexed 3D backbone-segment distance/intersection
+  screen, then investigate an explicit, reproducible loop-surface/closure-based
+  threading test. Document chain-end sensitivity, closure ambiguity, spatial
+  resolution, tolerances and unsupported cases before choosing thresholds.
+- [ ] Run on each raw proposal, the assembled multi-group patchwork and the final
+  jointly minimized structure. Investigate retained minimization-stage snapshots
+  for crossing events: a clean final clash report cannot prove that no chain
+  passage occurred during Cartesian minimization.
+- [ ] Emit bounded machine-readable findings with exact residue/segment pairs,
+  generated/source ownership, distances, method/version, confidence/ambiguity,
+  and viewer-ready selections. Preserve input hashes, raw/final findings and
+  rejected artifacts. Do not silently move observations or discard failures.
+- [ ] Build positive/negative regression controls: 1HE8 visually identified loop
+  pairs A436–456/A489–497 (suspected, not established ground truth), synthetic
+  true intersections, close but disjoint paths, crossings in projection only,
+  legitimate interchain contacts/threading, open termini and chain breaks.
+  Test rigid-transform invariance, chain case and insertion-code identity.
+- [ ] Calibrate false positives/negatives on a predeclared held-out set, with
+  independent structural review. Initially retain experimental diagnostics;
+  promote a finding to a fatal acceptance rule only through a separately
+  reviewed, versioned validation policy. Never retune frozen cohort outcomes.
+
+Acceptance: reproducible retained-case findings, explicit ambiguous/unsupported
+outcomes and negative controls without indiscriminate rejection of native
+protein topology. Neighbor grouping for diffusion is a separate heuristic:
+8 observed residues per flank, a ≤6 Å heavy-atom contact and transitive connected
+components. It neither detects nor guarantees the prevention of threading.
 
 ## P3 — explicit alternative reconstruction (planned, not implemented)
 

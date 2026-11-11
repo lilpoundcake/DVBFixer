@@ -16,7 +16,10 @@ milestone context; use the handoff and canonical checklist for this new work.
 
 | Plan | Implemented / completed | Remaining boundary |
 |---|---|---|
+| [Mac reconstruction and multi-seed portfolios](mac-reconstruction-portfolios-handoff.md) / [fixed validation](mac-reconstruction-fixed-validation.md) / [results](../research/mac-reconstruction-comparison-2026-11-11.md) | Authorized private MPS studies, compatible assembly/shared refinement, A/C/D and E subset complete; independent two-entry validation: 90/90 ML and 23/30 MODELLER final passes, all120 independently audited | No whole1HE8 acceptance; interface refusals retained; local MSA/homolog assets, broad accuracy, positive anchor bounds, topology/trajectories and public integration remain unqualified |
+| [Real missing regions and 1HE8 anchor investigation](mac-reconstruction-real-gaps.md) | User-directed next priority: natural gaps in large experimental structures; completion geometry/custody, not crystal RMSD, is the endpoint | Next backend/context budget must be frozen; existing bounded relaxation improved 1HE8 but left explicit geometry/movement failures |
 | [Diffusion geometry repair](diffusion-geometry-repair.md) | P0/P1 controls; private P2 search/repair, manifest-last bundle/`.dat`/preparation custody/read-only resume; ten-case historical workflow and factorial/symmetry analysis | Original seed outcomes unchanged; public portfolio admission, prospective scientific qualification, broader calibration and P3 remain open |
+| [Generated-loop intersections/threading](diffusion-geometry-repair.md#generated-loop-intersectionthreading-detector-requested-follow-up-2026-11-10) | User-requested validation follow-up; no detector or topology guarantee yet | Distinguish 3D crossings from suspected open-path threading; audit raw/assembled/refined proposals and qualify positive/negative controls before any fatal gate; separate from P3 |
 | [Geometry-gated anchor relaxation](geometry-gated-anchor-relaxation-handoff.md) | Experimental runner/validation/publication/resume and CLI/ZBS/Homology/GUI integration; approved movement limits; native 9CQD replays and real-complex pre-anchor findings | [Return to 1BRS sparse context, 1GC1 generated torsions, 1HE8 timeouts and live raw/final adapter acceptance](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages); broader motion-bound/B-policy calibration and target-GPU acceptance remain open |
 | [API roadmap](api-roadmap.md) | Naming service/CLI/V1 HTTP API, standalone host, auth/ACL, CORS, quotas, versioned workflows and single-host multi-process coordination | Acceptance on the operator's deployment host; external scheduling/state before multi-host operation |
 | [API/DDD continuation](api-ddd-continuation-context.md) | Historical handoff, not a second backlog | Consult the checklist and agent contexts rather than old next-session instructions |
@@ -37,6 +40,10 @@ milestone context; use the handoff and canonical checklist for this new work.
 | [Tarantino removal](remove-tarantino-mutation-cluster.md) | Complete; historical provenance remains readable | No active removal backlog |
 
 ## Evidence, not scope expansion
+
+- [1HE8 motif portfolios and joint generation](../research/1he8-motif-portfolios-and-joint-generation.md):
+  executed experiments, retained negative results, exact visual donor choices,
+  input audits and explicitly unproven hypotheses; no topology qualification.
 
 - [Baseline repairs](../research/baseline-repair-2026-10-20.md): core/GUI failures
   corrected, current test results and Amber19SB preprocessing scope.

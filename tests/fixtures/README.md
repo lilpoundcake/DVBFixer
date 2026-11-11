@@ -35,6 +35,7 @@ verify that none of the source fixtures changed accidentally.
 | `overlap/8dis_t_u.pdb` | `test/overlap/8dis_t_u.pdb` | Coordinate-identical chains `d`/`D` caused by missing MODEL/ENDMDL separators |
 | `insertion_codes/{7K8S.pdb,7K8S.fasta}` | RCSB PDB entry 7K8S coordinate and FASTA downloads | Antibody heavy-chain insertion-code diffusion benchmark (`H/82A`-`H/82C`) |
 | `protein_context/{1UBQ,1TIM,1A3N}.pdb` | Unmodified RCSB PDB downloads on 2026-10-14 from `https://files.rcsb.org/download/<ID>.pdb` | Frozen protein-context expansion: ubiquitin nonlocal-contact strata, triosephosphate-isomerase dimer, and hemoglobin protein interface |
+| `protein_context/{1PGA,2CI2}.pdb` | Unmodified RCSB PDB downloads on 2026-11-11 from `https://files.rcsb.org/download/<ID>.pdb`; SHA-256 bound in `MANIFEST.sha256` | Protein-G B1 and chymotrypsin-inhibitor-2 independent-cohort admission and exact observed terminal-OXT preservation. Full original entries, not generated models or trimmed-to-pass sources. No training-disjointness or validation-success claim. |
 | `cc89_apple_handoff/{9WW8,8EK6,9Z0U}.{pdb,fasta}`, `manifest.json` | Whole observed protein references and unchanged FASTAs from the independently audited prospective cc89 cohorts; per-source RCSB CIF URLs and hashes are bound by the manifest and linked cohort manifests | Fresh-clone Apple handoff: four source-only masks, seeds 7/19; no Linux archives or checkpoint needed to materialize inputs |
 
 The protein-context materializer derives protein-only, heavy-atom inputs from

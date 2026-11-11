@@ -1,0 +1,55 @@
+diff --git a/src/boltz/model/models/boltz2.py b/src/boltz/model/models/boltz2.py
+--- a/src/boltz/model/models/boltz2.py
++++ b/src/boltz/model/models/boltz2.py
+@@ -560,6 +560,7 @@
+                         max_parallel_samples=max_parallel_samples,
+                         steering_args=self.steering_args,
+                         diffusion_conditioning=diffusion_conditioning,
++                        step_callback=getattr(self, "dvbfixer_step_callback", None),
+                     )
+                     dict_out.update(struct_out)
+ 
+diff --git a/src/boltz/model/modules/diffusionv2.py b/src/boltz/model/modules/diffusionv2.py
+--- a/src/boltz/model/modules/diffusionv2.py
++++ b/src/boltz/model/modules/diffusionv2.py
+@@ -338,6 +338,7 @@
+         multiplicity=1,
+         max_parallel_samples=None,
+         steering_args=None,
++        step_callback=None,
+         **network_condition_kwargs,
+     ):
+         default_steering_args = {
+@@ -361,6 +362,12 @@
+                 for key, value in default_steering_args.items()
+             }
+ 
++        if step_callback is not None and any(
++            steering_args[key] for key in (
++                "fk_steering", "physical_guidance_update", "contact_guidance_update"
++            )
++        ):
++            raise ValueError("private coordinate callback does not support steering")
+         if (
+             steering_args["fk_steering"]
+             or steering_args["physical_guidance_update"]
+@@ -592,6 +599,19 @@
+             )
+ 
+             atom_coords = atom_coords_next
++            if step_callback is not None:
++                updated = step_callback(atom_coords, step_idx, len(sigmas_and_gammas))
++                if not isinstance(updated, torch.Tensor):
++                    raise TypeError("step_callback must return a torch.Tensor")
++                if updated.shape != atom_coords.shape:
++                    raise ValueError("step_callback must preserve tensor shape")
++                if updated.device != atom_coords.device:
++                    raise ValueError("step_callback must preserve tensor device")
++                if updated.dtype != atom_coords.dtype:
++                    raise ValueError("step_callback must preserve tensor dtype")
++                if not torch.isfinite(updated).all():
++                    raise ValueError("step_callback must return finite coordinates")
++                atom_coords = updated
+ 
+         return dict(sample_atom_coords=atom_coords, diff_token_repr=token_repr)
+ 

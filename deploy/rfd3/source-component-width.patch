@@ -1,0 +1,12 @@
+diff --git a/models/rfd3/src/rfd3/utils/inference.py b/models/rfd3/src/rfd3/utils/inference.py
+--- a/models/rfd3/src/rfd3/utils/inference.py
++++ b/models/rfd3/src/rfd3/utils/inference.py
+@@ -76,7 +76,7 @@ def set_indices(array, chain, res_id_start, molecule_id, component):
+     array.res_id = np.full(n, res_id_start + array.res_id - 1, dtype=array.res_id.dtype)
+     array.molecule_id = np.full(n, molecule_id, dtype=np.int32)
+     array.set_annotation(
+-        "src_component", np.full(n, component, dtype=array.chain_id.dtype)
++        "src_component", np.full(n, component, dtype=f"U{max(1, len(str(component)))}")
+     )
+     return array
+ 
