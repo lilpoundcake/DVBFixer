@@ -10,6 +10,21 @@ saved-state OpenCL/Reference observations are documented in
 uncaptured original trajectory remain unchanged; production integration and
 upstream issue publication are not authorized by this approval.
 
+**Bounded THR2 capture completed:** frozen protocol checkpoint `0f6814d` precedes
+all science. All 3 native labels and 18 saved-call replays completed; unseeded
+native THR2 Cβ changed **R→S in whole phase 1**, seed 1/2 remained R. Both saved
+OpenCL and Reference controls invert between callbacks 2/3 for the unseeded
+start, with ~−72.616 kJ/mol objective change. All 1,114 callbacks independently
+match physical mobile gradients/objectives; **0/18 returned/last-callback
+mismatches**, unlike the separate THR24 terminal leakage. No negative Cα found.
+The three native whole starts have byte-identical Systems/Integrators and all
+327 heavy coordinates; 315 H coordinates differ. Initial Cβ force projection
+is −898 vs +4,025/+3,952 kJ/mol/nm, dominated by opposite angle projections.
+Saved-only all18/all1150 force decomposition retains numerical group-sum errors.
+This captures a fresh native event, not the lost original November 6 trajectory.
+Details, evidence and the no-adaptive-extension boundary:
+[THR2 native capture](../research/thr2-native-capture.md). Production unchanged.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.

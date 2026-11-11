@@ -1,0 +1,1656 @@
+{
+  "additional_minimization": false,
+  "audit_script_sha256": "e67c833c07a7dd8302670e2eb788b77bd1fef2b9679cc974305cb96ebf7e7687",
+  "execution_sha256": "6851f7cef8fde13f1b3718c79ae487d1b179f0ff4cb089677009e4881be073a8",
+  "historical_final_pdb": {
+    "alpha_count": 42,
+    "minimum_alpha_volume_angstrom3": 2.3647265670000053,
+    "negative_alpha": [],
+    "target_ca_volume_angstrom3": 2.464371872,
+    "target_cb_volume_angstrom3": -2.446331807999998,
+    "target_cip": {
+      "CA": "S",
+      "CB": "S"
+    }
+  },
+  "limits": "OpenCL readback deltas are measured, not asserted bit equality; Reference is a numerical control, not historical causality",
+  "native": [
+    {
+      "calls": [
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.3501537303716318,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.417430128545095,
+            "target_cb_volume_angstrom3": -2.472332967122905,
+            "target_cip": {
+              "CA": "S",
+              "CB": "S"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.361735227943588,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.463282267973357,
+            "target_cb_volume_angstrom3": -2.4444690451101962,
+            "target_cip": {
+              "CA": "S",
+              "CB": "S"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.3501537303716318,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.417430128545095,
+            "target_cb_volume_angstrom3": -2.472332967122905,
+            "target_cip": {
+              "CA": "S",
+              "CB": "S"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "final_pdb": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3603185840000016,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4661996869999987,
+        "target_cb_volume_angstrom3": -2.446818620000004,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "h_calls": [
+        {
+          "heavy_delta": {
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.399458043831689e-07
+          },
+          "returned": true,
+          "seed": null
+        }
+      ],
+      "label": "unseeded",
+      "status": "completed"
+    },
+    {
+      "calls": [
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.359694480075112,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.359694480075112,
+            "target_cb_volume_angstrom3": 2.4632770972913502,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.375310710240726,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.488509657527751,
+            "target_cb_volume_angstrom3": 2.4680575282706125,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.359694480075112,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.359694480075112,
+            "target_cb_volume_angstrom3": 2.4632770972913502,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "final_pdb": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.376575234999998,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4875212300000005,
+        "target_cb_volume_angstrom3": 2.467518936,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "h_calls": [
+        {
+          "heavy_delta": {
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.399458043831689e-07
+          },
+          "returned": true,
+          "seed": 1
+        }
+      ],
+      "label": "seed-1",
+      "status": "completed"
+    },
+    {
+      "calls": [
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.3206381576129744,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.3206381576129744,
+            "target_cb_volume_angstrom3": 2.484431029698122,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 0.8131107802635411,
+            "target_cb_volume_angstrom3": 0.19838928856555219,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.371175155059829,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.474747534197113,
+            "target_cb_volume_angstrom3": 2.4728150122341046,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "before": {
+            "alpha_count": 42,
+            "minimum_alpha_volume_angstrom3": 2.3206381576129744,
+            "negative_alpha": [],
+            "target_ca_volume_angstrom3": 2.3206381576129744,
+            "target_cb_volume_angstrom3": 2.484431029698122,
+            "target_cip": {
+              "CA": "S",
+              "CB": "R"
+            }
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "final_pdb": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.374351168000003,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.473633717000012,
+        "target_cb_volume_angstrom3": 2.4714998140000053,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "h_calls": [
+        {
+          "heavy_delta": {
+            "exact": false,
+            "maximum_angstrom": 1.282946834674113e-06,
+            "rms_angstrom": 4.399458043831689e-07
+          },
+          "returned": true,
+          "seed": 2
+        }
+      ],
+      "label": "seed-2",
+      "status": "completed"
+    }
+  ],
+  "plan_sha256": "45fd387c69192d34b08912841dcbe33d468d32e40d7eb778a1467dca03624e96",
+  "private_audit_sha256": "0d9595468a589498b43face036aaa8c878c648f1f7cd9fe69565115cdd153e49",
+  "production_changed": false,
+  "replays": [
+    {
+      "callbacks": 50,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.00019238547529827613,
+        "rms_angstrom": 2.4869127524755843e-05
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 50,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.0003334226227870192,
+        "rms_angstrom": 5.023309334006737e-05
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 92,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.0393522429341496,
+        "rms_angstrom": 0.0027630430192686012
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 89,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [
+        {
+          "after_stage": "callback-3",
+          "after_volume_angstrom3": -0.17434075909326927,
+          "before_stage": "callback-2",
+          "before_volume_angstrom3": 0.0263747927271774,
+          "energy_change_kj_mol": -72.61614990234375
+        }
+      ],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.349185504684104,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4222999105521414,
+          "target_cb_volume_angstrom3": -2.4756847220903824,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "last_reported_iteration": 91,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.349185504684104,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4222999105521414,
+          "target_cb_volume_angstrom3": -2.4756847220903824,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 93,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.05596447643964755,
+        "rms_angstrom": 0.0032957404340178747
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 90,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [
+        {
+          "after_stage": "callback-3",
+          "after_volume_angstrom3": -0.17434343178550407,
+          "before_stage": "callback-2",
+          "before_volume_angstrom3": 0.026369387472464586,
+          "energy_change_kj_mol": -72.61618913209622
+        }
+      ],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.351937196245174,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.414281137269527,
+          "target_cb_volume_angstrom3": -2.475154186908632,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "last_reported_iteration": 92,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.351937196245174,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.414281137269527,
+          "target_cb_volume_angstrom3": -2.475154186908632,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 62,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.050299523651559035,
+        "rms_angstrom": 0.005679885750080084
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 62,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.366159499008757,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.465184158463211,
+          "target_cb_volume_angstrom3": -2.449032221260008,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "last_reported_iteration": 61,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.366159499008757,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.465184158463211,
+          "target_cb_volume_angstrom3": -2.449032221260008,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 63,
+      "label": "unseeded",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.06758821776240756,
+        "rms_angstrom": 0.007368176640809255
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 63,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.366610388118343,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4648217876539786,
+          "target_cb_volume_angstrom3": -2.449416710050933,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "last_reported_iteration": 62,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.366610388118343,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4648217876539786,
+          "target_cb_volume_angstrom3": -2.449416710050933,
+          "target_cip": {
+            "CA": "S",
+            "CB": "S"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 50,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.11199479308787949,
+        "rms_angstrom": 0.01190615603800114
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 50,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.10975896456744556,
+        "rms_angstrom": 0.011080503465376475
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 64,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.0020191191306948935,
+        "rms_angstrom": 0.0002525921520554097
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3582630582047135,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.3582630582047135,
+          "target_cb_volume_angstrom3": 2.4629590416041007,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 63,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3582630582047135,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.3582630582047135,
+          "target_cb_volume_angstrom3": 2.4629590416041007,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 66,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.01364546351009567,
+        "rms_angstrom": 0.0017026327074094096
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.361545341981439,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.361545341981439,
+          "target_cb_volume_angstrom3": 2.4600836739417105,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 65,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.361545341981439,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.361545341981439,
+          "target_cb_volume_angstrom3": 2.4600836739417105,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 66,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.0032495206125614158,
+        "rms_angstrom": 0.0006214204146670341
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3750942917535913,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4887835022264917,
+          "target_cb_volume_angstrom3": 2.4691994333247607,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 65,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3750942917535913,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4887835022264917,
+          "target_cb_volume_angstrom3": 2.4691994333247607,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 62,
+      "label": "seed-1",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.018768600630057173,
+        "rms_angstrom": 0.003626227884021226
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.372127230322081,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.486775182978057,
+          "target_cb_volume_angstrom3": 2.4694589445076836,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 61,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.372127230322081,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.486775182978057,
+          "target_cb_volume_angstrom3": 2.4694589445076836,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 50,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.07045824596669485,
+        "rms_angstrom": 0.005964941353167312
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 50,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 315,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.044978419995558495,
+        "rms_angstrom": 0.0050627284640357845
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 1,
+      "particles": 642,
+      "returned": true,
+      "stage": "hydrogen",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 49,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 0.8131107802635411,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 0.8131107802635411,
+          "target_cb_volume_angstrom3": 0.19838928856555219,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": false,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 59,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.01789005761049614,
+        "rms_angstrom": 0.002050513034711469
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.312106898279491,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.312106898279491,
+          "target_cb_volume_angstrom3": 2.4843015003055444,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 58,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.312106898279491,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.312106898279491,
+          "target_cb_volume_angstrom3": 2.4843015003055444,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 58,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.018094698997098833,
+        "rms_angstrom": 0.0020808224043737246
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 2,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.310775966457081,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.310775966457081,
+          "target_cb_volume_angstrom3": 2.484371112227983,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 57,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.310775966457081,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.310775966457081,
+          "target_cb_volume_angstrom3": 2.484371112227983,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 62,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "captured",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.015964778850013035,
+        "rms_angstrom": 0.003500911866931938
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3712320927763946,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.474613181920788,
+          "target_cb_volume_angstrom3": 2.4709840170500974,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 61,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3712320927763946,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.474613181920788,
+          "target_cb_volume_angstrom3": 2.4709840170500974,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    },
+    {
+      "callbacks": 67,
+      "label": "seed-2",
+      "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+      "maximum_objective_readback_error_kj_mol": 0.0,
+      "mobile_particles": 642,
+      "mode": "Reference",
+      "native_endpoint_delta": {
+        "exact": false,
+        "maximum_angstrom": 0.011730566600788429,
+        "rms_angstrom": 0.0019102685325353575
+      },
+      "negative_alpha_nodes": 0,
+      "negative_target_beta_callbacks": 0,
+      "number": 3,
+      "particles": 642,
+      "returned": true,
+      "stage": "whole",
+      "start_delta": {
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "status": "completed",
+      "target_beta_sign_crossings": [],
+      "terminal": {
+        "comparison": "last reported callback",
+        "last_reported_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3708614205684637,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4776201892185084,
+          "target_cb_volume_angstrom3": 2.4741498070200167,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "last_reported_iteration": 66,
+        "returned_geometry": {
+          "alpha_count": 42,
+          "minimum_alpha_volume_angstrom3": 2.3708614205684637,
+          "negative_alpha": [],
+          "target_ca_volume_angstrom3": 2.4776201892185084,
+          "target_cb_volume_angstrom3": 2.4741498070200167,
+          "target_cip": {
+            "CA": "S",
+            "CB": "R"
+          }
+        },
+        "returned_minus_last_reported_energy_kj_mol": 0.0,
+        "returned_satisfies_native_gradient_test": true,
+        "returned_vs_last_reported": {
+          "exact": true,
+          "maximum_angstrom": 0.0,
+          "rms_angstrom": 0.0
+        }
+      }
+    }
+  ],
+  "schema": "dvbfixer.thr2-native-audit.v1",
+  "summary": {
+    "by_mode": {
+      "Reference": {
+        "callbacks": 559,
+        "calls": 9,
+        "exact_native_endpoints": 0,
+        "exact_starts": 9,
+        "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+        "maximum_objective_readback_error_kj_mol": 0.0,
+        "returned_differs_last_reported": 0,
+        "returned_higher_energy": 0
+      },
+      "captured": {
+        "callbacks": 555,
+        "calls": 9,
+        "exact_native_endpoints": 0,
+        "exact_starts": 9,
+        "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+        "maximum_objective_readback_error_kj_mol": 0.0,
+        "returned_differs_last_reported": 0,
+        "returned_higher_energy": 0
+      }
+    },
+    "callbacks": 1114,
+    "final_target_cb_cip": {
+      "seed-1": "R",
+      "seed-2": "R",
+      "unseeded": "S"
+    },
+    "native_calls": 9,
+    "native_statuses": {
+      "completed": 3
+    },
+    "replay_statuses": {
+      "completed": 18
+    }
+  }
+}

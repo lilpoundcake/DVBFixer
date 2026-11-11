@@ -110,6 +110,12 @@ from newly admitted healthy production inputs.
 
 ## Validation and authorization boundary
 
+**Subsequent 2026-11-12 update:** the user approved the separate bounded fresh
+capture described below. The [completed THR2 cohort](thr2-native-capture.md)
+captured one fresh unseeded native R→S event and its accepted-iterate saved-start
+controls. This does not recover the lost original trajectory or change the THR24
+findings here; the earlier authorization requirement below is historical.
+
 Eleven focused reporter/readback/source-provenance tests pass, including exact
 native endpoints, interrupted partial-record retention, endpoint mismatch
 refusal, no-minimization audit, nonfinite input refusal and unversioned-source

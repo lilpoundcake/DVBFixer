@@ -3,6 +3,7 @@ import gzip
 import inspect
 import json
 import random
+from functools import wraps
 
 import pytest
 from scripts import research_thr2_native_capture as capture
@@ -23,6 +24,7 @@ def test_native_h_and_whole_capture_and_separate_replay(tmp_path, monkeypatch, i
     folder = tmp_path/'native'
     folder.mkdir()
     monkeypatch.setattr(capture, 'check', lambda record: None)
+    monkeypatch.setattr(capture.sys, 'argv', [])
     monkeypatch.setattr(capture, 'HISTORICAL', tmp_path)
     monkeypatch.setattr(dvbfixer.cli, '__file__', str(tmp_path/'src/dvbfixer/cli.py'))
     native_create = ForceField.createSystem
@@ -71,3 +73,50 @@ def test_launch_retains_failed_exit(tmp_path):
     assert result['status'] == 'execution_blocker'
     assert result['returncode'] != 0
     assert 'run.log' in result['artifacts']
+
+
+def test_native_failure_retains_boundary_and_restores_hooks(tmp_path, monkeypatch):
+    openmm = pytest.importorskip('openmm')
+    from openmm import unit
+    from openmm.app import ForceField, Modeller, Topology, element
+
+    import dvbfixer.cli
+
+    plan = tmp_path/'plan.json'
+    plan.write_text(json.dumps(dict(protocol=dict(h_seeds=[None, 1, 2], labels=['unseeded', 'seed-1', 'seed-2'],
+        maximum_native_calls_per_label=8))))
+    folder = tmp_path/'native'
+    folder.mkdir()
+    monkeypatch.setattr(capture, 'check', lambda record: None)
+    monkeypatch.setattr(capture.sys, 'argv', [])
+    monkeypatch.setattr(capture, 'HISTORICAL', tmp_path)
+    monkeypatch.setattr(dvbfixer.cli, '__file__', str(tmp_path/'src/dvbfixer/cli.py'))
+    native_min = openmm.LocalEnergyMinimizer.minimize
+    native_create, native_h = ForceField.createSystem, Modeller.addHydrogens
+
+    @wraps(native_min)
+    def fail(context, *args, **kwargs):
+        raise RuntimeError('synthetic native failure')
+
+    monkeypatch.setattr(openmm.LocalEnergyMinimizer, 'minimize', fail)
+
+    def main():
+        topology = Topology()
+        residue = topology.addResidue('HOH', topology.addChain('A'), '1')
+        topology.addAtom('O', element.oxygen, residue)
+        model = Modeller(topology, [openmm.Vec3(0, 0, 0)]*unit.nanometer)
+        model.addHydrogens(ForceField('tip3p.xml'), platform=openmm.Platform.getPlatformByName('Reference'))
+
+    monkeypatch.setattr(dvbfixer.cli, 'main', main)
+    saved = random.getstate()
+    with pytest.raises(RuntimeError, match='synthetic native failure'):
+        capture.native_worker(plan, 1, folder)
+    assert random.getstate() == saved
+    assert ForceField.createSystem is native_create
+    assert Modeller.addHydrogens is native_h
+    assert openmm.LocalEnergyMinimizer.minimize is fail
+    result = json.loads((folder/'capture.json').read_text())
+    assert not result['calls'][0]['returned']
+    assert not result['h_calls'][0]['returned']
+    assert (folder/'call-1-before.chk').exists()
+    assert (folder/'call-1-after.chk').exists()

@@ -1,0 +1,97 @@
+{
+  "audit_script_sha256": "50b1dd2b6dc85e3b28bdac1820618793b2ba94188fd81e9df94fa116299f1e15",
+  "comparisons": [
+    {
+      "exact_bond_inventory": true,
+      "exact_context_parameters": true,
+      "exact_integrator_xml": true,
+      "exact_system_xml": true,
+      "heavy": {
+        "count": 327,
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "hydrogen": {
+        "count": 315,
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "integrator_xml_sha256": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+      "label": "unseeded",
+      "reference_label": "unseeded",
+      "system_xml_sha256": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37"
+    },
+    {
+      "exact_bond_inventory": true,
+      "exact_context_parameters": true,
+      "exact_integrator_xml": true,
+      "exact_system_xml": true,
+      "heavy": {
+        "count": 327,
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "hydrogen": {
+        "count": 315,
+        "exact": false,
+        "maximum_angstrom": 2.0892080580117574,
+        "rms_angstrom": 1.062439323604063
+      },
+      "integrator_xml_sha256": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+      "label": "seed-1",
+      "reference_label": "unseeded",
+      "system_xml_sha256": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37"
+    },
+    {
+      "exact_bond_inventory": true,
+      "exact_context_parameters": true,
+      "exact_integrator_xml": true,
+      "exact_system_xml": true,
+      "heavy": {
+        "count": 327,
+        "exact": true,
+        "maximum_angstrom": 0.0,
+        "rms_angstrom": 0.0
+      },
+      "hydrogen": {
+        "count": 315,
+        "exact": false,
+        "maximum_angstrom": 2.0893327192687274,
+        "rms_angstrom": 1.0492782569187316
+      },
+      "integrator_xml_sha256": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+      "label": "seed-2",
+      "reference_label": "unseeded",
+      "system_xml_sha256": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37"
+    }
+  ],
+  "execution_sha256": "6851f7cef8fde13f1b3718c79ae487d1b179f0ff4cb089677009e4881be073a8",
+  "extra_minimization": false,
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-atoms.json.gz": "b547a7de2ecce706d67520f3cb6b25491d34bb9016e32164aac2b5a2e1a935de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-state.xml": "7ec134cd685a0e672a69a0e6b07be73856cbb5f4f956901051e4736301029135",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/capture.json": "a06750b934ace110c1deec419bbef793ebb20cdfb527452bb0c6fc7b3925b67c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-atoms.json.gz": "56299da3f7d40f10ea6bfbd2c8f3dd433d9785c78a3f6cca438ff58408fd5a89",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-state.xml": "edc592386e4f518391f51829e6f6e9afe2a3a302a323043f0926a7ac2893651f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/capture.json": "03cc445268ecfdfe4ecec23a98ac520ff1a358813586f85fed3cded0eb77613f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-atoms.json.gz": "5e208784275d830417ef6a16816d4bb2268ef4be47503517e054c99e8156dd50",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-state.xml": "0fb9b0bbac0b18b59569d9f62420faa39d605d4c122afeb2bc470b8d79d90685",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/capture.json": "684325a32b9f83853a9f5e6d998c3988f61f1278bffc91692de56ce281b1cda9"
+  },
+  "limits": "matched saved-start evidence, not isolation of Python RNG from native H minimization numerical variability",
+  "plan_sha256": "45fd387c69192d34b08912841dcbe33d468d32e40d7eb778a1467dca03624e96",
+  "production_changed": false,
+  "schema": "dvbfixer.thr2-start-lineage.v1"
+}
