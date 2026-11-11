@@ -24,6 +24,12 @@ Saved-only all18/all1150 force decomposition retains numerical group-sum errors.
 This captures a fresh native event, not the lost original November 6 trajectory.
 Details, evidence and the no-adaptive-extension boundary:
 [THR2 native capture](../research/thr2-native-capture.md). Production unchanged.
+Protocol/results checkpoints `0f6814d` / `2eb97eb` are pushed. Correct-PATH full
+fast suite passed **3,074**, three optional skips and 33 slow deselections; final
+focused suite passed **17**, including two later-added lineage controls. Retain
+the initial six missing-CLI PATH failures, not just the corrected pass. Ruff,
+strict mypy, generated specs, agent docs and independent byte-identical saved-only
+audits passed. Capture enrollment is complete; no further sampling is implied.
 
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:

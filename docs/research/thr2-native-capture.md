@@ -157,3 +157,25 @@ appears. A new intervention to assign causality to a specific H placement/angle
 would be a **separately frozen experimental stage**, not another repetition of
 this cohort. No production fix, broad force-field conclusion, upstream issue or
 recovered-original-trajectory claim follows from these results.
+
+## Verification
+
+Research checkpoints `0f6814d` (prospective protocol) and `2eb97eb` (results) are
+pushed on `research/pdbfixer-reconstruction`.
+
+- Full fast suite: **3,074 passed**, three optional Torch/Biotite skips,
+  33 slow deselected. Two matched-start helper tests added after that collection
+  are included in the final **17-passed focused suite**.
+- The first full attempt retained **six failures / 3,066 passes** because the
+  test shell lacked `dvbfixer` on `PATH`. With the interpreter's bin directory
+  prepended, all six failing CLI cases and the full suite passed; no test skips,
+  code changes or scientific-capture retries were used to hide that failure.
+- Ruff (research/tests and production), strict-target mypy, generated CLI/GUI
+  checks, agent-documentation checks and changed-document links passed.
+- Expanded native audit, force decomposition and matched-start audit each
+  reproduce byte-identically; original native artifact hashes remain unchanged.
+- Public reports contain no coordinate arrays, native force/gradient arrays,
+  checkpoints or RNG states. All scientific payloads remain private in-project.
+
+Retained test logs: `tmp/pdbfixer-research/thr2-fast-suite-01.log` (initial PATH
+failure), `thr2-fast-suite-02.log` and `thr2-fast-suite-02.xml` (corrected full run).
