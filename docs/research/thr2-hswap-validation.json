@@ -1,0 +1,44 @@
+{
+  "failing_geometry": {
+    "actual_angstrom": 1.2458133889150464,
+    "bond": "OG-HG",
+    "residue": "B/SER126",
+    "test_upper_bound_angstrom": 1.2
+  },
+  "full_fast_suite": {
+    "failed": 1,
+    "failures": [
+      {
+        "classname": "tests.test_prepare_broken_geom",
+        "name": "test_prepare_repairs_missing_hg_when_oxt_present"
+      }
+    ],
+    "passed": 3082,
+    "skipped": 3,
+    "slow_deselected": 33
+  },
+  "focused_suite": {"passed": 26, "failed": 0},
+  "independent_reports_byte_identical": true,
+  "ruff_generated_specs_agent_docs_and_links": "passed",
+  "production_changed": false,
+  "raw_test_artifacts": {
+    "access": "read tool rejected external_directory; no bypass attempted; user permission required",
+    "path": "/private/var/folders/rj/5v2182513dx99_nlm140sfl00000gn/T/pytest-of-lilpoundcake/pytest-1140/test_prepare_repairs_missing_h0/work",
+    "retained_in_project": false
+  },
+  "retained_inputs": {
+    "src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+    "tests/test_prepare_broken_geom.py": "ab0a6e3e8f98c201c4cf3f699ab66a7427dd2a08bda58f328d2e9b0875fb5026",
+    "tmp/pdbfixer-research/thr2-hswap-fast-suite-01.log": "70fec8c8a84369356867115d54ee3c6dd147ac23037955205ea4177bc04068c0",
+    "tmp/pdbfixer-research/thr2-hswap-fast-suite-01.xml": "72874839b42cbba8235140fe655183f7fe301ce38d5e3f2d0ebd240f31274951"
+  },
+  "schema": "dvbfixer.thr2-hswap-validation.v1",
+  "source_observation": {
+    "distance_detector_factor": 1.6,
+    "distance_only_detector_limit_angstrom": 1.552,
+    "expected_oh_angstrom": 0.97,
+    "other_detection_findings": "not yet inspected"
+  },
+  "test_rerun_to_get_pass": false,
+  "thresholds_changed": false
+}

@@ -1,0 +1,4758 @@
+{
+  "audit_script_sha256": "8c55b24d00b2c28939586385b4ec745ee87659bc009dfa276207ccdabdc219da",
+  "cases": [
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3635426037334972,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4614601306917754,
+        "target_cb_volume_angstrom3": -2.4425856764131297,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 0,
+      "initial_cb_projection_kj_mol_nm": -898.1806029947812,
+      "initial_coordinates_sha256": "b0634fcaf75a23fb0aca80bcffb82b0e6cf391b40bb014b1384c490238541168",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 92,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.05170908510634949,
+            "rms_angstrom": 0.004358940456643063
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 89,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-3",
+              "after_volume_angstrom3": -0.17434075909326927,
+              "before_stage": "callback-2",
+              "before_volume_angstrom3": 0.0263747927271774,
+              "energy_change_kj_mol": -72.61595153808594
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3516907991077693,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.404518910113354,
+              "target_cb_volume_angstrom3": -2.4690645608395214,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 91,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3516907991077693,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.404518910113354,
+              "target_cb_volume_angstrom3": -2.4690645608395214,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 57,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.04819335055685703,
+            "rms_angstrom": 0.005577191705094791
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.05170908510634949,
+            "rms_angstrom": 0.004358940456643063
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 57,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3635426037334972,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4614601306917754,
+              "target_cb_volume_angstrom3": -2.4425856764131297,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 56,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3635426037334972,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4614601306917754,
+              "target_cb_volume_angstrom3": -2.4425856764131297,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_prior_reference_phase1_endpoint": true,
+      "exact_prior_reference_phase1_start": true,
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.364809676754444,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.464106804055346,
+        "target_cb_volume_angstrom3": -2.4464570566161816,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 1,
+      "initial_cb_projection_kj_mol_nm": -898.18120390599,
+      "initial_coordinates_sha256": "b0634fcaf75a23fb0aca80bcffb82b0e6cf391b40bb014b1384c490238541168",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 93,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.05596447643964755,
+            "rms_angstrom": 0.0032957404340178747
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 90,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-3",
+              "after_volume_angstrom3": -0.17434343178550407,
+              "before_stage": "callback-2",
+              "before_volume_angstrom3": 0.026369387472464586,
+              "energy_change_kj_mol": -72.61618913209622
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351937196245174,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.414281137269527,
+              "target_cb_volume_angstrom3": -2.475154186908632,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 92,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351937196245174,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.414281137269527,
+              "target_cb_volume_angstrom3": -2.475154186908632,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 59,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.04258815058263919,
+            "rms_angstrom": 0.004702354200549757
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.05596447643964755,
+            "rms_angstrom": 0.0032957404340178747
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 59,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364809676754444,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.464106804055346,
+              "target_cb_volume_angstrom3": -2.4464570566161816,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 58,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364809676754444,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.464106804055346,
+              "target_cb_volume_angstrom3": -2.4464570566161816,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3640152990724053,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4933400141106277,
+        "target_cb_volume_angstrom3": 2.5516835716164348,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 2,
+      "initial_cb_projection_kj_mol_nm": 3642.872640484263,
+      "initial_coordinates_sha256": "73c96beee2a460d75b96f55ef0596a3f5ca13986f549e57b0c9137307b197328",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 70,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.368815127228146,
+            "rms_angstrom": 0.1414896967603591
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0892080580117574,
+            "rms_angstrom": 0.08245446501006128
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3511402297364654,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.445837773591602,
+              "target_cb_volume_angstrom3": 2.4967291609458355,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 69,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3511402297364654,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.445837773591602,
+              "target_cb_volume_angstrom3": 2.4967291609458355,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 63,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.448091327394266,
+            "rms_angstrom": 0.14519593473780507
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.368815127228146,
+            "rms_angstrom": 0.1414896967603591
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3640152990724053,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4933400141106277,
+              "target_cb_volume_angstrom3": 2.5516835716164348,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 62,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3640152990724053,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4933400141106277,
+              "target_cb_volume_angstrom3": 2.5516835716164348,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4878886573791794,
+        "target_cb_volume_angstrom3": 2.5501939715010984,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 3,
+      "initial_cb_projection_kj_mol_nm": 3642.8702059927764,
+      "initial_coordinates_sha256": "73c96beee2a460d75b96f55ef0596a3f5ca13986f549e57b0c9137307b197328",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 70,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.3756707056269253,
+            "rms_angstrom": 0.14162334595751452
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0892080580117574,
+            "rms_angstrom": 0.08245446501006128
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3503636813905344,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4357142907269504,
+              "target_cb_volume_angstrom3": 2.500621439810132,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 69,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3503636813905344,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4357142907269504,
+              "target_cb_volume_angstrom3": 2.500621439810132,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.4586005284008414,
+            "rms_angstrom": 0.14602471234244271
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.3756707056269253,
+            "rms_angstrom": 0.14162334595751452
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4878886573791794,
+              "target_cb_volume_angstrom3": 2.5501939715010984,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4878886573791794,
+              "target_cb_volume_angstrom3": 2.5501939715010984,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.373019337978328,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4648450294596134,
+        "target_cb_volume_angstrom3": -2.4467906410521407,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 4,
+      "initial_cb_projection_kj_mol_nm": -524.3839355305523,
+      "initial_coordinates_sha256": "f2013a102c03df2bfad6a3b04b70c4f0f00f505e7fe02e0a71e7c500f6b5a709",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 94,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8065444763976626,
+            "rms_angstrom": 0.7519532772345863
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.033374213623371,
+            "rms_angstrom": 0.7396219295400682
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 90,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25967635785774784,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0002875113263045863,
+              "energy_change_kj_mol": -28.496490478515625
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364390252750114,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4115960128589036,
+              "target_cb_volume_angstrom3": -2.464979660736346,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 93,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364390252750114,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4115960128589036,
+              "target_cb_volume_angstrom3": -2.464979660736346,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 60,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9360149570361171,
+            "rms_angstrom": 0.7527131231016524
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8065444763976626,
+            "rms_angstrom": 0.7519532772345863
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 60,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.373019337978328,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4648450294596134,
+              "target_cb_volume_angstrom3": -2.4467906410521407,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 59,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.373019337978328,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4648450294596134,
+              "target_cb_volume_angstrom3": -2.4467906410521407,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.462544571123673,
+        "target_cb_volume_angstrom3": -2.4422326305924122,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 5,
+      "initial_cb_projection_kj_mol_nm": -524.3827426306406,
+      "initial_coordinates_sha256": "f2013a102c03df2bfad6a3b04b70c4f0f00f505e7fe02e0a71e7c500f6b5a709",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 92,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8092150754750855,
+            "rms_angstrom": 0.7519182600373886
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.033374213623371,
+            "rms_angstrom": 0.7396219295400682
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 88,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25967633000405227,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.00028828116245306894,
+              "energy_change_kj_mol": -28.495835009543043
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364193370228795,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4069498810866277,
+              "target_cb_volume_angstrom3": -2.4704438087328797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 91,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364193370228795,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4069498810866277,
+              "target_cb_volume_angstrom3": -2.4704438087328797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 56,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9373694128987549,
+            "rms_angstrom": 0.7526448328455654
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8092150754750855,
+            "rms_angstrom": 0.7519182600373886
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 56,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462544571123673,
+              "target_cb_volume_angstrom3": -2.4422326305924122,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 55,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462544571123673,
+              "target_cb_volume_angstrom3": -2.4422326305924122,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.364903822513313,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.489312460408828,
+        "target_cb_volume_angstrom3": 2.554777213893296,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 6,
+      "initial_cb_projection_kj_mol_nm": 3645.338411748412,
+      "initial_coordinates_sha256": "3888a90c100ef8dd56fb14319c92af3300a125504d8695104534b8357dcc2bdd",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 71,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.3715350496688816,
+            "rms_angstrom": 0.14165321036511602
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0893327192687274,
+            "rms_angstrom": 0.08245938499742755
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.350646392494381,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.437443315129326,
+              "target_cb_volume_angstrom3": 2.5005831574488697,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 70,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.350646392494381,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.437443315129326,
+              "target_cb_volume_angstrom3": 2.5005831574488697,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 60,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.446787157489228,
+            "rms_angstrom": 0.1448408261862078
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.3715350496688816,
+            "rms_angstrom": 0.14165321036511602
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364903822513313,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.489312460408828,
+              "target_cb_volume_angstrom3": 2.554777213893296,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 59,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364903822513313,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.489312460408828,
+              "target_cb_volume_angstrom3": 2.554777213893296,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4921730040963155,
+        "target_cb_volume_angstrom3": 2.5501801443485976,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 7,
+      "initial_cb_projection_kj_mol_nm": 3645.3384694145225,
+      "initial_coordinates_sha256": "3888a90c100ef8dd56fb14319c92af3300a125504d8695104534b8357dcc2bdd",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 69,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.3727235238196815,
+            "rms_angstrom": 0.141490831672205
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0893327192687274,
+            "rms_angstrom": 0.08245938499742755
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351677666226025,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4439804066716375,
+              "target_cb_volume_angstrom3": 2.5037892576971847,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 68,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351677666226025,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4439804066716375,
+              "target_cb_volume_angstrom3": 2.5037892576971847,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.44616471467434,
+            "rms_angstrom": 0.14510041317145628
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.3727235238196815,
+            "rms_angstrom": 0.141490831672205
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4921730040963155,
+              "target_cb_volume_angstrom3": 2.5501801443485976,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4921730040963155,
+              "target_cb_volume_angstrom3": 2.5501801443485976,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3664834959022056,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.462135557649594,
+        "target_cb_volume_angstrom3": -2.4413782189781044,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 8,
+      "initial_cb_projection_kj_mol_nm": -600.5759794146304,
+      "initial_coordinates_sha256": "19959ba3fbed3584491c2c64cf5af36404d7ccec1b2d8fbca9d6625c5876aad5",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 91,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8032290487749094,
+            "rms_angstrom": 0.7413879572428257
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.9917849545215207,
+            "rms_angstrom": 0.7303446459802907
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 87,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25857019897111144,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0011323738479957685,
+              "energy_change_kj_mol": -26.835952758789062
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.353347795031566,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.417925447927987,
+              "target_cb_volume_angstrom3": -2.467558154545341,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 90,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.353347795031566,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.417925447927987,
+              "target_cb_volume_angstrom3": -2.467558154545341,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 55,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8233304994133228,
+            "rms_angstrom": 0.7416478962955687
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8032290487749094,
+            "rms_angstrom": 0.7413879572428257
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 55,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664834959022056,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462135557649594,
+              "target_cb_volume_angstrom3": -2.4413782189781044,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 54,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664834959022056,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462135557649594,
+              "target_cb_volume_angstrom3": -2.4413782189781044,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4629490383857924,
+        "target_cb_volume_angstrom3": -2.443529565986208,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 9,
+      "initial_cb_projection_kj_mol_nm": -600.5760457773698,
+      "initial_coordinates_sha256": "19959ba3fbed3584491c2c64cf5af36404d7ccec1b2d8fbca9d6625c5876aad5",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 94,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8031094740911096,
+            "rms_angstrom": 0.7416612324405407
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.9917849545215207,
+            "rms_angstrom": 0.7303446459802907
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 90,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.2585670885665077,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0011318971866423955,
+              "energy_change_kj_mol": -26.83346563730356
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351983178242811,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4254262671338216,
+              "target_cb_volume_angstrom3": -2.4695238592234174,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 93,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351983178242811,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4254262671338216,
+              "target_cb_volume_angstrom3": -2.4695238592234174,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 57,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.828633647750877,
+            "rms_angstrom": 0.741659550349777
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8031094740911096,
+            "rms_angstrom": 0.7416612324405407
+          },
+          "label": "unseeded",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 57,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4629490383857924,
+              "target_cb_volume_angstrom3": -2.443529565986208,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 56,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4629490383857924,
+              "target_cb_volume_angstrom3": -2.443529565986208,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "unseeded",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.371809936504044,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4829502165966444,
+        "target_cb_volume_angstrom3": 2.4686893601464797,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 10,
+      "initial_cb_projection_kj_mol_nm": 4025.3138184008203,
+      "initial_coordinates_sha256": "e8120c6319835b64bdd7c97ce2e0675e3e1cfc912e3327485401ce33a413d14b",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 66,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.007410997840529775,
+            "rms_angstrom": 0.0008988729961525436
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3596868341770416,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3596868341770416,
+              "target_cb_volume_angstrom3": 2.461708744080528,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 65,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3596868341770416,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3596868341770416,
+              "target_cb_volume_angstrom3": 2.461708744080528,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 62,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.03903251556228162,
+            "rms_angstrom": 0.005825730091146057
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.007410997840529775,
+            "rms_angstrom": 0.0008988729961525436
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.371809936504044,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4829502165966444,
+              "target_cb_volume_angstrom3": 2.4686893601464797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 61,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.371809936504044,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4829502165966444,
+              "target_cb_volume_angstrom3": 2.4686893601464797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_prior_reference_phase1_endpoint": true,
+      "exact_prior_reference_phase1_start": true,
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.375932345158726,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.490970487742913,
+        "target_cb_volume_angstrom3": 2.4663864406506497,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 11,
+      "initial_cb_projection_kj_mol_nm": 4025.3133607481204,
+      "initial_coordinates_sha256": "e8120c6319835b64bdd7c97ce2e0675e3e1cfc912e3327485401ce33a413d14b",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 66,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.01364546351009567,
+            "rms_angstrom": 0.0017026327074094096
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.361545341981439,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.361545341981439,
+              "target_cb_volume_angstrom3": 2.4600836739417105,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 65,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.361545341981439,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.361545341981439,
+              "target_cb_volume_angstrom3": 2.4600836739417105,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 66,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.012953307312746744,
+            "rms_angstrom": 0.0029695664490687994
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.01364546351009567,
+            "rms_angstrom": 0.0017026327074094096
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.375932345158726,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.490970487742913,
+              "target_cb_volume_angstrom3": 2.4663864406506497,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 65,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.375932345158726,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.490970487742913,
+              "target_cb_volume_angstrom3": 2.4663864406506497,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3759645903887967,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.466366495090547,
+        "target_cb_volume_angstrom3": -2.4474339148993436,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 12,
+      "initial_cb_projection_kj_mol_nm": -524.3839355305523,
+      "initial_coordinates_sha256": "f2013a102c03df2bfad6a3b04b70c4f0f00f505e7fe02e0a71e7c500f6b5a709",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 92,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.4330263450383027,
+            "rms_angstrom": 0.18065988775842579
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0892080580117574,
+            "rms_angstrom": 0.08245446501006128
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 88,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25967635785774784,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0002875113263045863,
+              "energy_change_kj_mol": -28.49652099609375
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3643811246126814,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4092513271740046,
+              "target_cb_volume_angstrom3": -2.469008080120764,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 91,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3643811246126814,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4092513271740046,
+              "target_cb_volume_angstrom3": -2.469008080120764,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 64,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.1732869624315425,
+            "rms_angstrom": 0.17265079849205286
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 3.4330263450383027,
+            "rms_angstrom": 0.18065988775842579
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 64,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3759645903887967,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.466366495090547,
+              "target_cb_volume_angstrom3": -2.4474339148993436,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 63,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3759645903887967,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.466366495090547,
+              "target_cb_volume_angstrom3": -2.4474339148993436,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.462544571123673,
+        "target_cb_volume_angstrom3": -2.4422326305924122,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 13,
+      "initial_cb_projection_kj_mol_nm": -524.3827426306406,
+      "initial_coordinates_sha256": "f2013a102c03df2bfad6a3b04b70c4f0f00f505e7fe02e0a71e7c500f6b5a709",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 92,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.421848913889953,
+            "rms_angstrom": 0.18039732639218262
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0892080580117574,
+            "rms_angstrom": 0.08245446501006128
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 88,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25967633000405227,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.00028828116245306894,
+              "energy_change_kj_mol": -28.495835009543043
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364193370228795,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4069498810866277,
+              "target_cb_volume_angstrom3": -2.4704438087328797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 91,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.364193370228795,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4069498810866277,
+              "target_cb_volume_angstrom3": -2.4704438087328797,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 56,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.1618687874266165,
+            "rms_angstrom": 0.17346127556990815
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 3.421848913889953,
+            "rms_angstrom": 0.18039732639218262
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 56,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462544571123673,
+              "target_cb_volume_angstrom3": -2.4422326305924122,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 55,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3712451212240317,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.462544571123673,
+              "target_cb_volume_angstrom3": -2.4422326305924122,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.367025281074074,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.487387466066576,
+        "target_cb_volume_angstrom3": 2.5489003089178537,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 14,
+      "initial_cb_projection_kj_mol_nm": 3642.872640484263,
+      "initial_coordinates_sha256": "73c96beee2a460d75b96f55ef0596a3f5ca13986f549e57b0c9137307b197328",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 69,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.007532107464447,
+            "rms_angstrom": 0.7554107897428523
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.033374213623371,
+            "rms_angstrom": 0.7396219295400682
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3499296911013716,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4167803132889847,
+              "target_cb_volume_angstrom3": 2.503001849779989,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 68,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3499296911013716,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4167803132889847,
+              "target_cb_volume_angstrom3": 2.503001849779989,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 66,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9227383732269951,
+            "rms_angstrom": 0.7560908430297287
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.007532107464447,
+            "rms_angstrom": 0.7554107897428523
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.367025281074074,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.487387466066576,
+              "target_cb_volume_angstrom3": 2.5489003089178537,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 65,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.367025281074074,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.487387466066576,
+              "target_cb_volume_angstrom3": 2.5489003089178537,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4878886573791794,
+        "target_cb_volume_angstrom3": 2.5501939715010984,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 15,
+      "initial_cb_projection_kj_mol_nm": 3642.8702059927764,
+      "initial_coordinates_sha256": "73c96beee2a460d75b96f55ef0596a3f5ca13986f549e57b0c9137307b197328",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 70,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.082380152285735,
+            "rms_angstrom": 0.7560615256482244
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.033374213623371,
+            "rms_angstrom": 0.7396219295400682
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3503636813905344,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4357142907269504,
+              "target_cb_volume_angstrom3": 2.500621439810132,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 69,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3503636813905344,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4357142907269504,
+              "target_cb_volume_angstrom3": 2.500621439810132,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9390262012018458,
+            "rms_angstrom": 0.7560976029692381
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.082380152285735,
+            "rms_angstrom": 0.7560615256482244
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4878886573791794,
+              "target_cb_volume_angstrom3": 2.5501939715010984,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3661214592757545,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4878886573791794,
+              "target_cb_volume_angstrom3": 2.5501939715010984,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3765876846324363,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4902134104822577,
+        "target_cb_volume_angstrom3": 2.470729909182857,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 16,
+      "initial_cb_projection_kj_mol_nm": 4027.735372303379,
+      "initial_coordinates_sha256": "e657fcb086334ebd39a77ed37dacd912e0215439ae2de825e9032f8ea991c71d",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 64,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.026530988257653584,
+            "rms_angstrom": 0.0031930225228817906
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.0025888243258866926,
+            "rms_angstrom": 0.00010217274626020922
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3546797051628197,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3546797051628197,
+              "target_cb_volume_angstrom3": 2.472141310291212,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 63,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3546797051628197,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3546797051628197,
+              "target_cb_volume_angstrom3": 2.472141310291212,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 69,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.023387215081600708,
+            "rms_angstrom": 0.004478088236386865
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.026530988257653584,
+            "rms_angstrom": 0.0031930225228817906
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3765876846324363,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4902134104822577,
+              "target_cb_volume_angstrom3": 2.470729909182857,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 68,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3765876846324363,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4902134104822577,
+              "target_cb_volume_angstrom3": 2.470729909182857,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.374771889538487,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4879111745466997,
+        "target_cb_volume_angstrom3": 2.4651756632324417,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 17,
+      "initial_cb_projection_kj_mol_nm": 4027.7372283206937,
+      "initial_coordinates_sha256": "e657fcb086334ebd39a77ed37dacd912e0215439ae2de825e9032f8ea991c71d",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 70,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.04259988557439947,
+            "rms_angstrom": 0.004817628227473818
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.0025888243258866926,
+            "rms_angstrom": 0.00010217274626020922
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3562991265193123,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3562991265193123,
+              "target_cb_volume_angstrom3": 2.4559837591438636,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 69,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3562991265193123,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3562991265193123,
+              "target_cb_volume_angstrom3": 2.4559837591438636,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.012681637994490512,
+            "rms_angstrom": 0.002561427859290059
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.04259988557439947,
+            "rms_angstrom": 0.004817628227473818
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.374771889538487,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4879111745466997,
+              "target_cb_volume_angstrom3": 2.4651756632324417,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.374771889538487,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4879111745466997,
+              "target_cb_volume_angstrom3": 2.4651756632324417,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3708365106284686,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.46556123658145,
+        "target_cb_volume_angstrom3": 2.474130341837676,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 18,
+      "initial_cb_projection_kj_mol_nm": 3949.8732008098896,
+      "initial_coordinates_sha256": "381745a62ccf0980e119b2612dac902ad38cdeb3813402ca07085052df0c1810",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 54,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8152458723523377,
+            "rms_angstrom": 0.7574571600167759
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.02391543669358,
+            "rms_angstrom": 0.7589170299582545
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.2867528537623225,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.2867528537623225,
+              "target_cb_volume_angstrom3": 2.481221160747226,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 53,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.2867528537623225,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.2867528537623225,
+              "target_cb_volume_angstrom3": 2.481221160747226,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 64,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.916823730822708,
+            "rms_angstrom": 0.759352030838264
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8152458723523377,
+            "rms_angstrom": 0.7574571600167759
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3708365106284686,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.46556123658145,
+              "target_cb_volume_angstrom3": 2.474130341837676,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 63,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3708365106284686,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.46556123658145,
+              "target_cb_volume_angstrom3": 2.474130341837676,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4739072486502005,
+        "target_cb_volume_angstrom3": 2.4718919138983035,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 19,
+      "initial_cb_projection_kj_mol_nm": 3949.8715391097066,
+      "initial_coordinates_sha256": "381745a62ccf0980e119b2612dac902ad38cdeb3813402ca07085052df0c1810",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 59,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8101357560524933,
+            "rms_angstrom": 0.7572173651082041
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.02391543669358,
+            "rms_angstrom": 0.7589170299582545
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3120720391352605,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3120720391352605,
+              "target_cb_volume_angstrom3": 2.484179792427529,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 58,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3120720391352605,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3120720391352605,
+              "target_cb_volume_angstrom3": 2.484179792427529,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 63,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9155772722850464,
+            "rms_angstrom": 0.7593528202474921
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8101357560524933,
+            "rms_angstrom": 0.7572173651082041
+          },
+          "label": "seed-1",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4739072486502005,
+              "target_cb_volume_angstrom3": 2.4718919138983035,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 62,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4739072486502005,
+              "target_cb_volume_angstrom3": 2.4718919138983035,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-1",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.370552379723922,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4736256846339,
+        "target_cb_volume_angstrom3": 2.4732875590673102,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 20,
+      "initial_cb_projection_kj_mol_nm": 3952.3266018534077,
+      "initial_coordinates_sha256": "e16c0920360cf74f87c45b79bd086aa8f62f82ab92a3cb78e1c5f580fed4f1e0",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 61,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.007647998579434221,
+            "rms_angstrom": 0.0008692957232058332
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.325160871283172,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.325160871283172,
+              "target_cb_volume_angstrom3": 2.4829817359865913,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 60,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.325160871283172,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.325160871283172,
+              "target_cb_volume_angstrom3": 2.4829817359865913,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 61,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.02680223707909182,
+            "rms_angstrom": 0.004488867111513071
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.007647998579434221,
+            "rms_angstrom": 0.0008692957232058332
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.370552379723922,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4736256846339,
+              "target_cb_volume_angstrom3": 2.4732875590673102,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 60,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.370552379723922,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4736256846339,
+              "target_cb_volume_angstrom3": 2.4732875590673102,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-2",
+      "exact_prior_reference_phase1_endpoint": true,
+      "exact_prior_reference_phase1_start": true,
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.370849450566907,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.471243686541497,
+        "target_cb_volume_angstrom3": 2.4710780200481435,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 21,
+      "initial_cb_projection_kj_mol_nm": 3952.327182716541,
+      "initial_coordinates_sha256": "e16c0920360cf74f87c45b79bd086aa8f62f82ab92a3cb78e1c5f580fed4f1e0",
+      "mask": "unchanged",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 58,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.018094698997098833,
+            "rms_angstrom": 0.0020808224043737246
+          },
+          "delta_from_recipient_native_start": {
+            "exact": true,
+            "maximum_angstrom": 0.0,
+            "rms_angstrom": 0.0
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.310775966457081,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.310775966457081,
+              "target_cb_volume_angstrom3": 2.484371112227983,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 57,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.310775966457081,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.310775966457081,
+              "target_cb_volume_angstrom3": 2.484371112227983,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 64,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.016334502167077602,
+            "rms_angstrom": 0.0026960653665845063
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.018094698997098833,
+            "rms_angstrom": 0.0020808224043737246
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.370849450566907,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.471243686541497,
+              "target_cb_volume_angstrom3": 2.4710780200481435,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 63,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.370849450566907,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.471243686541497,
+              "target_cb_volume_angstrom3": 2.4710780200481435,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 0,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.371090230740758,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4632499430894095,
+        "target_cb_volume_angstrom3": -2.443463853481421,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 22,
+      "initial_cb_projection_kj_mol_nm": -600.5759794146304,
+      "initial_coordinates_sha256": "19959ba3fbed3584491c2c64cf5af36404d7ccec1b2d8fbca9d6625c5876aad5",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 93,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.480991972052603,
+            "rms_angstrom": 0.18206369001950617
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0893327192687274,
+            "rms_angstrom": 0.08245938499742755
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 89,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.25857019897111144,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0011323738479957685,
+              "energy_change_kj_mol": -26.835952758789062
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.352304653429121,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.40613023724014,
+              "target_cb_volume_angstrom3": -2.4622735923596375,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 92,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.352304653429121,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.40613023724014,
+              "target_cb_volume_angstrom3": -2.4622735923596375,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 58,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.2252092500856797,
+            "rms_angstrom": 0.17493820414152972
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 3.480991972052603,
+            "rms_angstrom": 0.18206369001950617
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 58,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.371090230740758,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4632499430894095,
+              "target_cb_volume_angstrom3": -2.443463853481421,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 57,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.371090230740758,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4632499430894095,
+              "target_cb_volume_angstrom3": -2.443463853481421,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "S",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4629490383857924,
+        "target_cb_volume_angstrom3": -2.443529565986208,
+        "target_cip": {
+          "CA": "S",
+          "CB": "S"
+        }
+      },
+      "hb_source": "unseeded",
+      "index": 23,
+      "initial_cb_projection_kj_mol_nm": -600.5760457773698,
+      "initial_coordinates_sha256": "19959ba3fbed3584491c2c64cf5af36404d7ccec1b2d8fbca9d6625c5876aad5",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 94,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.5344932279100485,
+            "rms_angstrom": 0.18434035898983311
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.0893327192687274,
+            "rms_angstrom": 0.08245938499742755
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 90,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [
+            {
+              "after_stage": "callback-4",
+              "after_volume_angstrom3": -0.2585670885665077,
+              "before_stage": "callback-3",
+              "before_volume_angstrom3": 0.0011318971866423955,
+              "energy_change_kj_mol": -26.83346563730356
+            }
+          ],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351983178242811,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4254262671338216,
+              "target_cb_volume_angstrom3": -2.4695238592234174,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 93,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351983178242811,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4254262671338216,
+              "target_cb_volume_angstrom3": -2.4695238592234174,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 57,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 3.231067495633706,
+            "rms_angstrom": 0.17528844493879056
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 3.5344932279100485,
+            "rms_angstrom": 0.18434035898983311
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 57,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4629490383857924,
+              "target_cb_volume_angstrom3": -2.443529565986208,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "last_reported_iteration": 56,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3662145426417647,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4629490383857924,
+              "target_cb_volume_angstrom3": -2.443529565986208,
+              "target_cip": {
+                "CA": "S",
+                "CB": "S"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3668534275361015,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4887974581056898,
+        "target_cb_volume_angstrom3": 2.548224264383967,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 24,
+      "initial_cb_projection_kj_mol_nm": 3645.338411748412,
+      "initial_coordinates_sha256": "3888a90c100ef8dd56fb14319c92af3300a125504d8695104534b8357dcc2bdd",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 71,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.1168371571222244,
+            "rms_angstrom": 0.7452822120340222
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.9917849545215207,
+            "rms_angstrom": 0.7303446459802907
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3501556622010984,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4276517630848335,
+              "target_cb_volume_angstrom3": 2.501929822930584,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 70,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3501556622010984,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4276517630848335,
+              "target_cb_volume_angstrom3": 2.501929822930584,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 68,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8710390960863807,
+            "rms_angstrom": 0.7449779526731741
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.1168371571222244,
+            "rms_angstrom": 0.7452822120340222
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3668534275361015,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4887974581056898,
+              "target_cb_volume_angstrom3": 2.548224264383967,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 67,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3668534275361015,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4887974581056898,
+              "target_cb_volume_angstrom3": 2.548224264383967,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "unseeded",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4921730040963155,
+        "target_cb_volume_angstrom3": 2.5501801443485976,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 25,
+      "initial_cb_projection_kj_mol_nm": 3645.3384694145225,
+      "initial_coordinates_sha256": "3888a90c100ef8dd56fb14319c92af3300a125504d8695104534b8357dcc2bdd",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "unseeded",
+      "phases": [
+        {
+          "callbacks": 69,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 2.1519386834745067,
+            "rms_angstrom": 0.7456138172030096
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.9917849545215207,
+            "rms_angstrom": 0.7303446459802907
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351677666226025,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4439804066716375,
+              "target_cb_volume_angstrom3": 2.5037892576971847,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 68,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.351677666226025,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4439804066716375,
+              "target_cb_volume_angstrom3": 2.5037892576971847,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8685531553318397,
+            "rms_angstrom": 0.7450589877775784
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.1519386834745067,
+            "rms_angstrom": 0.7456138172030096
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4921730040963155,
+              "target_cb_volume_angstrom3": 2.5501801443485976,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3664060141228345,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4921730040963155,
+              "target_cb_volume_angstrom3": 2.5501801443485976,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.372163810611426,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4754564067410327,
+        "target_cb_volume_angstrom3": 2.472902387767419,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 26,
+      "initial_cb_projection_kj_mol_nm": 3949.8732008098896,
+      "initial_coordinates_sha256": "381745a62ccf0980e119b2612dac902ad38cdeb3813402ca07085052df0c1810",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 59,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.012221300725163064,
+            "rms_angstrom": 0.001461750044828573
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.0025888243258866926,
+            "rms_angstrom": 0.00010217274626020922
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.315113563442682,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.315113563442682,
+              "target_cb_volume_angstrom3": 2.4845937020312863,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 58,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.315113563442682,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.315113563442682,
+              "target_cb_volume_angstrom3": 2.4845937020312863,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 62,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.02387206327857711,
+            "rms_angstrom": 0.004333990744123128
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.012221300725163064,
+            "rms_angstrom": 0.001461750044828573
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.372163810611426,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4754564067410327,
+              "target_cb_volume_angstrom3": 2.472902387767419,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 61,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.372163810611426,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4754564067410327,
+              "target_cb_volume_angstrom3": 2.472902387767419,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4739072486502005,
+        "target_cb_volume_angstrom3": 2.4718919138983035,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-1",
+      "index": 27,
+      "initial_cb_projection_kj_mol_nm": 3949.8715391097066,
+      "initial_coordinates_sha256": "381745a62ccf0980e119b2612dac902ad38cdeb3813402ca07085052df0c1810",
+      "mask": "HB",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-2",
+      "phases": [
+        {
+          "callbacks": 59,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.01798306374526347,
+            "rms_angstrom": 0.0020761933648376766
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.0025888243258866926,
+            "rms_angstrom": 0.00010217274626020922
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3120720391352605,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3120720391352605,
+              "target_cb_volume_angstrom3": 2.484179792427529,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 58,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3120720391352605,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3120720391352605,
+              "target_cb_volume_angstrom3": 2.484179792427529,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 63,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 0.02513343267726576,
+            "rms_angstrom": 0.004074596549718607
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 0.01798306374526347,
+            "rms_angstrom": 0.0020761933648376766
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4739072486502005,
+              "target_cb_volume_angstrom3": 2.4718919138983035,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 62,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3719993173282803,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4739072486502005,
+              "target_cb_volume_angstrom3": 2.4718919138983035,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 1,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.373897369726862,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4837759967684465,
+        "target_cb_volume_angstrom3": 2.470192397896913,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 28,
+      "initial_cb_projection_kj_mol_nm": 4027.735372303379,
+      "initial_coordinates_sha256": "e657fcb086334ebd39a77ed37dacd912e0215439ae2de825e9032f8ea991c71d",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "captured",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 63,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.812446231247367,
+            "rms_angstrom": 0.7571488747273297
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.02391543669358,
+            "rms_angstrom": 0.7589170299582545
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.355925789548679,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.355925789548679,
+              "target_cb_volume_angstrom3": 2.473554888551716,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 62,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.355925789548679,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.355925789548679,
+              "target_cb_volume_angstrom3": 2.473554888551716,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 62,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9083939115918853,
+            "rms_angstrom": 0.7593776397163782
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.812446231247367,
+            "rms_angstrom": 0.7571488747273297
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "captured",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.373897369726862,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4837759967684465,
+              "target_cb_volume_angstrom3": 2.470192397896913,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 61,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.373897369726862,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4837759967684465,
+              "target_cb_volume_angstrom3": 2.470192397896913,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    },
+    {
+      "donor": "seed-1",
+      "exact_start_ownership": true,
+      "expected_cb_under_hb_localization": "R",
+      "final_geometry": {
+        "alpha_count": 42,
+        "minimum_alpha_volume_angstrom3": 2.374771889538487,
+        "negative_alpha": [],
+        "target_ca_volume_angstrom3": 2.4879111745466997,
+        "target_cb_volume_angstrom3": 2.4651756632324417,
+        "target_cip": {
+          "CA": "S",
+          "CB": "R"
+        }
+      },
+      "hb_source": "seed-2",
+      "index": 29,
+      "initial_cb_projection_kj_mol_nm": 4027.7372283206937,
+      "initial_coordinates_sha256": "e657fcb086334ebd39a77ed37dacd912e0215439ae2de825e9032f8ea991c71d",
+      "mask": "other-H",
+      "matches_hb_localization": true,
+      "mode": "Reference",
+      "other_h_source": "seed-1",
+      "phases": [
+        {
+          "callbacks": 70,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.8111524673317487,
+            "rms_angstrom": 0.757102778175297
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 2.02391543669358,
+            "rms_angstrom": 0.7589170299582545
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 2,
+          "particles": 642,
+          "phase": 1,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3562991265193123,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3562991265193123,
+              "target_cb_volume_angstrom3": 2.4559837591438636,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 69,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.3562991265193123,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.3562991265193123,
+              "target_cb_volume_angstrom3": 2.4559837591438636,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        },
+        {
+          "callbacks": 65,
+          "delta_from_recipient_native_endpoint": {
+            "exact": false,
+            "maximum_angstrom": 1.9100367261458395,
+            "rms_angstrom": 0.7594310074433772
+          },
+          "delta_from_recipient_native_start": {
+            "exact": false,
+            "maximum_angstrom": 1.8111524673317487,
+            "rms_angstrom": 0.757102778175297
+          },
+          "label": "seed-2",
+          "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+          "maximum_objective_readback_error_kj_mol": 0.0,
+          "mobile_particles": 642,
+          "mode": "Reference",
+          "negative_alpha_nodes": 0,
+          "negative_target_beta_callbacks": 0,
+          "number": 3,
+          "particles": 642,
+          "phase": 2,
+          "returned": true,
+          "stage": "whole",
+          "status": "completed",
+          "target_beta_sign_crossings": [],
+          "terminal": {
+            "comparison": "last reported callback",
+            "last_reported_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.374771889538487,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4879111745466997,
+              "target_cb_volume_angstrom3": 2.4651756632324417,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "last_reported_iteration": 64,
+            "returned_geometry": {
+              "alpha_count": 42,
+              "minimum_alpha_volume_angstrom3": 2.374771889538487,
+              "negative_alpha": [],
+              "target_ca_volume_angstrom3": 2.4879111745466997,
+              "target_cb_volume_angstrom3": 2.4651756632324417,
+              "target_cip": {
+                "CA": "S",
+                "CB": "R"
+              }
+            },
+            "returned_minus_last_reported_energy_kj_mol": 0.0,
+            "returned_satisfies_native_gradient_test": true,
+            "returned_vs_last_reported": {
+              "exact": true,
+              "maximum_angstrom": 0.0,
+              "rms_angstrom": 0.0
+            }
+          }
+        }
+      ],
+      "recipient": "seed-2",
+      "returncode": 0,
+      "selected_atoms": 314,
+      "status": "completed"
+    }
+  ],
+  "errors": [],
+  "exact_input_groups": [
+    {
+      "indices": [
+        0,
+        1
+      ],
+      "initial_coordinates_sha256": "b0634fcaf75a23fb0aca80bcffb82b0e6cf391b40bb014b1384c490238541168",
+      "maximum_captured_repeated_endpoint_delta_angstrom": null,
+      "reference_repeated_endpoints_exact": null
+    },
+    {
+      "indices": [
+        2,
+        3,
+        14,
+        15
+      ],
+      "initial_coordinates_sha256": "73c96beee2a460d75b96f55ef0596a3f5ca13986f549e57b0c9137307b197328",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.0959018462604304,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        4,
+        5,
+        12,
+        13
+      ],
+      "initial_coordinates_sha256": "f2013a102c03df2bfad6a3b04b70c4f0f00f505e7fe02e0a71e7c500f6b5a709",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.025917038895651327,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        6,
+        7,
+        24,
+        25
+      ],
+      "initial_coordinates_sha256": "3888a90c100ef8dd56fb14319c92af3300a125504d8695104534b8357dcc2bdd",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.05320243297940769,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        8,
+        9,
+        22,
+        23
+      ],
+      "initial_coordinates_sha256": "19959ba3fbed3584491c2c64cf5af36404d7ccec1b2d8fbca9d6625c5876aad5",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.08393738753415056,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        10,
+        11
+      ],
+      "initial_coordinates_sha256": "e8120c6319835b64bdd7c97ce2e0675e3e1cfc912e3327485401ce33a413d14b",
+      "maximum_captured_repeated_endpoint_delta_angstrom": null,
+      "reference_repeated_endpoints_exact": null
+    },
+    {
+      "indices": [
+        16,
+        17,
+        28,
+        29
+      ],
+      "initial_coordinates_sha256": "e657fcb086334ebd39a77ed37dacd912e0215439ae2de825e9032f8ea991c71d",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.024168577167793057,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        18,
+        19,
+        26,
+        27
+      ],
+      "initial_coordinates_sha256": "381745a62ccf0980e119b2612dac902ad38cdeb3813402ca07085052df0c1810",
+      "maximum_captured_repeated_endpoint_delta_angstrom": 0.05877224059740102,
+      "reference_repeated_endpoints_exact": true
+    },
+    {
+      "indices": [
+        20,
+        21
+      ],
+      "initial_coordinates_sha256": "e16c0920360cf74f87c45b79bd086aa8f62f82ab92a3cb78e1c5f580fed4f1e0",
+      "maximum_captured_repeated_endpoint_delta_angstrom": null,
+      "reference_repeated_endpoints_exact": null
+    }
+  ],
+  "execution_sha256": "fae679dcf857f6a75c9af9d1484924464570bb6715e07038817fcf77df1ca6b4",
+  "extra_minimization": false,
+  "limits": "saved-start counterfactuals on ONE poor-heavy THR2 context, not original lost trajectory, new independent sampling or production qualification",
+  "plan_sha256": "488fc3d7982400b2be0d53947d8e282b2ee4df56721a2ddcc67d8a69ad767491",
+  "private_audit_sha256": "16b06acf00f1df0699abea2040d79a6abadab578cbdf79d3f011de9aabd64fef",
+  "production_changed": false,
+  "schema": "dvbfixer.thr2-hswap-audit.v1",
+  "summary": {
+    "callbacks": 4097,
+    "distinct_initial_coordinate_sets": 9,
+    "exact_start_ownership": 30,
+    "final_cb_by_mode_mask": {
+      "Reference": {
+        "HB": {
+          "R": 4,
+          "S": 2
+        },
+        "other-H": {
+          "R": 4,
+          "S": 2
+        },
+        "unchanged": {
+          "R": 2,
+          "S": 1
+        }
+      },
+      "captured": {
+        "HB": {
+          "R": 4,
+          "S": 2
+        },
+        "other-H": {
+          "R": 4,
+          "S": 2
+        },
+        "unchanged": {
+          "R": 2,
+          "S": 1
+        }
+      }
+    },
+    "matches_hb_localization": 30,
+    "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+    "maximum_objective_readback_error_kj_mol": 0.0,
+    "negative_alpha_nodes": 0,
+    "paths": 30,
+    "phases": 60,
+    "prior_reference_controls": [
+      {
+        "endpoint": true,
+        "index": 1,
+        "start": true
+      },
+      {
+        "endpoint": true,
+        "index": 11,
+        "start": true
+      },
+      {
+        "endpoint": true,
+        "index": 21,
+        "start": true
+      }
+    ],
+    "reference_reciprocal_duplicate_failures": 0,
+    "reference_reciprocal_duplicate_groups": 6,
+    "returned_differs_last_reported": 0,
+    "statuses": {
+      "completed": 30
+    }
+  }
+}

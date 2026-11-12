@@ -40,6 +40,28 @@ all six ordered donor/recipient pairs × HB/complementary-H masks plus three
 unchanged starts, once in each numerical mode (30 paths/60 native calls). No new
 H generation, seeds, physics, repair or production behavior; retain all outcomes.
 
+**H-swap completed:** protocol `de12422` precedes all 30 paths/60 native phases.
+All 4,097 callbacks independently match native physical gradients/objectives;
+zero D-Cα/terminal mismatches, three exact old Reference controls. Outcomes follow
+HB source in the full 3×3 HB/remainder grid in both numerical modes: unseeded HB
+→ S, either seeded HB → R. The 30 paths contain **nine unique starts**, not 30
+independent samples; reciprocal masks duplicate six hybrids and Reference phase
+endpoints match exactly. Maximum OpenCL duplicate endpoint delta is 0.095902 Å.
+Saved RNG reconstruction accounts for all315 H/all945 draws per fresh capture:
+the unseeded perturbation already places HB in a four-ligand-sign conflict before
+H minimization (−1.571 Å³ vs +0.198 heavy-centre volume), which persists through
+H-only/repair before full heavy inversion. This is finite-context mechanism
+evidence, not broad qualification, a production fix or the lost original run.
+
+**Current genuine access blocker:** full fast suite retained **3,082 passed / one
+failed** (three optional skips, 33 slow deselected). Unchanged SER126 HG regression
+emitted OG–HG 1.245813 Å vs existing <1.2 assertion. Do not rerun until green,
+weaken thresholds, skip or patch production. Log/XML are retained in-project;
+read access to the original failing pytest workdir was denied as external.
+Ask for access to the exact directory documented in
+[H-swap continuation](../research/thr2-hswap.md) before copying/inspecting the raw
+failure. Its cause is not yet established. Do not bypass the sandbox restriction.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.
