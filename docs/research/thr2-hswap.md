@@ -182,3 +182,9 @@ log/XML and unchanged source hashes. The original failing `hg_missing.pdb`,
 **User input is now needed:** grant read/copy access to that specific directory
 so the original failed artifacts can be preserved inside the project and audited
 without reproducing or replacing the failure. No sandbox bypass was attempted.
+
+**Subsequent continuation:** the user granted permission, but tool access remained
+blocked and the user's copy command reported that the source path was absent.
+Original raw artifacts remain unavailable. The separately bounded
+[SER-HG fresh-capture stage](ser-hg-capture.md) preserves that loss and the original
+failed validation result; it is not a recovered original run or retry-until-green.

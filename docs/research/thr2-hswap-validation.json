@@ -22,9 +22,10 @@
   "ruff_generated_specs_agent_docs_and_links": "passed",
   "production_changed": false,
   "raw_test_artifacts": {
-    "access": "read tool rejected external_directory; no bypass attempted; user permission required",
+    "access": "read tool rejected external_directory, including after user authorization; no bypass attempted; user copy command subsequently reported source path missing",
     "path": "/private/var/folders/rj/5v2182513dx99_nlm140sfl00000gn/T/pytest-of-lilpoundcake/pytest-1140/test_prepare_repairs_missing_h0/work",
-    "retained_in_project": false
+    "retained_in_project": false,
+    "status": "original raw artifacts unavailable; not recovered or replaced by fresh captures"
   },
   "retained_inputs": {
     "src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",

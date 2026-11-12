@@ -62,6 +62,17 @@ Ask for access to the exact directory documented in
 [H-swap continuation](../research/thr2-hswap.md) before copying/inspecting the raw
 failure. Its cause is not yet established. Do not bypass the sandbox restriction.
 
+**Access/loss update and renewed continuation:** user authorized read/copy, but
+the tool still denied access and their own `cp` reported source path missing.
+Treat the original failed SER-HG structure as unavailable; log/XML remain, and
+fresh outputs must not replace it. The prospective
+[SER-HG capture protocol](../research/ser-hg-capture.md) uses the same tracked
+synthetic input in six fixed fresh preparations (unseeded + H seeds1–5), with all
+H/minimizer/production-repair boundaries retained inside the project. Production
+and assertions unchanged. A deterministic graph at the logged 1.245813 Å O–H
+length shows the existing detector/test contract gap (<1.2 vs distance-only
+1.552 Å), but does not establish missing predicates or the lost-run cause.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.
