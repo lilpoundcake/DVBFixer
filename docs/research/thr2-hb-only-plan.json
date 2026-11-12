@@ -1,0 +1,768 @@
+{
+  "cases": [
+    {
+      "arm": "unchanged",
+      "label": "unseeded",
+      "mode": "captured"
+    },
+    {
+      "arm": "unchanged",
+      "label": "unseeded",
+      "mode": "Reference"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "unseeded",
+      "mode": "captured"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "unseeded",
+      "mode": "Reference"
+    },
+    {
+      "arm": "unchanged",
+      "label": "seed-1",
+      "mode": "captured"
+    },
+    {
+      "arm": "unchanged",
+      "label": "seed-1",
+      "mode": "Reference"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "seed-1",
+      "mode": "captured"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "seed-1",
+      "mode": "Reference"
+    },
+    {
+      "arm": "unchanged",
+      "label": "seed-2",
+      "mode": "captured"
+    },
+    {
+      "arm": "unchanged",
+      "label": "seed-2",
+      "mode": "Reference"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "seed-2",
+      "mode": "captured"
+    },
+    {
+      "arm": "HB-only-unperturbed",
+      "label": "seed-2",
+      "mode": "Reference"
+    }
+  ],
+  "historical_geometry": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/pre-stereo-baseline-01/src/dvbfixer/ffutils/geometry.py",
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/thr2-hb-only-initializer.md": "bd2200d2cf19a8161e4a66dd2487c593be33584c6a898c88f70e3b0cbff0b66d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/thr2-initializer-frame-controls.md": "3a552f8923697ccce72ebc034aa290a759d05e7fbc493297a2c00e96151bedd7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-angle-terms-evidence.json": "20be6633970b8e2595ac4393513c93bd5e74cdf423a2c9a2d9e202e105f0ec5b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-h-initialization-evidence.json": "fc15d83d629d30948a1ea16a857ff68b4f67b419cb53f306939127b641e3cf7e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-hbridge-admission.json": "08b5e6c9aef24607774bd4e5f72d6807da66e3d960a3bfaf62df1b075c0dd547",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-hswap-evidence.json": "ee03206a18e1a5d9bca1f111149dadb6354d50c062382dc5f7bae4987e946760",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-hswap-plan.json": "488fc3d7982400b2be0d53947d8e282b2ee4df56721a2ddcc67d8a69ad767491",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-initializer-frames-evidence.json": "044ba51e4c7f65d65d05e9f866862b572098e2cedcfa5965297c9f9c22b2c089",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-initializer-frames-plan.json": "913c9cb176c19fe76911d2d4dbe55e612255d3d2c5318226e81e5db8e5f46f6a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-native-capture-plan.json": "45fd387c69192d34b08912841dcbe33d468d32e40d7eb778a1467dca03624e96",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/pre-stereo-baseline-01/src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-plan-01.json": "45fd387c69192d34b08912841dcbe33d468d32e40d7eb778a1467dca03624e96",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/evidence.json": "6851f7cef8fde13f1b3718c79ae487d1b179f0ff4cb089677009e4881be073a8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/Reference/path.json.gz": "7eb44d1d064176effb7a0cf0a151d064f257cea68a327a17dd89078e400aa6c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/Reference/replay.json": "b3cad29ed5cae41c3045d81b9ffce1d3eb3c8e4bc9c8d3e20ea201f2c72a07f6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/captured/path.json.gz": "98e4e2be3c057fa89c5bd09ac93e62831327920b3d0cf1c5871fa1a19db62781",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/captured/replay.json": "d38cbcde446352a4d72666c01541cee0f8977196097ed23fda626b7f06d82d01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/Reference/path.json.gz": "949c54aedae31021cfc8d492b49e3cb2483ed067478a621c743287c9c1af0f0b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/Reference/replay.json": "34a6d5622f403b579a438ca290e13e76747871de9811e365c8ab7b7040f2cf50",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/captured/path.json.gz": "9219466048a9f13f4947ea9e8c63773fa6ef27bc9c0497d84c8c0a09bb966e76",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/captured/replay.json": "e88e00f20c9d140ce069071b7872463a3398078839e80811c68689abd60de409",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-2/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/Reference/path.json.gz": "2d7dcab51cfadabb823ccc84dadbabfd07cd61596a1bbea00648d95d346b48dc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/Reference/replay.json": "9ced26d43dbd4bb9cef2b65f4d1873f054666eb37a1e33f1fa01cb22bc6f424e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/captured/path.json.gz": "b10d98bbdca5a00c0ac8363677487a3322b532da09d08ca5082647c35a9cf438",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/captured/replay.json": "a41bc07a44d01ca98ea00e25bd43694e02e65624c5fa8ae2d9f18594bff33578",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-3/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/Reference/path.json.gz": "ebdebdadd13f813062c26692477b35705e0f26796e4cdc5ab948b07cb72eba79",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/Reference/replay.json": "b3cad29ed5cae41c3045d81b9ffce1d3eb3c8e4bc9c8d3e20ea201f2c72a07f6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/captured/path.json.gz": "2429962339115c9b4109adccd6578af587ce62eb72197b50584cbbb93aec08d7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/captured/replay.json": "d38cbcde446352a4d72666c01541cee0f8977196097ed23fda626b7f06d82d01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/Reference/path.json.gz": "5dbfa852759af9467d9a5ce0439ceae655cbad280b00179b5eeae4dd8d46edff",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/Reference/replay.json": "e034bd02cb60215bebbbbdc91fa068bfe131b44d4b82c080243e2a253c65dc67",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/captured/path.json.gz": "e03ea49cbc4213e60795f6cf6b683d1f852176ed543a9256653a2c9c385971c7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/captured/replay.json": "63df96b8a5097a85ff870f7355de50678e389aa06e6c3142c97e05758e0d3fe9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-2/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/Reference/path.json.gz": "ff42d2008c707f83944ca394dd013627f3eaaa2f1c92c8c7a4b18244f1b6e151",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/Reference/replay.json": "68efa413a7d22322371a8500e2ef996962c1a42cf969331049ef62eb9a6adb5b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/captured/path.json.gz": "20f8a1d68548b9cd75a0642a053fa41725975a6c6446e0c374bf8758aa45a3dc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/captured/replay.json": "6fe16603186b36c6c7d5ee0d09a8d9b288a918aa4eed95d8d33099ce526d3fb9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-3/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/Reference/path.json.gz": "058af6cd1861b148ebd0756d0370340af0baec1d63f0d9bb64ebe5e82ddd7ca0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/Reference/replay.json": "b3cad29ed5cae41c3045d81b9ffce1d3eb3c8e4bc9c8d3e20ea201f2c72a07f6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/captured/path.json.gz": "b5aee2f48940355615a16985fa9ab7fd3ebe85b9302aeb4afe019e21a32f7bbe",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/captured/replay.json": "d38cbcde446352a4d72666c01541cee0f8977196097ed23fda626b7f06d82d01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/Reference/path.json.gz": "b4f26bdb28832d91cbf95d5e62833174ae695d95ecb31ae24e5b443c5b4000a0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/Reference/replay.json": "c33ce6d936358af87eef73ad46bb7df19de97f5fe1971025903b04b16e5442c2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/captured/path.json.gz": "e7296ecca0e0f9e6cbbc099bb964e46f8029ea71543ead08d2fcbaa6ef4c4afc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/captured/replay.json": "e745eb58c7f3ba06f0a4f620d5c69ef1f2f7c0681ab8368fe3250b09c780216a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-2/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/Reference/path.json.gz": "0da4f5d6d6c7bc48b67cc83dbd93edc9872221419daabe0a2682653a7a284107",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/Reference/replay.json": "c01ff6b7b8e6f906bd4d8da9cad0217c9ac1d82936e184c7b7a587adea3e0f5f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/Reference/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/captured/path.json.gz": "75c4e7dcb39ef60dc538c37d5b61660ab514d7025976df9060fbb9bb467b179e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/captured/replay.json": "6fe16603186b36c6c7d5ee0d09a8d9b288a918aa4eed95d8d33099ce526d3fb9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-3/captured/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-atoms.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-state.xml": "960b621caf1629aab6172d95e50d1617fe4580f2309ff5ee267beb6b58673739",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after.chk": "699ac0433466820b24b85919ced5657d46b43f37f0d0157362f3dd9cc444e34c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-atoms.json.gz": "fe3c875ea234651d749b73baf226c91d03c4a0fbcd6490ad47f69900b78f6cb1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-state.xml": "15ef91eeb9d18b9ae643ace1bd85c5de29d92a70aea8f1ec04159ad897d0a873",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before.chk": "e7849af41c1cf0070a5c335b2e6a19e0586bee0568188cfbd21a6708384868c4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-atoms.json.gz": "b547a7de2ecce706d67520f3cb6b25491d34bb9016e32164aac2b5a2e1a935de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-state.xml": "7ec134cd685a0e672a69a0e6b07be73856cbb5f4f956901051e4736301029135",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before.chk": "6d846c6b95b896066a143b73493bf43fa5a2903ab72e71abb172512e07f4fbb8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-atoms.json.gz": "a7f7869af401b5ae799629b35cf68174718bb6ebe80463e0e8b7a5ed4f9f7b7f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-state.xml": "cadf0556568b20b653fa335eaf6fd40c170752485db28a4a1cbce1aa08a23d00",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after.chk": "2199873fe4a5cecee15f79c873bfd7c638185c048ea01636d874fcf92350ea8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/capture.json": "a06750b934ace110c1deec419bbef793ebb20cdfb527452bb0c6fc7b3925b67c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-after.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/minimized.pdb": "eca68de50ac66dad6c5c7cb93aea91d65d81135b86630db5c991dacbd301ce9f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/run.log": "0a9f7afb4ded63b2e28a2561ad05f0503f4d3618fd1f4cf464a0670f177afcf1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-atoms.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-state.xml": "27a546bf473c8f99c1b7504366566fd0e2d554dd196658dc0a6fbcb44eaeadb3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after.chk": "0e721da888eee10515d5d03ae05bacf77152d19fb49774a6ae25d7f53efe3e98",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-atoms.json.gz": "80a7d260f7727d7e431b065ef55d2f5309e81651d0394bb0e1c7c0c747cf2b01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-state.xml": "e980dacd437758ec25e446a00b5b65d54e79252ba392f4a76584c6f9c356dea2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before.chk": "be58cb4387269ec00efd116011068d643e536d35ee3e3756d215d4f68964d354",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-atoms.json.gz": "56299da3f7d40f10ea6bfbd2c8f3dd433d9785c78a3f6cca438ff58408fd5a89",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-state.xml": "edc592386e4f518391f51829e6f6e9afe2a3a302a323043f0926a7ac2893651f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before.chk": "ebd583d84ebef69bfeb7e73e7002746fc4a5ad769285350c59ff37fea4128b7c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-atoms.json.gz": "f174ab843a55bb37499e3f9c6f31a67b9018e52aae43c0df1c38ef34d4c820f9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-state.xml": "64cb5bdd3864d17a621fbd17f0c199dee17b6d7784e9b0bf9e1990059f7ea87f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after.chk": "f9575ed2c48a3a402d7fab0ce3e053d3853d238945fd414365c23c5378ce059f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/capture.json": "03cc445268ecfdfe4ecec23a98ac520ff1a358813586f85fed3cded0eb77613f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-after.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/minimized.pdb": "f0f1bb3f0c8567b733e34b821e71d28a664b9c5a8a3cbc338ce4a5e02cbe478d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/run.log": "3710f63d60da617e21bb1a10d3ffaa1cedd93f20775f4acb6f999a246103f046",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-atoms.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-state.xml": "f56f46136899d8979d23e6d4f24d3499e614ec78257bf1775e4a2525e4030c97",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after.chk": "6d48449f98b504eed2b6bb5a6c69c6a48a8acf5564e689572808e41ec3c34b69",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-atoms.json.gz": "34b914dcd0beb5663c51ff6dee0237da1cb18f527069b3468d3a975176fabd4b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-state.xml": "7288351daee985cac8975b19421ac3e45c56d4523f6b9ee07f1834e52690fbb4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before.chk": "e299fa1e5b91971ac101c39ae73c45feff0e218bc39b8c5cd7f49bd55ef26a12",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-atoms.json.gz": "5e208784275d830417ef6a16816d4bb2268ef4be47503517e054c99e8156dd50",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-state.xml": "0fb9b0bbac0b18b59569d9f62420faa39d605d4c122afeb2bc470b8d79d90685",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before.chk": "267b63de2003c63dd8d4bbc98d3c84cf50a4e85cf9d791cbcefea6a10fdb7ded",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-atoms.json.gz": "681bd0f564efc430f2fcd8292828054e750bc5a2a7ca2fa8861c1e4711d0d2aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-state.xml": "95d6b1780ebabdb60e9e8a9e5b85e2fbd97befd245afa3851ff2c9ab4c4bd2e9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after.chk": "731009c86536d6e334608f1df93a20075d5be28ffa36f5d128fa3488d75a41de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/capture.json": "684325a32b9f83853a9f5e6d998c3988f61f1278bffc91692de56ce281b1cda9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-after.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/minimized.pdb": "ba0023eb6e2ce314f5df91683090cba0bdea12509e9868d2438f1ecf71f008a9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/run.log": "69c8e8941cd85f116d59d7aa66e57a3e6ed6c9070f50732dc0931c7db839856e"
+  },
+  "main_merge_authorized": false,
+  "parent_plan": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/thr2-native-capture-plan.json",
+  "production_changed": false,
+  "protocol": {
+    "H_native_settings": [
+      1.0,
+      50
+    ],
+    "limits": "Six proposals/two numerical modes in one retained poor-heavy context; not independent seeds, native H sampling, original lost run or qualified production initializer",
+    "maximum_callbacks": 4096,
+    "native_calls": 36,
+    "new_random_sampling": false,
+    "paths": 12,
+    "per_path_seconds": 1200,
+    "total_seconds": 7200,
+    "whole_native_settings": [
+      10.0,
+      1000
+    ]
+  },
+  "python": "/Users/lilpoundcake/micromamba/envs/dvbfixer/bin/python",
+  "schema": "dvbfixer.thr2-hb-only-plan.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_hb_only.py": "94d482e72cdfd26f1b36168337627ac88c8c0695399f6544372c029787ffed3c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_native_capture.py": "e67c833c07a7dd8302670e2eb788b77bd1fef2b9679cc974305cb96ebf7e7687",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/qualify_hydrogen_postflight.py": "7846619537c179bcc5984509576729e04b185d51fb0c456c31c6d6c0d320c642",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hb_only.py": "f0f1dcdf11245e5132692c35a88bbf941df5636d5f0f3d5fd5dce969b148bd19",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hswap.py": "69b32a40776e3727643b02ac592708410c7cf1383de2eb12fed1800afe06bd35",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_initializer_frames.py": "bb423594e9ac12f15c0a1ac94331d10ccfad5ef131feb4181bce16a2e6a6475b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/src/dvbfixer/ffutils/variants.py": "5eccaf1aa6d8d056de85250f74ba8ddfa4128832d01c000ac65d964e41c53039",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_thr2_hb_only.py": "02ca887bba81fb2d509f4e8680ffcc6db9aeb450584c584cab3c4126987f3eb6"
+  },
+  "sources": [
+    {
+      "calls": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-before"
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-before"
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-before"
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "label": "unseeded",
+      "reference_h_control": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/unseeded/call-1/Reference/path.json.gz",
+      "source": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded"
+    },
+    {
+      "calls": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-before"
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-before"
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-before"
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "label": "seed-1",
+      "reference_h_control": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-1/call-1/Reference/path.json.gz",
+      "source": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1"
+    },
+    {
+      "calls": [
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-1-before"
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "returned": true,
+          "stage": "hydrogen",
+          "tolerance": 1.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-2-before"
+          },
+          "max_iterations": 1000,
+          "number": 2,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        },
+        {
+          "after": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-after"
+          },
+          "before": {
+            "platform": {
+              "all_properties": {
+                "DeviceIndex": "0",
+                "DeviceName": "Apple M3 Pro",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "OpenCLPlatformName": "Apple",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "constructor_properties": {
+                "DeviceIndex": "0",
+                "DisablePmeStream": "false",
+                "OpenCLPlatformIndex": "0",
+                "Precision": "single",
+                "UseCpuPme": "false"
+              },
+              "name": "OpenCL"
+            },
+            "prefix": "call-3-before"
+          },
+          "max_iterations": 1000,
+          "number": 3,
+          "returned": true,
+          "stage": "whole",
+          "tolerance": 10.0
+        }
+      ],
+      "label": "seed-2",
+      "reference_h_control": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/replays/seed-2/call-1/Reference/path.json.gz",
+      "source": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2"
+    }
+  ]
+}

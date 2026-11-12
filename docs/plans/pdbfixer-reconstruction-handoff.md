@@ -104,6 +104,17 @@ new native run or retrofitted gate. Never promote global noise removal as a
 qualified initializer; the next separately frozen dynamic control must change
 only HB, leaving the other 314 saved H alone.
 
+**Next separately frozen dynamic stage:**
+[HB-only initializer protocol](thr2-hb-only-initializer.md) enrolls all three saved
+starts × unchanged/HB-only-unperturbed × captured/Reference, twelve paths and
+36 native phases. It chains the original 1.0/50 H-only call, exact historical
+H-repair bridge and original 10/1000 whole phases with the native divide-ten
+transition. No new H sampling, force/constraint change, production initializer
+or main merge. Reference transport stays exact; newly computed OpenCL points
+have a prospectively fixed half-float32-ULP bound and exact copied-coordinate
+checks. Original Reference H endpoints remain exact controls. All outcomes and
+partial failures must be retained; no native intervention has executed yet.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
