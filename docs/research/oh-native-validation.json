@@ -1,0 +1,83 @@
+{
+  "agent_map_passed": true,
+  "branch": "fix/hydrogen-postflight-contract",
+  "existing_regression_assertions_changed": false,
+  "frozen_scientific_sources_and_fixture_bytes_unchanged": true,
+  "full_fast_suite": {
+    "failed": 0,
+    "optional_skips": 3,
+    "passed": 3184,
+    "slow_deselected": 33
+  },
+  "generated_specs_passed": true,
+  "independent_offline_audit_byte_identical": true,
+  "limits": "Complete-cohort qualification remains false. New OH corrections occurred only on forcefield-free fallbacks; native CHARMM glycan and direct ligand-OH qualification remain absent.",
+  "main_merged": false,
+  "native_attempts_repeated": 0,
+  "observer_and_transport_tests_passed": 10,
+  "original_auditor_failure_retained": true,
+  "production_source_changed_since_3ffa1f4": false,
+  "retained_evidence": {
+    "docs/plans/oh-native-qualification-plan.json": "17b485e97aba374a23fc96c3ad80295a68930fb0f7e8bd31bdea723271ae27a9",
+    "docs/research/oh-native-qualification-evidence.json": "732d44411f3e72f8123717c2f0ff6a5015e06edaae525b520bd788584b8f7c24",
+    "docs/research/oh-native-qualification-summary.json": "46ed10c3dd1814df3299a5cde4d2f8ce9d1074b0d135ac62cca88428f0d7ef31",
+    "tmp/hydrogen-postflight-contract-01/fast-suite-native-01.log": "3657a86aa42006060396c34a8a02cca3e14771d2f2e0e89363825e052634ea5c",
+    "tmp/hydrogen-postflight-contract-01/fast-suite-native-01.xml": "bb71e095655905098ed045e6069fa572cfac2a3bc8ae5bbe66ca9a1d03aed846",
+    "tmp/hydrogen-postflight-contract-01/native-audit-v1-failure/audit_oh_native.py": "ea001ad1a356bdaacb95681b9cd53f9adcae00628b1a7fa13842343c67f9d748",
+    "tmp/hydrogen-postflight-contract-01/native-audit-v1-failure/failure.json": "3305b1f143eb63d0753bbec8f273ef0dd333662340d2d29463cdc951c138ecec",
+    "tmp/hydrogen-postflight-contract-01/native-audit-v2-01.json": "2b68ae29932d05e3275a5aae97aae4dee8e58993b25a5e1a974cf6bc4664ce83",
+    "tmp/hydrogen-postflight-contract-01/native-audit-v2-evidence-02.json": "732d44411f3e72f8123717c2f0ff6a5015e06edaae525b520bd788584b8f7c24",
+    "tmp/hydrogen-postflight-contract-01/native-docs-quality.json": "89f5aa317c6b6ff995954b484b7fbec4dd970a5725a583823584c20e99bbb400",
+    "tmp/hydrogen-postflight-contract-01/native-run-01.log": "436a8821de4437a66074f7aac1c1ec41e0f8c4ef5793008703afe775ae847035",
+    "tmp/hydrogen-postflight-contract-01/native-run-01/evidence.json": "ffacb6848b0467effb67bd1ff5556eb3694e37f24e0b1a433115849d53364b68"
+  },
+  "ruff_passed": true,
+  "schema": "dvbfixer.oh-native-validation.v1",
+  "scientific_summary": {
+    "added_contract_violations_repaired": 12,
+    "all_heavy_valid_h_bonds_identity_preserved": true,
+    "blockers": [],
+    "completed_cases": 11,
+    "cross_residue_warnings": 0,
+    "declared_cases": 12,
+    "duplicate_atom_identity_cases": [
+      11
+    ],
+    "exact_replays": 12,
+    "forcefield_free_h_return_cases": [
+      4,
+      8,
+      9,
+      11
+    ],
+    "independent_ligand_oh_postflight_coverage": false,
+    "matched_repair_states": 12,
+    "native_charmm_glycan_qualification": false,
+    "native_forcefield_added_contract_violations_repaired": 0,
+    "native_forcefield_h_return_cases": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      10
+    ],
+    "new_refusals": 0,
+    "qualification_passed": false,
+    "retained_cases": 12,
+    "short_oh_warnings": 0
+  },
+  "source_bindings": {
+    "scripts/audit_oh_native.py": "ea001ad1a356bdaacb95681b9cd53f9adcae00628b1a7fa13842343c67f9d748",
+    "scripts/audit_oh_native_v2.py": "a8b4afb33bc0884aea359de2a35edef1340c037f5633f0b433c946df71cc6c63",
+    "scripts/qualify_oh_native.py": "921dc088ffd1e53364e380d8ae8b6e1ff9216b339f6daf1200ab2084197e5816",
+    "scripts/summarize_oh_native.py": "d3ed0f4f16435a40307132418731f866c7f890bb25ee378dd029b5e031fc9985",
+    "tests/test_audit_oh_native_v2.py": "306468ff30cd1af78f2615215b784e12b3c99ee47648416981ae5e124c10fe0a",
+    "tests/test_prepare_broken_geom.py": "ab0a6e3e8f98c201c4cf3f699ab66a7427dd2a08bda58f328d2e9b0875fb5026",
+    "tests/test_qualify_oh_native.py": "12aae0b8f3175b1a01dc041f1b3712cb26354d9417e8082720a65a2cef4c4455"
+  },
+  "strict_target_mypy_passed": true,
+  "upstream_blocker": "case 11: duplicate UYB H1 introduced by forcefield-free H placement before zero-repair postflight; partial PDB, no DatRecord; naming failure retained"
+}

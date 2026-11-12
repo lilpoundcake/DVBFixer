@@ -191,3 +191,11 @@ automatic consequence of the research authorization.
 The next bounded stage is the [prospective real-input protocol](oh-native-qualification.md):
 six tracked structures, two FF requests each, exact matched saved-H replay,
 explicit actual-route coverage and retained failures. This is not a main merge.
+
+[Real-input results](../research/oh-native-qualification.md): all twelve attempts
+executed once, eleven preparations completed, and all twelve postflight states
+replay exactly with no new refusals or heavy/valid-H movement. Twelve additional
+O–H violations were corrected, all on forcefield-free fallback. The unchanged
+GLYCAM/CHARMM fallback case fails naming with duplicate sugar H1 created before
+postflight. Full-cohort qualification remains false; no native rerun or main
+merge. The separate offline chain-run adapter fixes only auditor transport.

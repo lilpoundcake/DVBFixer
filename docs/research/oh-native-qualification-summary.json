@@ -1,0 +1,571 @@
+{
+  "audit_sha256": "732d44411f3e72f8123717c2f0ff6a5015e06edaae525b520bd788584b8f7c24",
+  "cases": [
+    {
+      "actual_family": "amber",
+      "actual_xmls": [
+        "amber19/protein.ff19SB.xml",
+        "amber19/tip3p.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 4,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 0,
+      "input_oh_violations": 0,
+      "label": "ubiquitin-water",
+      "partial_output_not_success": false,
+      "requested_ff": "amber",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "charmm",
+      "actual_xmls": [
+        "charmm36.xml",
+        "charmm36/water.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 7,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 1,
+      "input_oh_violations": 0,
+      "label": "ubiquitin-water",
+      "partial_output_not_success": false,
+      "requested_ff": "charmm",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "amber",
+      "actual_xmls": [
+        "amber19/protein.ff19SB.xml",
+        "amber19/tip3p.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 2,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 2,
+      "input_oh_violations": 0,
+      "label": "antibody-disulfide",
+      "partial_output_not_success": false,
+      "requested_ff": "amber",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "charmm",
+      "actual_xmls": [
+        "charmm36.xml",
+        "charmm36/water.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 2,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 3,
+      "input_oh_violations": 0,
+      "label": "antibody-disulfide",
+      "partial_output_not_success": false,
+      "requested_ff": "charmm",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "forcefield-free",
+      "actual_xmls": [],
+      "baseline_remaining_oh_violations": 7,
+      "candidate_changed_atoms": 7,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [
+        {
+          "error": "No template found for residue 316 (GLU).  The set of heavy atoms matches CGLU, but the residue has 1 H atom too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "number": 1
+        }
+      ],
+      "index": 4,
+      "input_oh_violations": 7,
+      "label": "acidic-context-ph3",
+      "partial_output_not_success": false,
+      "requested_ff": "amber",
+      "status": "completed",
+      "successful_h_route": "forcefield-free"
+    },
+    {
+      "actual_family": "charmm",
+      "actual_xmls": [
+        "charmm36.xml",
+        "charmm36/water.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 12,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 5,
+      "input_oh_violations": 0,
+      "label": "acidic-context-ph3",
+      "partial_output_not_success": false,
+      "requested_ff": "charmm",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "amber-glycam",
+      "actual_xmls": [
+        "amber14-all.xml",
+        "amber14/GLYCAM_06j-1.xml",
+        "amber14/tip3pfb.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 33,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 6,
+      "input_oh_violations": 0,
+      "label": "pdb-glycoprotein",
+      "partial_output_not_success": false,
+      "requested_ff": "amber+glycam",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "amber-glycam",
+      "actual_xmls": [
+        "amber14-all.xml",
+        "amber14/GLYCAM_06j-1.xml",
+        "amber14/tip3pfb.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 26,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 7,
+      "input_oh_violations": 0,
+      "label": "pdb-glycoprotein",
+      "partial_output_not_success": false,
+      "requested_ff": "charmm",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "forcefield-free",
+      "actual_xmls": [],
+      "baseline_remaining_oh_violations": 2,
+      "candidate_changed_atoms": 6,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to CTRP, but is missing 10 H atoms and 1 N atom and has 6 O atoms too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "number": 1
+        }
+      ],
+      "index": 8,
+      "input_oh_violations": 2,
+      "label": "protein-ligands",
+      "partial_output_not_success": false,
+      "requested_ff": "amber",
+      "status": "completed",
+      "successful_h_route": "forcefield-free"
+    },
+    {
+      "actual_family": "forcefield-free",
+      "actual_xmls": [],
+      "baseline_remaining_oh_violations": 3,
+      "candidate_changed_atoms": 11,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to ANE5AC, but is missing 18 H atoms and 1 O atom.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "number": 1
+        }
+      ],
+      "index": 9,
+      "input_oh_violations": 3,
+      "label": "protein-ligands",
+      "partial_output_not_success": false,
+      "requested_ff": "charmm",
+      "status": "completed",
+      "successful_h_route": "forcefield-free"
+    },
+    {
+      "actual_family": "amber-glycam",
+      "actual_xmls": [
+        "amber14-all.xml",
+        "amber14/GLYCAM_06j-1.xml",
+        "amber14/tip3pfb.xml"
+      ],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 0,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": true,
+      "duplicate_h_snapshot_inventory": {},
+      "failed_h_attempts": [],
+      "index": 10,
+      "input_oh_violations": 0,
+      "label": "glycam-glycoprotein",
+      "partial_output_not_success": false,
+      "requested_ff": "amber+glycam",
+      "status": "completed",
+      "successful_h_route": "native-forcefield"
+    },
+    {
+      "actual_family": "forcefield-free",
+      "actual_xmls": [],
+      "baseline_remaining_oh_violations": 0,
+      "candidate_changed_atoms": 0,
+      "candidate_remaining_oh_violations": 0,
+      "dat_valid": false,
+      "duplicate_h_snapshot_inventory": {
+        "h-2-after.json.gz": [
+          {
+            "count": 2,
+            "key": [
+              "H",
+              "232",
+              "",
+              "UYB",
+              "H1"
+            ],
+            "occurrences": [
+              {
+                "bonded_neighbors": [
+                  [
+                    "H",
+                    "232",
+                    "",
+                    "UYB",
+                    "C1"
+                  ]
+                ],
+                "index": 3650
+              },
+              {
+                "bonded_neighbors": [],
+                "index": 3651
+              }
+            ]
+          },
+          {
+            "count": 2,
+            "key": [
+              "K",
+              "242",
+              "",
+              "UYB",
+              "H1"
+            ],
+            "occurrences": [
+              {
+                "bonded_neighbors": [
+                  [
+                    "K",
+                    "242",
+                    "",
+                    "UYB",
+                    "C1"
+                  ]
+                ],
+                "index": 3885
+              },
+              {
+                "bonded_neighbors": [],
+                "index": 3886
+              }
+            ]
+          }
+        ]
+      },
+      "failed_h_attempts": [
+        {
+          "error": "No template found for residue 71 (NLN).  The set of heavy atoms matches ASN, but the residue is missing 1 H atom.  You may be able to add it with Modeller.addHydrogens().  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "number": 1
+        }
+      ],
+      "index": 11,
+      "input_oh_violations": 0,
+      "label": "glycam-glycoprotein",
+      "partial_output_not_success": true,
+      "requested_ff": "charmm",
+      "status": "execution_blocker",
+      "successful_h_route": "forcefield-free"
+    }
+  ],
+  "corrected_findings": [
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "152",
+        "",
+        "SER",
+        "HG"
+      ],
+      "nearest_nonparent_angstrom": 2.0956350510025095,
+      "oh_angstrom": 1.2000168275055394
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "163",
+        "",
+        "SER",
+        "HG"
+      ],
+      "nearest_nonparent_angstrom": 2.3232942546961772,
+      "oh_angstrom": 1.2881384089964618
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "219",
+        "",
+        "TYR",
+        "HH"
+      ],
+      "nearest_nonparent_angstrom": 2.1330710083386566,
+      "oh_angstrom": 1.2047767284353748
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "257",
+        "",
+        "GLU",
+        "HE2"
+      ],
+      "nearest_nonparent_angstrom": 1.9835043079758699,
+      "oh_angstrom": 1.2000098445207192
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "302",
+        "",
+        "GLU",
+        "HE2"
+      ],
+      "nearest_nonparent_angstrom": 1.981240086293029,
+      "oh_angstrom": 1.200301764270864
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "336",
+        "",
+        "ASP",
+        "HD2"
+      ],
+      "nearest_nonparent_angstrom": 1.9732217666716476,
+      "oh_angstrom": 1.208716871012546
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 4,
+      "corrected": true,
+      "hydrogen": [
+        "B",
+        "347",
+        "",
+        "SER",
+        "HG"
+      ],
+      "nearest_nonparent_angstrom": 2.0798237560696644,
+      "oh_angstrom": 1.2082677394622872
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 8,
+      "corrected": true,
+      "hydrogen": [
+        "A",
+        "110",
+        "",
+        "THR",
+        "HG1"
+      ],
+      "nearest_nonparent_angstrom": 2.1130961214089465,
+      "oh_angstrom": 1.2167674294670978
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 8,
+      "corrected": true,
+      "hydrogen": [
+        "A",
+        "284",
+        "",
+        "SER",
+        "HG"
+      ],
+      "nearest_nonparent_angstrom": 2.055624024094959,
+      "oh_angstrom": 1.2218767265246482
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 9,
+      "corrected": true,
+      "hydrogen": [
+        "A",
+        "299",
+        "",
+        "THR",
+        "HG1"
+      ],
+      "nearest_nonparent_angstrom": 2.112620905711284,
+      "oh_angstrom": 1.2126642746611835
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 9,
+      "corrected": true,
+      "hydrogen": [
+        "A",
+        "322",
+        "",
+        "SER",
+        "HG"
+      ],
+      "nearest_nonparent_angstrom": 2.17041718978128,
+      "oh_angstrom": 1.202744761718456
+    },
+    {
+      "actual_family": "forcefield-free",
+      "case": 9,
+      "corrected": true,
+      "hydrogen": [
+        "A",
+        "450",
+        "",
+        "HOH",
+        "H1"
+      ],
+      "nearest_nonparent_angstrom": null,
+      "oh_angstrom": 1.2029470210202444
+    }
+  ],
+  "execution_sha256": "ffacb6848b0467effb67bd1ff5556eb3694e37f24e0b1a433115849d53364b68",
+  "limits": "Counts describe saved H states, not independent structures. Duplicate-identity partial outputs can look OH-clean after PDB parser atom merging; failed case remains invalid. No native reruns or main merge.",
+  "oh_coverage_counts": {
+    "amber-glycam/protein:SER": 128,
+    "amber-glycam/protein:THR": 102,
+    "amber-glycam/protein:TYR": 52,
+    "amber-glycam/sugar:0LB": 16,
+    "amber-glycam/sugar:0MA": 8,
+    "amber-glycam/sugar:0MB": 8,
+    "amber-glycam/sugar:0SA": 24,
+    "amber-glycam/sugar:0YB": 12,
+    "amber-glycam/sugar:0fA": 6,
+    "amber-glycam/sugar:0fB": 18,
+    "amber-glycam/sugar:2MA": 36,
+    "amber-glycam/sugar:4YB": 36,
+    "amber-glycam/sugar:6LB": 18,
+    "amber-glycam/sugar:UYA": 4,
+    "amber-glycam/sugar:UYB": 4,
+    "amber-glycam/sugar:VMA": 4,
+    "amber-glycam/sugar:VMB": 12,
+    "amber/protein:SER": 53,
+    "amber/protein:THR": 36,
+    "amber/protein:TYR": 18,
+    "amber/water:HOH": 1050,
+    "charmm/protein:ASP": 25,
+    "charmm/protein:GLU": 25,
+    "charmm/protein:SER": 72,
+    "charmm/protein:THR": 49,
+    "charmm/protein:TYR": 43,
+    "charmm/water:HOH": 1050,
+    "forcefield-free/protein:ASP": 25,
+    "forcefield-free/protein:GLU": 25,
+    "forcefield-free/protein:SER": 89,
+    "forcefield-free/protein:THR": 67,
+    "forcefield-free/protein:TYR": 59,
+    "forcefield-free/sugar:0LB": 16,
+    "forcefield-free/sugar:0fA": 6,
+    "forcefield-free/sugar:2MA": 12,
+    "forcefield-free/sugar:4YB": 12,
+    "forcefield-free/sugar:UYB": 2,
+    "forcefield-free/sugar:VMB": 4,
+    "forcefield-free/water:HOH": 284
+  },
+  "plan_sha256": "17b485e97aba374a23fc96c3ad80295a68930fb0f7e8bd31bdea723271ae27a9",
+  "schema": "dvbfixer.oh-native-summary.v1",
+  "script_sha256": "d3ed0f4f16435a40307132418731f866c7f890bb25ee378dd029b5e031fc9985",
+  "summary": {
+    "added_contract_violations_repaired": 12,
+    "all_heavy_valid_h_bonds_identity_preserved": true,
+    "blockers": [],
+    "completed_cases": 11,
+    "cross_residue_warnings": 0,
+    "declared_cases": 12,
+    "duplicate_atom_identity_cases": [
+      11
+    ],
+    "exact_replays": 12,
+    "forcefield_free_h_return_cases": [
+      4,
+      8,
+      9,
+      11
+    ],
+    "independent_ligand_oh_postflight_coverage": false,
+    "matched_repair_states": 12,
+    "native_charmm_glycan_qualification": false,
+    "native_forcefield_added_contract_violations_repaired": 0,
+    "native_forcefield_h_return_cases": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      10
+    ],
+    "new_refusals": 0,
+    "qualification_passed": false,
+    "retained_cases": 12,
+    "short_oh_warnings": 0
+  }
+}

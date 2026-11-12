@@ -27,6 +27,23 @@ The original SER test file's complete digest is unchanged. v1's failed source,
 PDB/Dat, log and XML remain retained; the old lost 1.245813 Å trajectory is still
 not recovered. Implementation is isolated on the fix branch, not merged/released.
 
+**Real-input follow-up:** prospective `5d99286` ran the declared six-source ×
+two-FF cohort once. Eleven preparations completed; all twelve saved postflight
+states replay exactly, with no new refusals and heavy/valid-H/identity/bonds
+preserved. Twelve previously unguarded stretched O–H were repaired, all on
+forcefield-free fallback, not native AMBER/CHARMM. Complete-cohort acceptance is
+still false: existing GLYCAM-named hinge + CHARMM falls back after NLN template
+failure, creates duplicate UYB H1 before postflight and fails later naming.
+Its partial PDB is invalid evidence of success and `.dat` is absent. No native
+retry. Frozen auditor initially failed on repeated chain-ID blocks; separate
+offline transport amendment `6080fe0` preserves exact nm/graph/residue ownership
+without changing frozen artifacts. See the
+[full results and remaining coverage gates](../research/oh-native-qualification.md).
+Do not claim native CHARMM glycan or direct ligand-OH repair qualification.
+Final engineering validation: 3,184 fast tests pass (three optional skips,
+33 slow deselected), ten observer/transport tests pass, and independent offline
+audit readback is byte-identical. Production science is unchanged from `3ffa1f4`.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
