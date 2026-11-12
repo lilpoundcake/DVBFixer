@@ -141,6 +141,12 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
 - Follow every legacy `Modeller.addHydrogens` call with
   `repair_misplaced_hydrogens`. Preserve the shared variant-parent rename and
   post-hydrogen restoration flow.
+- Shared H postflight detects O–H at/above 1.2 Å without tightening C/N/S/P
+  thresholds. Safe moderate stretches retain their bond direction; valid H and
+  heavy coordinates stay fixed. An unresolved detected over-long O–H raises
+  `HydrogenGeometryError`; prepare must not resample H via template fallback.
+  Scope, qualification and PDB-rounding limitations are in the
+  [implementation record](../../plans/hydrogen-postflight-contract.md).
 - Explicit disulfide evidence forces CYX and genuine SG-SG bonds survive bond
   cleanup; extra SG-SG partners are reduced to one partner per sulfur.
 - Any stage claiming a hard chirality gate must run `assert_all_l` after the

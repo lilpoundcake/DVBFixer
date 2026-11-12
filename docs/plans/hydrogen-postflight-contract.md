@@ -69,3 +69,28 @@ Output PDB quantization can perturb a distance just below 1.2 Å across that
 boundary; this in-memory upper guard is not a proof about every rounded boundary
 case. Qualification must report that limitation rather than silently move the
 test's threshold or claim bit-identical CPU/GPU sampling.
+
+## Candidate v1: retained unsuccessful qualification
+
+Prospective checkpoint: `eeae9dc`. The [first matched qualification](../research/hydrogen-postflight-qualification-evidence.json)
+passed its narrow distance contract on all **48 local graphs + six saved native
+states** (baseline passes 29/54). Heavy coordinates/identity and valid siblings
+were preserved; all six old gross SER repair outputs were exactly unchanged.
+This was insufficient for the full existing regression contract.
+
+The first full fast run retained **3,144 passed / two failed**, three optional
+skips and 33 slow deselections:
+
+- The AST-based source inventory still points at historical source hashes and
+  line numbers. Preserve those historical inventories and add a new current
+  source amendment rather than overwrite old scientific evidence.
+- The original unchanged SER test found OG–HG **0.969632 Å** but HG–OC1
+  **0.718741 Å**, failing its existing **>1.0 Å** contact assertion. A correct
+  covalent length alone is not enough. The original failed final PDB/Dat and
+  candidate source are retained in-project. Its native intermediate path was
+  not captured; do not claim an exact unobserved sequence from the final PDB.
+
+[Candidate-v1 failure record](../research/hydrogen-postflight-candidate-v1-validation.json)
+binds those sources, outputs and logs. This is an unsuccessful implementation
+candidate, not a green run, and is not authorized for merge/release. Additional
+validation requires an explicit pre-execution amendment, not a silent repeat.

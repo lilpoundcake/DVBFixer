@@ -1,0 +1,3991 @@
+{
+  "baseline_source_sha256": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+  "candidate_source_sha256": "738ef8ab7db2a6dd1432ad0093221b739f4e1e58e21472cfbb25f54834b292aa",
+  "cases": [
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 0,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 1,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 2,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 3,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 4,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 5,
+      "kind": "local-graph",
+      "resname": "SER"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 6,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 7,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG1",
+                "parent": "OG1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 8,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG1",
+                "parent": "OG1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 9,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG1",
+                "parent": "OG1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 10,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG1",
+                "parent": "OG1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG1",
+                "parent": "OG1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 11,
+      "kind": "local-graph",
+      "resname": "THR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 12,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 13,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HH",
+                "parent": "OH",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "TYR",
+              "HH"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 14,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HH",
+                "parent": "OH",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "TYR",
+              "HH"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 15,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HH",
+                "parent": "OH",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "TYR",
+              "HH"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 16,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HH",
+                "parent": "OH",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "TYR",
+              "HH"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HH",
+                "parent": "OH",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "TYR",
+              "HH"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 17,
+      "kind": "local-graph",
+      "resname": "TYR"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 18,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 19,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HD2",
+                "parent": "OD2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "ASH",
+              "HD2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 20,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HD2",
+                "parent": "OD2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "ASH",
+              "HD2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 21,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HD2",
+                "parent": "OD2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "ASH",
+              "HD2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 22,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HD2",
+                "parent": "OD2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "ASH",
+              "HD2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HD2",
+                "parent": "OD2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "ASH",
+              "HD2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 23,
+      "kind": "local-graph",
+      "resname": "ASH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 24,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 25,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HE2",
+                "parent": "OE2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "GLH",
+              "HE2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 26,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HE2",
+                "parent": "OE2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "GLH",
+              "HE2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 27,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HE2",
+                "parent": "OE2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "GLH",
+              "HE2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 28,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HE2",
+                "parent": "OE2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "GLH",
+              "HE2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HE2",
+                "parent": "OE2",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "GLH",
+              "HE2"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 29,
+      "kind": "local-graph",
+      "resname": "GLH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 30,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 31,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "HOH",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 32,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "HOH",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 33,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "HOH",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 34,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999,
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997,
+              0.97
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "HOH",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 35,
+      "kind": "local-graph",
+      "resname": "HOH"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 36,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 37,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "LIG",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 38,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "LIG",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 39,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "LIG",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 40,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "LIG",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H1",
+                "parent": "O1",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "LIG",
+              "H1"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 41,
+      "kind": "local-graph",
+      "resname": "LIG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 0.97,
+      "index": 42,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.199
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": true
+        }
+      },
+      "distance": 1.199,
+      "index": 43,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HO6",
+                "parent": "O6",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "NAG",
+              "HO6"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2,
+      "index": 44,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9699999999999999
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HO6",
+                "parent": "O6",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.201
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "NAG",
+              "HO6"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.201,
+      "index": 45,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 0,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HO6",
+                "parent": "O6",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.2458133889150464
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "NAG",
+              "HO6"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.2458133889150464,
+      "index": 46,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HO6",
+                "parent": "O6",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "NAG",
+              "HO6"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.97
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HO6",
+                "parent": "O6",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              1.6999999999999997
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "NAG",
+              "HO6"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed",
+          "unselected_atoms_unchanged": true,
+          "valid_input_unchanged": null
+        }
+      },
+      "distance": 1.7,
+      "index": 47,
+      "kind": "local-graph",
+      "resname": "NAG"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9326112326277601,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9326112326277601,
+              1.6802355244020308
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9326112326277601,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9326112326277601,
+              1.6802355244020308
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        }
+      },
+      "index": 48,
+      "kind": "saved-native-SER",
+      "label": "unseeded"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.8246213006891493,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.8246213006891493,
+              1.6748495509442023
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.8246213006891493,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.8246213006891493,
+              1.6748495509442023
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        }
+      },
+      "index": 49,
+      "kind": "saved-native-SER",
+      "label": "seed-1"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.6837631259409446,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.6837631259409446,
+              1.7476962205683126
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 6,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.6837631259409446,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.6837631259409446,
+              1.7476962205683126
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 6,
+          "status": "completed"
+        }
+      },
+      "index": 50,
+      "kind": "saved-native-SER",
+      "label": "seed-2"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9322325192042489,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9322325192042489,
+              1.6778715403776867
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9322325192042489,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9322325192042489,
+              1.6778715403776867
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 1,
+          "status": "completed"
+        }
+      },
+      "index": 51,
+      "kind": "saved-native-SER",
+      "label": "seed-3"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9799192482841785,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9799192482841785,
+              1.6780570695360533
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 5,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9799192482841785,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9799192482841785,
+              1.6780570695360533
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 5,
+          "status": "completed"
+        }
+      },
+      "index": 52,
+      "kind": "saved-native-SER",
+      "label": "seed-4"
+    },
+    {
+      "arms": {
+        "baseline": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9388666285777416,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9388666285777416,
+              1.6691484494960385
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 8,
+          "status": "completed"
+        },
+        "candidate": {
+          "after": {
+            "all_oh_below_upper_bound": true,
+            "findings": [],
+            "oh_distances_angstrom": [
+              0.9388666285777416,
+              0.9699999999999982
+            ]
+          },
+          "before": {
+            "all_oh_below_upper_bound": false,
+            "findings": [
+              {
+                "hydrogen": "H",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H2",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "H3",
+                "parent": "N",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB2",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HB3",
+                "parent": "CB",
+                "reason": "sibling_clash"
+              },
+              {
+                "hydrogen": "HG",
+                "parent": "OG",
+                "reason": "parent_distance"
+              }
+            ],
+            "oh_distances_angstrom": [
+              0.9388666285777416,
+              1.6691484494960385
+            ]
+          },
+          "changed_atom_keys": [
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "H3"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "125",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HB2"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HB3"
+            ],
+            [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ]
+          ],
+          "heavy_coordinates_unchanged": true,
+          "identity_unchanged": true,
+          "repairs": 8,
+          "status": "completed"
+        }
+      },
+      "index": 53,
+      "kind": "saved-native-SER",
+      "label": "seed-5"
+    }
+  ],
+  "force_field_changed": false,
+  "limits": "48 local graph controls are not independent physical structures; saved SER raw states are one synthetic two-residue input",
+  "new_native_sampling": false,
+  "plan_sha256": "8cc34267579dd7c0472c95ed429cbb73baaac7a14f07ec9eda1d954a2e618740",
+  "qualification_script_sha256": "7846619537c179bcc5984509576729e04b185d51fb0c456c31c6d6c0d320c642",
+  "schema": "dvbfixer.hydrogen-postflight-qualification.v1",
+  "summary": {
+    "baseline_oh_bound_pass": 29,
+    "candidate_errors": 0,
+    "candidate_heavy_and_identity_preserved": true,
+    "candidate_oh_bound_pass": 54,
+    "local_graphs": 48,
+    "qualification_passed": true,
+    "saved_native_states": 6
+  }
+}

@@ -183,6 +183,15 @@ test_files = [
 ]
 known_exceptions = ["Incomplete or degenerate centers are not measurable; final hard assertions are not uniform across every standalone backend path."]
 
+[invariants.INV-OH-POSTFLIGHT]
+status = "implemented"
+statement = "A detected O-H distance at or above 1.2 Angstrom is repaired below that bound or raises; preparation never converts that geometry failure into native H resampling."
+owner = "src/dvbfixer/ffutils/geometry.py::repair_misplaced_hydrogens"
+enforcement = ["src/dvbfixer/ffutils/geometry.py::detect_misplaced_hydrogens", "src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+failure_mode = "An over-long but noncoincident O-H could pass a gross 1.6x distance guard, or a failed repair could be hidden by an unrelated FF-template fallback."
+test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
+known_exceptions = ["Not a general force-field convergence or hydroxyl-torsion qualification. PDB rounding near the boundary is separate from the in-memory distance predicate."]
+
 [invariants.INV-CONECT-CHEMICAL-FILTER]
 status = "implemented"
 statement = "Inherited and inferred connectivity is filtered against peptide order, residue chemistry, solvent, sugar-distance, and external-bond rules."

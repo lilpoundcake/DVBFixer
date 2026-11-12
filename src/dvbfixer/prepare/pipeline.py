@@ -11,6 +11,7 @@ from pathlib import Path
 from openmm.app import Modeller, PDBFile
 from pdbfixer import PDBFixer
 
+from dvbfixer.ffutils.geometry import HydrogenGeometryError
 from dvbfixer.prepare.cli import parse_args
 from dvbfixer.prepare.glycan import (
     _write_heterogen_conects,
@@ -863,6 +864,10 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
             finally:
                 _fix_lyn_hz_naming(modeller.topology, _saved)
                 _restore_variants_post_addhydrogens(modeller.topology, _saved)
+        except HydrogenGeometryError:
+            # Geometry failure is not a template mismatch. Do not turn it
+            # into a stochastic second H-placement attempt or write output.
+            raise
         except (ValueError, KeyError, Exception) as e:
             from dvbfixer.ffutils import (
                 PROTEIN_RESIDUES,

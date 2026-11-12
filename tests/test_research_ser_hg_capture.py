@@ -2,18 +2,23 @@
 import inspect
 import json
 import random
+from pathlib import Path
 
 import pytest
 from scripts import research_ser_hg_capture as capture
-from scripts.audit_ser_hg_capture import static_detector_sweep
 
 
-def test_original_literal_and_detector_gap():
+def test_original_literal_and_historical_detector_gap():
     pytest.importorskip('openmm')
     raw = capture.synthetic_input()
     assert b'OG  SER B 126' in raw
     assert b'HG  SER B 126' not in raw
-    sweep = static_detector_sweep()
+    # This research assertion describes the pre-fix, source-bound observation,
+    # not a requirement that current production preserve the old detector gap.
+    # Keep the recorded expected values; executable candidate behavior lives in
+    # test_hydrogen_postflight.py and the matched old/new qualification.
+    record = json.loads((Path(__file__).resolve().parents[1]/'docs/research/ser-hg-capture-evidence.json').read_bytes())
+    sweep = record['static_detector']
     observed_length = next(r for r in sweep['rows'] if r['input_og_hg_angstrom'] == 1.2458133889150464)
     assert not observed_length['test_distance_predicate']
     assert not observed_length['findings']

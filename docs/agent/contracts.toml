@@ -2,6 +2,19 @@ schema_version = 1
 verified_on = "2026-09-18"
 verified_at_commit = "5478403ee139cb8e4245e84eef1ed3927417e863"
 
+[contracts.hydrogen-postflight]
+status = "implemented"
+owner = "src/dvbfixer/ffutils/geometry.py::repair_misplaced_hydrogens"
+description = "Finite, bonded O-H at or above 1.2 Angstrom is detected independently of the legacy 1.6x nonoxygen heuristic; bounded repair restores the O-H distance or raises."
+producers = ["src/dvbfixer/ffutils/geometry.py::detect_misplaced_hydrogens"]
+consumers = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer", "src/dvbfixer/minimize/pipeline.py::minimize", "src/dvbfixer/protonate.py::main", "src/dvbfixer/diagnose/structural.py::check_misplaced_hydrogens"]
+identity_keys = ["case-sensitive chain", "resid", "icode", "atom name", "native topology atom identity"]
+source_mutation = "Repair moves only flagged H in the supplied in-memory positions; heavy atoms, topology and already-valid H remain unchanged. Safe moderate O-H shortening preserves direction; gross recovery retains existing tetrahedral policy."
+commit_behavior = "Geometry helper never publishes. Prepare propagates HydrogenGeometryError before final PDB/Dat writing, without treating it as a template fallback."
+failure_behavior = "Unresolved detected over-long O-H raises HydrogenGeometryError with exact chain/residue/insertion-code/atom identity, not another native H-placement attempt."
+test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
+known_divergences = ["Not a general stereochemistry, nonfinite-input, protonation or inter-residue clash validator; native force fields and minimizer termination remain unchanged.", "The bound is in-memory; PDB rounding can perturb distances immediately below the boundary."]
+
 [contracts.private-canonical-sidechain]
 status = "research"
 owner = "src/dvbfixer/protein_completion/contracts.py::CompletionRequest"
