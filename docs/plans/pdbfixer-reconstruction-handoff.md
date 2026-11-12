@@ -2,6 +2,20 @@
 
 ## Authorization and baseline
 
+**Private initializer-guard continuation (2026-11-13):** renewed autonomous
+instruction after `0038b6c` is scoped to private development/qualification on
+`feat/hydrogen-initialization-guard`; no default/public registration, main merge
+or release. Contract `1302ba6` and prototype/static freeze `1da6783` precede
+scientific proposal evaluation. All 15 saved initial states admit: only unseeded
+THR2/HB changes under the selective radius-preserving rule; the other fourteen,
+including all twelve fixed real cases, are exact no-ops. All 19 historical H
+invocations and actual FF/fallback provenance remain accounted for. Independent
+static readback is byte-identical and 22 engineering controls pass. See
+[the private guard result and open gates](../research/hydrogen-initialization-guard.md).
+Natural activation in independent contexts is not established; old HB-only
+dynamics do not automatically qualify this new candidate. Production remains
+unchanged from `c6d9b21`.
+
 **O–H implementation authorization:** user approved a separate implementation
 and qualification branch after `347efe6`. Work continues on
 `fix/hydrogen-postflight-contract` under the

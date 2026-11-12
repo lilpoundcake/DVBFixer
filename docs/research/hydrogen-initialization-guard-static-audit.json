@@ -1,0 +1,133 @@
+{
+  "cases": 15,
+  "contexts": 0,
+  "evidence_sha256": "c56c4918f51dacca4a98932d85c254ace72ec01e7f178666e871a9fe1fee88f4",
+  "limits": "Independent moved-coordinate formula/sign/radius and observation checks only; refusals are retained, not successes or dynamic qualification.",
+  "minimizations": 0,
+  "plan_sha256": "4cf1b39e0737c727f16eb282fb7fa2a6a5a234723fb3dfef0cd58bea3fcf1ac8",
+  "production_changed": false,
+  "schema": "dvbfixer.private-initializer-static-audit.v1",
+  "script_sha256": "8e2faf02633ed709563def39a521ddccd557c75237552e53440c4bd6798d414a",
+  "slots": [
+    {
+      "independent_geometry_passed": true,
+      "index": 0,
+      "moved": 1,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 1,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 2,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 3,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 4,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 5,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 6,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 7,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 8,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 9,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 10,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 11,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 12,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 13,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    },
+    {
+      "independent_geometry_passed": true,
+      "index": 14,
+      "moved": 0,
+      "observations_exact": true,
+      "slot": 0,
+      "status": "proposed"
+    }
+  ]
+}

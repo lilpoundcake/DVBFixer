@@ -1,0 +1,680 @@
+{
+  "artifacts": {
+    "case-00-slot-0.json.gz": "cab4095eb58958bcd67a2834f1f61518895686dfcd49076972886af96d25ba63",
+    "case-01-slot-0.json.gz": "3399e6f88cb091328c8baa9f568ca113b2a7bfdc0a04fa0c24463e69fbb2d3bb",
+    "case-02-slot-0.json.gz": "9f82e12ab53c69981da176977a5694ba61d5fdb5a275494dd0ad2c9b1a6a325f",
+    "case-03-slot-0.json.gz": "32ed8650408bde21fa0c375b57b56093eec1adce537ad0bdd9cb8d750e56372b",
+    "case-04-slot-0.json.gz": "32ed8650408bde21fa0c375b57b56093eec1adce537ad0bdd9cb8d750e56372b",
+    "case-05-slot-0.json.gz": "f288786e8562c6332260866f2226c6a1284bf3c57f838579ba2da5f8e80cdf31",
+    "case-06-slot-0.json.gz": "f288786e8562c6332260866f2226c6a1284bf3c57f838579ba2da5f8e80cdf31",
+    "case-07-slot-0.json.gz": "3ebb154ebe297a8dbfd705c814f6e1d4248a8b6ee50bdad929f293d7bc4933c9",
+    "case-08-slot-0.json.gz": "3ebb154ebe297a8dbfd705c814f6e1d4248a8b6ee50bdad929f293d7bc4933c9",
+    "case-09-slot-0.json.gz": "5298f7b097588f3f3f2e6787740802b85319ad9617d86f709ce2d92fce711a98",
+    "case-10-slot-0.json.gz": "5298f7b097588f3f3f2e6787740802b85319ad9617d86f709ce2d92fce711a98",
+    "case-11-slot-0.json.gz": "1d748f8abd74923c3607062b29a135164df649d873f3bb584cbccc9951faaed7",
+    "case-12-slot-0.json.gz": "594ac5bbf0d1069efc71abed401d91ae8b3b889262404deba95f8138477bf83c",
+    "case-13-slot-0.json.gz": "a7b55a1476e9d1d7d39e401598e1d717dfb2de2ecfa74f019587eb2703e8e579",
+    "case-14-slot-0.json.gz": "1ea098e7d4b0622031b35fc228e377b30fe99dbc473254fac23e18ad030321e6"
+  },
+  "cases": [
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 0,
+      "kind": "original-thr2",
+      "label": "unseeded",
+      "requested_ff": "not-recorded",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 642,
+          "moved": [
+            {
+              "component": {
+                "alternate_location": "",
+                "chain_id": "A",
+                "insertion_code": "",
+                "model": 1,
+                "occurrence": 1,
+                "sequence_number": "2"
+              },
+              "name": "HB"
+            }
+          ],
+          "new_h": 315,
+          "observed_exact": true,
+          "prefix": "call-1-before",
+          "proposal_file": "case-00-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 56,
+          "unsupported": 259
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 1,
+      "kind": "original-thr2",
+      "label": "seed-1",
+      "requested_ff": "not-recorded",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 642,
+          "moved": [],
+          "new_h": 315,
+          "observed_exact": true,
+          "prefix": "call-1-before",
+          "proposal_file": "case-01-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 56,
+          "unsupported": 259
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 2,
+      "kind": "original-thr2",
+      "label": "seed-2",
+      "requested_ff": "not-recorded",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 642,
+          "moved": [],
+          "new_h": 315,
+          "observed_exact": true,
+          "prefix": "call-1-before",
+          "proposal_file": "case-02-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 56,
+          "unsupported": 259
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 3,
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "requested_ff": "amber",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 1405,
+          "moved": [],
+          "new_h": 745,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-03-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 97,
+          "unsupported": 648
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 4,
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 1405,
+          "moved": [],
+          "new_h": 745,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-04-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 97,
+          "unsupported": 648
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 5,
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "requested_ff": "amber",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 6686,
+          "moved": [],
+          "new_h": 3514,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-05-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 407,
+          "unsupported": 3107
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 6,
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 6686,
+          "moved": [],
+          "new_h": 3514,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-06-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 407,
+          "unsupported": 3107
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": "No template found for residue 316 (GLU).  The set of heavy atoms matches CGLU, but the residue has 1 H atom too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 7,
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "requested_ff": "amber",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 5262,
+          "moved": [],
+          "new_h": 2612,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-07-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 390,
+          "unsupported": 2222
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 8,
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 5262,
+          "moved": [],
+          "new_h": 2612,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-08-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 390,
+          "unsupported": 2222
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 9,
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "requested_ff": "amber+glycam",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 10107,
+          "moved": [],
+          "new_h": 4986,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-09-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 728,
+          "unsupported": 4258
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 10,
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 10107,
+          "moved": [],
+          "new_h": 4986,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-10-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 728,
+          "unsupported": 4258
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to CTRP, but is missing 10 H atoms and 1 N atom and has 6 O atoms too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 11,
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "requested_ff": "amber",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 6155,
+          "moved": [],
+          "new_h": 3043,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-11-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 448,
+          "unsupported": 2595
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to ANE5AC, but is missing 18 H atoms and 1 O atom.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 12,
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 6155,
+          "moved": [],
+          "new_h": 3043,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-12-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 448,
+          "unsupported": 2595
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 13,
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "requested_ff": "amber+glycam",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 4117,
+          "moved": [],
+          "new_h": 1829,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-13-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 286,
+          "unsupported": 1543
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "h_calls": [
+        {
+          "error": "No template found for residue 71 (NLN).  The set of heavy atoms matches ASN, but the residue is missing 1 H atom.  You may be able to add it with Modeller.addHydrogens().  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 14,
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "requested_ff": "charmm",
+      "results": [
+        {
+          "admitted": true,
+          "atoms": 4117,
+          "moved": [],
+          "new_h": 1829,
+          "observed_exact": true,
+          "prefix": "native-1-before",
+          "proposal_file": "case-14-slot-0.json.gz",
+          "slot": 0,
+          "status": "proposed",
+          "supported": 286,
+          "unsupported": 1543
+        }
+      ],
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    }
+  ],
+  "contexts": 0,
+  "minimizations": 0,
+  "new_h_sampling": false,
+  "plan_sha256": "4cf1b39e0737c727f16eb282fb7fa2a6a5a234723fb3dfef0cd58bea3fcf1ac8",
+  "production_changed": false,
+  "schema": "dvbfixer.private-initializer-static-evidence.v1"
+}
