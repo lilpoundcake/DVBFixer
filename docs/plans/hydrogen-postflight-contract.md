@@ -94,3 +94,42 @@ skips and 33 slow deselections:
 binds those sources, outputs and logs. This is an unsuccessful implementation
 candidate, not a green run, and is not authorized for merge/release. Additional
 validation requires an explicit pre-execution amendment, not a silent repeat.
+
+## Prospective amendment v2: include the existing contact assertion
+
+This amendment is frozen before candidate-v2 editing or execution. It is prompted
+by the retained v1 failure, not by a search for favorable random seeds.
+The [v2 plan](hydrogen-postflight-qualification-plan-v2.json) binds its exact
+inputs, retained failed candidate, canonicalized failure and contact grid.
+
+- Keep the oxygen-specific 1.2 Å upper bound and every original assertion.
+- Also detect an oxygen-bound H **within or at 1.0 Å of a same-residue nonparent
+  heavy atom**, with a distinct `oh_nonparent_contact` finding and measured
+  contact distance. This generalizes the existing HG–OXT assertion without
+  hard-coding SER or OXT. The 0.5 Å general coincidence guard and all nonoxygen
+  policies stay unchanged.
+- Require a radially shortened H to clear such a neighbor by **1.01 Å**: the
+  existing 1.0 Å predicate plus 0.01 Å serialization clearance (larger than the
+  maximum 0.001733 Å relative-distance perturbation from two PDB coordinate
+  roundings). This is an admission check for a new candidate, not a widened test.
+- Fall back to the existing tetrahedral placement when radial admission fails.
+  If bounded repair still violates either O–H predicate, raise the typed error;
+  do not search orientations, change native forces or resample H. Diagnose must
+  report the nonparent distance, not falsely describe a correct O–H bond length.
+- Preserve and bind the actual v1 failed PDB/Dat, canonicalize names only using
+  the shared naming service, and require that its unchanged geometry is either
+  repaired successfully or blocks qualification. The real retained SER failure
+  must be repaired, not classified as an allowed refusal.
+- Re-run the fixed 48+6 distance/saved-state comparison under the new candidate,
+  add **12 deterministic contact graphs** (O–H 0.97/1.245813 Å × contacts
+  0.719/0.999/1.0/1.01/1.1/1.5 Å), and the **one actual retained v1 failure**:
+  **67 total records**. Intentionally blocked toy geometries may refuse only
+  with the typed error when the independent pre-state violates a predicate.
+  Valid contact inputs may not refuse or move. Keep corrected and refused
+  outcomes distinct; do not call them independent structural samples.
+- Add a separate current AST source inventory amendment, proving unchanged
+  PDBFixer import/use semantics and totals apart from hashes/line numbers.
+  Never overwrite either historical research inventory or re-run its probe.
+- Run targeted checks and one new full fast suite **after actual code changes**,
+  with a new project-local basetemp. Retain v1's two failures and all v2 outcomes;
+  no retries of an unchanged candidate merely to obtain green.
