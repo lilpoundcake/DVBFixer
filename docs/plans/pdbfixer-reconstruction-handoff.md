@@ -10,6 +10,23 @@ minimizer settings and existing regression assertions must remain unchanged.
 This is not authorization to merge/release without qualification or to activate
 the separate empirical-library/reconstruction research routes.
 
+**Implementation progress:** candidate v1 (`94589d9`) passed the narrow 54-record
+distance replay but failed its full suite (3,144 passed/two failed): source-inventory
+binding and a real retained HG–OXT contact of 0.718741 Å despite valid O–H length.
+All raw failure artifacts and code are now preserved in-project. Prospective v2
+amendment `693f54b` adds the existing >1.0 Å nonparent-heavy contact predicate for
+O-bound H, conservative radial admission and typed fail-closed/diagnostic handling.
+All 67 v2 records are accounted for: original54 pass, eight safe contact-graph
+outcomes, four explicit blocked-toy refusals, and one real failed SER state repaired
+to O–H0.970000/HG–OXT1.788592 Å. Independent replay is exact; focused94 pass.
+See [implementation and validation](hydrogen-postflight-contract.md). No force
+field, native optimizer, existing SER assertion or historical evidence changed.
+Candidate-v2 full fast validation is **3,174 passed**, three optional skips and
+33 slow deselections; focused94, Ruff, strict mypy and generated/map checks pass.
+The original SER test file's complete digest is unchanged. v1's failed source,
+PDB/Dat, log and XML remain retained; the old lost 1.245813 Å trajectory is still
+not recovered. Implementation is isolated on the fix branch, not merged/released.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate

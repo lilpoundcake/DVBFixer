@@ -170,6 +170,12 @@ def check_misplaced_hydrogens(topology: Any, positions: Any) -> list[Finding]:
         chain, resid = _res_loc(m.h_atom.residue)
         actual_a = m.parent_distance_nm * 10
         expected_a = m.expected_bond_nm * 10
+        if m.reason == "oh_nonparent_contact":
+            assert m.contact_distance_nm is not None and m.coincident_with is not None
+            message = (f"{10*m.contact_distance_nm:.2f} Å from non-parent heavy atom "
+                       f"{m.coincident_with.name} (O–H {actual_a:.2f} Å)")
+        else:
+            message = f"{actual_a:.2f} Å from parent {m.parent.name} (expected ~{expected_a:.2f} Å)"
         findings.append(
             Finding(
                 severity=Severity.ERROR,
@@ -178,8 +184,7 @@ def check_misplaced_hydrogens(topology: Any, positions: Any) -> list[Finding]:
                 resid=resid,
                 resname=m.h_atom.residue.name,
                 atom=m.h_atom.name,
-                message=f"{actual_a:.2f} Å from parent {m.parent.name} "
-                f"(expected ~{expected_a:.2f} Å)",
+                message=message,
                 fix_hint="dvbfixer prepare (0.4.2 post-check re-places)",
             )
         )

@@ -1,0 +1,43 @@
+{
+  "branch": "fix/hydrogen-postflight-contract",
+  "candidate": "v2",
+  "existing_ser_regression_assertions_changed": false,
+  "failed_candidate_v1_retained": true,
+  "focused_tests_passed": 94,
+  "full_fast_suite": {
+    "failed": 0,
+    "optional_skips": 3,
+    "passed": 3174,
+    "slow_deselected": 33
+  },
+  "historical_research_inventories_unchanged": true,
+  "independent_qualification_byte_identical": true,
+  "limits": "coarse O-H distance/contact guard qualification, not broad force-field accuracy, native convergence, lower O-H bounds or THR2 HB stereochemistry qualification",
+  "merged_to_main": false,
+  "native_force_field_changed": false,
+  "native_minimizer_settings_changed": false,
+  "qualification": {
+    "extra_completed_safe": 9,
+    "extra_typed_refusals": 4,
+    "original_54_contact_checks_passed": 54,
+    "original_distance_stage_passed": true,
+    "qualification_passed": true,
+    "real_retained_failure_repaired": true,
+    "records": 67
+  },
+  "retained_evidence": {
+    "docs/research/hydrogen-postflight-candidate-v1-validation.json": "3cd63d871fdb1d46d63acf57a665a0d2c1a8d9472318fb1fa4cb6a1e4b53ea8c",
+    "docs/research/hydrogen-postflight-qualification-v2-evidence.json": "38a56942209aed69276d9b6c9bade962a91f68bb8705f52f19b0712d3afedbba",
+    "tmp/hydrogen-postflight-contract-01/failed-candidate-v1/manifest.json": "95d3418f36443ee11a054623a7fe52b3ba5ab330da3d1ca1899261141a59ab94",
+    "tmp/hydrogen-postflight-contract-01/fast-suite-v2-01.log": "aed58dc30b3294527b839b6016f4f154724fcdc973c9ec04c826cb662f2b3481",
+    "tmp/hydrogen-postflight-contract-01/fast-suite-v2-01.xml": "49a5167789e44e1d381506a78bf689d2ff207b86586f23da2d60c62756287fd8",
+    "tmp/hydrogen-postflight-contract-01/frozen-baseline-red-check.json": "b472f8e2abffd71eb512fb126b1290c633538c7b56a6768c08c345b1875d926a"
+  },
+  "schema": "dvbfixer.hydrogen-postflight-validation.v1",
+  "source_bindings": {
+    "src/dvbfixer/diagnose/structural.py": "0444eb2f9aed78b0adaea0be33752f6b61f508d29c066c905aa5aabbd1f5725c",
+    "src/dvbfixer/ffutils/geometry.py": "0070fb6cc6d4ac0431bf8a5e5a53cc8657471e0b91c2994a0d5b78f2b75862e6",
+    "src/dvbfixer/prepare/pipeline.py": "d4ede8fd84d94283b12e091245a41cf04d5d6f6db3543fb04db669fe43700066",
+    "tests/test_prepare_broken_geom.py": "ab0a6e3e8f98c201c4cf3f699ab66a7427dd2a08bda58f328d2e9b0875fb5026"
+  }
+}

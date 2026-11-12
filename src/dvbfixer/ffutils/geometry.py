@@ -93,6 +93,12 @@ _PARENT_DIST_FACTOR = 1.6
 # Equality is a violation. Other elements retain the old relative threshold.
 _MAX_OH_DISTANCE_NM = 0.12
 
+# The existing SER regression also requires H to clear nonparent heavy
+# atoms by >1.0 A. Only oxygen-bound H use this extra same-residue guard.
+_OH_NONPARENT_MIN_NM = 0.1
+# A new radial candidate gets a 0.01 A PDB-serialization clearance.
+_OH_RADIAL_NONPARENT_MIN_NM = 0.101
+
 # Fallback bond length when the parent element isn't in _BOND_LEN_NM.
 _DEFAULT_BOND_LEN_NM = 0.1
 
@@ -139,12 +145,13 @@ class MisplacedHydrogen:
     parent: Any                 # OpenMM Atom — the H's bonded heavy neighbor
     parent_distance_nm: float   # actual d(H, parent) in nm
     expected_bond_nm: float     # canonical covalent bond length in nm
-    reason: str                 # 'parent_distance', 'coincident', 'sibling_clash'
-    coincident_with: Any | None  # OpenMM Atom, only set when reason == 'coincident'
+    reason: str                 # parent_distance/coincident/sibling_clash/oh_nonparent_contact
+    coincident_with: Any | None  # OpenMM Atom for contact or sibling findings.
+    contact_distance_nm: float | None = None
 
 
 class HydrogenGeometryError(RuntimeError):
-    """Bounded H repair could not restore the O–H distance postcondition."""
+    """Bounded H repair could not restore the O–H distance/contact contract."""
 
     def __init__(self, findings: list[MisplacedHydrogen]) -> None:
         self.findings = findings
@@ -152,9 +159,16 @@ class HydrogenGeometryError(RuntimeError):
         for finding in findings:
             residue = finding.h_atom.residue
             identity = f"{residue.chain.id}/{residue.name}{residue.id}{residue.insertionCode.strip()}/{finding.h_atom.name}"
-            details.append(f"{identity}: O–H {10*finding.parent_distance_nm:.6f} Å")
+            if finding.reason != "parent_distance" and finding.coincident_with is not None:
+                distance = finding.contact_distance_nm
+                details.append(f"{identity}: non-parent contact "
+                               f"{10*distance:.6f} Å to {finding.coincident_with.name}"
+                               if distance is not None else f"{identity}: unresolved non-parent contact")
+            else:
+                details.append(f"{identity}: O–H {10*finding.parent_distance_nm:.6f} Å")
         super().__init__(
-            "O–H geometry postflight failed after bounded repair (required <1.2 Å): "
+            "O–H geometry postflight failed after bounded repair "
+            "(required O–H <1.2 Å and non-parent-heavy distance >1.0 Å): "
             + "; ".join(details)
         )
 
@@ -277,6 +291,8 @@ def detect_misplaced_hydrogens(
       ``_PARENT_DIST_FACTOR`` * canonical covalent bond length, OR
     - it sits within ``_COINCIDENT_TOL_NM`` of any other atom in the
       same residue, OR
+    - oxygen-bound H is within/at 1.0 Å of a same-residue nonparent
+      heavy atom, OR
     - it sits within ``_SIBLING_H_MIN_NM`` of a sibling H (same heavy
       parent). Sibling-H spacing must be ≥ sp3 minimum (~1.78 Å for
       methylene at 1.09 Å bond); anything closer produces astronomical
@@ -332,15 +348,19 @@ def detect_misplaced_hydrogens(
                 if other.index == h_atom.index or other.element is None:
                     continue
                 d2 = _dist2(h_pos, _pos(positions, other))
-                if d2 < _COINCIDENT_TOL_NM * _COINCIDENT_TOL_NM:
+                coincident = d2 < _COINCIDENT_TOL_NM * _COINCIDENT_TOL_NM
+                oh_contact = (parent.element.symbol == "O" and other.index != parent.index
+                              and other.element.symbol != "H" and d2 <= _OH_NONPARENT_MIN_NM ** 2)
+                if coincident or oh_contact:
                     findings.append(
                         MisplacedHydrogen(
                             h_atom=h_atom,
                             parent=parent,
                             parent_distance_nm=parent_distance_nm,
                             expected_bond_nm=bond_len,
-                            reason="coincident",
+                            reason="coincident" if coincident else "oh_nonparent_contact",
                             coincident_with=other,
+                            contact_distance_nm=math.sqrt(d2),
                         )
                     )
                     seen.add(h_atom.index)
@@ -602,8 +622,10 @@ def _shorten_oh_preserving_direction(
     for atom in parent.residue.atoms():
         if atom.index in (parent.index, finding.h_atom.index) or atom.element is None:
             continue
-        minimum = _SIBLING_H_MIN_NM if atom.index in siblings else _COINCIDENT_TOL_NM
-        if _dist2(point, _pos(positions, atom)) < minimum ** 2:
+        minimum = (_SIBLING_H_MIN_NM if atom.index in siblings else
+                   _OH_RADIAL_NONPARENT_MIN_NM if atom.element.symbol != "H" else _COINCIDENT_TOL_NM)
+        squared = _dist2(point, _pos(positions, atom))
+        if squared < minimum ** 2 or (atom.element.symbol != "H" and squared == minimum ** 2):
             return False
     positions[finding.h_atom.index] = Vec3(*point) * nanometer
     return True
@@ -617,7 +639,7 @@ def repair_misplaced_hydrogens(
     """Repair misplaced H while preserving heavy and already-valid H positions.
 
     Safe moderate O–H stretches retain their direction. Other findings use
-    the existing tetrahedral recovery. An unresolved long O–H raises
+    the existing tetrahedral recovery. An unresolved O–H distance/contact raises
     :class:`HydrogenGeometryError`; callers must not silently publish it or
     reinterpret it as a force-field template mismatch.
 
@@ -764,15 +786,16 @@ def repair_misplaced_hydrogens(
                       f"/{finding.h_atom.name} → fallback rotated {60 * i}°")
 
     unresolved = []
-    for finding in findings:
-        if finding.parent.element.symbol != "O":
-            continue
-        distance = math.sqrt(_dist2(_pos(positions, finding.parent), _pos(positions, finding.h_atom)))
-        if not math.isfinite(distance) or distance >= _MAX_OH_DISTANCE_NM:
-            unresolved.append(MisplacedHydrogen(
-                finding.h_atom, finding.parent, distance, finding.expected_bond_nm,
-                "parent_distance", None,
-            ))
+    if any(f.parent.element.symbol == "O" for f in findings):
+        for finding in detect_misplaced_hydrogens(topology, positions):
+            if finding.parent.element.symbol != "O":
+                continue
+            contact = finding.coincident_with
+            if finding.reason in ("parent_distance", "oh_nonparent_contact") or (
+                finding.reason == "coincident" and contact is not None
+                and contact.element.symbol != "H" and contact.index != finding.parent.index
+            ):
+                unresolved.append(finding)
     if unresolved:
         raise HydrogenGeometryError(unresolved)
     return repairs

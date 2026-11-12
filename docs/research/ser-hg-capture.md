@@ -160,3 +160,10 @@ over-long-but-noncoincident H separately from gross collapse, avoid unconditiona
 movement of already valid H, retain adverse outcomes, and do not weaken the
 existing test or apply a blanket absolute cutoff to every parent element. The
 six synthetic preparations alone do not qualify a general replacement threshold.
+
+**Subsequent approved implementation:** the user authorized a separate fix and
+qualification branch. The [O–H implementation record](../plans/hydrogen-postflight-contract.md)
+retains the first candidate's failed validation and the amended candidate's
+distance/contact qualification. Its full fast suite passed 3,174 tests. This
+follow-up does not alter the research results or recover the lost original run;
+the implementation is not merged or released by this note.

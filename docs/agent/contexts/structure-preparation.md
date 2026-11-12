@@ -142,8 +142,9 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
   `repair_misplaced_hydrogens`. Preserve the shared variant-parent rename and
   post-hydrogen restoration flow.
 - Shared H postflight detects O–H at/above 1.2 Å without tightening C/N/S/P
-  thresholds. Safe moderate stretches retain their bond direction; valid H and
-  heavy coordinates stay fixed. An unresolved detected over-long O–H raises
+  thresholds, and O-bound H within/at 1.0 Å of a same-residue nonparent heavy
+  atom. Safe moderate stretches retain direction with nonparent clearance;
+  valid H and heavy coordinates stay fixed. An unresolved O–H violation raises
   `HydrogenGeometryError`; prepare must not resample H via template fallback.
   Scope, qualification and PDB-rounding limitations are in the
   [implementation record](../../plans/hydrogen-postflight-contract.md).

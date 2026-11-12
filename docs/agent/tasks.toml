@@ -207,7 +207,7 @@ verification = [
 [change_groups.hydrogen-postflight]
 parallel_policy = "exclusive-owner"
 reason = "Shared H distance detection, conformer-preserving correction and fail-closed callers form one contract."
-files = ["src/dvbfixer/ffutils/geometry.py", "src/dvbfixer/prepare/pipeline.py"]
+files = ["src/dvbfixer/ffutils/geometry.py", "src/dvbfixer/prepare/pipeline.py", "src/dvbfixer/diagnose/structural.py"]
 
 [tasks.change-hydrogen-postflight]
 status = "implemented"
@@ -226,8 +226,8 @@ callers = [
 contracts = ["hydrogen-postflight"]
 invariants = ["INV-OH-POSTFLIGHT", "INV-IDENTITY-ICODE", "INV-CHIRALITY-ZERO-D"]
 change_group = "hydrogen-postflight"
-test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
-verification = ["pytest -q tests/test_hydrogen_postflight.py tests/test_hydrogen_postflight_prepare.py tests/test_prepare_broken_geom.py"]
+test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_contacts.py", "tests/test_hydrogen_postflight_preservation.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
+verification = ["pytest -q tests/test_hydrogen_postflight.py tests/test_hydrogen_postflight_contacts.py tests/test_hydrogen_postflight_preservation.py tests/test_hydrogen_postflight_prepare.py tests/test_prepare_broken_geom.py"]
 
 [tasks.research-atom-reconstruction-backends]
 status = "research"

@@ -75,12 +75,34 @@ def test_diagnostics_only_discovers_without_building(scanner):
 
 
 def test_retained_source_inventory_is_current(scanner):
-    # Original scientific/source evidence remains immutable. The diagnostic-only
-    # cherry-pick has a separate source-hash amendment for the active checkout.
-    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-stereo-diagnostics.json').read_text())
+    # Both historical scientific/source inventories remain immutable. The active
+    # O-H implementation has its own source/line-number amendment.
+    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-hydrogen-postflight.json').read_text())
     historical = ROOT/retained['historical_inventory']['path']
     assert hashlib.sha256(historical.read_bytes()).hexdigest() == retained['historical_inventory']['sha256']
     assert scanner.inventory(ROOT)['files'] == retained['files']
+
+
+def test_hydrogen_amendment_preserves_usage_semantics_and_historical_evidence(scanner):
+    historical_path = ROOT/'docs/research/pdbfixer-usage-inventory-stereo-diagnostics.json'
+    historical = json.loads(historical_path.read_text())
+    current = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-hydrogen-postflight.json').read_text())
+    assert current['historical_inventory']['sha256'] == hashlib.sha256(historical_path.read_bytes()).hexdigest()
+    assert current['totals'] == historical['totals'] == scanner.inventory(ROOT)['totals']
+    assert {c['path'] for c in current['changed_source_bindings']} <= {
+        'src/dvbfixer/ffutils/geometry.py', 'src/dvbfixer/prepare/pipeline.py', 'src/dvbfixer/diagnose/structural.py',
+    }
+    for before, after in zip(historical['files'], current['files'], strict=True):
+        assert before['path'] == after['path']
+        for key in ('imports', 'uses'):
+            before_semantic = [{k:v for k, v in row.items() if k != 'line'} for row in before[key]]
+            after_semantic = [{k:v for k, v in row.items() if k != 'line'} for row in after[key]]
+            assert before_semantic == after_semantic
+    assert not current['historical_template_probe_rerun']
+    assert not current['historical_scientific_results_changed']
+    assert current['production_hydrogen_postflight_changed']
+    generator = ROOT/'scripts/amend_pdbfixer_usage_hydrogen.py'
+    assert hashlib.sha256(generator.read_bytes()).hexdigest() == current['generator_source_sha256']
 
 
 def test_inventory_amendment_changes_only_diagnostic_source_hash(scanner):

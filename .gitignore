@@ -25,3 +25,4 @@ leap.log
 
 # Retained private stage traces and local tools for reconstruction research.
 /tmp/pdbfixer-research/
+/tmp/hydrogen-postflight-contract-01/

@@ -133,3 +133,55 @@ inputs, retained failed candidate, canonicalized failure and contact grid.
 - Run targeted checks and one new full fast suite **after actual code changes**,
   with a new project-local basetemp. Retain v1's two failures and all v2 outcomes;
   no retries of an unchanged candidate merely to obtain green.
+
+## Candidate v2: matched qualification results
+
+Amendment checkpoint **`693f54b`** precedes the v2 implementation and execution.
+The [v2 evidence](../research/hydrogen-postflight-qualification-v2-evidence.json)
+reports all **67 records**:
+
+- Original **48 local graphs + six native SER states** satisfy both independent
+  distance and contact checks, with no candidate errors. All heavy coordinates
+  and identities remain fixed; valid graph inputs and unselected siblings stay
+  unchanged.
+- Of 12 intentionally stressed contact graphs, eight finish safely and four
+  explicitly refuse with `HydrogenGeometryError`. Those four blocked toy
+  geometries were invalid before repair; they are not discarded failures or
+  successfully reconstructed structures.
+- The **actual retained candidate-v1 SER failure** is corrected, not refused:
+  OG–HG **0.969632 → 0.970000 Å** and HG–OXT **0.718741 → 1.788592 Å**.
+  Historical baseline and failed v1 both leave that final state uncorrected.
+  The other SER hydroxyl, heavy coordinates and atom identity stay unchanged.
+- Independent qualification readback is byte-identical. Neither qualification
+  invokes H sampling, optimization, FF changes or a fresh original-trajectory
+  reconstruction. PDB-name normalization uses the existing shared service and
+  preserves the observed coordinate columns exactly.
+
+The [current source inventory amendment](../research/pdbfixer-usage-inventory-hydrogen-postflight.json)
+updates geometry/prepare/diagnostic source hashes and line numbers while proving
+unchanged PDBFixer import/use semantics and totals. Both older inventory files
+and their template evidence remain unchanged.
+
+The expanded focused check passed **94 tests**, including the original unchanged
+SER assertions, nonoxygen nominal/moderate/gross controls, fail-closed preparation,
+identity and diagnostic-contact cases. The single full candidate-v2 fast run
+passed **3,174 tests**, with three optional Torch/Biotite skips and 33 slow
+deselections. The [validation record](../research/hydrogen-postflight-validation.json)
+binds logs/XML and final source hashes; candidate-v1's two failures remain retained.
+Ruff, strict-target mypy, generated CLI/GUI specs and agent-documentation checks
+also passed. No original SER assertion, force-field parameter or minimizer setting
+was changed. All pytest failure/success artifacts now use project-local basetemps.
+
+### Limits and publication gate
+
+These are deterministic local graph and saved-state controls, not 67 independent
+physical structures. They establish the stated coarse O–H contract, not a native
+minimizer convergence guarantee, correct protonation or torsion, all-atom steric
+validity, or a fix for the separate THR2 HB handedness issue. Short O–H bonds
+outside the unchanged coincidence guard remain outside this upper-bound patch;
+for example, a retained SER125 O–H around 0.684 Å is not silently normalized here.
+Near-boundary PDB quantization remains a separate limitation.
+
+Implementation stays on `fix/hydrogen-postflight-contract`. Merge/release remains
+a user decision after review of qualification and complete validation, not an
+automatic consequence of the research authorization.
