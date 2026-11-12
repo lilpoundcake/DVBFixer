@@ -1,0 +1,2023 @@
+{
+  "additional_native_minimization": false,
+  "audit_script_sha256": "3e3644226e4a5cfe9d129b54c8819a380c96409b70de3f096f3ce8d5fcd39b60",
+  "cases": [
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0026855744335402398,
+            "og_hg_angstrom": 1.6802355244020308,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "unseeded",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0026855744335402398,
+            "og_hg_angstrom": 1.6802355244020308,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 2.114859684850703,
+            "og_hg_angstrom": 0.9999996373157298,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0026855744335402398,
+            "og_hg_angstrom": 1.6802355244020308,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [],
+          "findings_before": [
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.6802355244020306,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 1,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": null,
+      "status": "completed"
+    },
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.004394165664812704,
+            "og_hg_angstrom": 1.6748495509442023,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "seed-1",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.004394165664812704,
+            "og_hg_angstrom": 1.6748495509442023,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 2.0981564388600016,
+            "og_hg_angstrom": 0.9999990474312891,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.004394165664812704,
+            "og_hg_angstrom": 1.6748495509442023,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [],
+          "findings_before": [
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.674849550944202,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 1,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": 1,
+      "status": "completed"
+    },
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.09156331327781157,
+            "og_hg_angstrom": 1.7476962205683126,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "seed-2",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.09156331327781157,
+            "og_hg_angstrom": 1.7476962205683126,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.90640749106944,
+            "og_hg_angstrom": 0.9999994725976394,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.09156331327781157,
+            "og_hg_angstrom": 1.7476962205683126,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [],
+          "findings_before": [
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.344742755856955,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 0.9306120535761476,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 0.9008029128677602,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 0.9875310689338854,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 0.7357012882222012,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.7476962205683124,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 6,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": 2,
+      "status": "completed"
+    },
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0009138027727070846,
+            "og_hg_angstrom": 1.6778715403776867,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "seed-3",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0009138027727070846,
+            "og_hg_angstrom": 1.6778715403776867,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 2.1202672129465605,
+            "og_hg_angstrom": 0.9999998858153211,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.0009138027727070846,
+            "og_hg_angstrom": 1.6778715403776867,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [],
+          "findings_before": [
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.6778715403776867,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 1,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": 3,
+      "status": "completed"
+    },
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.00037085394959973796,
+            "og_hg_angstrom": 1.6780570695360533,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "seed-4",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.00037085394959973796,
+            "og_hg_angstrom": 1.6780570695360533,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.9930425613557954,
+            "og_hg_angstrom": 0.9999991795497225,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.00037085394959973796,
+            "og_hg_angstrom": 1.6780570695360533,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.2022231292803824,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.0100000000000007,
+              "reason": "sibling_clash"
+            }
+          ],
+          "findings_before": [
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.1174337180883407,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.3282508608913104,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 0.7618707160026597,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 0.8693238205886061,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.6780570695360533,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 5,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": 4,
+      "status": "completed"
+    },
+    {
+      "final_pdb": {
+        "atom_names": [
+          "C",
+          "CA",
+          "CB",
+          "H",
+          "HA",
+          "HB1",
+          "HB2",
+          "HG",
+          "N",
+          "OC1",
+          "OC2",
+          "OG"
+        ],
+        "hg_terminal_oxygen_angstrom": 1.7882469068895388,
+        "og_hg_angstrom": 0.9702004947432262,
+        "residue": [
+          "B",
+          "126",
+          ""
+        ],
+        "satisfies_original_hg_oxt_assertion": true,
+        "satisfies_original_og_hg_assertion": true
+      },
+      "h_calls": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.029153639988105745,
+            "og_hg_angstrom": 1.6691484494960385,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "residue": [
+              "B",
+              "126",
+              ""
+            ]
+          },
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "label": "seed-5",
+      "native": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.029153639988105745,
+            "og_hg_angstrom": 1.6691484494960385,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 2.0415176284553738,
+            "og_hg_angstrom": 0.9999997921714577,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "max_iterations": 50,
+          "number": 1,
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "returned": true,
+          "tolerance": 1.0
+        }
+      ],
+      "repairs": [
+        {
+          "after": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 1.7885918647386143,
+            "og_hg_angstrom": 0.9699999999999982,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": true,
+            "satisfies_original_og_hg_assertion": true
+          },
+          "before": {
+            "atom_names": [
+              "C",
+              "CA",
+              "CB",
+              "H",
+              "HA",
+              "HB2",
+              "HB3",
+              "HG",
+              "N",
+              "O",
+              "OG",
+              "OXT"
+            ],
+            "hg_terminal_oxygen_angstrom": 0.029153639988105745,
+            "og_hg_angstrom": 1.6691484494960385,
+            "residue": [
+              "B",
+              "126",
+              ""
+            ],
+            "satisfies_original_hg_oxt_assertion": false,
+            "satisfies_original_og_hg_assertion": false
+          },
+          "findings_after": [],
+          "findings_before": [
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.015902183110105,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.2857846372410275,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H"
+              ],
+              "expected_bond_angstrom": 1.01,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "H3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "N"
+              ],
+              "parent_distance_angstrom": 1.1994254521546917,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 1.1897778655451827,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "parent": [
+                "B",
+                "125",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 1.066339083823269,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 1.1958733179716916,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HB2"
+              ],
+              "expected_bond_angstrom": 1.09,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HB3"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "CB"
+              ],
+              "parent_distance_angstrom": 1.2646997073259216,
+              "reason": "sibling_clash"
+            },
+            {
+              "coincident_with": null,
+              "expected_bond_angstrom": 0.97,
+              "hydrogen": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "HG"
+              ],
+              "parent": [
+                "B",
+                "126",
+                "",
+                "SER",
+                "OG"
+              ],
+              "parent_distance_angstrom": 1.6691484494960385,
+              "reason": "parent_distance"
+            }
+          ],
+          "number": 1,
+          "repaired_count": 8,
+          "returned": true
+        }
+      ],
+      "returncode": 0,
+      "satisfies_both_original_geometry_assertions": true,
+      "seed": 5,
+      "status": "completed"
+    }
+  ],
+  "execution_sha256": "4dfc49afd4a91ef736df29088278687e32ba3704dfbaf0c74e4566fd43fed3ed",
+  "limits": "fresh synthetic input preparations are not recovered original pytest coordinates/trajectory, independent new structural contexts or production qualification",
+  "original_failed_artifacts": "unavailable: user copy command reported source path missing; original log/XML retained separately",
+  "plan_sha256": "613362b18d84541bd887228d54e9ca0651f8c1cdd6339035e422001eca60f5aa",
+  "production_changed": false,
+  "schema": "dvbfixer.ser-hg-audit.v1",
+  "scientific_thresholds_changed": false,
+  "static_detector": {
+    "canonical_oh_angstrom": 0.97,
+    "coincidence_tolerance_angstrom": 0.5,
+    "distance_only_cutoff_angstrom": 1.552,
+    "enrollment": "all eight predeclared O-H distances, one-H/one-heavy-neighbor toy graphs with no close nonparents",
+    "limits": "detector/test contract gap, not proof of the lost failure geometry or its stochastic cause",
+    "parent_distance_factor": 1.6,
+    "rows": [
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 0.97,
+        "findings": [],
+        "input_og_hg_angstrom": 0.97,
+        "repairs": 0,
+        "test_distance_predicate": true
+      },
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 1.199,
+        "findings": [],
+        "input_og_hg_angstrom": 1.199,
+        "repairs": 0,
+        "test_distance_predicate": true
+      },
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 1.2,
+        "findings": [],
+        "input_og_hg_angstrom": 1.2,
+        "repairs": 0,
+        "test_distance_predicate": false
+      },
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 1.2458133889150464,
+        "findings": [],
+        "input_og_hg_angstrom": 1.2458133889150464,
+        "repairs": 0,
+        "test_distance_predicate": false
+      },
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 1.551,
+        "findings": [],
+        "input_og_hg_angstrom": 1.551,
+        "repairs": 0,
+        "test_distance_predicate": false
+      },
+      {
+        "coordinates_unchanged": true,
+        "final_og_hg_angstrom": 1.552,
+        "findings": [],
+        "input_og_hg_angstrom": 1.552,
+        "repairs": 0,
+        "test_distance_predicate": false
+      },
+      {
+        "coordinates_unchanged": false,
+        "final_og_hg_angstrom": 0.9699999999999999,
+        "findings": [
+          {
+            "coincident_with": null,
+            "expected_bond_angstrom": 0.97,
+            "hydrogen": [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ],
+            "parent": [
+              "B",
+              "126",
+              "",
+              "SER",
+              "OG"
+            ],
+            "parent_distance_angstrom": 1.553,
+            "reason": "parent_distance"
+          }
+        ],
+        "input_og_hg_angstrom": 1.553,
+        "repairs": 1,
+        "test_distance_predicate": false
+      },
+      {
+        "coordinates_unchanged": false,
+        "final_og_hg_angstrom": 0.9699999999999999,
+        "findings": [
+          {
+            "coincident_with": null,
+            "expected_bond_angstrom": 0.97,
+            "hydrogen": [
+              "B",
+              "126",
+              "",
+              "SER",
+              "HG"
+            ],
+            "parent": [
+              "B",
+              "126",
+              "",
+              "SER",
+              "OG"
+            ],
+            "parent_distance_angstrom": 1.6999999999999997,
+            "reason": "parent_distance"
+          }
+        ],
+        "input_og_hg_angstrom": 1.7,
+        "repairs": 1,
+        "test_distance_predicate": false
+      }
+    ]
+  },
+  "summary": {
+    "enrolled": 6,
+    "final_both_assertions_pass": 6,
+    "final_og_hg_assertion_fail": 0,
+    "native_h_calls": 6,
+    "statuses": {
+      "completed": 6
+    }
+  }
+}

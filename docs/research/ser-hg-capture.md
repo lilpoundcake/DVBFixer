@@ -66,3 +66,97 @@ in the gap and identify its observed H/repair lineage. They cannot prove the los
 run's stochastic path or qualify a general change in O–H tolerances. No native
 sampling is repeated merely to obtain a pass or failure. Production integration,
 upstream issue publication and threshold changes are outside this stage.
+
+## Results: no reproduction of the lost sub-threshold endpoint
+
+Protocol checkpoint **`89aaf27`** precedes all scientific execution. All **six
+preparations / six native H calls** completed on automatically selected
+**OpenCL / Apple M3 Pro / single precision**. No additional seed or preparation
+was attempted after seeing the outcomes.
+
+| Label | Native returned OG–HG (Å) | Native HG–OXT (Å) | Production repair count (all H) |
+|---|---:|---:|---:|
+| unseeded | 1.680236 | 0.002686 | 1 |
+| seed 1 | 1.674850 | 0.004394 | 1 |
+| seed 2 | 1.747696 | 0.091563 | 6 |
+| seed 3 | 1.677872 | 0.000914 | 1 |
+| seed 4 | 1.678057 | 0.000371 | 5 |
+| seed 5 | 1.669148 | 0.029154 | 8 |
+
+Every native H return has HG near OXT and an over-long bond to its actual OG
+parent. The existing production detector catches HG as `parent_distance` in
+every case. Repair restores OG–HG to **0.970000 Å**, and every final PDB has
+**0.970200 Å** after output rounding. All six final outputs satisfy both original
+test assertions. Different repair counts include other H atoms, not six HG
+repairs in one residue.
+
+The [complete boundary/contract audit](ser-hg-capture-evidence.json) retains these
+negative native intermediates as well as the successful final repairs. It also
+records the static contract gap at 1.245813 Å. **None of these six final outcomes
+reproduces the logged original endpoint**, and they neither erase nor explain
+the entire lost failed trajectory. The original full fast suite remains failed.
+
+## Saved-force evidence: current collisions do not require an index swap
+
+The separate [saved-force audit](ser-hg-force-evidence.json) examines all six
+native Systems and both boundaries in both captured OpenCL and Reference,
+**24 readback states without any new minimization**. All six serialized native
+Systems are identical.
+
+For the explicitly named HG/OG/OXT atoms in these captures:
+
+- HG is bonded to **OG**, with a native harmonic equilibrium length **0.96 Å**;
+  it is not bonded to OXT. The atom map, topology and force-term indices agree.
+- HG is mobile (**1.008 Da**); OG and OXT are pinned (**0 Da**) during H placement.
+- HG and OXT are **five topology bonds apart**, with **no nonbonded exception**.
+- HG charge is **+0.4474 e** and its LJ epsilon is **zero**. OXT charge is
+  **−0.8132 e**. The mixed HG–OXT LJ epsilon is therefore zero.
+
+This pair has attractive Coulomb `1/r` behavior without a repulsive pair LJ core.
+The finite cutoff reaction-field correction does not remove that short-range
+singularity. With the heavy atoms pinned, approaching OXT can dominate the finite
+O–H stretch penalty. This is a documented local mechanism under the captured
+H-placement conditions, **not a blanket claim that AMBER is defective** or that
+every observed H problem shares this cause.
+
+At the saved returned positions, Reference HG force projected toward OXT ranges
+from **6.32×10⁵ to 3.68×10¹⁰ kJ/mol/nm**, dominated by nonbonded force. None of
+the six returns satisfies the native gradient criterion in either readback mode.
+These are not converged, chemically correct H minima. No callback path or native
+error enum was recorded in this protocol, so the exact termination reason and
+the presence/absence of terminal leakage are **not established**.
+
+The older source/test commentary attributing such a collision to HG inheriting
+OXT's index is not supported by the **present six captured Systems**. It must not
+be treated as proven causality for these captures. Nor can the missing original
+System be reconstructed from that older commentary.
+
+Force-group sum discrepancies are retained rather than called exact: maximum
+energy discrepancy **0.000771 kJ/mol**, maximum HG-projection discrepancy
+**37.55 kJ/mol/nm** at extremely large single-precision force magnitudes. Native
+runtime-declared source provenance is not binary attestation.
+
+## Verification and next authorization boundary
+
+The focused research suite passed **30 tests**. Ruff, generated CLI/GUI specs,
+agent-documentation and changed-document link checks passed. The six captures and
+their input hashes are immutable; independent boundary and force audits were
+repeated with byte-identical reports and without new minimization. Original logs
+and the unavailable-artifact status remain retained. No full-suite retry was used
+to manufacture a green run. The [validation record](ser-hg-validation.json)
+keeps focused checks, fresh outcomes and the older full-suite failure separate.
+
+The research stage is complete at its declared budget. A sensible next objective
+is to reconcile the production H-detector/post-repair contract with the unchanged
+regression predicate, **not to change the native force field or retry seeds**.
+That is a behavior-changing implementation scope and needs explicit user
+authorization on a separate branch. It is not automatically approved by the
+research instruction.
+
+Before any default change, freeze qualification on identical retained starts,
+including hydroxyl/phenol/protonated-acid/solvent and ligand cases; preserve
+existing identity, insertion-code, chirality and nonprotein routing rules. Test
+over-long-but-noncoincident H separately from gross collapse, avoid unconditional
+movement of already valid H, retain adverse outcomes, and do not weaken the
+existing test or apply a blanket absolute cutoff to every parent element. The
+six synthetic preparations alone do not qualify a general replacement threshold.

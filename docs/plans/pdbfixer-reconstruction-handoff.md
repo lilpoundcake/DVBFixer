@@ -73,6 +73,25 @@ and assertions unchanged. A deterministic graph at the logged 1.245813 Å O–H
 length shows the existing detector/test contract gap (<1.2 vs distance-only
 1.552 Å), but does not establish missing predicates or the lost-run cause.
 
+**SER-HG stage completed, protocol `89aaf27`:** all six fixed fresh prepares
+completed (automatic OpenCL) and final OG–HG is 0.970200 Å in all six. The logged
+original 1.245813 Å endpoint was **not reproduced**; do not add seeds or erase the
+original 3,082-pass/one-failure full-suite result. All native intermediates instead
+have HG near OXT (0.000371–0.091563 Å) and OG–HG 1.669–1.748 Å; actual production
+repair catches HG by parent distance and restores it. All artifacts are private
+in-project from the start. Static detector/test gap is deterministic.
+All six native Systems are identical: correct OG–HG bond (0.96 Å), mobile HG,
+pinned OG/OXT, graph distance5, no pair exception, HG charge +0.4474/OXT −0.8132,
+zero mixed LJ epsilon. Saved-only all24-state force audit supports local Coulomb
+collapse without an index swap; none of the returned H states passes the native
+gradient criterion. Exact termination reason/terminal leakage remains unobserved.
+Do not perpetuate the source-comment index-swap explanation as proven for these
+fresh Systems. Focused research tests: 30 passed; production and thresholds
+unchanged. [SER-HG results and implementation gate](../research/ser-hg-capture.md)
+define the next genuine decision: authorize a separate behavior-changing H
+postcondition/repair-contract implementation and qualification branch, or retain
+research-only scope. No general cutoff or native FF change is qualified here.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.

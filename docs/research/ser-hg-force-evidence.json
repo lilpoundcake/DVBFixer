@@ -1,0 +1,1501 @@
+{
+  "additional_native_minimization": false,
+  "audit_script_sha256": "84350b68b19cab2422051bddc3e9c6237359e462e9d37753590f805c1679fb42",
+  "cases": [
+    {
+      "label": "unseeded",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 9348.73779296875,
+              "force_group_energy_sum_error_kj_mol": 3.0517578125e-05,
+              "force_group_projection_sum_error_kj_mol_nm": 8.751517543714726e-05,
+              "hg_force_toward_oxt_kj_mol_nm": 3104.428463138792,
+              "hg_oxt_angstrom": 2.1148596848507033,
+              "mobile_force_l2_kj_mol_nm": 21494.883849531416,
+              "mode": "captured",
+              "native_epsilon": 0.25577450130166296,
+              "native_scaled_gradient_ratio": 1099.5686394302136,
+              "og_hg_angstrom": 0.9999996373157298,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67721557617188,
+                  "hg_force_toward_oxt_kj_mol_nm": 1162.6623202131723,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 78.80126953125,
+                  "hg_force_toward_oxt_kj_mol_nm": -116.77599185596598,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5556.984619140625,
+                  "hg_force_toward_oxt_kj_mol_nm": 963.7697662417966,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3595.274658203125,
+                  "hg_force_toward_oxt_kj_mol_nm": 1094.772456054964,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 9348.736463699213,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0,
+              "hg_force_toward_oxt_kj_mol_nm": 3104.428675994046,
+              "hg_oxt_angstrom": 2.1148596848507033,
+              "mobile_force_l2_kj_mol_nm": 21494.885169784055,
+              "mode": "Reference",
+              "native_epsilon": 0.25577450130166296,
+              "native_scaled_gradient_ratio": 1099.5687069676055,
+              "og_hg_angstrom": 0.9999996373157298,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67735989574017,
+                  "hg_force_toward_oxt_kj_mol_nm": 1162.6623995051464,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 78.80128109607617,
+                  "hg_force_toward_oxt_kj_mol_nm": -116.77600140069245,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5556.983367863387,
+                  "hg_force_toward_oxt_kj_mol_nm": 963.7698550367392,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3595.2744548440105,
+                  "hg_force_toward_oxt_kj_mol_nm": 1094.7724228528527,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -180557.12353515625,
+              "force_group_energy_sum_error_kj_mol": 0.000286102294921875,
+              "force_group_projection_sum_error_kj_mol_nm": 37.54841363430023,
+              "hg_force_toward_oxt_kj_mol_nm": 700889225.9550081,
+              "hg_oxt_angstrom": 0.0026855744335402398,
+              "mobile_force_l2_kj_mol_nm": 700889226.2733424,
+              "mode": "captured",
+              "native_epsilon": 0.25577450130166296,
+              "native_scaled_gradient_ratio": 35722851.26085119,
+              "og_hg_angstrom": 1.6802355244020306,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1263.509521484375,
+                  "hg_force_toward_oxt_kj_mol_nm": 27284.50592762619,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 55.5400505065918,
+                  "hg_force_toward_oxt_kj_mol_nm": -39.77406787553168,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -182334.6378173828,
+                  "hg_force_toward_oxt_kj_mol_nm": 700861848.15845,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 458.4649963378906,
+                  "hg_force_toward_oxt_kj_mol_nm": 95.5162847066548,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -180557.13017461429,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0,
+              "hg_force_toward_oxt_kj_mol_nm": 700889249.7210975,
+              "hg_oxt_angstrom": 0.0026855744335402398,
+              "mobile_force_l2_kj_mol_nm": 700889250.0394458,
+              "mode": "Reference",
+              "native_epsilon": 0.25577450130166296,
+              "native_scaled_gradient_ratio": 35722852.47215954,
+              "og_hg_angstrom": 1.6802355244020306,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1263.5093148771455,
+                  "hg_force_toward_oxt_kj_mol_nm": 27284.504904631365,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 55.54006300517917,
+                  "hg_force_toward_oxt_kj_mol_nm": -39.77406711855977,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -182334.64444337104,
+                  "hg_force_toward_oxt_kj_mol_nm": 700861909.4739296,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 458.46489087443405,
+                  "hg_force_toward_oxt_kj_mol_nm": 95.51633036011265,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "label": "seed-1",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 9014.01416015625,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0001108093065340654,
+              "hg_force_toward_oxt_kj_mol_nm": 4845.451760136849,
+              "hg_oxt_angstrom": 2.0981564388600016,
+              "mobile_force_l2_kj_mol_nm": 20979.48739892503,
+              "mode": "captured",
+              "native_epsilon": 0.25552877124293305,
+              "native_scaled_gradient_ratio": 1072.1725272707822,
+              "og_hg_angstrom": 0.9999990474312892,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67747497558594,
+                  "hg_force_toward_oxt_kj_mol_nm": 1140.8608603739688,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 81.24220275878906,
+                  "hg_force_toward_oxt_kj_mol_nm": 24.0643351797778,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5530.718017578125,
+                  "hg_force_toward_oxt_kj_mol_nm": 964.7812934187675,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3284.37646484375,
+                  "hg_force_toward_oxt_kj_mol_nm": 2715.7451603550285,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 9014.013611826907,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0,
+              "hg_force_toward_oxt_kj_mol_nm": 4845.452024961236,
+              "hg_oxt_angstrom": 2.0981564388600016,
+              "mobile_force_l2_kj_mol_nm": 20979.488737758715,
+              "mode": "Reference",
+              "native_epsilon": 0.25552877124293305,
+              "native_scaled_gradient_ratio": 1072.1725956928876,
+              "og_hg_angstrom": 0.9999990474312892,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67759800036718,
+                  "hg_force_toward_oxt_kj_mol_nm": 1140.8610527422927,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 81.24221614721436,
+                  "hg_force_toward_oxt_kj_mol_nm": 24.064351211747972,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5530.71717640946,
+                  "hg_force_toward_oxt_kj_mol_nm": 964.781336798676,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3284.376621269866,
+                  "hg_force_toward_oxt_kj_mol_nm": 2715.7452842085195,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -106505.41259765625,
+              "force_group_energy_sum_error_kj_mol": 0.0001220703125,
+              "force_group_projection_sum_error_kj_mol_nm": 6.980281442403793,
+              "hg_force_toward_oxt_kj_mol_nm": 261764249.4750573,
+              "hg_oxt_angstrom": 0.004394165664812704,
+              "mobile_force_l2_kj_mol_nm": 261764251.63734022,
+              "mode": "captured",
+              "native_epsilon": 0.25552877124293305,
+              "native_scaled_gradient_ratio": 13352416.221705994,
+              "og_hg_angstrom": 1.674849550944202,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 2081.54931640625,
+                  "hg_force_toward_oxt_kj_mol_nm": -23980.175822931113,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 54.47998046875,
+                  "hg_force_toward_oxt_kj_mol_nm": -43.92723989127429,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -109148.45202636719,
+                  "hg_force_toward_oxt_kj_mol_nm": 261788633.32540432,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 507.010009765625,
+                  "hg_force_toward_oxt_kj_mol_nm": -352.76700275769025,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -106505.41081278508,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 2.9802322387695312e-08,
+              "hg_force_toward_oxt_kj_mol_nm": 261764287.26684356,
+              "hg_oxt_angstrom": 0.004394165664812704,
+              "mobile_force_l2_kj_mol_nm": 261764289.42953914,
+              "mode": "Reference",
+              "native_epsilon": 0.25552877124293305,
+              "native_scaled_gradient_ratio": 13352418.149460325,
+              "og_hg_angstrom": 1.674849550944202,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 2081.5496112475867,
+                  "hg_force_toward_oxt_kj_mol_nm": -23980.176212174098,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 54.47998674389367,
+                  "hg_force_toward_oxt_kj_mol_nm": -43.92725200937803,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -109148.45032819048,
+                  "hg_force_toward_oxt_kj_mol_nm": 261788664.13733563,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 507.00991741392414,
+                  "hg_force_toward_oxt_kj_mol_nm": -352.767027918213,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "label": "seed-2",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 8894.375244140625,
+              "force_group_energy_sum_error_kj_mol": 0.000152587890625,
+              "force_group_projection_sum_error_kj_mol_nm": 8.786605576460715e-07,
+              "hg_force_toward_oxt_kj_mol_nm": 4061.964566026997,
+              "hg_oxt_angstrom": 1.9064074910694397,
+              "mobile_force_l2_kj_mol_nm": 20564.30108832951,
+              "mode": "captured",
+              "native_epsilon": 0.25556683851985995,
+              "native_scaled_gradient_ratio": 1051.1106831029779,
+              "og_hg_angstrom": 0.9999994725976395,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67807006835938,
+                  "hg_force_toward_oxt_kj_mol_nm": 882.8513981899844,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 73.05908203125,
+                  "hg_force_toward_oxt_kj_mol_nm": 17.362668654761965,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5523.978271484375,
+                  "hg_force_toward_oxt_kj_mol_nm": 1196.6616004893629,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3179.65966796875,
+                  "hg_force_toward_oxt_kj_mol_nm": 1965.0888978142275,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 8894.374144148593,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 4.547473508864641e-13,
+              "hg_force_toward_oxt_kj_mol_nm": 4061.9648734430616,
+              "hg_oxt_angstrom": 1.9064074910694397,
+              "mobile_force_l2_kj_mol_nm": 20564.302255308947,
+              "mode": "Reference",
+              "native_epsilon": 0.25556683851985995,
+              "native_scaled_gradient_ratio": 1051.110742751227,
+              "og_hg_angstrom": 0.9999994725976395,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67818229948271,
+                  "hg_force_toward_oxt_kj_mol_nm": 882.8511370884248,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 73.05909130217444,
+                  "hg_force_toward_oxt_kj_mol_nm": 17.362678758691196,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5523.977441801313,
+                  "hg_force_toward_oxt_kj_mol_nm": 1196.6619132152236,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3179.6594287456232,
+                  "hg_force_toward_oxt_kj_mol_nm": 1965.0891443807222,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 3865.4617919921875,
+              "force_group_energy_sum_error_kj_mol": 0.00077056884765625,
+              "force_group_projection_sum_error_kj_mol_nm": 0.01210862840525806,
+              "hg_force_toward_oxt_kj_mol_nm": 632359.5711911396,
+              "hg_oxt_angstrom": 0.09156331327781156,
+              "mobile_force_l2_kj_mol_nm": 633296.106306887,
+              "mode": "captured",
+              "native_epsilon": 0.25556683851985995,
+              "native_scaled_gradient_ratio": 32332.90459558644,
+              "og_hg_angstrom": 1.7476962205683124,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 2120.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 28132.742093251138,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 52.414710998535156,
+                  "hg_force_toward_oxt_kj_mol_nm": -35.30146677842459,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 407.7896728515625,
+                  "hg_force_toward_oxt_kj_mol_nm": 603590.9235687393,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 1285.2581787109375,
+                  "hg_force_toward_oxt_kj_mol_nm": 671.2191045559961,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 3865.4616300275948,
+              "force_group_energy_sum_error_kj_mol": 4.547473508864641e-13,
+              "force_group_projection_sum_error_kj_mol_nm": 1.1641532182693481e-10,
+              "hg_force_toward_oxt_kj_mol_nm": 632359.5678064747,
+              "hg_oxt_angstrom": 0.09156331327781156,
+              "mobile_force_l2_kj_mol_nm": 633296.1028041369,
+              "mode": "Reference",
+              "native_epsilon": 0.25556683851985995,
+              "native_scaled_gradient_ratio": 32332.90441675369,
+              "og_hg_angstrom": 1.7476962205683124,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 2120.000630871191,
+                  "hg_force_toward_oxt_kj_mol_nm": 28132.745295250847,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 52.41471958059239,
+                  "hg_force_toward_oxt_kj_mol_nm": -35.301469703221805,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 407.788369085411,
+                  "hg_force_toward_oxt_kj_mol_nm": 603590.9049513281,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 1285.257910490401,
+                  "hg_force_toward_oxt_kj_mol_nm": 671.2190295989406,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "label": "seed-3",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 9205.67431640625,
+              "force_group_energy_sum_error_kj_mol": 9.1552734375e-05,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0001077153128790087,
+              "hg_force_toward_oxt_kj_mol_nm": 3160.06729643627,
+              "hg_oxt_angstrom": 2.12026721294656,
+              "mobile_force_l2_kj_mol_nm": 21802.872575956266,
+              "mode": "captured",
+              "native_epsilon": 0.2557679433973949,
+              "native_scaled_gradient_ratio": 1115.295175781559,
+              "og_hg_angstrom": 0.9999998858153212,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67843627929688,
+                  "hg_force_toward_oxt_kj_mol_nm": 1169.7000503449844,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 76.254638671875,
+                  "hg_force_toward_oxt_kj_mol_nm": -66.61281904214137,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5585.9796142578125,
+                  "hg_force_toward_oxt_kj_mol_nm": 958.1153275662435,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3425.76171875,
+                  "hg_force_toward_oxt_kj_mol_nm": 1098.8648452824964,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 9205.671899788977,
+              "force_group_energy_sum_error_kj_mol": 1.8189894035458565e-12,
+              "force_group_projection_sum_error_kj_mol_nm": 4.547473508864641e-13,
+              "hg_force_toward_oxt_kj_mol_nm": 3160.067880444494,
+              "hg_oxt_angstrom": 2.12026721294656,
+              "mobile_force_l2_kj_mol_nm": 21802.86867284304,
+              "mode": "Reference",
+              "native_epsilon": 0.2557679433973949,
+              "native_scaled_gradient_ratio": 1115.2949761233106,
+              "og_hg_angstrom": 0.9999998858153212,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67854121448157,
+                  "hg_force_toward_oxt_kj_mol_nm": 1169.700831369188,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 76.25464560394951,
+                  "hg_force_toward_oxt_kj_mol_nm": -66.61281731704972,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5585.978157315766,
+                  "hg_force_toward_oxt_kj_mol_nm": 958.1151698402825,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3425.7605556547805,
+                  "hg_force_toward_oxt_kj_mol_nm": 1098.8646965520738,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -545524.7014160156,
+              "force_group_energy_sum_error_kj_mol": 0.000102996826171875,
+              "force_group_projection_sum_error_kj_mol_nm": 36.69599072635174,
+              "hg_force_toward_oxt_kj_mol_nm": 114284966.11518908,
+              "hg_oxt_angstrom": 0.0009138027727070846,
+              "mobile_force_l2_kj_mol_nm": 1277933057.4728274,
+              "mode": "captured",
+              "native_epsilon": 0.2557679433973949,
+              "native_scaled_gradient_ratio": 65151650.253951244,
+              "og_hg_angstrom": 1.6778715403776867,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1245.608154296875,
+                  "hg_force_toward_oxt_kj_mol_nm": -6031.866575200071,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 54.04630661010742,
+                  "hg_force_toward_oxt_kj_mol_nm": -68.16208341689132,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -547273.4639892578,
+                  "hg_force_toward_oxt_kj_mol_nm": 114291038.0528462,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 449.10821533203125,
+                  "hg_force_toward_oxt_kj_mol_nm": -8.604989230010347,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -545524.7417120135,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 1.9073486328125e-06,
+              "hg_force_toward_oxt_kj_mol_nm": 6053422467.803978,
+              "hg_oxt_angstrom": 0.0009138027727070846,
+              "mobile_force_l2_kj_mol_nm": 6053422467.899856,
+              "mode": "Reference",
+              "native_epsilon": 0.2557679433973949,
+              "native_scaled_gradient_ratio": 308615902.18813765,
+              "og_hg_angstrom": 1.6778715403776867,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1245.60840069101,
+                  "hg_force_toward_oxt_kj_mol_nm": -6031.867285943499,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 54.0463110651685,
+                  "hg_force_toward_oxt_kj_mol_nm": -68.16207990329052,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -547273.5045595667,
+                  "hg_force_toward_oxt_kj_mol_nm": 6053428576.438353,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 449.10813579703847,
+                  "hg_force_toward_oxt_kj_mol_nm": -8.605007602615615,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "label": "seed-4",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 9041.600830078125,
+              "force_group_energy_sum_error_kj_mol": 0.0003204345703125,
+              "force_group_projection_sum_error_kj_mol_nm": 4.556416388368234e-05,
+              "hg_force_toward_oxt_kj_mol_nm": 4026.9794014855515,
+              "hg_oxt_angstrom": 1.9930425613557954,
+              "mobile_force_l2_kj_mol_nm": 19869.503025012244,
+              "mode": "captured",
+              "native_epsilon": 0.2558396647376539,
+              "native_scaled_gradient_ratio": 1016.6813984845865,
+              "og_hg_angstrom": 0.9999991795497226,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67762756347656,
+                  "hg_force_toward_oxt_kj_mol_nm": 1001.3400620091675,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 74.10440063476562,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.8122961169773029,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5576.5887451171875,
+                  "hg_force_toward_oxt_kj_mol_nm": 1101.9031323952656,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3273.229736328125,
+                  "hg_force_toward_oxt_kj_mol_nm": 1922.923956528305,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 9041.59809827885,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 9.094947017729282e-13,
+              "hg_force_toward_oxt_kj_mol_nm": 4026.980668842124,
+              "hg_oxt_angstrom": 1.9930425613557954,
+              "mobile_force_l2_kj_mol_nm": 19869.499943032006,
+              "mode": "Reference",
+              "native_epsilon": 0.2558396647376539,
+              "native_scaled_gradient_ratio": 1016.6812407860283,
+              "og_hg_angstrom": 0.9999991795497226,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67776638398637,
+                  "hg_force_toward_oxt_kj_mol_nm": 1001.3416938413467,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 74.10441215005594,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.8123237872059981,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5576.5875182420305,
+                  "hg_force_toward_oxt_kj_mol_nm": 1101.9028572579916,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3273.2284015027763,
+                  "hg_force_toward_oxt_kj_mol_nm": 1922.9237939555805,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -1354295.794921875,
+              "force_group_energy_sum_error_kj_mol": 0.000213623046875,
+              "force_group_projection_sum_error_kj_mol_nm": 15.758963167667389,
+              "hg_force_toward_oxt_kj_mol_nm": -439630657.77875865,
+              "hg_oxt_angstrom": 0.000370853949599738,
+              "mobile_force_l2_kj_mol_nm": 598304776.7374723,
+              "mode": "captured",
+              "native_epsilon": 0.2558396647376539,
+              "native_scaled_gradient_ratio": 30547458.80337075,
+              "og_hg_angstrom": 1.6780570695360533,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1817.833984375,
+                  "hg_force_toward_oxt_kj_mol_nm": 1738.6524293142866,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 67.43789672851562,
+                  "hg_force_toward_oxt_kj_mol_nm": 38.42456755141987,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -1357129.3605957031,
+                  "hg_force_toward_oxt_kj_mol_nm": -439630915.9508318,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 948.2935791015625,
+                  "hg_force_toward_oxt_kj_mol_nm": -1503.1459605690998,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -1354295.7491382542,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 0.0,
+              "hg_force_toward_oxt_kj_mol_nm": 36753663556.07197,
+              "hg_oxt_angstrom": 0.000370853949599738,
+              "mobile_force_l2_kj_mol_nm": 36753663556.094086,
+              "mode": "Reference",
+              "native_epsilon": 0.2558396647376539,
+              "native_scaled_gradient_ratio": 1876520240.1941905,
+              "og_hg_angstrom": 1.6780570695360533,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1817.8343671878006,
+                  "hg_force_toward_oxt_kj_mol_nm": 1738.653313011735,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 67.43792340949729,
+                  "hg_force_toward_oxt_kj_mol_nm": 38.42456958692281,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -1357129.3148138293,
+                  "hg_force_toward_oxt_kj_mol_nm": 36753663282.13995,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 948.2933849778173,
+                  "hg_force_toward_oxt_kj_mol_nm": -1503.1458691772382,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "label": "seed-5",
+      "native": [
+        {
+          "atoms": 25,
+          "cutoff_nm": 1.0,
+          "hg_bonds": [
+            {
+              "atoms": [
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "OG"
+                ],
+                [
+                  "B",
+                  "126",
+                  "",
+                  "SER",
+                  "HG"
+                ]
+              ],
+              "equilibrium_angstrom": 0.96,
+              "strength_kj_mol_nm2": 462750.3999999999
+            }
+          ],
+          "hg_oxt_graph_distance": 5,
+          "hg_oxt_nonbonded_exceptions": [],
+          "masses_dalton": {
+            "HG": 1.008,
+            "OG": 0.0,
+            "OXT": 0.0
+          },
+          "mobile": 12,
+          "nonbonded_method": 1,
+          "number": 1,
+          "pair_limiting_behavior": {
+            "attractive_coulomb_without_pair_lj": true,
+            "charge_product_e2": -0.36382568000000004,
+            "mixed_epsilon_kj_mol": 0.0,
+            "qualification": "local pair limit as r approaches zero with other distances finite, not a blanket force-field defect claim"
+          },
+          "particle_parameters": {
+            "HG": {
+              "charge_e": 0.4474,
+              "epsilon_kj_mol": 0.0,
+              "sigma_nm": 1.0
+            },
+            "OXT": {
+              "charge_e": -0.8132,
+              "epsilon_kj_mol": 0.87864,
+              "sigma_nm": 0.2959921901149463
+            }
+          },
+          "states": [
+            {
+              "energy_kj_mol": 9137.682373046875,
+              "force_group_energy_sum_error_kj_mol": 0.00034332275390625,
+              "force_group_projection_sum_error_kj_mol_nm": 6.703155395371141e-05,
+              "hg_force_toward_oxt_kj_mol_nm": 3468.5489911785044,
+              "hg_oxt_angstrom": 2.0415176284553733,
+              "mobile_force_l2_kj_mol_nm": 21085.7151519419,
+              "mode": "captured",
+              "native_epsilon": 0.2557374060479318,
+              "native_scaled_gradient_ratio": 1078.4812195246388,
+              "og_hg_angstrom": 0.9999997921714577,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67788696289062,
+                  "hg_force_toward_oxt_kj_mol_nm": 1066.2416754002459,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 77.08385467529297,
+                  "hg_force_toward_oxt_kj_mol_nm": -30.318662687979874,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5543.7076416015625,
+                  "hg_force_toward_oxt_kj_mol_nm": 1034.217007919095,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3399.212646484375,
+                  "hg_force_toward_oxt_kj_mol_nm": 1398.4090375786975,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": 9137.679191943038,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 9.094947017729282e-13,
+              "hg_force_toward_oxt_kj_mol_nm": 3468.549469423394,
+              "hg_oxt_angstrom": 2.0415176284553733,
+              "mobile_force_l2_kj_mol_nm": 21085.709568797836,
+              "mode": "Reference",
+              "native_epsilon": 0.2557374060479318,
+              "native_scaled_gradient_ratio": 1078.4809339608828,
+              "og_hg_angstrom": 0.9999997921714577,
+              "satisfies_native_gradient_test": false,
+              "side": "before",
+              "terms": [
+                {
+                  "energy_kj_mol": 117.67798662750586,
+                  "hg_force_toward_oxt_kj_mol_nm": 1066.2418538615573,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 77.0838672081263,
+                  "hg_force_toward_oxt_kj_mol_nm": -30.31862802120054,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 5543.706570529437,
+                  "hg_force_toward_oxt_kj_mol_nm": 1034.2172560928157,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 3399.2107675779685,
+                  "hg_force_toward_oxt_kj_mol_nm": 1398.4089874902224,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -8451.5458984375,
+              "force_group_energy_sum_error_kj_mol": 0.000148773193359375,
+              "force_group_projection_sum_error_kj_mol_nm": 0.2266327003017068,
+              "hg_force_toward_oxt_kj_mol_nm": 5938825.97503222,
+              "hg_oxt_angstrom": 0.02915363998810575,
+              "mobile_force_l2_kj_mol_nm": 5938943.973188728,
+              "mode": "captured",
+              "native_epsilon": 0.2557374060479318,
+              "native_scaled_gradient_ratio": 303391.02277098305,
+              "og_hg_angstrom": 1.6691484494960385,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1515.6519775390625,
+                  "hg_force_toward_oxt_kj_mol_nm": -9745.968774525252,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 63.99306869506836,
+                  "hg_force_toward_oxt_kj_mol_nm": -17.55393334445166,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -11450.788696289062,
+                  "hg_force_toward_oxt_kj_mol_nm": 5946842.530007603,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 1419.597900390625,
+                  "hg_force_toward_oxt_kj_mol_nm": 1747.1943651867557,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            },
+            {
+              "energy_kj_mol": -8451.545613816681,
+              "force_group_energy_sum_error_kj_mol": 0.0,
+              "force_group_projection_sum_error_kj_mol_nm": 9.313225746154785e-10,
+              "hg_force_toward_oxt_kj_mol_nm": 5938825.646068411,
+              "hg_oxt_angstrom": 0.02915363998810575,
+              "mobile_force_l2_kj_mol_nm": 5938943.6433075825,
+              "mode": "Reference",
+              "native_epsilon": 0.2557374060479318,
+              "native_scaled_gradient_ratio": 303391.00591900083,
+              "og_hg_angstrom": 1.6691484494960385,
+              "satisfies_native_gradient_test": false,
+              "side": "after",
+              "terms": [
+                {
+                  "energy_kj_mol": 1515.6522670773481,
+                  "hg_force_toward_oxt_kj_mol_nm": -9745.969920579424,
+                  "type": "HarmonicBondForce"
+                },
+                {
+                  "energy_kj_mol": 63.99307231940101,
+                  "hg_force_toward_oxt_kj_mol_nm": -17.553936606756913,
+                  "type": "PeriodicTorsionForce"
+                },
+                {
+                  "energy_kj_mol": -11450.788708485774,
+                  "hg_force_toward_oxt_kj_mol_nm": 5946841.97582579,
+                  "type": "NonbondedForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMAPTorsionForce"
+                },
+                {
+                  "energy_kj_mol": 0.0,
+                  "hg_force_toward_oxt_kj_mol_nm": 0.0,
+                  "type": "CMMotionRemover"
+                },
+                {
+                  "energy_kj_mol": 1419.597755272343,
+                  "hg_force_toward_oxt_kj_mol_nm": 1747.1940998064035,
+                  "type": "HarmonicAngleForce"
+                }
+              ]
+            }
+          ],
+          "system_sha256": "145269288d86cdebe1d0c0a9c38aee84164c48f12a50b126e5309c5b07f7b650"
+        }
+      ],
+      "status": "completed"
+    }
+  ],
+  "execution_sha256": "4dfc49afd4a91ef736df29088278687e32ba3704dfbaf0c74e4566fd43fed3ed",
+  "limits": "saved-state force/identity evidence for fresh native collisions, not original lost-run attribution or observed native return/error enums",
+  "plan_sha256": "613362b18d84541bd887228d54e9ca0651f8c1cdd6339035e422001eca60f5aa",
+  "production_changed": false,
+  "schema": "dvbfixer.ser-hg-forces.v1",
+  "summary": {
+    "captures": 6,
+    "distinct_native_systems": 1,
+    "native_calls": 6,
+    "pair_limit_cases": 6,
+    "readback_states": 24,
+    "returned_nodes_satisfying_native_gradient_test": 0
+  }
+}
