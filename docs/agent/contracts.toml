@@ -15,6 +15,19 @@ failure_behavior = "Unresolved O-H distance or nonparent-heavy contact raises Hy
 test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_contacts.py", "tests/test_hydrogen_postflight_preservation.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
 known_divergences = ["Not a general stereochemistry, nonfinite-input, protonation or inter-residue clash validator; native force fields and minimizer termination remain unchanged.", "The bound is in-memory; PDB rounding can perturb distances immediately below the boundary."]
 
+[contracts.glycam-fallback-connectivity]
+status = "implemented"
+owner = "src/dvbfixer/prepare/fallback.py::restore_glycam_fallback_bonds"
+description = "Before legacy prepare's forcefield-free fallback, existing unbonded H in canonical GLYCAM residues triggers exact-name intra-residue template graph restoration. The private metadata FF is not a native H-placement FF."
+producers = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+consumers = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+identity_keys = ["native residue object", "case-sensitive chain", "resid", "icode", "atom name"]
+source_mutation = "Only validated missing intra-residue bonds are added to live topology; all atoms, coordinates and inherited links remain unchanged. Successful whole-FF paths and unrelated ligands do not enter recovery."
+commit_behavior = "Validate every affected residue against isolated canonical GLYCAM templates before any live bond additions. No output publication belongs to this helper."
+failure_behavior = "Ambiguous names, missing parents/templates, incompatible elements or H bonds and incomplete wrapper restoration raise GlycamFallbackTopologyError without atom deletion, graph mutation or another H attempt."
+test_files = ["tests/test_prepare_glycam_fallback.py", "tests/test_qualify_glycam_fallback.py"]
+known_divergences = ["Only selected GLYCAM residues with existing unbound H are restored, not all unknown chemistry or pre-existing malformed connectivity.", "Forcefield-free completion is not native CHARMM glycan parameterization or broad scientific qualification."]
+
 [contracts.private-canonical-sidechain]
 status = "research"
 owner = "src/dvbfixer/protein_completion/contracts.py::CompletionRequest"

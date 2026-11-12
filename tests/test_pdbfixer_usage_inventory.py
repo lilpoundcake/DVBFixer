@@ -75,12 +75,29 @@ def test_diagnostics_only_discovers_without_building(scanner):
 
 
 def test_retained_source_inventory_is_current(scanner):
-    # Both historical scientific/source inventories remain immutable. The active
-    # O-H implementation has its own source/line-number amendment.
-    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-hydrogen-postflight.json').read_text())
+    # Historical scientific/source inventories remain immutable. The active
+    # GLYCAM fallback has its own source/line-number amendment.
+    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-glycam-fallback.json').read_text())
     historical = ROOT/retained['historical_inventory']['path']
     assert hashlib.sha256(historical.read_bytes()).hexdigest() == retained['historical_inventory']['sha256']
     assert scanner.inventory(ROOT)['files'] == retained['files']
+
+
+def test_glycam_amendment_keeps_oh_inventory_and_usage_semantics(scanner):
+    path = ROOT/'docs/research/pdbfixer-usage-inventory-hydrogen-postflight.json'
+    old = json.loads(path.read_bytes())
+    new = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-glycam-fallback.json').read_bytes())
+    assert new['historical_inventory']['sha256'] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert new['totals'] == old['totals'] == scanner.inventory(ROOT)['totals']
+    assert [c['path'] for c in new['changed_source_bindings']] == ['src/dvbfixer/prepare/pipeline.py']
+    for a, b in zip(old['files'], new['files'], strict=True):
+        assert a['path'] == b['path']
+        for key in ('imports', 'uses'):
+            assert [{k:v for k, v in r.items() if k != 'line'} for r in a[key]] == [
+                {k:v for k, v in r.items() if k != 'line'} for r in b[key]]
+    assert not new['historical_template_probe_rerun']
+    assert not new['historical_scientific_results_changed']
+    assert hashlib.sha256((ROOT/'scripts/amend_pdbfixer_usage_glycam_fallback.py').read_bytes()).hexdigest() == new['generator_source_sha256']
 
 
 def test_hydrogen_amendment_preserves_usage_semantics_and_historical_evidence(scanner):

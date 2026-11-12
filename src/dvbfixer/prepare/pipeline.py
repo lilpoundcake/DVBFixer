@@ -908,6 +908,8 @@ def run_pdbfixer(input_path, ph, keep_water, keep_heterogens, verbose,
                         print(f"    {line}")
             # Rebuild modeller since addHydrogens may have left it half-modified
             modeller = Modeller(fixer.topology, fixer.positions)
+            from dvbfixer.prepare.fallback import restore_glycam_fallback_bonds
+            restore_glycam_fallback_bonds(modeller.topology, modeller.positions, verbose=verbose)
             _saved = _rename_variants_to_parent(modeller.topology)
             try:
                 modeller.addHydrogens(pH=ph, variants=variants)

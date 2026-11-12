@@ -192,6 +192,15 @@ failure_mode = "An over-long but noncoincident O-H could pass a gross 1.6x dista
 test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_contacts.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
 known_exceptions = ["Not a general force-field convergence or hydroxyl-torsion qualification. PDB rounding near the boundary is separate from the in-memory distance predicate."]
 
+[invariants.INV-GLYCAM-FALLBACK-GRAPH]
+status = "implemented"
+statement = "A selected GLYCAM residue's existing unbound H is bound through exact-name canonical template metadata before forcefield-free fallback, or a typed error prevents another H attempt. Restoration preserves every atom, coordinate and inherited external bond."
+owner = "src/dvbfixer/prepare/fallback.py::restore_glycam_fallback_bonds"
+enforcement = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+failure_mode = "OpenMM matches existing H by bonded parent; missing topology bonds let forcefield-free placement duplicate an already present sugar H identity."
+test_files = ["tests/test_prepare_glycam_fallback.py", "tests/test_qualify_glycam_fallback.py"]
+known_exceptions = ["Not a general ligand bond-inference or requested-FF qualification mechanism; only affected canonical GLYCAM residues enter recovery."]
+
 [invariants.INV-CONECT-CHEMICAL-FILTER]
 status = "implemented"
 statement = "Inherited and inferred connectivity is filtered against peptide order, residue chemistry, solvent, sugar-distance, and external-bond rules."

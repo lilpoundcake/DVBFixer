@@ -148,6 +148,13 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
   `HydrogenGeometryError`; prepare must not resample H via template fallback.
   Scope, qualification and PDB-rounding limitations are in the
   [implementation record](../../plans/hydrogen-postflight-contract.md).
+- The legacy whole-FF-error fallback restores missing intra-residue canonical
+  GLYCAM template bonds when an existing H is unbound. All affected residues
+  validate before live additions; atoms, coordinates and inherited external
+  links stay fixed. `GlycamFallbackTopologyError` propagates before H placement.
+  The isolated template FF supplies metadata only; fallback remains
+  forcefield-free, not native CHARMM glycan preparation. See the
+  [separate contract](../../plans/glycam-hydrogen-fallback.md).
 - Explicit disulfide evidence forces CYX and genuine SG-SG bonds survive bond
   cleanup; extra SG-SG partners are reduced to one partner per sulfur.
 - Any stage claiming a hard chirality gate must run `assert_all_l` after the

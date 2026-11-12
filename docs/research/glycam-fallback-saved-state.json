@@ -1,0 +1,87 @@
+{
+  "added_bonds": [
+    {
+      "atoms": [
+        "C1",
+        "C2"
+      ],
+      "residue": [
+        "H",
+        "232",
+        "",
+        "UYB"
+      ]
+    },
+    {
+      "atoms": [
+        "C1",
+        "H1"
+      ],
+      "residue": [
+        "H",
+        "232",
+        "",
+        "UYB"
+      ]
+    },
+    {
+      "atoms": [
+        "C1",
+        "O5"
+      ],
+      "residue": [
+        "H",
+        "232",
+        "",
+        "UYB"
+      ]
+    },
+    {
+      "atoms": [
+        "C1",
+        "C2"
+      ],
+      "residue": [
+        "K",
+        "242",
+        "",
+        "UYB"
+      ]
+    },
+    {
+      "atoms": [
+        "C1",
+        "H1"
+      ],
+      "residue": [
+        "K",
+        "242",
+        "",
+        "UYB"
+      ]
+    },
+    {
+      "atoms": [
+        "C1",
+        "O5"
+      ],
+      "residue": [
+        "K",
+        "242",
+        "",
+        "UYB"
+      ]
+    }
+  ],
+  "added_count": 6,
+  "all_atoms_and_exact_nm_positions_preserved": true,
+  "external_bonds_unchanged": true,
+  "helper_sha256": "3936294d8946e55212a0c0c245134a24ad5d3f5a6400648c008baccd9cab6e83",
+  "historical_cohort_status_changed": false,
+  "idempotent": true,
+  "inherited_bonds_preserved": true,
+  "native_forcefield_changed": false,
+  "native_sampling": false,
+  "schema": "dvbfixer.glycam-fallback-saved-state.v1",
+  "source_sha256": "918ad04cf0ecee8ddf67adf442c01096782e9b4d400815fa21cbbd0fc2015364"
+}

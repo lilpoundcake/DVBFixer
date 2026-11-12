@@ -18,6 +18,7 @@ files = [
   "src/dvbfixer/ffutils/artificial_terminals.py",
   "src/dvbfixer/model/pipeline.py",
   "src/dvbfixer/prepare/pipeline.py",
+  "src/dvbfixer/prepare/fallback.py",
   "src/dvbfixer/minimize/pipeline.py",
   "src/dvbfixer/protonate.py",
   "src/dvbfixer/homology.py",
@@ -228,6 +229,17 @@ invariants = ["INV-OH-POSTFLIGHT", "INV-IDENTITY-ICODE", "INV-CHIRALITY-ZERO-D"]
 change_group = "hydrogen-postflight"
 test_files = ["tests/test_hydrogen_postflight.py", "tests/test_hydrogen_postflight_contacts.py", "tests/test_hydrogen_postflight_preservation.py", "tests/test_hydrogen_postflight_prepare.py", "tests/test_prepare_broken_geom.py"]
 verification = ["pytest -q tests/test_hydrogen_postflight.py tests/test_hydrogen_postflight_contacts.py tests/test_hydrogen_postflight_preservation.py tests/test_hydrogen_postflight_prepare.py tests/test_prepare_broken_geom.py"]
+
+[tasks.change-glycam-fallback-connectivity]
+status = "implemented"
+context = "docs/agent/contexts/structure-preparation.md"
+start = ["src/dvbfixer/prepare/fallback.py::restore_glycam_fallback_bonds"]
+callers = ["src/dvbfixer/prepare/pipeline.py::run_pdbfixer"]
+contracts = ["glycam-fallback-connectivity"]
+invariants = ["INV-GLYCAM-FALLBACK-GRAPH", "INV-OH-POSTFLIGHT", "INV-IDENTITY-ICODE"]
+change_group = "protein-variant-identity"
+test_files = ["tests/test_prepare_glycam_fallback.py", "tests/test_qualify_glycam_fallback.py"]
+verification = ["pytest -q tests/test_prepare_glycam_fallback.py tests/test_qualify_glycam_fallback.py tests/test_hydrogen_postflight_prepare.py"]
 
 [tasks.research-atom-reconstruction-backends]
 status = "research"

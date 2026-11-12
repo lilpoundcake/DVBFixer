@@ -44,6 +44,16 @@ Final engineering validation: 3,184 fast tests pass (three optional skips,
 33 slow deselected), ten observer/transport tests pass, and independent offline
 audit readback is byte-identical. Production science is unchanged from `3ffa1f4`.
 
+**New authorization after `eb049aa`:** user approved a separate fallback fix on
+`fix/glycam-charmm-hydrogen-fallback`, without main merge. Prospective contract
+`f0911a3` scopes exact-name intra-residue GLYCAM bond restoration before the
+existing forcefield-free H fallback. The saved original failing state restores
+only the expected six C1–H1/O5/C2 links, with unchanged exact nm/atoms/external
+links and idempotence; no native resampling established that result. Native
+changed-candidate qualification remains a separate frozen 12-case execution.
+See [the fallback contract](glycam-hydrogen-fallback.md). Original O–H cohort
+failures, frozen sources and qualification status remain immutable.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
