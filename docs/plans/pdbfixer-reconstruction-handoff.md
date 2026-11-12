@@ -80,6 +80,30 @@ No Context, optimizer, new native H call, new random stream or production
 initializer is admitted. Fixed-draw pathwise covariance is distinct from
 distribution invariance; finite frame counts are not inversion probabilities.
 
+**Frame stage completed under `2b58d4e`:** all 144 frames/432 formula arms and
+315 H each were independently audited without any Context/minimization/new RNG
+sampling. Target fixed-lab sign-conflict counts are unseeded6/24, seed1 0/24,
+seed2 3/24 at zero translation; translation changes no classifications. Of 56
+graph-selected single-H carbon centers, only THR2/HB conflicts. Covariant-offset
+retains the unseeded conflict24/24 rather than rescuing it; zero-offset gives no
+conflicts but has not been minimized. Max independent formula/translation errors
+are 6.305e-16/5.556e-15 nm under the frozen 1e-12 bound. See
+[frame results and the remaining dynamic gate](../research/thr2-initializer-frames.md).
+Saved-only inspection also confirms the exact original zero-repair H→whole
+bridge on all three old returns. No production initializer or native dynamic
+rescue follows from this static result; future HB-only intervention must be
+separately frozen and retain original controls and all negative outcomes.
+Frame validation passed 3,207 fast tests (three optional skips, 33 slow
+deselections), five toy tests, Ruff/strict mypy/generated/map checks; independent
+offline audit readback is byte-identical. Production remains at `c6d9b21` and
+main is untouched. Native HB-only counterfactual replay has not executed.
+Retrospective readback of retained arrays also finds 139 exact sibling-H
+coincidences in every global zero-offset frame; noisy arms have no exact
+coincidences but can have very short initial sibling separations. This is not a
+new native run or retrofitted gate. Never promote global noise removal as a
+qualified initializer; the next separately frozen dynamic control must change
+only HB, leaving the other 314 saved H alone.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate

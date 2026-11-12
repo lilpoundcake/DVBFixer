@@ -1,0 +1,98 @@
+{
+  "counts": [
+    {
+      "arm": "covariant-offset",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "seed-1",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "fixed-lab",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "seed-1",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "zero-offset",
+      "exact_coincident_pairs_per_frame": [
+        139
+      ],
+      "frames": 48,
+      "label": "seed-1",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "covariant-offset",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "seed-2",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "fixed-lab",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "seed-2",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "zero-offset",
+      "exact_coincident_pairs_per_frame": [
+        139
+      ],
+      "frames": 48,
+      "label": "seed-2",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "covariant-offset",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "unseeded",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "fixed-lab",
+      "exact_coincident_pairs_per_frame": [
+        0
+      ],
+      "frames": 48,
+      "label": "unseeded",
+      "same_parent_h_pairs": 139
+    },
+    {
+      "arm": "zero-offset",
+      "exact_coincident_pairs_per_frame": [
+        139
+      ],
+      "frames": 48,
+      "label": "unseeded",
+      "same_parent_h_pairs": 139
+    }
+  ],
+  "execution_sha256": "7b82e8452f36ce5db281e709103897e3a819e9a1ae2e9c9b0d6fb708acb2cb40",
+  "limits": "Descriptive readback of already retained proposals, not a predeclared acceptance criterion; global zero noise collapses same-parent H and is not a proposed production initializer.",
+  "minimum_same_parent_h_distance_angstrom": {
+    "covariant-offset": 0.00301433846117587,
+    "fixed-lab": 0.00012251215640679655,
+    "zero-offset": 0.0
+  },
+  "native_calls": 0,
+  "new_formula_evaluations": 0,
+  "new_proposals": false,
+  "plan_sha256": "913c9cb176c19fe76911d2d4dbe55e612255d3d2c5318226e81e5db8e5f46f6a",
+  "retrospective": true,
+  "schema": "dvbfixer.thr2-initializer-retrospective-sibling-limit.v1"
+}

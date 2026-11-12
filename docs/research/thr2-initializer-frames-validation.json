@@ -1,0 +1,51 @@
+{
+  "agent_maps_passed": true,
+  "algebra_summary": {
+    "admitted_sources": 3,
+    "algebra_controls_passed": true,
+    "formula_arm_records": 432,
+    "frames": 144,
+    "maximum_independent_formula_error_nm": 6.304854800243424e-16,
+    "maximum_translation_pair_error_nm": 5.55555424028711e-15,
+    "native_calls": 0,
+    "new_random_sampling": false
+  },
+  "branch": "research/thr2-initializer-frame-controls",
+  "focused_toy_tests_passed": 5,
+  "full_fast_suite": {
+    "failed": 0,
+    "optional_skips": 3,
+    "passed": 3207,
+    "slow_deselected": 33
+  },
+  "generated_cli_gui_specs_passed": true,
+  "independent_audit_byte_identical": true,
+  "inputs": {
+    "docs/research/thr2-hbridge-admission.json": "08b5e6c9aef24607774bd4e5f72d6807da66e3d960a3bfaf62df1b075c0dd547",
+    "docs/research/thr2-initializer-frames-evidence.json": "044ba51e4c7f65d65d05e9f866862b572098e2cedcfa5965297c9f9c22b2c089",
+    "docs/research/thr2-initializer-frames-plan.json": "913c9cb176c19fe76911d2d4dbe55e612255d3d2c5318226e81e5db8e5f46f6a",
+    "docs/research/thr2-initializer-zero-offset-limit.json": "50b0fc2bf5683619f0015dfb5e390d4fdfa92583c355d3798841150e2e0de8d3",
+    "tmp/pdbfixer-research/thr2-frames-docs-quality.json": "b4029d7d6b63b2715522b78824ff71370b64cdff0b341603821b66c96c23fbfd",
+    "tmp/pdbfixer-research/thr2-frames-fast-01.log": "7977b1b429554f2d3b76c09b80c1d805217deb9e4f87e34b8bb096a42d586ddc",
+    "tmp/pdbfixer-research/thr2-frames-fast-01.xml": "fd13490a0a5c7491564c44681c2c1130ce78d2bcdd727c41535e546feafa6de5",
+    "tmp/pdbfixer-research/thr2-initializer-frames-audit-02.json": "044ba51e4c7f65d65d05e9f866862b572098e2cedcfa5965297c9f9c22b2c089",
+    "tmp/pdbfixer-research/thr2-initializer-frames-run-01/evidence.json": "7b82e8452f36ce5db281e709103897e3a819e9a1ae2e9c9b0d6fb708acb2cb40"
+  },
+  "limits": "Algebra/frame controls only: no native dynamics, inversion probability, CIP or qualified deterministic-initializer claim. Original three-stream/one-context evidence and lost trajectories remain distinct.",
+  "main_merged": false,
+  "research_native_contexts": 0,
+  "research_native_minimizations": 0,
+  "new_random_sampling": false,
+  "original_thresholds_and_ser_test_changed": false,
+  "production_changed": false,
+  "protocol_checkpoint": "2b58d4e",
+  "ruff_passed": true,
+  "schema": "dvbfixer.thr2-initializer-frames-validation.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_h_initialization.py": "3fca74954b6851c4022b54ef1ba231e446fc43b5351283eadf3805327cecb5c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_initializer_frames.py": "bbce386951712465f51d972595965f288e716d4d984e8f5d0ef209dc55465890",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_initializer_frames.py": "bb423594e9ac12f15c0a1ac94331d10ccfad5ef131feb4181bce16a2e6a6475b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_thr2_initializer_frames.py": "f0c8691783e0908ab6fc3ed0cea5d34c69cd0965e478030c1622ede8f048e1d5"
+  },
+  "strict_target_mypy_passed": true
+}

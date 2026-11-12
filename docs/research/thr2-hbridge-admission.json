@@ -1,0 +1,39 @@
+{
+  "inputs": {
+    "tmp/pdbfixer-research/pre-stereo-baseline-01/src/dvbfixer/ffutils/geometry.py": "8004da55b3a31bd5b4ad92c5ab3981ef0715af5f13ab09d85f45a13d8df17a1c",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-atoms.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-state.xml": "960b621caf1629aab6172d95e50d1617fe4580f2309ff5ee267beb6b58673739",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-state.xml": "7ec134cd685a0e672a69a0e6b07be73856cbb5f4f956901051e4736301029135",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-atoms.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-state.xml": "27a546bf473c8f99c1b7504366566fd0e2d554dd196658dc0a6fbcb44eaeadb3",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-state.xml": "edc592386e4f518391f51829e6f6e9afe2a3a302a323043f0926a7ac2893651f",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-atoms.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-state.xml": "f56f46136899d8979d23e6d4f24d3499e614ec78257bf1775e4a2525e4030c97",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-state.xml": "0fb9b0bbac0b18b59569d9f62420faa39d605d4c122afeb2bc470b8d79d90685"
+  },
+  "labels": [
+    {
+      "exact_original_h_to_whole_bridge": true,
+      "label": "unseeded",
+      "repairs": 0
+    },
+    {
+      "exact_original_h_to_whole_bridge": true,
+      "label": "seed-1",
+      "repairs": 0
+    },
+    {
+      "exact_original_h_to_whole_bridge": true,
+      "label": "seed-2",
+      "repairs": 0
+    }
+  ],
+  "limits": "Admission on original saved H returns only; no new initializer intervention or guarantee for future counterfactual H returns",
+  "new_contexts": 0,
+  "new_minimization": false,
+  "production_changed": false,
+  "schema": "dvbfixer.thr2-hbridge-admission.v1"
+}
