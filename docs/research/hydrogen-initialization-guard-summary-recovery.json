@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {
+      "index": 0,
+      "label": "unseeded",
+      "mode": "captured",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "index": 1,
+      "label": "unseeded",
+      "mode": "Reference",
+      "returncode": null,
+      "status": "phases-returned-exit-unrecorded"
+    }
+  ],
+  "limits": "Offline accounting only. Unrecorded process exit is unknown, not zero; native return flags/States are separately checked.",
+  "new_contexts": 0,
+  "new_minimizations": 0,
+  "original_files_modified": false,
+  "original_orchestrator_failed": true,
+  "original_orchestrator_log_sha256": "c9ed4dbe6ba1dba0e4cd86d6d7d944d925a61385550227d3aaf35ee2b3cf244d",
+  "original_partial_index_sha256": "2042f86a2b2cb043307ef160cbc63cbf26da3d7ad6b406dad0b018120e3cce44",
+  "plan_sha256": "29f1611bbb47e61ddd0592bce3ea4b94b614d515579234fd97b7705df263a41e",
+  "recovered_index_sha256": "dd697e3e9790dfcbe6a7fafa464a7c2effaccb23734dd861be40cfb9270d6a1c",
+  "schema": "dvbfixer.private-guard-offline-summary-recovery.v1",
+  "source_sha256": "8f2f8caf014ab0bb3ef66774dc9f5b221e667e9b71a3d87263c58890784df5ce"
+}

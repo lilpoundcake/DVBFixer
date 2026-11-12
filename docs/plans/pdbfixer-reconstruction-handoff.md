@@ -16,6 +16,27 @@ Natural activation in independent contexts is not established; old HB-only
 dynamics do not automatically qualify this new candidate. Production remains
 unchanged from `c6d9b21`.
 
+**Actual-proposal native follow-up, frozen `a430c86`:** two new changed-proposal
+paths/six native phases returned, all retaining Cβ R. Six previous unchanged
+paths are reused controls/noops, not new native trials. All 356 callbacks match
+independent physical mobile gradients/objectives exactly, all Systems/masks/
+continuity match, historical bridge repairs zero, negative Cα and terminal
+mismatches zero. H-only gradient criterion passes 0/2; whole returns pass 4/4.
+The parent orchestrator nevertheless **failed** on a duplicate exclusive-write
+to its summary. Offline-only amendment `8d31530` preserves original bytes/failure
+and builds a new accounting view without native retries. Second worker exit code
+is **unrecorded**, not zero; verified returned States do not erase that status.
+See the guard result for exact recovery/audit records. Public OpenMM has no
+initializer callback at the inspected revision; a maintained early hook versus
+a separately qualified post-H intervention is an explicit design decision, not
+permission for a global minimizer monkeypatch or production activation.
+Final private-guard engineering validation: **3,237 fast tests passed**, three
+optional skips, 33 slow deselections; 24 focused controls, Ruff/strict mypy,
+generated CLI/GUI specs and agent maps pass. Static and native independent
+readbacks repeat byte-identically. Orchestration success remains false and the
+second worker process exit remains unknown in the validation record;
+no native retry, production change, public activation or main merge occurred.
+
 **O–H implementation authorization:** user approved a separate implementation
 and qualification branch after `347efe6`. Work continues on
 `fix/hydrogen-postflight-contract` under the
