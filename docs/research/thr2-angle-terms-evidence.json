@@ -1,0 +1,2668 @@
+{
+  "audit_script_sha256": "62bbec85cc0f8b9f6c8957498c5585b199300351fe39544051f3d077bd10b2b1",
+  "execution_sha256": "6851f7cef8fde13f1b3718c79ae487d1b179f0ff4cb089677009e4881be073a8",
+  "extra_minimization": false,
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-atoms.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-state.xml": "960b621caf1629aab6172d95e50d1617fe4580f2309ff5ee267beb6b58673739",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after.chk": "699ac0433466820b24b85919ced5657d46b43f37f0d0157362f3dd9cc444e34c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-atoms.json.gz": "fe3c875ea234651d749b73baf226c91d03c4a0fbcd6490ad47f69900b78f6cb1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-state.xml": "15ef91eeb9d18b9ae643ace1bd85c5de29d92a70aea8f1ec04159ad897d0a873",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before.chk": "e7849af41c1cf0070a5c335b2e6a19e0586bee0568188cfbd21a6708384868c4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-atoms.json.gz": "b547a7de2ecce706d67520f3cb6b25491d34bb9016e32164aac2b5a2e1a935de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-state.xml": "7ec134cd685a0e672a69a0e6b07be73856cbb5f4f956901051e4736301029135",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before.chk": "6d846c6b95b896066a143b73493bf43fa5a2903ab72e71abb172512e07f4fbb8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-atoms.json.gz": "a7f7869af401b5ae799629b35cf68174718bb6ebe80463e0e8b7a5ed4f9f7b7f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-state.xml": "cadf0556568b20b653fa335eaf6fd40c170752485db28a4a1cbce1aa08a23d00",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after.chk": "2199873fe4a5cecee15f79c873bfd7c638185c048ea01636d874fcf92350ea8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/capture.json": "a06750b934ace110c1deec419bbef793ebb20cdfb527452bb0c6fc7b3925b67c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-after.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/minimized.pdb": "eca68de50ac66dad6c5c7cb93aea91d65d81135b86630db5c991dacbd301ce9f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/run.log": "0a9f7afb4ded63b2e28a2561ad05f0503f4d3618fd1f4cf464a0670f177afcf1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-atoms.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-state.xml": "27a546bf473c8f99c1b7504366566fd0e2d554dd196658dc0a6fbcb44eaeadb3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after.chk": "0e721da888eee10515d5d03ae05bacf77152d19fb49774a6ae25d7f53efe3e98",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-atoms.json.gz": "80a7d260f7727d7e431b065ef55d2f5309e81651d0394bb0e1c7c0c747cf2b01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-state.xml": "e980dacd437758ec25e446a00b5b65d54e79252ba392f4a76584c6f9c356dea2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before.chk": "be58cb4387269ec00efd116011068d643e536d35ee3e3756d215d4f68964d354",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-atoms.json.gz": "56299da3f7d40f10ea6bfbd2c8f3dd433d9785c78a3f6cca438ff58408fd5a89",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-state.xml": "edc592386e4f518391f51829e6f6e9afe2a3a302a323043f0926a7ac2893651f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before.chk": "ebd583d84ebef69bfeb7e73e7002746fc4a5ad769285350c59ff37fea4128b7c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-atoms.json.gz": "f174ab843a55bb37499e3f9c6f31a67b9018e52aae43c0df1c38ef34d4c820f9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-state.xml": "64cb5bdd3864d17a621fbd17f0c199dee17b6d7784e9b0bf9e1990059f7ea87f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after.chk": "f9575ed2c48a3a402d7fab0ce3e053d3853d238945fd414365c23c5378ce059f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/capture.json": "03cc445268ecfdfe4ecec23a98ac520ff1a358813586f85fed3cded0eb77613f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-after.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/minimized.pdb": "f0f1bb3f0c8567b733e34b821e71d28a664b9c5a8a3cbc338ce4a5e02cbe478d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/run.log": "3710f63d60da617e21bb1a10d3ffaa1cedd93f20775f4acb6f999a246103f046",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-atoms.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-state.xml": "f56f46136899d8979d23e6d4f24d3499e614ec78257bf1775e4a2525e4030c97",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after.chk": "6d48449f98b504eed2b6bb5a6c69c6a48a8acf5564e689572808e41ec3c34b69",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-atoms.json.gz": "34b914dcd0beb5663c51ff6dee0237da1cb18f527069b3468d3a975176fabd4b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-state.xml": "7288351daee985cac8975b19421ac3e45c56d4523f6b9ee07f1834e52690fbb4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before.chk": "e299fa1e5b91971ac101c39ae73c45feff0e218bc39b8c5cd7f49bd55ef26a12",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-atoms.json.gz": "5e208784275d830417ef6a16816d4bb2268ef4be47503517e054c99e8156dd50",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-state.xml": "0fb9b0bbac0b18b59569d9f62420faa39d605d4c122afeb2bc470b8d79d90685",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before.chk": "267b63de2003c63dd8d4bbc98d3c84cf50a4e85cf9d791cbcefea6a10fdb7ded",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-atoms.json.gz": "681bd0f564efc430f2fcd8292828054e750bc5a2a7ca2fa8861c1e4711d0d2aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-state.xml": "95d6b1780ebabdb60e9e8a9e5b85e2fbd97befd245afa3851ff2c9ab4c4bd2e9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after.chk": "731009c86536d6e334608f1df93a20075d5be28ffa36f5d128fa3488d75a41de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/capture.json": "684325a32b9f83853a9f5e6d998c3988f61f1278bffc91692de56ce281b1cda9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-after.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/minimized.pdb": "ba0023eb6e2ce314f5df91683090cba0bdea12509e9868d2438f1ecf71f008a9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/run.log": "69c8e8941cd85f116d59d7aa66e57a3e6ed6c9070f50732dc0931c7db839856e"
+  },
+  "limits": "initial local harmonic-angle force decomposition, not an entire-trajectory causal intervention",
+  "plan_sha256": "45fd387c69192d34b08912841dcbe33d468d32e40d7eb778a1467dca03624e96",
+  "production_changed": false,
+  "schema": "dvbfixer.thr2-angle-terms.v1",
+  "starts": [
+    {
+      "analytic_angle_projection_kj_mol_nm": -1414.3235999660862,
+      "by_hydrogen": {
+        "A/2//THR/H": -18.149534515813162,
+        "A/2//THR/HA": 1191.7933727112672,
+        "A/2//THR/HB": -2728.961133651346,
+        "A/2//THR/HG1": -88.2332999667057,
+        "A/2//THR/HG21": 97.0976957344553,
+        "A/2//THR/HG21+A/2//THR/HG22": -85.6221262624983,
+        "A/2//THR/HG21+A/2//THR/HG23": -7.855953428561196,
+        "A/2//THR/HG22": -91.50006639755345,
+        "A/2//THR/HG22+A/2//THR/HG23": 78.96787284490786,
+        "A/2//THR/HG23": -671.2117436218662,
+        "heavy-only": 909.3513165876271
+      },
+      "cb_volume_angstrom3": 0.19838928856555219,
+      "label": "unseeded",
+      "maximum_cartesian_force_error_kj_mol_nm": 3.865352482534945e-12,
+      "native_angle_projection_kj_mol_nm": -1414.3235999660849,
+      "terms": [
+        {
+          "atoms": [
+            [
+              "A",
+              "1",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -51.96519894003103,
+          "equilibrium_degrees": 121.9,
+          "hydrogens": [],
+          "index": 18,
+          "theta_degrees": 117.66723996060358
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 128.12666917532496,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 30,
+          "theta_degrees": 99.23307289448925
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -6.24155051372012,
+          "equilibrium_degrees": 110.1,
+          "hydrogens": [],
+          "index": 31,
+          "theta_degrees": 108.64931494198744
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 852.2986321437304,
+          "equilibrium_degrees": 109.7,
+          "hydrogens": [],
+          "index": 32,
+          "theta_degrees": 135.8689479584039
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -18.149534515813162,
+          "equilibrium_degrees": 118.04,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ]
+          ],
+          "index": 33,
+          "theta_degrees": 119.54145957988314
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "O"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -10.45799607021894,
+          "equilibrium_degrees": 120.40000000000002,
+          "hydrogens": [],
+          "index": 34,
+          "theta_degrees": 121.11280187004162
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "3",
+              "",
+              "CYX",
+              "N"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -20.769336243054234,
+          "equilibrium_degrees": 116.6,
+          "hydrogens": [],
+          "index": 35,
+          "theta_degrees": 114.9751173675961
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -640.7637267228581,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 36,
+          "theta_degrees": 99.20188018349337
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 13.045220635375339,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 37,
+          "theta_degrees": 114.37803452146605
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 23.242584544599243,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 38,
+          "theta_degrees": 115.77355082768915
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 221.77956920877617,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 39,
+          "theta_degrees": 92.23012071613886
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 841.8871343271661,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 40,
+          "theta_degrees": 93.88288759006224
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 8.782944249952251,
+          "equilibrium_degrees": 111.1,
+          "hydrogens": [],
+          "index": 41,
+          "theta_degrees": 112.73912351545907
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 97.0976957344553,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "index": 45,
+          "theta_degrees": 111.44921945223763
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -91.50006639755345,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 46,
+          "theta_degrees": 103.20962191492846
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -671.2117436218662,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 47,
+          "theta_degrees": 120.57149263396994
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -88.2332999667057,
+          "equilibrium_degrees": 108.5,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "index": 48,
+          "theta_degrees": 110.38217683659866
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -601.90143970963,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 49,
+          "theta_degrees": 99.68398683616955
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -1486.2959672188576,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 50,
+          "theta_degrees": 69.08059437750974
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 101.41601678099423,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 51,
+          "theta_degrees": 129.7159484947869
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -85.6221262624983,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 52,
+          "theta_degrees": 104.37179786577941
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -7.855953428561196,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 53,
+          "theta_degrees": 112.46249459775899
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 78.96787284490786,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 54,
+          "theta_degrees": 102.49627283226592
+        }
+      ]
+    },
+    {
+      "analytic_angle_projection_kj_mol_nm": 4469.238189511172,
+      "by_hydrogen": {
+        "A/2//THR/H": -18.833965980862683,
+        "A/2//THR/HA": 1321.0037782780903,
+        "A/2//THR/HB": 2978.8565960816786,
+        "A/2//THR/HG1": -36.30514418459149,
+        "A/2//THR/HG21": 97.89684970097049,
+        "A/2//THR/HG21+A/2//THR/HG22": -7.712571378011727,
+        "A/2//THR/HG21+A/2//THR/HG23": -115.36520816971448,
+        "A/2//THR/HG22": -635.0375928640045,
+        "A/2//THR/HG22+A/2//THR/HG23": 60.62777733492419,
+        "A/2//THR/HG23": -85.24364589493395,
+        "heavy-only": 909.3513165876271
+      },
+      "cb_volume_angstrom3": 0.19838928856555219,
+      "label": "seed-1",
+      "maximum_cartesian_force_error_kj_mol_nm": 3.865352482534945e-12,
+      "native_angle_projection_kj_mol_nm": 4469.238189511171,
+      "terms": [
+        {
+          "atoms": [
+            [
+              "A",
+              "1",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -51.96519894003103,
+          "equilibrium_degrees": 121.9,
+          "hydrogens": [],
+          "index": 18,
+          "theta_degrees": 117.66723996060358
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 113.97424984626944,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 30,
+          "theta_degrees": 100.64323298931473
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -6.24155051372012,
+          "equilibrium_degrees": 110.1,
+          "hydrogens": [],
+          "index": 31,
+          "theta_degrees": 108.64931494198744
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 852.2986321437304,
+          "equilibrium_degrees": 109.7,
+          "hydrogens": [],
+          "index": 32,
+          "theta_degrees": 135.8689479584039
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -18.833965980862683,
+          "equilibrium_degrees": 118.04,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ]
+          ],
+          "index": 33,
+          "theta_degrees": 119.59194309066228
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "O"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -10.45799607021894,
+          "equilibrium_degrees": 120.40000000000002,
+          "hydrogens": [],
+          "index": 34,
+          "theta_degrees": 121.11280187004162
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "3",
+              "",
+              "CYX",
+              "N"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -20.769336243054234,
+          "equilibrium_degrees": 116.6,
+          "hydrogens": [],
+          "index": 35,
+          "theta_degrees": 114.9751173675961
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 897.7725328237074,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 36,
+          "theta_degrees": 93.5596853072015
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 13.045220635375339,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 37,
+          "theta_degrees": 114.37803452146605
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 23.242584544599243,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 38,
+          "theta_degrees": 115.77355082768915
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 196.27815890958263,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 39,
+          "theta_degrees": 95.22731768777956
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 1010.7513695222383,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 40,
+          "theta_degrees": 90.34747940814195
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 8.782944249952251,
+          "equilibrium_degrees": 111.1,
+          "hydrogens": [],
+          "index": 41,
+          "theta_degrees": 112.73912351545907
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 97.89684970097049,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "index": 45,
+          "theta_degrees": 111.50188357067181
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -635.0375928640045,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 46,
+          "theta_degrees": 119.99389286314113
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -85.24364589493395,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 47,
+          "theta_degrees": 104.59847753098805
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -36.30514418459149,
+          "equilibrium_degrees": 108.5,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "index": 48,
+          "theta_degrees": 109.02442371699651
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 973.3682806459448,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 49,
+          "theta_degrees": 90.80633911003109
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 1107.7157826120265,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 50,
+          "theta_degrees": 89.59359356209133
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 101.41601678099423,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 51,
+          "theta_degrees": 129.7159484947869
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -7.712571378011727,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 52,
+          "theta_degrees": 112.06442095134548
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -115.36520816971448,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 53,
+          "theta_degrees": 102.56741582409482
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 60.62777733492419,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 54,
+          "theta_degrees": 103.93041609666825
+        }
+      ]
+    },
+    {
+      "analytic_angle_projection_kj_mol_nm": 4456.1652758841155,
+      "by_hydrogen": {
+        "A/2//THR/H": -19.40416238016355,
+        "A/2//THR/HA": 1325.744708131901,
+        "A/2//THR/HB": 2980.423596324649,
+        "A/2//THR/HG1": -30.34183920525294,
+        "A/2//THR/HG21": -706.3930390507746,
+        "A/2//THR/HG21+A/2//THR/HG22": -3.93596819468068,
+        "A/2//THR/HG21+A/2//THR/HG23": 65.17874109770834,
+        "A/2//THR/HG22": 141.11614023669182,
+        "A/2//THR/HG22+A/2//THR/HG23": -98.65903281252312,
+        "A/2//THR/HG23": -106.91518485106742,
+        "heavy-only": 909.3513165876271
+      },
+      "cb_volume_angstrom3": 0.19838928856555219,
+      "label": "seed-2",
+      "maximum_cartesian_force_error_kj_mol_nm": 4.092726157978177e-12,
+      "native_angle_projection_kj_mol_nm": 4456.1652758841155,
+      "terms": [
+        {
+          "atoms": [
+            [
+              "A",
+              "1",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -51.96519894003103,
+          "equilibrium_degrees": 121.9,
+          "hydrogens": [],
+          "index": 18,
+          "theta_degrees": 117.66723996060358
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 112.49780731343057,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 30,
+          "theta_degrees": 100.78740841212289
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -6.24155051372012,
+          "equilibrium_degrees": 110.1,
+          "hydrogens": [],
+          "index": 31,
+          "theta_degrees": 108.64931494198744
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 852.2986321437304,
+          "equilibrium_degrees": 109.7,
+          "hydrogens": [],
+          "index": 32,
+          "theta_degrees": 135.8689479584039
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "N"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -19.40416238016355,
+          "equilibrium_degrees": 118.04,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "H"
+            ]
+          ],
+          "index": 33,
+          "theta_degrees": 119.63631602009077
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "O"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -10.45799607021894,
+          "equilibrium_degrees": 120.40000000000002,
+          "hydrogens": [],
+          "index": 34,
+          "theta_degrees": 121.11280187004162
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "3",
+              "",
+              "CYX",
+              "N"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -20.769336243054234,
+          "equilibrium_degrees": 116.6,
+          "hydrogens": [],
+          "index": 35,
+          "theta_degrees": 114.9751173675961
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 902.6800191267677,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 36,
+          "theta_degrees": 93.4369675450867
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 13.045220635375339,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 37,
+          "theta_degrees": 114.37803452146605
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 23.242584544599243,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 38,
+          "theta_degrees": 115.77355082768915
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 196.42193231840957,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 39,
+          "theta_degrees": 95.20920491523168
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 1016.8249685000608,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HA"
+            ]
+          ],
+          "index": 40,
+          "theta_degrees": 90.2191506693961
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "C"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CA"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 8.782944249952251,
+          "equilibrium_degrees": 111.1,
+          "hydrogens": [],
+          "index": 41,
+          "theta_degrees": 112.73912351545907
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -706.3930390507746,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ]
+          ],
+          "index": 45,
+          "theta_degrees": 121.08037362369538
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 141.11614023669182,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 46,
+          "theta_degrees": 112.40382835858523
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -106.91518485106742,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 47,
+          "theta_degrees": 103.29325714984397
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -30.34183920525294,
+          "equilibrium_degrees": 108.5,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG1"
+            ]
+          ],
+          "index": 48,
+          "theta_degrees": 108.93263702384887
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 969.9663552317902,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 49,
+          "theta_degrees": 90.91046641044532
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 1107.7772219660915,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HB"
+            ]
+          ],
+          "index": 50,
+          "theta_degrees": 89.59430775873427
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CB"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "OG1"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 101.41601678099423,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [],
+          "index": 51,
+          "theta_degrees": 129.7159484947869
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -3.93596819468068,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ]
+          ],
+          "index": 52,
+          "theta_degrees": 110.76585484926211
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": 65.17874109770834,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG21"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 53,
+          "theta_degrees": 103.376279713959
+        },
+        {
+          "atoms": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "CG2"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "cb_projection_kj_mol_nm": -98.65903281252312,
+          "equilibrium_degrees": 109.50000000000001,
+          "hydrogens": [
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG22"
+            ],
+            [
+              "A",
+              "2",
+              "",
+              "THR",
+              "HG23"
+            ]
+          ],
+          "index": 54,
+          "theta_degrees": 103.61356101972059
+        }
+      ]
+    }
+  ]
+}

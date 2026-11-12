@@ -179,3 +179,6 @@ pushed on `research/pdbfixer-reconstruction`.
 
 Retained test logs: `tmp/pdbfixer-research/thr2-fast-suite-01.log` (initial PATH
 failure), `thr2-fast-suite-02.log` and `thr2-fast-suite-02.xml` (corrected full run).
+
+The subsequent [HB localization and matched-start H-swap study](thr2-hswap.md)
+is a separately bounded mechanistic stage, not extra capture attempts.

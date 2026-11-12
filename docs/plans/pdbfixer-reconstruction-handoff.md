@@ -31,6 +31,15 @@ the initial six missing-CLI PATH failures, not just the corrected pass. Ruff,
 strict mypy, generated specs, agent docs and independent byte-identical saved-only
 audits passed. Capture enrollment is complete; no further sampling is implied.
 
+**Next separately frozen mechanism stage:** after the user's renewed instruction
+to continue, saved-only per-angle attribution on all three THR2 starts identifies
+HB-associated angle projection −2,729 vs +2,979/+2,980 kJ/mol/nm, with exact same
+heavy-only +909 contribution. Independent analytic/native force agreement is
+within 4.1e-12. The prospective [H-swap protocol](../research/thr2-hswap.md) enrolls
+all six ordered donor/recipient pairs × HB/complementary-H masks plus three
+unchanged starts, once in each numerical mode (30 paths/60 native calls). No new
+H generation, seeds, physics, repair or production behavior; retain all outcomes.
+
 User approved source research, controlled experiments and evaluation of a custom
 geometry-constrained atom rebuilder on 2026-11-02. Branch:
 `research/pdbfixer-reconstruction`, based on local `main` at `4a328a6`.
