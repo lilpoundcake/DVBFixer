@@ -1,0 +1,3619 @@
+{
+  "adapter_sha256": "8608c1a9b938060fce7b0d21f4c6f79265022ef0753b0a69192e5476ff0b4819",
+  "cases": [
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:68:": "HIE"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 0,
+      "label": "ubiquitin-water",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 3,
+          "protein:THR": 7,
+          "protein:TYR": 1,
+          "water:HOH": 116
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG3"
+              ],
+              [
+                "A",
+                "72",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "A",
+                "72",
+                "",
+                "ARG",
+                "HG3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 3,
+                "protein:THR": 7,
+                "protein:TYR": 1,
+                "water:HOH": 116
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 4,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 3,
+              "protein:THR": 7,
+              "protein:TYR": 1,
+              "water:HOH": 116
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG3"
+              ],
+              [
+                "A",
+                "72",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "A",
+                "72",
+                "",
+                "ARG",
+                "HG3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 3,
+                "protein:THR": 7,
+                "protein:TYR": 1,
+                "water:HOH": 116
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 4,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:68:": "HIE"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 1,
+      "label": "ubiquitin-water",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 3,
+          "protein:THR": 7,
+          "protein:TYR": 1,
+          "water:HOH": 116
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "11",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "A",
+                "11",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG3"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 3,
+                "protein:THR": 7,
+                "protein:TYR": 1,
+                "water:HOH": 116
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 7,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 3,
+              "protein:THR": 7,
+              "protein:TYR": 1,
+              "water:HOH": 116
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "11",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "A",
+                "11",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "51",
+                "",
+                "GLU",
+                "HG3"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "A",
+                "63",
+                "",
+                "LYS",
+                "HZ3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 3,
+                "protein:THR": 7,
+                "protein:TYR": 1,
+                "water:HOH": 116
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 7,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:23:": "CYX",
+          "A:34:": "HIE",
+          "A:41:": "HIE",
+          "A:88:": "CYX",
+          "B:22:": "CYX",
+          "B:60:": "HIE",
+          "B:95:": "CYX",
+          "C:115:": "CYX",
+          "C:127:": "CYX",
+          "C:15:": "HID",
+          "C:30:": "CYX",
+          "C:64:": "CYX",
+          "C:6:": "CYX",
+          "C:76:": "CYX",
+          "C:80:": "CYX",
+          "C:94:": "CYX",
+          "C:96:": "LYN"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 2,
+      "label": "antibody-disulfide",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 50,
+          "protein:THR": 29,
+          "protein:TYR": 17,
+          "water:HOH": 934
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD2"
+              ],
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 50,
+                "protein:THR": 29,
+                "protein:TYR": 17,
+                "water:HOH": 934
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 50,
+              "protein:THR": 29,
+              "protein:TYR": 17,
+              "water:HOH": 934
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD2"
+              ],
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 50,
+                "protein:THR": 29,
+                "protein:TYR": 17,
+                "water:HOH": 934
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:23:": "CYX",
+          "A:34:": "HIE",
+          "A:41:": "HIE",
+          "A:88:": "CYX",
+          "B:22:": "CYX",
+          "B:60:": "HIE",
+          "B:95:": "CYX",
+          "C:115:": "CYX",
+          "C:127:": "CYX",
+          "C:15:": "HID",
+          "C:30:": "CYX",
+          "C:64:": "CYX",
+          "C:6:": "CYX",
+          "C:76:": "CYX",
+          "C:80:": "CYX",
+          "C:94:": "CYX",
+          "C:96:": "LYN"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 3,
+      "label": "antibody-disulfide",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 50,
+          "protein:THR": 29,
+          "protein:TYR": 17,
+          "water:HOH": 934
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD2"
+              ],
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 50,
+                "protein:THR": 29,
+                "protein:TYR": 17,
+                "water:HOH": 934
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 50,
+              "protein:THR": 29,
+              "protein:TYR": 17,
+              "water:HOH": 934
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD2"
+              ],
+              [
+                "B",
+                "38",
+                "",
+                "ARG",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 50,
+                "protein:THR": 29,
+                "protein:TYR": 17,
+                "water:HOH": 934
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "B:104:": "HIP",
+          "B:110:": "ASH",
+          "B:112:": "GLH",
+          "B:113:": "GLH",
+          "B:119:": "CYX",
+          "B:120:": "GLH",
+          "B:121:": "ASH",
+          "B:122:": "GLH",
+          "B:123:": "GLH",
+          "B:133:": "CYX",
+          "B:134:": "HIP",
+          "B:143:": "GLH",
+          "B:148:": "GLH",
+          "B:153:": "ASH",
+          "B:158:": "ASH",
+          "B:172:": "GLH",
+          "B:175:": "GLH",
+          "B:180:": "CYX",
+          "B:194:": "ASH",
+          "B:195:": "ASH",
+          "B:198:": "CYX",
+          "B:202:": "HIP",
+          "B:206:": "GLH",
+          "B:217:": "ASH",
+          "B:236:": "ASH",
+          "B:240:": "HIP",
+          "B:257:": "GLH",
+          "B:258:": "CYX",
+          "B:260:": "HIP",
+          "B:261:": "GLH",
+          "B:263:": "ASH",
+          "B:265:": "GLH",
+          "B:268:": "CYX",
+          "B:272:": "ASH",
+          "B:276:": "ASH",
+          "B:282:": "ASH",
+          "B:289:": "GLH",
+          "B:297:": "ASH",
+          "B:302:": "GLH",
+          "B:303:": "CYX",
+          "B:310:": "GLH",
+          "B:318:": "GLH",
+          "B:327:": "CYX",
+          "B:32:": "HIP",
+          "B:337:": "GLH",
+          "B:354:": "HIP",
+          "B:38:": "GLH",
+          "B:48:": "CYX",
+          "B:51:": "ASH",
+          "B:59:": "GLH",
+          "B:64:": "CYX",
+          "B:66:": "ASH",
+          "B:71:": "GLH",
+          "B:72:": "GLH",
+          "B:73:": "ASH",
+          "B:74:": "GLH",
+          "B:76:": "HIP",
+          "B:85:": "ASH",
+          "B:92:": "ASH",
+          "B:96:": "GLH",
+          "B:98:": "ASH"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 4,
+      "label": "acidic-context-ph3",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:ASP": 25,
+          "protein:GLU": 24,
+          "protein:SER": 19,
+          "protein:THR": 13,
+          "protein:TYR": 25
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:ASP": 25,
+                "protein:GLU": 25,
+                "protein:SER": 19,
+                "protein:THR": 13,
+                "protein:TYR": 25
+              },
+              "passed": false,
+              "short_oh_warnings": [],
+              "violations": [
+                {
+                  "hydrogen": [
+                    "B",
+                    "163",
+                    "",
+                    "SER",
+                    "HG"
+                  ],
+                  "nearest_nonparent_angstrom": 2.31534839769419,
+                  "oh_angstrom": 1.2786610792560085
+                },
+                {
+                  "hydrogen": [
+                    "B",
+                    "219",
+                    "",
+                    "TYR",
+                    "HH"
+                  ],
+                  "nearest_nonparent_angstrom": 2.132941092718934,
+                  "oh_angstrom": 1.2029765148401224
+                },
+                {
+                  "hydrogen": [
+                    "B",
+                    "302",
+                    "",
+                    "GLU",
+                    "HE2"
+                  ],
+                  "nearest_nonparent_angstrom": 1.9812087366558466,
+                  "oh_angstrom": 1.200472705481482
+                },
+                {
+                  "hydrogen": [
+                    "B",
+                    "336",
+                    "",
+                    "ASP",
+                    "HD2"
+                  ],
+                  "nearest_nonparent_angstrom": 1.9708720611915451,
+                  "oh_angstrom": 1.2063564619064147
+                },
+                {
+                  "hydrogen": [
+                    "B",
+                    "347",
+                    "",
+                    "SER",
+                    "HG"
+                  ],
+                  "nearest_nonparent_angstrom": 2.07791232126052,
+                  "oh_angstrom": 1.2062491501124182
+                }
+              ]
+            },
+            "repairs": 0,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:ASP": 25,
+              "protein:GLU": 25,
+              "protein:SER": 19,
+              "protein:THR": 13,
+              "protein:TYR": 25
+            },
+            "passed": false,
+            "short_oh_warnings": [],
+            "violations": [
+              {
+                "hydrogen": [
+                  "B",
+                  "163",
+                  "",
+                  "SER",
+                  "HG"
+                ],
+                "nearest_nonparent_angstrom": 2.31534839769419,
+                "oh_angstrom": 1.2786610792560085
+              },
+              {
+                "hydrogen": [
+                  "B",
+                  "219",
+                  "",
+                  "TYR",
+                  "HH"
+                ],
+                "nearest_nonparent_angstrom": 2.132941092718934,
+                "oh_angstrom": 1.2029765148401224
+              },
+              {
+                "hydrogen": [
+                  "B",
+                  "302",
+                  "",
+                  "GLU",
+                  "HE2"
+                ],
+                "nearest_nonparent_angstrom": 1.9812087366558466,
+                "oh_angstrom": 1.200472705481482
+              },
+              {
+                "hydrogen": [
+                  "B",
+                  "336",
+                  "",
+                  "ASP",
+                  "HD2"
+                ],
+                "nearest_nonparent_angstrom": 1.9708720611915451,
+                "oh_angstrom": 1.2063564619064147
+              },
+              {
+                "hydrogen": [
+                  "B",
+                  "347",
+                  "",
+                  "SER",
+                  "HG"
+                ],
+                "nearest_nonparent_angstrom": 2.07791232126052,
+                "oh_angstrom": 1.2062491501124182
+              }
+            ]
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "163",
+                "",
+                "SER",
+                "HG"
+              ],
+              [
+                "B",
+                "219",
+                "",
+                "TYR",
+                "HH"
+              ],
+              [
+                "B",
+                "302",
+                "",
+                "GLU",
+                "HE2"
+              ],
+              [
+                "B",
+                "336",
+                "",
+                "ASP",
+                "HD2"
+              ],
+              [
+                "B",
+                "347",
+                "",
+                "SER",
+                "HG"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:ASP": 25,
+                "protein:GLU": 25,
+                "protein:SER": 19,
+                "protein:THR": 13,
+                "protein:TYR": 25
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 5,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "B:104:": "HIP",
+          "B:110:": "ASH",
+          "B:112:": "GLH",
+          "B:113:": "GLH",
+          "B:119:": "CYX",
+          "B:120:": "GLH",
+          "B:121:": "ASH",
+          "B:122:": "GLH",
+          "B:123:": "GLH",
+          "B:133:": "CYX",
+          "B:134:": "HIP",
+          "B:143:": "GLH",
+          "B:148:": "GLH",
+          "B:153:": "ASH",
+          "B:158:": "ASH",
+          "B:172:": "GLH",
+          "B:175:": "GLH",
+          "B:180:": "CYX",
+          "B:194:": "ASH",
+          "B:195:": "ASH",
+          "B:198:": "CYX",
+          "B:202:": "HIP",
+          "B:206:": "GLH",
+          "B:217:": "ASH",
+          "B:236:": "ASH",
+          "B:240:": "HIP",
+          "B:257:": "GLH",
+          "B:258:": "CYX",
+          "B:260:": "HIP",
+          "B:261:": "GLH",
+          "B:263:": "ASH",
+          "B:265:": "GLH",
+          "B:268:": "CYX",
+          "B:272:": "ASH",
+          "B:276:": "ASH",
+          "B:282:": "ASH",
+          "B:289:": "GLH",
+          "B:297:": "ASH",
+          "B:302:": "GLH",
+          "B:303:": "CYX",
+          "B:310:": "GLH",
+          "B:318:": "GLH",
+          "B:327:": "CYX",
+          "B:32:": "HIP",
+          "B:337:": "GLH",
+          "B:354:": "HIP",
+          "B:362:": "GLH",
+          "B:38:": "GLH",
+          "B:48:": "CYX",
+          "B:51:": "ASH",
+          "B:59:": "GLH",
+          "B:64:": "CYX",
+          "B:66:": "ASH",
+          "B:71:": "GLH",
+          "B:72:": "GLH",
+          "B:73:": "ASH",
+          "B:74:": "GLH",
+          "B:76:": "HIP",
+          "B:85:": "ASH",
+          "B:92:": "ASH",
+          "B:96:": "GLH",
+          "B:98:": "ASH"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 5,
+      "label": "acidic-context-ph3",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:ASP": 6,
+          "protein:SER": 19,
+          "protein:THR": 13,
+          "protein:TYR": 25
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "207",
+                "",
+                "THR",
+                "HG21"
+              ],
+              [
+                "B",
+                "207",
+                "",
+                "THR",
+                "HG22"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:ASP": 25,
+                "protein:GLU": 25,
+                "protein:SER": 19,
+                "protein:THR": 13,
+                "protein:TYR": 25
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 11,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:ASP": 25,
+              "protein:GLU": 25,
+              "protein:SER": 19,
+              "protein:THR": 13,
+              "protein:TYR": 25
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "84",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "207",
+                "",
+                "THR",
+                "HG21"
+              ],
+              [
+                "B",
+                "207",
+                "",
+                "THR",
+                "HG22"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "316",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "319",
+                "",
+                "LYS",
+                "HZ3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:ASP": 25,
+                "protein:GLU": 25,
+                "protein:SER": 19,
+                "protein:THR": 13,
+                "protein:TYR": 25
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 11,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:261:": "CYX",
+          "A:268:": "HIP",
+          "A:285:": "HID",
+          "A:310:": "HIE",
+          "A:321:": "CYX",
+          "A:367:": "CYX",
+          "A:425:": "CYX",
+          "A:429:": "HID",
+          "A:433:": "HIE",
+          "A:435:": "HIE",
+          "B:261:": "CYX",
+          "B:268:": "HID",
+          "B:285:": "HIE",
+          "B:310:": "HID",
+          "B:321:": "CYX",
+          "B:367:": "CYX",
+          "B:409:": "LYN",
+          "B:425:": "CYX",
+          "B:429:": "HIE",
+          "B:433:": "HIE",
+          "B:435:": "HIE",
+          "C:110:": "CYX",
+          "C:111:": "HIE",
+          "C:146:": "HID",
+          "C:148:": "HIE",
+          "C:153:": "HIE",
+          "C:154:": "CYX",
+          "C:29:": "CYX",
+          "C:44:": "HID",
+          "C:52:": "HIE",
+          "C:71:": "CYX",
+          "C:83:": "HID",
+          "C:97:": "HID"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 6,
+      "label": "pdb-glycoprotein",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 57,
+          "protein:THR": 44,
+          "protein:TYR": 22,
+          "sugar:0MA": 4,
+          "sugar:0MB": 4,
+          "sugar:0SA": 12,
+          "sugar:0YB": 6,
+          "sugar:0fB": 9,
+          "sugar:2MA": 12,
+          "sugar:4YB": 12,
+          "sugar:6LB": 9,
+          "sugar:UYA": 2,
+          "sugar:UYB": 1,
+          "sugar:VMA": 2,
+          "sugar:VMB": 4
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB2"
+              ],
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB3"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB2"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB3"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD2"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD3"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG3"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG21"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG23"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB2"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB3"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG2"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG3"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD11"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD12"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG12"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG13"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB2"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB3"
+              ],
+              [
+                "D",
+                "2",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "D",
+                "2",
+                "",
+                "4YB",
+                "H2M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H1M"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 57,
+                "protein:THR": 44,
+                "protein:TYR": 22,
+                "sugar:0MA": 4,
+                "sugar:0MB": 4,
+                "sugar:0SA": 12,
+                "sugar:0YB": 6,
+                "sugar:0fB": 9,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:6LB": 9,
+                "sugar:UYA": 2,
+                "sugar:UYB": 1,
+                "sugar:VMA": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 31,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 57,
+              "protein:THR": 44,
+              "protein:TYR": 22,
+              "sugar:0MA": 4,
+              "sugar:0MB": 4,
+              "sugar:0SA": 12,
+              "sugar:0YB": 6,
+              "sugar:0fB": 9,
+              "sugar:2MA": 12,
+              "sugar:4YB": 12,
+              "sugar:6LB": 9,
+              "sugar:UYA": 2,
+              "sugar:UYB": 1,
+              "sugar:VMA": 2,
+              "sugar:VMB": 4
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB2"
+              ],
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB3"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB2"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB3"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD2"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD3"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG3"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG21"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG23"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB2"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB3"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ1"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG2"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG3"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD11"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD12"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG12"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG13"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB2"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB3"
+              ],
+              [
+                "D",
+                "2",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "D",
+                "2",
+                "",
+                "4YB",
+                "H2M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H1M"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 57,
+                "protein:THR": 44,
+                "protein:TYR": 22,
+                "sugar:0MA": 4,
+                "sugar:0MB": 4,
+                "sugar:0SA": 12,
+                "sugar:0YB": 6,
+                "sugar:0fB": 9,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:6LB": 9,
+                "sugar:UYA": 2,
+                "sugar:UYB": 1,
+                "sugar:VMA": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 31,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber+glycam",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:261:": "CYX",
+          "A:268:": "HIP",
+          "A:285:": "HID",
+          "A:310:": "HIE",
+          "A:321:": "CYX",
+          "A:367:": "CYX",
+          "A:425:": "CYX",
+          "A:429:": "HID",
+          "A:433:": "HIE",
+          "A:435:": "HIE",
+          "B:261:": "CYX",
+          "B:268:": "HID",
+          "B:285:": "HIE",
+          "B:310:": "HID",
+          "B:321:": "CYX",
+          "B:367:": "CYX",
+          "B:409:": "LYN",
+          "B:425:": "CYX",
+          "B:429:": "HIE",
+          "B:433:": "HIE",
+          "B:435:": "HIE",
+          "C:110:": "CYX",
+          "C:111:": "HIE",
+          "C:146:": "HID",
+          "C:148:": "HIE",
+          "C:153:": "HIE",
+          "C:154:": "CYX",
+          "C:29:": "CYX",
+          "C:44:": "HID",
+          "C:52:": "HIE",
+          "C:71:": "CYX",
+          "C:83:": "HID",
+          "C:97:": "HID"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 7,
+      "label": "pdb-glycoprotein",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 57,
+          "protein:THR": 44,
+          "protein:TYR": 22,
+          "sugar:BMA": 8,
+          "sugar:FUL": 9,
+          "sugar:GAL": 9,
+          "sugar:MAN": 18,
+          "sugar:NAG": 19,
+          "sugar:NDG": 2,
+          "sugar:SIA": 12
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB2"
+              ],
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB3"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB2"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB3"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD2"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD3"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG3"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG21"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG23"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB2"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB3"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG2"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG3"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD11"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD12"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG12"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG13"
+              ],
+              [
+                "C",
+                "72",
+                "",
+                "GLN",
+                "HB2"
+              ],
+              [
+                "C",
+                "72",
+                "",
+                "GLN",
+                "HB3"
+              ],
+              [
+                "C",
+                "96",
+                "",
+                "PRO",
+                "HG2"
+              ],
+              [
+                "C",
+                "96",
+                "",
+                "PRO",
+                "HG3"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB2"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB3"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H1M"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 57,
+                "protein:THR": 44,
+                "protein:TYR": 22,
+                "sugar:0MA": 4,
+                "sugar:0MB": 4,
+                "sugar:0SA": 12,
+                "sugar:0YB": 6,
+                "sugar:0fB": 9,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:6LB": 9,
+                "sugar:UYA": 2,
+                "sugar:UYB": 1,
+                "sugar:VMA": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 32,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 57,
+              "protein:THR": 44,
+              "protein:TYR": 22,
+              "sugar:0MA": 4,
+              "sugar:0MB": 4,
+              "sugar:0SA": 12,
+              "sugar:0YB": 6,
+              "sugar:0fB": 9,
+              "sugar:2MA": 12,
+              "sugar:4YB": 12,
+              "sugar:6LB": 9,
+              "sugar:UYA": 2,
+              "sugar:UYB": 1,
+              "sugar:VMA": 2,
+              "sugar:VMB": 4
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB2"
+              ],
+              [
+                "A",
+                "344",
+                "",
+                "ARG",
+                "HB3"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB2"
+              ],
+              [
+                "A",
+                "381",
+                "",
+                "TRP",
+                "HB3"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD2"
+              ],
+              [
+                "A",
+                "439",
+                "",
+                "LYS",
+                "HD3"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "B",
+                "239",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG2"
+              ],
+              [
+                "B",
+                "255",
+                "",
+                "ARG",
+                "HG3"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG21"
+              ],
+              [
+                "B",
+                "262",
+                "",
+                "VAL",
+                "HG23"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB2"
+              ],
+              [
+                "B",
+                "291",
+                "",
+                "PRO",
+                "HB3"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ2"
+              ],
+              [
+                "B",
+                "360",
+                "",
+                "LYS",
+                "HZ3"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG2"
+              ],
+              [
+                "B",
+                "409",
+                "",
+                "LYS",
+                "HG3"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD11"
+              ],
+              [
+                "B",
+                "432",
+                "",
+                "LEU",
+                "HD12"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB2"
+              ],
+              [
+                "C",
+                "34",
+                "",
+                "SER",
+                "HB3"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG12"
+              ],
+              [
+                "C",
+                "40",
+                "",
+                "ILE",
+                "HG13"
+              ],
+              [
+                "C",
+                "72",
+                "",
+                "GLN",
+                "HB2"
+              ],
+              [
+                "C",
+                "72",
+                "",
+                "GLN",
+                "HB3"
+              ],
+              [
+                "C",
+                "96",
+                "",
+                "PRO",
+                "HG2"
+              ],
+              [
+                "C",
+                "96",
+                "",
+                "PRO",
+                "HG3"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB2"
+              ],
+              [
+                "C",
+                "104",
+                "",
+                "GLU",
+                "HB3"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H3M"
+              ],
+              [
+                "E",
+                "5",
+                "",
+                "4YB",
+                "H1M"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 57,
+                "protein:THR": 44,
+                "protein:TYR": 22,
+                "sugar:0MA": 4,
+                "sugar:0MB": 4,
+                "sugar:0SA": 12,
+                "sugar:0YB": 6,
+                "sugar:0fB": 9,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:6LB": 9,
+                "sugar:UYA": 2,
+                "sugar:UYB": 1,
+                "sugar:VMA": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 32,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:132:": "HIP",
+          "A:163:": "HIP",
+          "A:185:": "HIE",
+          "A:18:": "HID",
+          "A:200:": "HID",
+          "A:202:": "HIP",
+          "A:210:": "HID",
+          "A:239:": "HIE",
+          "A:297:": "HIP",
+          "A:300:": "HIE",
+          "A:48:": "HIE",
+          "A:64:": "HIE",
+          "A:82:": "HIE"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 8,
+      "label": "protein-ligands",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "other:DAN": 4,
+          "other:EPE": 2,
+          "protein:SER": 28,
+          "protein:THR": 20,
+          "protein:TYR": 13,
+          "water:HOH": 142
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "231",
+                "",
+                "VAL",
+                "HG12"
+              ],
+              [
+                "A",
+                "231",
+                "",
+                "VAL",
+                "HG13"
+              ],
+              [
+                "A",
+                "286",
+                "",
+                "PRO",
+                "HD2"
+              ],
+              [
+                "A",
+                "286",
+                "",
+                "PRO",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 28,
+                "protein:THR": 20,
+                "protein:TYR": 13,
+                "water:HOH": 142
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 4,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 28,
+              "protein:THR": 20,
+              "protein:TYR": 13,
+              "water:HOH": 142
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "231",
+                "",
+                "VAL",
+                "HG12"
+              ],
+              [
+                "A",
+                "231",
+                "",
+                "VAL",
+                "HG13"
+              ],
+              [
+                "A",
+                "286",
+                "",
+                "PRO",
+                "HD2"
+              ],
+              [
+                "A",
+                "286",
+                "",
+                "PRO",
+                "HD3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 28,
+                "protein:THR": 20,
+                "protein:TYR": 13,
+                "water:HOH": 142
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 4,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "A:132:": "HIP",
+          "A:163:": "HIP",
+          "A:185:": "HIE",
+          "A:18:": "HID",
+          "A:200:": "HID",
+          "A:202:": "HIP",
+          "A:210:": "HID",
+          "A:239:": "HIE",
+          "A:297:": "HIP",
+          "A:300:": "HIE",
+          "A:48:": "HIE",
+          "A:64:": "HIE",
+          "A:82:": "HIE"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 9,
+      "label": "protein-ligands",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "other:DAN": 4,
+          "other:EPE": 2,
+          "protein:SER": 28,
+          "protein:THR": 20,
+          "protein:TYR": 13,
+          "water:HOH": 142
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "228",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "228",
+                "",
+                "GLU",
+                "HG3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 28,
+                "protein:THR": 20,
+                "protein:TYR": 13,
+                "water:HOH": 142
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 28,
+              "protein:THR": 20,
+              "protein:TYR": 13,
+              "water:HOH": 142
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [
+              [
+                "A",
+                "228",
+                "",
+                "GLU",
+                "HG2"
+              ],
+              [
+                "A",
+                "228",
+                "",
+                "GLU",
+                "HG3"
+              ]
+            ],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 28,
+                "protein:THR": 20,
+                "protein:TYR": 13,
+                "water:HOH": 142
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 2,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "H:1:": "CYX",
+          "H:36:": "CYX",
+          "H:43:": "HIE",
+          "H:4:": "CYX",
+          "H:60:": "HIE",
+          "H:85:": "HIE",
+          "H:96:": "CYX",
+          "K:116:": "CYX",
+          "K:119:": "CYX",
+          "K:151:": "CYX",
+          "K:158:": "HIE",
+          "K:175:": "HIE",
+          "K:200:": "HIE",
+          "K:211:": "CYX"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "index": 10,
+      "label": "glycam-glycoprotein",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 14,
+          "protein:THR": 14,
+          "protein:TYR": 8,
+          "sugar:0LB": 16,
+          "sugar:0fA": 6,
+          "sugar:2MA": 12,
+          "sugar:4YB": 12,
+          "sugar:UYB": 2,
+          "sugar:VMB": 4
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 14,
+                "protein:THR": 14,
+                "protein:TYR": 8,
+                "sugar:0LB": 16,
+                "sugar:0fA": 6,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:UYB": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 0,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 14,
+              "protein:THR": 14,
+              "protein:TYR": 8,
+              "sugar:0LB": 16,
+              "sugar:0fA": 6,
+              "sugar:2MA": 12,
+              "sugar:4YB": 12,
+              "sugar:UYB": 2,
+              "sugar:VMB": 4
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 14,
+                "protein:THR": 14,
+                "protein:TYR": 8,
+                "sugar:0LB": 16,
+                "sugar:0fA": 6,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:UYB": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 0,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "amber+glycam",
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "dat": {
+        "present": true,
+        "valid": true,
+        "variant_overrides": {
+          "H:1:": "CYX",
+          "H:36:": "CYX",
+          "H:43:": "HIE",
+          "H:4:": "CYX",
+          "H:60:": "HIE",
+          "H:85:": "HIE",
+          "H:96:": "CYX",
+          "K:116:": "CYX",
+          "K:119:": "CYX",
+          "K:151:": "CYX",
+          "K:158:": "HIE",
+          "K:175:": "HIE",
+          "K:200:": "HIE",
+          "K:211:": "CYX"
+        }
+      },
+      "h_routes": [
+        {
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "index": 11,
+      "label": "glycam-glycoprotein",
+      "native_platforms": [
+        {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        }
+      ],
+      "output_measurement": {
+        "cross_residue_warnings": [],
+        "oh_counts": {
+          "protein:SER": 14,
+          "protein:THR": 14,
+          "protein:TYR": 8,
+          "sugar:0LB": 16,
+          "sugar:0fA": 6,
+          "sugar:2MA": 12,
+          "sugar:4YB": 12,
+          "sugar:UYB": 2,
+          "sugar:VMB": 4
+        },
+        "passed": true,
+        "short_oh_warnings": [],
+        "violations": []
+      },
+      "output_present": true,
+      "repairs": [
+        {
+          "baseline": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 14,
+                "protein:THR": 14,
+                "protein:TYR": 8,
+                "sugar:0LB": 16,
+                "sugar:0fA": 6,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:UYB": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 0,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "before": {
+            "cross_residue_warnings": [],
+            "oh_counts": {
+              "protein:SER": 14,
+              "protein:THR": 14,
+              "protein:TYR": 8,
+              "sugar:0LB": 16,
+              "sugar:0fA": 6,
+              "sugar:2MA": 12,
+              "sugar:4YB": 12,
+              "sugar:UYB": 2,
+              "sugar:VMB": 4
+            },
+            "passed": true,
+            "short_oh_warnings": [],
+            "violations": []
+          },
+          "candidate": {
+            "bonds_preserved": true,
+            "changed_atom_keys": [],
+            "heavy_preserved": true,
+            "identity_preserved": true,
+            "measurement": {
+              "cross_residue_warnings": [],
+              "oh_counts": {
+                "protein:SER": 14,
+                "protein:THR": 14,
+                "protein:TYR": 8,
+                "sugar:0LB": 16,
+                "sugar:0fA": 6,
+                "sugar:2MA": 12,
+                "sugar:4YB": 12,
+                "sugar:UYB": 2,
+                "sugar:VMB": 4
+              },
+              "passed": true,
+              "short_oh_warnings": [],
+              "violations": []
+            },
+            "repairs": 0,
+            "status": "completed",
+            "valid_h_preserved": true
+          },
+          "exact_actual_replay": true,
+          "new_refusal": false,
+          "number": 1
+        }
+      ],
+      "requested_ff": "charmm",
+      "returncode": 0,
+      "status": "completed"
+    }
+  ],
+  "direct_ligand_oh_qualification": false,
+  "evidence_sha256": "064e0704dcc2c464d1b51385fa8149b44d49def7d56b1c0da7bf8d6cf8e36b76",
+  "frozen_scalar_audit_sha256": "bf16249233bbc0bd6ec610da8ccb78ef2492e38d00f9f2cb760725f4cccceb30",
+  "historical_cohort_status_changed": false,
+  "limits": "One draw label per six sources x two FF requests; forcefield-free remains forcefield-free, not native CHARMM glycan or direct ligand-OH qualification",
+  "main_merged": false,
+  "native_charmm_glycan_qualification": false,
+  "plan_sha256": "d6d3947cd381b16c4a6ee2e7d152605b80ee352db64551f52283258c5af49a97",
+  "recovery_and_output_audits": [
+    {
+      "index": 0,
+      "raw_output_atom_records": 1405,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 1,
+      "raw_output_atom_records": 1405,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 2,
+      "raw_output_atom_records": 6686,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 3,
+      "raw_output_atom_records": 6686,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 4,
+      "raw_output_atom_records": 5261,
+      "raw_output_duplicate_identities": [],
+      "recoveries": [
+        {
+          "added_bond_identities": [],
+          "added_bonds": 0,
+          "atoms_and_exact_nm_unchanged": true,
+          "external_bonds_unchanged": true,
+          "inherited_bonds_preserved": true,
+          "number": 1,
+          "passed": true,
+          "returned": true
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "raw_output_atom_records": 5262,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 6,
+      "raw_output_atom_records": 10107,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 7,
+      "raw_output_atom_records": 10107,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 8,
+      "raw_output_atom_records": 6205,
+      "raw_output_duplicate_identities": [],
+      "recoveries": [
+        {
+          "added_bond_identities": [],
+          "added_bonds": 0,
+          "atoms_and_exact_nm_unchanged": true,
+          "external_bonds_unchanged": true,
+          "inherited_bonds_preserved": true,
+          "number": 1,
+          "passed": true,
+          "returned": true
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "raw_output_atom_records": 6205,
+      "raw_output_duplicate_identities": [],
+      "recoveries": [
+        {
+          "added_bond_identities": [],
+          "added_bonds": 0,
+          "atoms_and_exact_nm_unchanged": true,
+          "external_bonds_unchanged": true,
+          "inherited_bonds_preserved": true,
+          "number": 1,
+          "passed": true,
+          "returned": true
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "raw_output_atom_records": 4117,
+      "raw_output_duplicate_identities": [],
+      "recoveries": []
+    },
+    {
+      "index": 11,
+      "raw_output_atom_records": 4117,
+      "raw_output_duplicate_identities": [],
+      "recoveries": [
+        {
+          "added_bond_identities": [
+            [
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "H1"
+              ]
+            ],
+            [
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "O5"
+              ]
+            ],
+            [
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "H",
+                "232",
+                "",
+                "UYB",
+                "C2"
+              ]
+            ],
+            [
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "H1"
+              ]
+            ],
+            [
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "O5"
+              ]
+            ],
+            [
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "C1"
+              ],
+              [
+                "K",
+                "242",
+                "",
+                "UYB",
+                "C2"
+              ]
+            ]
+          ],
+          "added_bonds": 6,
+          "atoms_and_exact_nm_unchanged": true,
+          "external_bonds_unchanged": true,
+          "inherited_bonds_preserved": true,
+          "number": 1,
+          "passed": true,
+          "returned": true
+        }
+      ]
+    }
+  ],
+  "schema": "dvbfixer.glycam-fallback-audit.v1",
+  "summary": {
+    "blockers": [],
+    "completed_cases": 12,
+    "declared_cases": 12,
+    "exact_replays": 12,
+    "matched_repair_states": 12,
+    "qualification_passed": true,
+    "recovery_and_unique_output_passed": true,
+    "retained_cases": 12
+  }
+}

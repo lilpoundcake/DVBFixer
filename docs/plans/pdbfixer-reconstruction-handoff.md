@@ -54,6 +54,21 @@ changed-candidate qualification remains a separate frozen 12-case execution.
 See [the fallback contract](glycam-hydrogen-fallback.md). Original O–H cohort
 failures, frozen sources and qualification status remain immutable.
 
+**Fallback candidate `d735083` outcome:** its separately frozen 12-case cohort
+completed 12/12, with exact replay of all twelve postflight states and unique raw
+PDB identities/valid sidecars. The intended case 11 restores only six UYB
+C1–H1/O5/C2 links; every recovery preserves all atoms/exact nm positions and
+inherited external links. Other fallbacks add zero links. Native CHARMM matching
+still fails before forcefield-free fallback; do not relabel this as native
+CHARMM glycan qualification. Original 11/12 evidence remains unchanged.
+See [bounded fallback results](../research/glycam-hydrogen-fallback.md).
+Final fallback validation is **3,202 fast tests passed**, three optional skips
+and 33 slow deselections; focused112, helper/observer17, Ruff, strict mypy,
+generated specs and agent maps pass. Independent offline audit is byte-identical.
+Original source/runtime/fixture hashes remain bound to the frozen new plan, and
+the old O–H cohort remains 11/12. No main merge, release, native CHARMM glycan
+qualification or THR2 HB remedy follows from this result.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
