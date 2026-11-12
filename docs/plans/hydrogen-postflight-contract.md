@@ -185,3 +185,9 @@ Near-boundary PDB quantization remains a separate limitation.
 Implementation stays on `fix/hydrogen-postflight-contract`. Merge/release remains
 a user decision after review of qualification and complete validation, not an
 automatic consequence of the research authorization.
+
+## Real-input follow-up
+
+The next bounded stage is the [prospective real-input protocol](oh-native-qualification.md):
+six tracked structures, two FF requests each, exact matched saved-H replay,
+explicit actual-route coverage and retained failures. This is not a main merge.
