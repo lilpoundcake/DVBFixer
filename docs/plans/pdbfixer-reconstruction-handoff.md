@@ -69,6 +69,17 @@ Original source/runtime/fixture hashes remain bound to the frozen new plan, and
 the old O–H cohort remains 11/12. No main merge, release, native CHARMM glycan
 qualification or THR2 HB remedy follows from this result.
 
+**Renewed autonomous research continuation:** return to THR2 on
+`research/thr2-initializer-frame-controls`, without changing production or
+merging either fix branch. The separately frozen
+[frame-control protocol](thr2-initializer-frame-controls.md) enrolls all three
+saved RNG streams × 24 proper signed-permutation rotations × two translations,
+with fixed-lab, covariant-offset and zero-offset algebra arms for all 315 H.
+The 56 graph-selected single-H carbon centers per source are secondary controls.
+No Context, optimizer, new native H call, new random stream or production
+initializer is admitted. Fixed-draw pathwise covariance is distinct from
+distribution invariance; finite frame counts are not inversion probabilities.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
