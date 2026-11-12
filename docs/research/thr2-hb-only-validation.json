@@ -1,0 +1,68 @@
+{
+  "agent_maps_passed": true,
+  "all_historical_bridge_repair_counts_zero": true,
+  "branch": "research/thr2-hb-only-initializer",
+  "combined_frame_and_mask_tests_passed": 11,
+  "full_fast_suite": {
+    "failed": 0,
+    "optional_skips": 3,
+    "passed": 3213,
+    "slow_deselected": 33
+  },
+  "generated_cli_gui_specs_passed": true,
+  "independent_offline_audit_byte_identical": true,
+  "limits": "One poor-heavy context, six initial proposals/two numerical modes. HB-only coordinate intervention locally prevents the unseeded R-to-S Cbeta branch under unchanged native stopping; all H-only returns remain nonconverged by the measured native criterion. No broad initializer/protonation/accuracy or production qualification.",
+  "main_merged": false,
+  "native_attempts_repeated": 0,
+  "native_forcefield_or_restraint_parameters_changed": false,
+  "native_h_gradient_criterion_passes": 0,
+  "native_h_returns": 12,
+  "new_mask_transport_tests_passed": 6,
+  "new_native_h_sampling": false,
+  "original_ser_assertions_changed": false,
+  "physical_audit_summary": {
+    "accounting_and_identity_passed": true,
+    "callbacks": 2174,
+    "exact_reference_h_controls": 3,
+    "maximum_mobile_gradient_readback_error_kj_mol_nm": 0.0,
+    "maximum_objective_readback_error_kj_mol": 0.0,
+    "native_phases": 36,
+    "negative_alpha_nodes": 0,
+    "paths": 12,
+    "statuses": {
+      "completed": 12
+    },
+    "terminal_position_mismatches": 0
+  },
+  "production_changed": false,
+  "prospective_checkpoint": "e822dbc",
+  "research_callbacks": 2174,
+  "research_native_minimizations": 36,
+  "research_paths": 12,
+  "retained_evidence": {
+    "docs/research/thr2-hb-only-evidence.json": "1485b3c6dc1af74108b769dec9db7987b45b745d6ce356b0100180d01cfb9424",
+    "docs/research/thr2-hb-only-plan.json": "576a5e0ed162a308d8b91e8d31fbc3a50b6c06e3958b21f17c403f4fefa74d31",
+    "tmp/pdbfixer-research/thr2-hb-only-audit-01.log": "c14505add64022ff6dc838f1c067cdce2c3b2c3500504db9e5d501f453d6cdfd",
+    "tmp/pdbfixer-research/thr2-hb-only-audit-02.json": "1485b3c6dc1af74108b769dec9db7987b45b745d6ce356b0100180d01cfb9424",
+    "tmp/pdbfixer-research/thr2-hb-only-docs-quality.json": "ca8542f0338502e11fce0c063c07a1069ec8be8910967554c976f5e2f4e51428",
+    "tmp/pdbfixer-research/thr2-hb-only-fast-01.log": "0837cf1b5d39c233c2a9306206ed00b7ac1c2ca9fd981f040745a7678ae97f02",
+    "tmp/pdbfixer-research/thr2-hb-only-fast-01.xml": "f8fbef6eeaeb58b8ebc7fdd9be177eec05baf73e57c51ddc8ba280cca0b27d8f",
+    "tmp/pdbfixer-research/thr2-hb-only-run-01.log": "e3bf84ef43d050346bbe23925f4fb2bf6d87ca369150fb969a29808ecab368b7",
+    "tmp/pdbfixer-research/thr2-hb-only-run-01/evidence.json": "cec31a151d30037bfbd6ed171c652b16d1a610c1b12bb98f54766c14c1a947ad"
+  },
+  "ruff_passed": true,
+  "schema": "dvbfixer.thr2-hb-only-validation.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_hb_only.py": "94d482e72cdfd26f1b36168337627ac88c8c0695399f6544372c029787ffed3c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_native_capture.py": "e67c833c07a7dd8302670e2eb788b77bd1fef2b9679cc974305cb96ebf7e7687",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/qualify_hydrogen_postflight.py": "7846619537c179bcc5984509576729e04b185d51fb0c456c31c6d6c0d320c642",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hb_only.py": "f0f1dcdf11245e5132692c35a88bbf941df5636d5f0f3d5fd5dce969b148bd19",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hswap.py": "69b32a40776e3727643b02ac592708410c7cf1383de2eb12fed1800afe06bd35",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_initializer_frames.py": "bb423594e9ac12f15c0a1ac94331d10ccfad5ef131feb4181bce16a2e6a6475b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/src/dvbfixer/ffutils/variants.py": "5eccaf1aa6d8d056de85250f74ba8ddfa4128832d01c000ac65d964e41c53039",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_thr2_hb_only.py": "02ca887bba81fb2d509f4e8680ffcc6db9aeb450584c584cab3c4126987f3eb6"
+  },
+  "strict_target_mypy_passed": true,
+  "whole_gradient_criterion_passes": 24,
+  "whole_returns": 24
+}

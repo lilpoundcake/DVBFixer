@@ -115,6 +115,28 @@ have a prospectively fixed half-float32-ULP bound and exact copied-coordinate
 checks. Original Reference H endpoints remain exact controls. All outcomes and
 partial failures must be retained; no native intervention has executed yet.
 
+**HB-only stage completed, frozen at `e822dbc`:** all twelve paths/36 native
+phases completed once. Unchanged unseeded gives final Cβ S in both modes;
+HB-only-unperturbed gives R in both, while both seeded sources remain R in both
+arms. All 2,174 callbacks match independent physical mobile gradients/objectives
+exactly; zero negative Cα nodes or last-callback/return mismatches. Three old
+Reference H controls repeat exactly, all phase Systems/identity/masks/continuity
+match, and the exact historical H bridge makes zero repairs in all twelve.
+All H-only returns fail the native gradient criterion at the unchanged 50-step
+budget; all 24 whole returns pass their criterion. Do not erase that stopping
+limitation, claim global convergence or promote global zero noise. See
+[the full causal result and production boundary](../research/thr2-hb-only-initializer.md).
+This is one poor-heavy context/six proposals/two numerical modes, not broad
+qualification or recovery of the original lost run. A production H-initialization
+guard is a new behavior change requiring separate approval and qualification;
+no such integrated capability or main merge is authorized here.
+HB-only validation: **3,213 fast tests passed**, three optional skips and 33 slow
+deselections; six new mask/transport tests (eleven combined), Ruff, strict mypy,
+generated/map checks and byte-identical independent offline audit pass. No
+production source, native FF/restraint parameters or original SER assertions
+changed. Preserve the H-only 0/12 gradient-test passes alongside the whole-stage
+24/24 passes; stopping policy and local mechanism are not global qualification.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
