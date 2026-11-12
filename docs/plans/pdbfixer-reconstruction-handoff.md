@@ -2,6 +2,14 @@
 
 ## Authorization and baseline
 
+**O–H implementation authorization:** user approved a separate implementation
+and qualification branch after `347efe6`. Work continues on
+`fix/hydrogen-postflight-contract` under the
+[frozen postflight proposal](hydrogen-postflight-contract.md). Native forces,
+minimizer settings and existing regression assertions must remain unchanged.
+This is not authorization to merge/release without qualification or to activate
+the separate empirical-library/reconstruction research routes.
+
 **2026-11-12 continuation:** the user approved a separate bounded original-input
 1CRN/THR2 native capture and instructed autonomous continuation until genuine
 input is needed. The prospectively frozen three-run protocol and separate
