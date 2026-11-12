@@ -1,0 +1,840 @@
+{
+  "cases": [
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "original-thr2",
+      "label": "unseeded",
+      "requested_ff": "not-recorded",
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "original-thr2",
+      "label": "seed-1",
+      "requested_ff": "not-recorded",
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": "not-recorded",
+          "forcefield_xmls": "not-recorded",
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "original-thr2",
+      "label": "seed-2",
+      "requested_ff": "not-recorded",
+      "slots": [
+        {
+          "bonds": "call-1-topology.json",
+          "h_call": 1,
+          "prefix": "call-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "requested_ff": "amber",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "requested_ff": "amber",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04",
+      "h_calls": [
+        {
+          "error": "No template found for residue 316 (GLU).  The set of heavy atoms matches CGLU, but the residue has 1 H atom too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "requested_ff": "amber",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "requested_ff": "amber+glycam",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08",
+      "h_calls": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to CTRP, but is missing 10 H atoms and 1 N atom and has 6 O atoms too many.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber19/protein.ff19SB.xml",
+            "amber19/tip3p.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "requested_ff": "amber",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09",
+      "h_calls": [
+        {
+          "error": "No template found for residue 382 (DAN).  The set of atoms is similar to ANE5AC, but is missing 18 H atoms and 1 O atom.  Is the chain terminated in a way that is unsupported by the force field?  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10",
+      "h_calls": [
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "amber14-all.xml",
+            "amber14/GLYCAM_06j-1.xml",
+            "amber14/tip3pfb.xml"
+          ],
+          "number": 1,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "requested_ff": "amber+glycam",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 1,
+          "prefix": "native-1-before"
+        }
+      ]
+    },
+    {
+      "folder": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11",
+      "h_calls": [
+        {
+          "error": "No template found for residue 71 (NLN).  The set of heavy atoms matches ASN, but the residue is missing 1 H atom.  You may be able to add it with Modeller.addHydrogens().  For more information, see https://github.com/openmm/openmm/wiki/Frequently-Asked-Questions#template",
+          "error_type": "ValueError",
+          "forcefield_provided": true,
+          "forcefield_xmls": [
+            "charmm36.xml",
+            "charmm36/water.xml"
+          ],
+          "number": 1,
+          "returned": false
+        },
+        {
+          "error": null,
+          "error_type": null,
+          "forcefield_provided": false,
+          "forcefield_xmls": null,
+          "number": 2,
+          "returned": true
+        }
+      ],
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "requested_ff": "charmm",
+      "slots": [
+        {
+          "bonds": "native-1-bonds.json",
+          "h_call": 2,
+          "prefix": "native-1-before"
+        }
+      ]
+    }
+  ],
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/hydrogen-initialization-guard.md": "15e89f0e2a6c6fcf63ec2cada46c38d94c726b13fb7182d017ee495f4f20168d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/capture.json": "b6c01349c96cb50804cd141085e399d0c278afa1fcc97645d2361ecfb13626f7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/command.json": "ebcaac8394331f76958bff6387ade7ea9f90adb53f2575cc4527c71c48c3b650",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/h-1-after.json.gz": "11f029115ffda4920034cfcf5e982f995bd3a8b3248d08445d297f65420cbd20",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/h-1-before.json.gz": "3a8a6fa3670f91c26cbe8bf0a3881b65bef639cfa68509b094eda0ae322ca5d3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/input.pdb": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-after-atoms.json.gz": "11f029115ffda4920034cfcf5e982f995bd3a8b3248d08445d297f65420cbd20",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-after-state.xml": "54cc8549b194bb9e111a62a087c9b2f2166db7ff423196287e974bd58d3e89d6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-after-system.xml": "1436d58a5d30ba6347b7e80374eafd253a7fc46a59e93530485d18e1ea4c2b29",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-after.chk": "02137dc231691ea3404b493705d6265a28a9d5b8a465100cc67bdabe689bbd0a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-before-atoms.json.gz": "d00da6fcba5421ec4f52cad15624e2f58c6e5cd1c5c12f5e2cba760978789535",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-before-state.xml": "3659f1490d6746af4fb785562562db46254fa2371ca67d5f94d4cb86348adff0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-before-system.xml": "1436d58a5d30ba6347b7e80374eafd253a7fc46a59e93530485d18e1ea4c2b29",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-before.chk": "cc41eada6313f977eb4154a5d7ce011161d59cf11cebd1f12d18487945401db7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/native-1-bonds.json": "10836d29a6347465b0cdf3ad5b3f30b48322f9d1f40c7fe6ac108f5c131aaba3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/prepare.log": "f0728dee56ae080dfb3e7b888f3951c6c180bb3e0555d1815387a98ce95eafb5",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/prepared.dat": "22d5f12e13632b51d4cead64aebfdc117335fe1f2d928a6a0ae4eb2c7e3fb223",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/prepared.pdb": "1dafe19d41117a5babc7e3c5ae14cd29466d742ba29dce2f6cf3baf7eb02c2a1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/repair-1-after.json.gz": "8f27d6e45fa5a72ad0411de85039c60403bd2485687b0b2bd1c5f62a88f0be1b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-00/repair-1-before.json.gz": "11f029115ffda4920034cfcf5e982f995bd3a8b3248d08445d297f65420cbd20",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/capture.json": "f1707b096a943cca3993efab140b9fb7ab59a39982bb7471d4bc55798935e964",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/command.json": "ccb2308b98869831879332fd6963c7b422795df24dbe2151b6082be84feacac7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/h-1-after.json.gz": "8654ac2c2c580391e637408dcc791f6d017a6ba884c16e733a53b3206ec36b39",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/h-1-before.json.gz": "3a8a6fa3670f91c26cbe8bf0a3881b65bef639cfa68509b094eda0ae322ca5d3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/input.pdb": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-after-atoms.json.gz": "8654ac2c2c580391e637408dcc791f6d017a6ba884c16e733a53b3206ec36b39",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-after-state.xml": "ed372f00cdd9399a259bec810a0f025cc3da4211eae08fe5dbf87ce22895f64a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-after-system.xml": "f7a6ebfb01afe34bca008e3233f330aac47eb581c6bb7c8441799602670b0a31",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-after.chk": "9150e4d2c1c497d5438c03154db3ce53f3405adf887417494daafd2830eb937e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-before-atoms.json.gz": "d00da6fcba5421ec4f52cad15624e2f58c6e5cd1c5c12f5e2cba760978789535",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-before-state.xml": "3659f1490d6746af4fb785562562db46254fa2371ca67d5f94d4cb86348adff0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-before-system.xml": "f7a6ebfb01afe34bca008e3233f330aac47eb581c6bb7c8441799602670b0a31",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-before.chk": "ac32a6c4ae17223fe062b678632e157855df2e533afe72283c0b4b29ab46c4e0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/native-1-bonds.json": "10836d29a6347465b0cdf3ad5b3f30b48322f9d1f40c7fe6ac108f5c131aaba3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/prepare.log": "843d11bcb159d63dff2db6eec7c4ddfbfc2ab56e48f696ca76d50bf1e3c04dfa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/prepared.dat": "22d5f12e13632b51d4cead64aebfdc117335fe1f2d928a6a0ae4eb2c7e3fb223",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/prepared.pdb": "c170f7ee864eaf275965826536e7e26c1245ffbb6c065babbfdcee024bfaae0d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/repair-1-after.json.gz": "25839a1b86bf5a1f079069b060a9bfee989cd629c32014eb1c86ea586a3f0efa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-01/repair-1-before.json.gz": "8654ac2c2c580391e637408dcc791f6d017a6ba884c16e733a53b3206ec36b39",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/capture.json": "0c1e9eab847c5550eb4230368d0bfeb3570a3f504896fc3b620b72aaac9b7b5a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/command.json": "aee7c68b57b0c4cd40a04b4118972578de3844d314ae34c07ec40cc32b37594f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/h-1-after.json.gz": "b7988d24b01a1277d38c4f413e23c0746f276ce9d1f0b32032980e785b0c04af",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/h-1-before.json.gz": "6566cdc973008d64ffa61e82b582a132e69af327a34ef662a9333000453c5e5c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/input.pdb": "9eba9510d5129e63f55c9c1a1ff76ca5759250a118994f209cad4177271ae7cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-after-atoms.json.gz": "b7988d24b01a1277d38c4f413e23c0746f276ce9d1f0b32032980e785b0c04af",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-after-state.xml": "c027a622ad1076efeb9d20535a0eac5bc776af8b1285c8038142727e0ac35ce9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-after-system.xml": "145dc5067926330c3bc7c8109bc220dc1ff729bac6e2c3db1c6dcb42ab1528dc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-after.chk": "ac3994a347cf61f8d5070e066e3142689efe9792a334a299c0e96cb111459804",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-before-atoms.json.gz": "d3117314d3d2ae72fe667ae955b865a31349c983766fe964a7c90b10eaa5393d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-before-state.xml": "cf2e7b47f56b03ad2b3971c2363d52583f575101831b943917c0a37e4ebdd8ad",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-before-system.xml": "145dc5067926330c3bc7c8109bc220dc1ff729bac6e2c3db1c6dcb42ab1528dc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-before.chk": "caa606ee394d4fe27f9fbb8caba55141327671b82782161d97bfbe80a1a0f0a6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/native-1-bonds.json": "21dd3b6e83eb2d0e200907edba7d299ac53d59207b5bc86445ba8bf38805b29f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/prepare.log": "de9e4021871988b05eb67ce5de8a459c3a2d595bb47b9daead3219c992664839",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/prepared.dat": "6258994b0dc39a6280404e1f684d154e139848b1ec69f3a48cbff79aab6090c1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/prepared.pdb": "05d43fc5e529686082f9365e476564530096ca4f9f52045d688452195df93aae",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/repair-1-after.json.gz": "08689a0de2adf32f91f0141444fd2e67dcfafe9923dfe908a2de3522dad3d260",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-02/repair-1-before.json.gz": "b7988d24b01a1277d38c4f413e23c0746f276ce9d1f0b32032980e785b0c04af",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/capture.json": "846a33490e62ceefd68807a10853edfa8c2edc1ea266fada6c1650c79cb6c300",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/command.json": "8e49a3353f39d0dece61c60b2a12505d0e82c7cfceac43d8160cc4db5ae3736c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/h-1-after.json.gz": "1844a97478e58307fa95fbb32cce6dabbd1f4b71422056d83a12b18b80834ec9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/h-1-before.json.gz": "6566cdc973008d64ffa61e82b582a132e69af327a34ef662a9333000453c5e5c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/input.pdb": "9eba9510d5129e63f55c9c1a1ff76ca5759250a118994f209cad4177271ae7cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-after-atoms.json.gz": "1844a97478e58307fa95fbb32cce6dabbd1f4b71422056d83a12b18b80834ec9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-after-state.xml": "b0ddad837e36f27153142cacbbb570418be96ecf31eb302e2a3c5a04295d9d70",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-after-system.xml": "4e4fc6a4c8d8f59ece3a896f2f84bdf98b5f2b3a22b00b87c4cc1dc10530fba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-after.chk": "030f5a8c1adaff113d4cf12598346eb333c05e6dd0c7959d9d5054d341b47b47",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-before-atoms.json.gz": "d3117314d3d2ae72fe667ae955b865a31349c983766fe964a7c90b10eaa5393d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-before-state.xml": "cf2e7b47f56b03ad2b3971c2363d52583f575101831b943917c0a37e4ebdd8ad",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-before-system.xml": "4e4fc6a4c8d8f59ece3a896f2f84bdf98b5f2b3a22b00b87c4cc1dc10530fba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-before.chk": "2850ca61dbc9f8c09333f076e524f73095f512c71c952aec8638079c6cea5f66",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/native-1-bonds.json": "21dd3b6e83eb2d0e200907edba7d299ac53d59207b5bc86445ba8bf38805b29f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/prepare.log": "80095dcf8999312cf6ae1c45697bf0bfb2b61d67689b16055e64ab777257d2d6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/prepared.dat": "6258994b0dc39a6280404e1f684d154e139848b1ec69f3a48cbff79aab6090c1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/prepared.pdb": "cfbb9d5c587398ec4baa7c54198182b1a3203e2d292075193237a888b3566ee7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/repair-1-after.json.gz": "0f6c7b953903c1bb954531f10a653648a6433a7befe1d861a35c1bdde18ba729",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-03/repair-1-before.json.gz": "1844a97478e58307fa95fbb32cce6dabbd1f4b71422056d83a12b18b80834ec9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/capture.json": "00596a732c1b247546f59eb22442b9cf333576f72f4c881adb48c00cd2304df7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/command.json": "163bb40060ea21158c958fecc0a891f2a6e0e3cd47f7ce9acd325b1422dbf12f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/h-1-after.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/h-1-before.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/h-2-after.json.gz": "62806429f454651ab57b438c427d583b3c08fa9d291506ef90ee80585ff56f03",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/h-2-before.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/input.pdb": "96c65d331eaf40accb8ab1fc2d30a3a4d24db07934cd971574042dbd450571e2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-after-atoms.json.gz": "62806429f454651ab57b438c427d583b3c08fa9d291506ef90ee80585ff56f03",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-after-state.xml": "ed26b96ea3bb1025fd47c7d8594ee224257e48a9458137d86da5543f63c9f9f6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-after-system.xml": "07750122d429cb4044341569891327b75a6c091d98725fdd25df0ea8e2f7c43b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-after.chk": "bcc369de2cfe654e1a89fc98656494b25cd25ca1026f8f54cdb72e23c99b09f0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-before-atoms.json.gz": "9a3104167819721a98c1a136d076b1f4d81f2583cb2c02a54c68cf83ec6c8eab",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-before-state.xml": "c2fa510588fc7d4ae6db62c7389c4b9ccc3c5246e3ae3b3d30f79c6c806b9cd4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-before-system.xml": "07750122d429cb4044341569891327b75a6c091d98725fdd25df0ea8e2f7c43b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-before.chk": "8cfa145d2411b2d507d63b8079090860af13de1676b7a8c8b1403c80d9c9cca1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/native-1-bonds.json": "66883f9c30b8eb988db7247d5f722be033ce44183bece47ebcbdec2ffc3a6b51",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/prepare.log": "f86dd7e7bdc10c4d35b609a4217e3eda5c0d9d82110a9e3470c5630e44cca1e9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/prepared.dat": "80d2f840658d3269c0842d43e11c16ad5318f3976f2e4083cc96085950a72344",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/prepared.pdb": "c0663dc4f56279e9dd1f03feca5347115ee15272e80acc0874656c34d84b6b06",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/recovery-1-after.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/recovery-1-before.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/recovery.json": "0e81278fc41fb4730a6b2893a4b6f727a21b3e1f25a6683dfb615c2fa01d6247",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/repair-1-after.json.gz": "3ebf73e4c23343e922b9e3001d6198311eaa1e1a4b9ca7cbbf9639ee76a6338b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-04/repair-1-before.json.gz": "62806429f454651ab57b438c427d583b3c08fa9d291506ef90ee80585ff56f03",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/capture.json": "14365fe172aa58d89ce6ca02f6fa3a9b80f799a62f43b09a5d57c31e236227cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/command.json": "ae702997261247db82df553f762b21867d54c3a67c65899fe40b4284d136fba1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/h-1-after.json.gz": "173d013c1d975505b5de0148a0dd540a93eb249b7cde53d098484c4978ce5c36",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/h-1-before.json.gz": "e75f2df02aaa707b782522f9e36acd3cfb7ed74b8e4bc10eaf5231dd1ef70800",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/input.pdb": "96c65d331eaf40accb8ab1fc2d30a3a4d24db07934cd971574042dbd450571e2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-after-atoms.json.gz": "173d013c1d975505b5de0148a0dd540a93eb249b7cde53d098484c4978ce5c36",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-after-state.xml": "336d4378b0422501248f8bd7884a0a7a0dfc2aeb203d376d94ca0cb7d0bb209a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-after-system.xml": "4a847e75c15e72661f8c7cc3341a63fe7d78d8acf06f245b601c1d7176ba8ea9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-after.chk": "ad497b6a003e9ef730cbc5c61b5b5cfdc3c9508740b556bb30666aaa98f3ae21",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-before-atoms.json.gz": "9a3104167819721a98c1a136d076b1f4d81f2583cb2c02a54c68cf83ec6c8eab",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-before-state.xml": "c2fa510588fc7d4ae6db62c7389c4b9ccc3c5246e3ae3b3d30f79c6c806b9cd4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-before-system.xml": "4a847e75c15e72661f8c7cc3341a63fe7d78d8acf06f245b601c1d7176ba8ea9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-before.chk": "86418ae90778cd67e7abfd370fdd0709ef480f9d701f9493d4de205eae94f10a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/native-1-bonds.json": "66883f9c30b8eb988db7247d5f722be033ce44183bece47ebcbdec2ffc3a6b51",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/prepare.log": "287202e2dc7db32e6506b31061ea8a38dca5b5be81b4d4ef71c45b73651b0fe1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/prepared.dat": "e4378edeb33e8d6d3ad1d5b46a5372cc3e6d1be7d8a963317838b52957498552",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/prepared.pdb": "36eae7e6ca7986c81a7285aedd6b070f585c0558ced439307ee5ff5c9a28f30a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/repair-1-after.json.gz": "4e951b96b75ef26926579d9deeb85f2e241b967a56958839f53b467eca33dafd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-05/repair-1-before.json.gz": "173d013c1d975505b5de0148a0dd540a93eb249b7cde53d098484c4978ce5c36",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/capture.json": "762da9079984cf3067da0b541b63345495b36f94e31bb73c459e8a3d8c42ca8c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/command.json": "13bd86a886ea679db0187ba1a73eb38d9fe3f073845609f1016662b3a2002d67",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/h-1-after.json.gz": "5994d5438b5dcc18e2e24daa0f0c30822b5b83aa7381fdc0ce9e997a644fed44",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/h-1-before.json.gz": "66aba7e68916f89e95adb9ceefec62233301dbea07716e25e0b7df5287c29ec7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/input.pdb": "1d11cad86e2ae1f0fc8e07963c4fc6c9c63ee9f7b66b51772a24900da0306be0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-after-atoms.json.gz": "5994d5438b5dcc18e2e24daa0f0c30822b5b83aa7381fdc0ce9e997a644fed44",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-after-state.xml": "5846e14ab044e79cd248cbfcb6b2eeedb6e179a1dd15ce52d2c11c771795d87c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-after-system.xml": "43d2888b321e64e6f6890f47fb973e46b2b5114fdb0cf00ed0c36c45cc773527",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-after.chk": "f67ff9687b7e304800d11b13d72c06d214a54485ffcaa502fcb4e4bc09a61f0b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-before-atoms.json.gz": "21ee53b8b4047ee46fc2d967d335fa5c2d7ed56227093fdd6e58ec7410cba79f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-before-state.xml": "033b5108d5cddf89fa1bccd274effe5811f3f3cf40872ad9595eeb2bcdd95acc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-before-system.xml": "43d2888b321e64e6f6890f47fb973e46b2b5114fdb0cf00ed0c36c45cc773527",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-before.chk": "f4d57c527a1594bb32a9a03488da61bf21961255f5ae462cefbf0c99ce246e8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/native-1-bonds.json": "5938ec2cec57b3d381571b7ca34843357a805df6610dfbec8a3d6d120ae5da52",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/prepare.log": "0181bd7cbe5aaba7bfffa0b7a8a9c5e606a28b82bcbc526e861a8d817d69bf25",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/prepared.dat": "d0a93522c9cb1d367404fbde85f791eeaad6b130f43d0e5a2e9da856fa287c42",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/prepared.pdb": "44afb48c5631240828e338efcebe00a85034a1828ff725e43492aeef217b60e3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/repair-1-after.json.gz": "90ee9227033363bce7634bad1b28569c9077e0d3613348ad8e22f63d3aacd0e2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-06/repair-1-before.json.gz": "5994d5438b5dcc18e2e24daa0f0c30822b5b83aa7381fdc0ce9e997a644fed44",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/capture.json": "8482b485c8f1a9b37b0bb248a7e8ebec56225f663cf0fd9e0c593f3e221ec7ea",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/command.json": "59f79b3055cbd5d93879ef3fb427a832055ed2be4991e260c923d863f8c4ab8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/h-1-after.json.gz": "4873f5c5677db34bdec4cae5c888c86cd2f4262908bc498484e60bf967b95553",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/h-1-before.json.gz": "66aba7e68916f89e95adb9ceefec62233301dbea07716e25e0b7df5287c29ec7",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/input.pdb": "1d11cad86e2ae1f0fc8e07963c4fc6c9c63ee9f7b66b51772a24900da0306be0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-after-atoms.json.gz": "4873f5c5677db34bdec4cae5c888c86cd2f4262908bc498484e60bf967b95553",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-after-state.xml": "640d72eda638f053de748fd9cc2aabd14e99d27330dd8a002c6346d2c8cc347c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-after-system.xml": "43d2888b321e64e6f6890f47fb973e46b2b5114fdb0cf00ed0c36c45cc773527",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-after.chk": "ffedcdf7d80291bef2c0e7eec7352ae4ae669c4f3108a05a6e12eabfaee9ca45",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-before-atoms.json.gz": "21ee53b8b4047ee46fc2d967d335fa5c2d7ed56227093fdd6e58ec7410cba79f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-before-state.xml": "033b5108d5cddf89fa1bccd274effe5811f3f3cf40872ad9595eeb2bcdd95acc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-before-system.xml": "43d2888b321e64e6f6890f47fb973e46b2b5114fdb0cf00ed0c36c45cc773527",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-before.chk": "f4d57c527a1594bb32a9a03488da61bf21961255f5ae462cefbf0c99ce246e8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/native-1-bonds.json": "5938ec2cec57b3d381571b7ca34843357a805df6610dfbec8a3d6d120ae5da52",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/prepare.log": "da63a64b05852f709a8542f4be02a47e62cb7d2acb31695a93461d5bf56bd21f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/prepared.dat": "d0a93522c9cb1d367404fbde85f791eeaad6b130f43d0e5a2e9da856fa287c42",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/prepared.pdb": "baf1fefcd9d25b7fa9f0f8caea954a2d54aceee23d9ea23ab01cbc6890623a2a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/repair-1-after.json.gz": "95b903d31b217b22cbb0b8f465af0c1c51490732e82810f15cb9e35e0946f780",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-07/repair-1-before.json.gz": "4873f5c5677db34bdec4cae5c888c86cd2f4262908bc498484e60bf967b95553",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/capture.json": "12f1f04c7d459b77aab62ae665166bd8989c8fc74fe45e0bd86b3f9a3ea27734",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/command.json": "bcca770eb5c983cff1b6caa3658aed2ca64f660340396c2c2eba0943b511e77d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/h-1-after.json.gz": "37d65d855f850b8125ee0ee3761119eef83ba783b53e7e446a24d2b2d9c7ab92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/h-1-before.json.gz": "37d65d855f850b8125ee0ee3761119eef83ba783b53e7e446a24d2b2d9c7ab92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/h-2-after.json.gz": "49665f166761668820ccd936d556eaa165ec0ec5b154d0aab0569c5de2d9483f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/h-2-before.json.gz": "37d65d855f850b8125ee0ee3761119eef83ba783b53e7e446a24d2b2d9c7ab92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/input.pdb": "a56b1a952b58e01cfcdaa15bd8e98504498f91249751bb4b422fc10b3069eb06",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-after-atoms.json.gz": "49665f166761668820ccd936d556eaa165ec0ec5b154d0aab0569c5de2d9483f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-after-state.xml": "377a426271b88d0e20533f126fbc9c28accbe47a9b161e4c9246c898857f51ed",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-after-system.xml": "d70f3e48bf6fc67655b0905bd368dccdd67e4b1475a8ec17883a90b65a0d52cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-after.chk": "7c58949def653a22674efb536147fcbd6beff7a568809d3a6df53f7a835e832a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-before-atoms.json.gz": "9990c11500a0e7117daeea85253ff383f6f5c9d53809fbc713b5eed8bd7dc749",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-before-state.xml": "0536744fd9cd9df9c65a967575999d0d0ca46838a60f078b91529daab6056a55",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-before-system.xml": "d70f3e48bf6fc67655b0905bd368dccdd67e4b1475a8ec17883a90b65a0d52cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-before.chk": "5bdeb3efff0fa409a91addfb17b19ed9e929a51f10c51e8e41eb4165b0771cce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/native-1-bonds.json": "448aec3a85b0f5e65c1ee24e146284c06d58fda1b6980447627de3126202eca1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/prepare.log": "8c1caf6cd0bea6dca8592bcec49f35aa8d9f793db7f791351e9d37d59d18ec16",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/prepared.dat": "213bf8ecb5f843e9df9c6b54385f94d1db9ab83ed1d0f5ab12c25a5668b94284",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/prepared.pdb": "03968c62549565f59c6fb14e42aef091465451fc79e29f6ed62b590e80ccd2cd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/recovery-1-after.json.gz": "37d65d855f850b8125ee0ee3761119eef83ba783b53e7e446a24d2b2d9c7ab92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/recovery-1-before.json.gz": "37d65d855f850b8125ee0ee3761119eef83ba783b53e7e446a24d2b2d9c7ab92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/recovery.json": "0e81278fc41fb4730a6b2893a4b6f727a21b3e1f25a6683dfb615c2fa01d6247",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/repair-1-after.json.gz": "610c774e1bb683f56ca84f0a212fadd5c045dbb57c4d7bb5e13c78e107fe1e19",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-08/repair-1-before.json.gz": "49665f166761668820ccd936d556eaa165ec0ec5b154d0aab0569c5de2d9483f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/capture.json": "175a79263182b5a66810eb87e029dc244aec53975bf25ff01203030023095117",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/command.json": "738c1b09a98ce71ca9b47f5955369be68b91f8b8a8ba7accd65a0b7b06216767",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/h-1-after.json.gz": "b139f12ea6c88bda5cf4588cc91904e296a62e1de5e5f3a0ab7eb15a8a1b7313",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/h-1-before.json.gz": "b139f12ea6c88bda5cf4588cc91904e296a62e1de5e5f3a0ab7eb15a8a1b7313",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/h-2-after.json.gz": "6ed13d4d3884673e62521ef6e23fdc336080ee4dcc98a5159611cf1431b4c1fd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/h-2-before.json.gz": "b139f12ea6c88bda5cf4588cc91904e296a62e1de5e5f3a0ab7eb15a8a1b7313",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/input.pdb": "a56b1a952b58e01cfcdaa15bd8e98504498f91249751bb4b422fc10b3069eb06",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-after-atoms.json.gz": "6ed13d4d3884673e62521ef6e23fdc336080ee4dcc98a5159611cf1431b4c1fd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-after-state.xml": "0fa6c839b782f10799345b89857990393002d7dda1001b12dd0dddb4e2e95b85",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-after-system.xml": "d70f3e48bf6fc67655b0905bd368dccdd67e4b1475a8ec17883a90b65a0d52cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-after.chk": "40d3e6402842b915f5577fa39918e2d0b4ad606330ff2b8263ba4ee5c4f7305b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-before-atoms.json.gz": "5ce1c52648cb7a6b375af024c2020eacfcf4dd3fde2ea1d83c3c2312ce7c0b92",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-before-state.xml": "ad206fb0945057ba18c573068fd6dbf16ea45e2ab5baa278ef968834f4761040",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-before-system.xml": "d70f3e48bf6fc67655b0905bd368dccdd67e4b1475a8ec17883a90b65a0d52cc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-before.chk": "1b5e578c193635e153cc6a5ba3af01bbf1e3149eda406aa6e699c4ee22893ed4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/native-1-bonds.json": "448aec3a85b0f5e65c1ee24e146284c06d58fda1b6980447627de3126202eca1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/prepare.log": "2d5cc0ad5e2cfa0ad28422008c28456a2cdc8b425099bf28ffc4151f0dff4343",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/prepared.dat": "213bf8ecb5f843e9df9c6b54385f94d1db9ab83ed1d0f5ab12c25a5668b94284",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/prepared.pdb": "fe05e8230eaeabfd1ca9311cc74d0a0742becb54e97d7b332700799199e55560",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/recovery-1-after.json.gz": "b139f12ea6c88bda5cf4588cc91904e296a62e1de5e5f3a0ab7eb15a8a1b7313",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/recovery-1-before.json.gz": "b139f12ea6c88bda5cf4588cc91904e296a62e1de5e5f3a0ab7eb15a8a1b7313",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/recovery.json": "0e81278fc41fb4730a6b2893a4b6f727a21b3e1f25a6683dfb615c2fa01d6247",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/repair-1-after.json.gz": "02538bb6547064534e65efffa0221b12f488aa1752963830fd73f59fec558e9d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-09/repair-1-before.json.gz": "6ed13d4d3884673e62521ef6e23fdc336080ee4dcc98a5159611cf1431b4c1fd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/capture.json": "159d7c11a48584b89e66431d06f07b45dcf3f13bc53b306ee6c95d51883e4463",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/command.json": "8ebb7ec575d049d285c64c45d54bf0b6a46a86f6f36acbcc399eded3dfbbd1f5",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/h-1-after.json.gz": "98087e69f6c6896b3f587b6e744092cd3a9e1b81da43264707968ca5093b638f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/h-1-before.json.gz": "b9966ef43968d9698b7d096d07084f800f577b70ed79da27370e18ede2cbf0bd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/input.pdb": "7ddc65b707e9668b09531ffca8213c66f701203877a5024e5821a4661329e8e1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-after-atoms.json.gz": "98087e69f6c6896b3f587b6e744092cd3a9e1b81da43264707968ca5093b638f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-after-state.xml": "29173ceee70ebbdaa8719c776169f174d36f07c5b84751fe3d36e7b229f2eba6",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-after-system.xml": "23825f9635a335d97f1bfb96b24af67d685821b4ea902c7a579bd9fb7b45fc21",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-after.chk": "f7aa4969d61b2c3e6aaa190b480e727a1e450c865827994bc01560a20352b7e5",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-before-atoms.json.gz": "2888fc29607e35be43f4976b6fffc1711f9763ad50cac2191661eec100a53c98",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-before-state.xml": "b353dd8082b243820ae72867721b92a85bbbb6ff6eaf668aac3b4c8c27a7b293",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-before-system.xml": "23825f9635a335d97f1bfb96b24af67d685821b4ea902c7a579bd9fb7b45fc21",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-before.chk": "f683c13a0949334a156f1101996f4e4231ec968b90c5cda977017b08d7cdb2bf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/native-1-bonds.json": "dbceece157cb8fcb9088d5b7aecd0a12d7ab3c9ff58b440553a650ab13480419",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/prepare.log": "da655444b45b0ea95c1b689f7acc3461e6df7a7a3142be3e153e7237b9c58f70",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/prepared.dat": "38853fc297454835bb9dbf69843e98e68310c2de93f5aca98a6a8573260e5ceb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/prepared.pdb": "baeae25ea30470110f76c9b1ed2c1325718e896520fa78e1367946eb75dcfdb4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/repair-1-after.json.gz": "98087e69f6c6896b3f587b6e744092cd3a9e1b81da43264707968ca5093b638f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-10/repair-1-before.json.gz": "98087e69f6c6896b3f587b6e744092cd3a9e1b81da43264707968ca5093b638f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/capture.json": "73e8d679454a0ae3e4d8800388ed075600f1b90694dea434e5ca762c0f946e41",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/command.json": "549f230f5bc49b6e71a634087c794e42a66a0b4b21c99012f2f884fa60dff2ae",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/h-1-after.json.gz": "206bb7554d80434ab171cea2657f32fa7bca6b51a83fb74ee979e7af5543984f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/h-1-before.json.gz": "206bb7554d80434ab171cea2657f32fa7bca6b51a83fb74ee979e7af5543984f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/h-2-after.json.gz": "19942347dadcc01681562f8a9fc79d2fdeeffe1b98d40af45a6d592d3a2cd003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/h-2-before.json.gz": "8d910aa07913bd00667dffb1680d373290837d48d450fdb3aa68d0c03027970f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/input.pdb": "7ddc65b707e9668b09531ffca8213c66f701203877a5024e5821a4661329e8e1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-after-atoms.json.gz": "19942347dadcc01681562f8a9fc79d2fdeeffe1b98d40af45a6d592d3a2cd003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-after-state.xml": "c54c6392b780eadecbb40d4ab59fd889c905174ddf9c2a1166cdda70ebfbf621",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-after-system.xml": "680596dc478fa167a8fb358f6c9465dfa7004c4f0c44b86e6bb9f74f0f469279",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-after.chk": "4e057658ec778e25bcb85bf09fa32129f2d2142c73fdf14e692ed6b06b055341",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-before-atoms.json.gz": "9c6c957925eda4a160aae57cdb89c04dd442ee64a6b225a451b4585556d2d818",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-before-state.xml": "bb73d2ad5f4dbd5f7e60d2d8f89999422876737d17d0a6b503b30ab25210e30a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-before-system.xml": "680596dc478fa167a8fb358f6c9465dfa7004c4f0c44b86e6bb9f74f0f469279",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-before.chk": "38b72257840745b50b09d321d1c427344a30e3f6019412bb591660b537061bfd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/native-1-bonds.json": "070e3896319172a4f405ce25031fb600bcd3809d3ce956b4c2636d1ac96870c3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/prepare.log": "f266909fdbb9ab1eeb809d28d7d0c8c51ec41cd9a19158a2f302438d475c7b00",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/prepared.dat": "38853fc297454835bb9dbf69843e98e68310c2de93f5aca98a6a8573260e5ceb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/prepared.pdb": "0ab7844c0222872517b83409d8a97eb67cb433a833a948ddea6efd74928a6a59",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/recovery-1-after.json.gz": "8d910aa07913bd00667dffb1680d373290837d48d450fdb3aa68d0c03027970f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/recovery-1-before.json.gz": "206bb7554d80434ab171cea2657f32fa7bca6b51a83fb74ee979e7af5543984f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/recovery.json": "eb400f8996791b86e2a903a45af4b0f34e74816a61e4b23406e68003c34c34d9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/repair-1-after.json.gz": "19942347dadcc01681562f8a9fc79d2fdeeffe1b98d40af45a6d592d3a2cd003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/case-11/repair-1-before.json.gz": "19942347dadcc01681562f8a9fc79d2fdeeffe1b98d40af45a6d592d3a2cd003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/hydrogen-postflight-contract-01/glycam-fallback-01/native-run-01/evidence.json": "064e0704dcc2c464d1b51385fa8149b44d49def7d56b1c0da7bf8d6cf8e36b76",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/evidence.json": "6851f7cef8fde13f1b3718c79ae487d1b179f0ff4cb089677009e4881be073a8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-atoms.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-state.xml": "960b621caf1629aab6172d95e50d1617fe4580f2309ff5ee267beb6b58673739",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-after.chk": "699ac0433466820b24b85919ced5657d46b43f37f0d0157362f3dd9cc444e34c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-atoms.json.gz": "fe3c875ea234651d749b73baf226c91d03c4a0fbcd6490ad47f69900b78f6cb1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-state.xml": "15ef91eeb9d18b9ae643ace1bd85c5de29d92a70aea8f1ec04159ad897d0a873",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-before.chk": "e7849af41c1cf0070a5c335b2e6a19e0586bee0568188cfbd21a6708384868c4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-after.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-atoms.json.gz": "b547a7de2ecce706d67520f3cb6b25491d34bb9016e32164aac2b5a2e1a935de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-state.xml": "7ec134cd685a0e672a69a0e6b07be73856cbb5f4f956901051e4736301029135",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-before.chk": "6d846c6b95b896066a143b73493bf43fa5a2903ab72e71abb172512e07f4fbb8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-atoms.json.gz": "a7f7869af401b5ae799629b35cf68174718bb6ebe80463e0e8b7a5ed4f9f7b7f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-state.xml": "cadf0556568b20b653fa335eaf6fd40c170752485db28a4a1cbce1aa08a23d00",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-after.chk": "2199873fe4a5cecee15f79c873bfd7c638185c048ea01636d874fcf92350ea8f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-atoms.json.gz": "707335ede57e49823ee8cafdc7c6b9f59ecaddd38db3445c337dcae3786acfbb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-state.xml": "912c26e3f163f57fb3fc3fc7edf7f8fb8e30e6c32fdb4637dcbd774e7d8ab493",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-before.chk": "7f18954d96dc93412b05fd9929063c224fa21ad9f9f6f6dce7718c1825adbb54",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/capture.json": "a06750b934ace110c1deec419bbef793ebb20cdfb527452bb0c6fc7b3925b67c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-after.json.gz": "a1066b1cbe8ad855e8ee975c385d94cc98243a2c68bfc71323ff541d2bf6282f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/minimized.pdb": "eca68de50ac66dad6c5c7cb93aea91d65d81135b86630db5c991dacbd301ce9f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-1/run.log": "0a9f7afb4ded63b2e28a2561ad05f0503f4d3618fd1f4cf464a0670f177afcf1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-atoms.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-state.xml": "27a546bf473c8f99c1b7504366566fd0e2d554dd196658dc0a6fbcb44eaeadb3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-after.chk": "0e721da888eee10515d5d03ae05bacf77152d19fb49774a6ae25d7f53efe3e98",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-atoms.json.gz": "80a7d260f7727d7e431b065ef55d2f5309e81651d0394bb0e1c7c0c747cf2b01",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-state.xml": "e980dacd437758ec25e446a00b5b65d54e79252ba392f4a76584c6f9c356dea2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-before.chk": "be58cb4387269ec00efd116011068d643e536d35ee3e3756d215d4f68964d354",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-after.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-atoms.json.gz": "56299da3f7d40f10ea6bfbd2c8f3dd433d9785c78a3f6cca438ff58408fd5a89",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-state.xml": "edc592386e4f518391f51829e6f6e9afe2a3a302a323043f0926a7ac2893651f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-before.chk": "ebd583d84ebef69bfeb7e73e7002746fc4a5ad769285350c59ff37fea4128b7c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-atoms.json.gz": "f174ab843a55bb37499e3f9c6f31a67b9018e52aae43c0df1c38ef34d4c820f9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-state.xml": "64cb5bdd3864d17a621fbd17f0c199dee17b6d7784e9b0bf9e1990059f7ea87f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-after.chk": "f9575ed2c48a3a402d7fab0ce3e053d3853d238945fd414365c23c5378ce059f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-atoms.json.gz": "f8c852a5b3343e3ef0aec9b0373bccef426d0bafba4ac015125fcb8369ac97c9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-state.xml": "375ddbe085d65a553dd7a10b6a4843773e4c20ebfa4e0bafe7713e06b50ac2ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-before.chk": "b109e758b0df156d72de81f20a5b097ecf1ceb9ca45ba8e09d614cab2110b9ce",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/capture.json": "03cc445268ecfdfe4ecec23a98ac520ff1a358813586f85fed3cded0eb77613f",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-after.json.gz": "b4fe82c043fae0212b5846a1a86e6ca3315cb4576941f9998c7cfef202d8fd40",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/minimized.pdb": "f0f1bb3f0c8567b733e34b821e71d28a664b9c5a8a3cbc338ce4a5e02cbe478d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/seed-2/run.log": "3710f63d60da617e21bb1a10d3ffaa1cedd93f20775f4acb6f999a246103f046",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-atoms.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-state.xml": "f56f46136899d8979d23e6d4f24d3499e614ec78257bf1775e4a2525e4030c97",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-after.chk": "6d48449f98b504eed2b6bb5a6c69c6a48a8acf5564e689572808e41ec3c34b69",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-atoms.json.gz": "34b914dcd0beb5663c51ff6dee0237da1cb18f527069b3468d3a975176fabd4b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-integrator.xml": "935e0e0b10dd2c62fee9f464cef3ffb67ccbd98125a0371940e3de360f6aea87",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-state.xml": "7288351daee985cac8975b19421ac3e45c56d4523f6b9ee07f1834e52690fbb4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before-system.xml": "f67f24b5f6542c3774e415b1aa1783575cd1366426adf048dff912ac22337a7d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-before.chk": "e299fa1e5b91971ac101c39ae73c45feff0e218bc39b8c5cd7f49bd55ef26a12",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-1-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-after.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-atoms.json.gz": "5e208784275d830417ef6a16816d4bb2268ef4be47503517e054c99e8156dd50",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-state.xml": "0fb9b0bbac0b18b59569d9f62420faa39d605d4c122afeb2bc470b8d79d90685",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before-system.xml": "9eb3dde6ffbb5282a4bf0bf997aa0a9e307bdee21eec1b756eb69903918eab37",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-before.chk": "267b63de2003c63dd8d4bbc98d3c84cf50a4e85cf9d791cbcefea6a10fdb7ded",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-2-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-atoms.json.gz": "681bd0f564efc430f2fcd8292828054e750bc5a2a7ca2fa8861c1e4711d0d2aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-state.xml": "95d6b1780ebabdb60e9e8a9e5b85e2fbd97befd245afa3851ff2c9ab4c4bd2e9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-after.chk": "731009c86536d6e334608f1df93a20075d5be28ffa36f5d128fa3488d75a41de",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-atoms.json.gz": "30549bd7372f2273d2f4ea9dc107343b8bcfb602c6901e03de2b965129a1d003",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-state.xml": "58d77d18f8543a1a0dd09f19b1675470cf83ef7e5a08b6f0df1be9ca29c9a70a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before-system.xml": "202fdd49a15110380a216ce1051bcfd0ac01fec02e766aaf297f217e9c32d2c0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-before.chk": "b2977ef3ee7fb2750014d2b12acf098368f7dbb74933f1814a75044758e97ecc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/call-3-topology.json": "9ded0be3edb255b1990b5b749bd3d41e8ce0f821cde4a3c275dc8ca5a204c9cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/capture.json": "684325a32b9f83853a9f5e6d998c3988f61f1278bffc91692de56ce281b1cda9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-after.json.gz": "293ccf90e4082d24eccf1de729037af82d9c86bc37abc983de674f834bacaa13",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/h-1-before.json.gz": "74ef8825e0efde9c34d0e52872dc0dfe7f4b0546f7ce7c8ff14f81223c57dba2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/minimized.pdb": "ba0023eb6e2ce314f5df91683090cba0bdea12509e9868d2438f1ecf71f008a9",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.dat": "07b56922c81ff87db3694ef63cd23aa71c909299827b72e9f1cf5710527f813c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/prepared.pdb": "593714931945887cdd3654f9a37ed936a93bbd5488009cea3d5c4bf0da0e5295",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/thr2-native-capture-run-01/unseeded/run.log": "69c8e8941cd85f116d59d7aa66e57a3e6ed6c9070f50732dc0931c7db839856e"
+  },
+  "policy": {
+    "contexts": 0,
+    "maximum_seconds": 120,
+    "minimizations": 0,
+    "new_h_sampling": false,
+    "retention": "all admitted/refused/no-native slots and unsuccessful H calls, no retries or source replacement"
+  },
+  "production_changed": false,
+  "schema": "dvbfixer.private-initializer-static-plan.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_hydrogen_initialization_guard.py": "8e2faf02633ed709563def39a521ddccd557c75237552e53440c4bd6798d414a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_thr2_native_capture.py": "e67c833c07a7dd8302670e2eb788b77bd1fef2b9679cc974305cb96ebf7e7687",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/hydrogen_initialization_guard.py": "c97ed56a66c2be531b24eed1bfa7ffc1af85b1ab7e936ff0e868bec9f080cdb5",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/qualify_hydrogen_initialization_guard.py": "b3e0ecfa60f997121cf71a3bb37a18300879e05299863f039d09ab345c3f306e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_dunbrack_prior.py": "459faa2a33af31df801746ec7e8f5acf8ca06cabc2eebf07308838de069c805a",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_ha_minimizer_path.py": "3a85fcbc64a2a4e5c0dcc841ed989e46b6be89c41008f0779a97cc18d75b1fbd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_legacy_start_controls.py": "444230d77b9e89959eb311f8918e02e69668d4096eb47842f9e59e7838722e12",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hb_only.py": "f0f1dcdf11245e5132692c35a88bbf941df5636d5f0f3d5fd5dce969b148bd19",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/src/dvbfixer/domain/structure_identity.py": "34537947430297a43ea8ab798f493847f7a991c1d33c951345e8522e5a0848fc",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/src/dvbfixer/ffutils/variants.py": "5eccaf1aa6d8d056de85250f74ba8ddfa4128832d01c000ac65d964e41c53039",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/src/dvbfixer/model/diffusion/protein_atoms.py": "67a197518b44facdfe7a6fc545bede550562da8f591653b9397175e0c6f187ec",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_hydrogen_initialization_guard.py": "c8a641b64e971401e63067253d81cfa097c84c8b283cd014ec7a33ab399126f5"
+  }
+}
