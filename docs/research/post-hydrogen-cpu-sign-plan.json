@@ -1,0 +1,131 @@
+{
+  "hypotheses": [
+    "physical",
+    "source_sign",
+    "source_sign_float32"
+  ],
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/post-hydrogen-cpu-sign-readback.md": "f61409d32abbc8278447ee834bda27c667b11ea1b428a056cd70533b6f9faca3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-overflow-readback-evidence.json": "1d1d92421de427a30fee23442dcee614384e99dc4953b0f3d31bf48d5ec8d943",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-overflow-readback-plan.json": "d068a8e25fb637b9bc63d1ce51cebbfaa3bf0a5e9de0544ba54d90ab6ebeb8cf",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/common-minimize-36a30cb.cpp": "03960701c5a424b794589d7dd61ce596dc2c29fa244c6a3ca002ff9a003a13e8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-1-before-atoms.json.gz": "00e1552ca3ab3e82d91ec6a60a46c33807d6ac9425816b137ebe8d79272f7c24"
+  },
+  "numerical_policy": {
+    "backend_seconds": 300,
+    "energy_absolute_bound": 0.001,
+    "energy_relative_bound": 2e-06,
+    "fp32_constraint_arithmetic_factor": 32,
+    "gradient_absolute_bound": 0.001,
+    "gradient_relative_bound": 2e-05,
+    "label": "one new paired public-minimize experiment, not an exact historical replay",
+    "maximum_callbacks": 4096,
+    "maximum_h_calls": 8,
+    "maximum_whole_calls": 8,
+    "native_retries": 0,
+    "penalty_energy_absolute_bound": 0.001,
+    "penalty_energy_relative_bound": 2e-05,
+    "per_case_seconds": 1800,
+    "total_readback_seconds": 600,
+    "total_seconds": 3600
+  },
+  "parent_plan": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-overflow-readback-plan.json",
+  "physical_qualification_rehabilitated": false,
+  "policy": {
+    "contexts": 1,
+    "h_samples": 0,
+    "maximum_seconds": 300,
+    "native_minimizations": 0,
+    "queries": 26
+  },
+  "root": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00",
+  "schema": "dvbfixer.private-cpu-sign-readback-plan.v1",
+  "selection": [
+    {
+      "call": {
+        "after": {
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "prefix": "whole-1-after"
+        },
+        "before": {
+          "platform": {
+            "all_properties": {
+              "DeviceIndex": "0",
+              "DeviceName": "Apple M3 Pro",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "OpenCLPlatformName": "Apple",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "constructor_properties": {
+              "DeviceIndex": "0",
+              "DisablePmeStream": "false",
+              "OpenCLPlatformIndex": "0",
+              "Precision": "single",
+              "UseCpuPme": "false"
+            },
+            "name": "OpenCL"
+          },
+          "prefix": "whole-1-before"
+        },
+        "callbacks": 2282,
+        "max_iterations": 1000,
+        "number": 1,
+        "returned": true,
+        "tolerance": 10.0
+      },
+      "number": 1,
+      "ordinals": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012
+      ]
+    }
+  ],
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_post_h_cpu_sign.py": "bde8c74dec83451f2472855281dc39b4e10cefa63ffea1b60648c0911b4cd7c4",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_post_h_cpu_sign.py": "ed1112b5561a33d02e5e3f8d15d9affe11a02b77e64a14e9cdf19ff01966fa69"
+  }
+}
