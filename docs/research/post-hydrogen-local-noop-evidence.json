@@ -1,0 +1,173 @@
+{
+  "both_states_proposed_and_audited": true,
+  "cases": [
+    {
+      "arm": "baseline",
+      "audit": {
+        "compatible_distance_warnings": 0,
+        "maximum_radius_error_nm": 2.220446049250313e-16,
+        "minimum_moved_nonparent_distance_nm": 0.0844751994390412,
+        "moved": [
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "0"
+            },
+            "name": "HA"
+          },
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "283"
+            },
+            "name": "HA"
+          },
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "286"
+            },
+            "name": "HA"
+          }
+        ],
+        "observations_and_noops_exact": true,
+        "original_new_h_count": 2901,
+        "passed": true,
+        "supported": 448,
+        "unsupported": 2453
+      },
+      "index": 0,
+      "numpy_rng_unchanged": true,
+      "python_rng_unchanged": true,
+      "status": "proposed-and-audited",
+      "target_after": {
+        "ha_distance_angstrom": 1.133026500122222,
+        "ha_four_volume_angstrom3": 2.2240020118946444,
+        "heavy_ca_volume_angstrom3": 0.9254784914539378,
+        "sign_conflict": false
+      },
+      "target_before": {
+        "ha_distance_angstrom": 1.1330265001222215,
+        "ha_four_volume_angstrom3": -1.511304038287208,
+        "heavy_ca_volume_angstrom3": 0.9254784914539378,
+        "sign_conflict": true
+      },
+      "warnings": []
+    },
+    {
+      "arm": "guarded",
+      "audit": {
+        "compatible_distance_warnings": 1,
+        "maximum_radius_error_nm": 1.942890293094024e-16,
+        "minimum_moved_nonparent_distance_nm": 0.08617404922277175,
+        "moved": [
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "0"
+            },
+            "name": "HA"
+          },
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "283"
+            },
+            "name": "HA"
+          },
+          {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "286"
+            },
+            "name": "HA"
+          }
+        ],
+        "observations_and_noops_exact": true,
+        "original_new_h_count": 2901,
+        "passed": true,
+        "supported": 448,
+        "unsupported": 2453
+      },
+      "index": 1,
+      "numpy_rng_unchanged": true,
+      "python_rng_unchanged": true,
+      "status": "proposed-and-audited",
+      "target_after": {
+        "ha_distance_angstrom": 1.1230868371913587,
+        "ha_four_volume_angstrom3": 2.212610498898625,
+        "heavy_ca_volume_angstrom3": 0.9254784914539378,
+        "sign_conflict": false
+      },
+      "target_before": {
+        "ha_distance_angstrom": 1.1230868371913596,
+        "ha_four_volume_angstrom3": -1.5362828185740445,
+        "heavy_ca_volume_angstrom3": 0.9254784914539378,
+        "sign_conflict": true
+      },
+      "warnings": [
+        {
+          "atom": {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "379"
+            },
+            "name": "HA"
+          },
+          "heavy_bond_lengths_nm": [
+            0.15492457092660308,
+            0.15171913962987857,
+            0.14397472521306307
+          ],
+          "radius_nm": 0.16506833645769317,
+          "reason": "compatible_noop_outside_distance_admission_not_geometry_certified",
+          "residue_name": "PRO"
+        }
+      ]
+    }
+  ],
+  "limits": "Two retained-state offline proposals only, not native/live qualification. Compatible out-of-range bonds remain defects; old strict refusal and incomplete gradient attestation remain unchanged.",
+  "new_contexts": 0,
+  "new_h_samples": 0,
+  "new_minimizations": 0,
+  "new_repairs": 0,
+  "old_strict_gate_changed": false,
+  "plan_sha256": "dc840b56a90f40c20cfde6d4c2e1471cbf88c30860ce20257eddc957e1466c51",
+  "private_artifacts": {
+    "case-00-proposal.json.gz": "4a54bb79b5c69d99a4a212a8250a458ac0218f9d79240775f128df56e9bc5ddb",
+    "case-00-result.json": "3287db78b884503b56d9eda7b57fe9fdd28fb288f07d549819433918ea3aebe7",
+    "case-01-proposal.json.gz": "d1a4d37da99caf7457267018412671761a52b4fe32b5345ea4361549c98c9090",
+    "case-01-result.json": "391bdc6ec8154b61dd4dbf08307f59718397f20fccfa6a2c7144801f42301c37",
+    "executed-plan.json": "dc840b56a90f40c20cfde6d4c2e1471cbf88c30860ce20257eddc957e1466c51"
+  },
+  "production_ready": false,
+  "schema": "dvbfixer.private-post-h-local-noop-evidence.v1"
+}
