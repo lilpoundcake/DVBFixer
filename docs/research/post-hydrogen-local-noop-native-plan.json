@@ -1,0 +1,185 @@
+{
+  "calls": [
+    {
+      "after": {
+        "platform": {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        },
+        "prefix": "whole-1-after"
+      },
+      "before": {
+        "platform": {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        },
+        "prefix": "whole-1-before"
+      },
+      "callbacks": 2282,
+      "max_iterations": 1000,
+      "number": 1,
+      "returned": true,
+      "tolerance": 10.0
+    },
+    {
+      "after": {
+        "platform": {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        },
+        "prefix": "whole-2-after"
+      },
+      "before": {
+        "platform": {
+          "all_properties": {
+            "DeviceIndex": "0",
+            "DeviceName": "Apple M3 Pro",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "OpenCLPlatformName": "Apple",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "constructor_properties": {
+            "DeviceIndex": "0",
+            "DisablePmeStream": "false",
+            "OpenCLPlatformIndex": "0",
+            "Precision": "single",
+            "UseCpuPme": "false"
+          },
+          "name": "OpenCL"
+        },
+        "prefix": "whole-2-before"
+      },
+      "callbacks": 2058,
+      "max_iterations": 1000,
+      "number": 2,
+      "returned": true,
+      "tolerance": 10.0
+    }
+  ],
+  "cases": [
+    {
+      "label": "baseline-projection",
+      "projected": true,
+      "proposal": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-local-noop-01/case-00-proposal.json.gz",
+      "state": 0
+    },
+    {
+      "label": "guarded-unmodified",
+      "projected": false,
+      "proposal": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-local-noop-01/case-01-proposal.json.gz",
+      "state": 1
+    },
+    {
+      "label": "guarded-projection",
+      "projected": true,
+      "proposal": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-local-noop-01/case-01-proposal.json.gz",
+      "state": 1
+    }
+  ],
+  "existing_baseline_control_reused": true,
+  "independently_constructed_guarded_forcefield": false,
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/post-hydrogen-local-noop-native.md": "9ab102ce685929abd69f984ee83fbfcedd2c481f496c8c9d9eae70389978545d",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-local-noop-evidence.json": "b854a749e5ecb07c812c18c0b1a238c71d42351e6dd604794e744c86291f55cd",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-local-noop-plan.json": "dc840b56a90f40c20cfde6d4c2e1471cbf88c30860ce20257eddc957e1466c51",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/capture.json": "16082d70dcd4291b934660a0dff6ef111d70ddfb7a7c2eb7ec0c7f6667c18045",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/h-1-journal.json.gz": "59cbf4630d304441bd55912f3f964bf11f9a9f1b52cd011769e839eaece75f5c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-1-before-atoms.json.gz": "00e1552ca3ab3e82d91ec6a60a46c33807d6ac9425816b137ebe8d79272f7c24",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-1-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-1-before-state.xml": "126881ec5cd461327df08271d83247132ea14cec44109adee672d52dcc877039",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-1-before-system.xml": "a31336ac2141163be563b1192b5452c78afe6d790c3d54cc033fb2838a618b03",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-2-before-atoms.json.gz": "060c750ae6812d44121fd4f33851db9f99cf8138d6037bba52737a78e5b8b545",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-2-before-integrator.xml": "52b186f53c8e21752161766e7b91b41c54b4812ec2676b84db8c8444887f29aa",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-2-before-state.xml": "5f984e609843df097768300d0ee263ef78e83067302550bd4abba4972792912e",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/whole-2-before-system.xml": "a36f4050507acc0956743dffc2337101603d5ed9c1c980cbd0df2abdb1950e6b",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-01/h-1-journal.json.gz": "ee4ce2bb852913b8e0adfc61a74b2be07a78b43a953d5c12aa876327f2773583",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-local-noop-01/case-00-proposal.json.gz": "4a54bb79b5c69d99a4a212a8250a458ac0218f9d79240775f128df56e9bc5ddb",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-local-noop-01/case-01-proposal.json.gz": "d1a4d37da99caf7457267018412671761a52b4fe32b5345ea4361549c98c9090"
+  },
+  "original_policy": {
+    "energy_absolute_bound": 0.001,
+    "energy_relative_bound": 2e-06,
+    "fp32_constraint_arithmetic_factor": 32,
+    "gradient_absolute_bound": 0.001,
+    "gradient_relative_bound": 2e-05,
+    "label": "one new paired public-minimize experiment, not an exact historical replay",
+    "maximum_callbacks": 4096,
+    "maximum_h_calls": 8,
+    "maximum_whole_calls": 8,
+    "native_retries": 0,
+    "penalty_energy_absolute_bound": 0.001,
+    "penalty_energy_relative_bound": 2e-05,
+    "per_case_seconds": 1800,
+    "total_seconds": 3600
+  },
+  "policy": {
+    "maximum_callbacks": 4096,
+    "maximum_minimizations": 6,
+    "native_retries": 0,
+    "new_h_samples": 0,
+    "new_repairs": 0,
+    "per_path_seconds": 1800,
+    "total_seconds": 5400
+  },
+  "production_changed": false,
+  "python": "/Users/lilpoundcake/micromamba/envs/dvbfixer/bin/python",
+  "schema": "dvbfixer.private-post-h-local-native-plan.v1",
+  "shared_anchor_heavy_rounding_nm": [
+    0.0,
+    0.0
+  ],
+  "source": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_post_h_local_native.py": "3161b02b2f97404f7f390461aac44bf17fe7c3a409e2d61724bcfac31fe769b3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_thr2_hswap.py": "69b32a40776e3727643b02ac592708410c7cf1383de2eb12fed1800afe06bd35",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_post_h_local_native.py": "74a65268c819d978df36af1bbe892e4e521010dc9185f9005d9666351c1e9f88"
+  },
+  "static_plan": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-local-noop-plan.json"
+}
