@@ -2,6 +2,31 @@
 
 ## Authorization and baseline
 
+**Post-H variant 2 authorized after `70cbda6` (2026-11-13):** user explicitly
+selected checking the post-`addHydrogens` route while retaining variant 1 as a
+fallback. Isolated `research/post-hydrogen-guard`; contract `d7fe7a3`, static
+freeze `8930708`, native freeze `47a5fcf`. All 18 post-H states admit: unseeded
+THR2 HB in both modes and independent 1VCU A/SER0/HA after forcefield-free
+fallback activate; the other fifteen are exact no-ops. The 1VCU activation has
+no matching captured whole-system Context and is explicitly not dynamically
+executed/qualified. Two changed THR2 paths/four original whole phases completed
+once, both worker exit codes zero, Cβ R retained in both modes with **no extra
+H-only relaxation**. All 278 callbacks match independent physical mobile
+gradients/objectives exactly; zero negative Cα/terminal mismatches, zero bridge
+repairs, exact Systems/masks/continuity, four native gradient-criterion passes.
+Upstream saved H-only nonconvergence remains explicit. Both static/native
+independent readbacks repeat byte-identically; the new durable per-path plus
+single final-index writer succeeds without retry/recovery. Variant 1 and its
+summary failure remain unchanged. See
+[variant 2 results and remaining public-API/1VCU gates](../research/post-hydrogen-guard.md).
+No production/default, dependency patch or main change is authorized here.
+Variant-2 final validation: **3,245 fast tests passed**, three optional skips,
+33 slow deselections; six new return tests plus two accounting regressions
+(30 focused controls), Ruff/strict mypy/generated/map checks all pass. Final
+record keeps 1VCU dynamic qualification and public ownership/strip-readd lineage
+gates open. No original SER assertions, variant-1 source or native FF parameters
+were changed to obtain the result.
+
 **Private initializer-guard continuation (2026-11-13):** renewed autonomous
 instruction after `0038b6c` is scoped to private development/qualification on
 `feat/hydrogen-initialization-guard`; no default/public registration, main merge

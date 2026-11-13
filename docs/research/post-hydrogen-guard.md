@@ -68,3 +68,82 @@ Six new source/return tests and two multi-path accounting regressions pass
 each per-path record once and its final summary once, and records worker exit
 codes durably; it does not reuse the earlier failed exclusive-write driver.
 Private coordinates/States/traces remain under the ignored project tmp tree.
+
+Final fast-suite validation: **3,245 passed**, three optional Torch/Biotite skips
+and 33 slow deselections. All 30 focused controls, Ruff (production plus new
+research files), strict-target mypy, generated CLI/GUI specs and agent maps pass.
+The [validation/quality record](post-hydrogen-guard-validation.json) binds the
+complete retained evidence and distinguishes favorable local dynamics from the
+independent context's unexecuted continuation and disabled production capability.
+
+## Native result: no extra H relaxation needed in retained THR2
+
+Native enrollment was frozen at **`47a5fcf`** before execution. Both new paths
+completed once, with **four returned whole-system phases** and both worker exit
+codes recorded as zero. The corrected per-path/final-index accounting succeeded;
+no offline summary recovery or native retry was needed. The older variant 1
+orchestration failure remains preserved and is not relabelled by this result.
+See the [complete independent native audit](post-hydrogen-guard-native-audit.json).
+
+| Own saved H-only return | Before post-H guard | After whole phase 1 | After whole phase 2 |
+|---|---|---|---|
+| unseeded, captured OpenCL | heavy Cβ R, incompatible HB | Cβ **R** | Cβ **R** |
+| unseeded, Reference | heavy Cβ R, incompatible HB | Cβ **R** | Cβ **R** |
+
+The reused unchanged controls invert Cβ R→S during whole phase 1 and remain S.
+Here the post-H intervention changes only the returned HB point and retains its
+own returned radius. The other 314 returned H and all 327 heavy coordinates
+remain exact at the proposal boundary; later whole-system motion follows the
+original native masks. No H-only minimization is rerun, no extra relaxation is
+added, and no early OpenMM hook is used.
+
+Independent same-platform physical readback matches all **278 callbacks** with
+zero maximum mobile-gradient/objective error. All four phase Systems are
+byte-identical to the captured originals, including the original same-anchor
+divide-ten phase transition. Both historical bridges make zero repairs;
+requested/applied coordinate bounds, copied observations, own-return continuity
+and serialized return States pass the independent audit. No negative Cα node
+or last-callback/returned position mismatch appears. The complete static and
+native offline audits each repeat byte-identically, without new trajectories.
+
+All **four whole-system returns meet the native gradient criterion**. The saved
+upstream H-only returns still came from the unchanged 50-iteration runs that did
+not meet their measured native gradient criterion: this stage does not erase or
+improve that stopping limitation. It shows that extra H-only relaxation was not
+necessary to retain R under these particular subsequent whole-system settings.
+Final target C–H distance is ~1.091 Å in both modes; that is an observed endpoint,
+not a newly imposed constraint or a general geometry-acceptance certificate.
+
+This supports variant 2 as a **local working alternative** to the early hook.
+The two modes remain one poor-heavy context, not two independent structures or
+broad chirality protection. Nonparent overlaps, protonation and unsupported
+chemistries are not comprehensively qualified by this finite comparison.
+
+## What remains before integration
+
+For THR2 there is currently no experimental reason to require a patched early
+OpenMM hook: post-H correction plus the existing whole stages retained R without
+extra minimization. Keep variant 1 available as a fallback research route rather
+than deleting or weakening its evidence.
+
+The independent **1VCU A/SER0/HA** activation is still only statically assessed.
+A future whole-complex experiment must first declare its System construction,
+actual ligand/FF/fallback route, comparison controls, source-bound handoff through
+late heterogen-H placement/variant naming, budgets and failure retention. It may
+not be counted as an exact historical replay or as an end-to-end success here.
+
+Supported production integration would also need a before/after public-API
+ownership adapter: snapshot observations before `addHydrogens`, resolve exact
+identities afterward, and allow changes only to genuinely new H. The private
+mass-based source admission relies on saved internal Systems and is **not itself
+a public runtime integration**. Deletions, variant aliases, repeated chain
+occurrences, partial observations and exception cleanup need explicit handling
+and live API qualification. No global minimizer monkeypatch or installed OpenMM
+modification is part of the proposed post-H path. Public/default capability,
+main merge and release remain disabled.
+
+In particular, minimize's required variant strip/readd path may replace H again
+after prepare. A live workflow must audit each H-creation boundary and retain
+observation lineage, rather than assume a prepare-time correction survives or
+classify a stripped observed H as scientifically new. Do not bypass canonical
+variant/bond handling or force the keep-H fast path to obtain a favorable result.
