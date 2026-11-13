@@ -1,0 +1,250 @@
+{
+  "available_platforms": [
+    "Reference",
+    "CPU",
+    "OpenCL"
+  ],
+  "cases": [
+    {
+      "backend": "OpenCL",
+      "constrained": false,
+      "index": 0,
+      "label": "OpenCL-free-below",
+      "properties": {
+        "DeviceIndex": "0",
+        "DisablePmeStream": "false",
+        "OpenCLPlatformIndex": "0",
+        "Precision": "single",
+        "UseCpuPme": "false"
+      },
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "OpenCL",
+      "constrained": false,
+      "index": 1,
+      "label": "OpenCL-free-trigger",
+      "properties": {
+        "DeviceIndex": "0",
+        "DisablePmeStream": "false",
+        "OpenCLPlatformIndex": "0",
+        "Precision": "single",
+        "UseCpuPme": "false"
+      },
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    },
+    {
+      "backend": "OpenCL",
+      "constrained": true,
+      "index": 2,
+      "label": "OpenCL-constrained-below",
+      "properties": {
+        "DeviceIndex": "0",
+        "DisablePmeStream": "false",
+        "OpenCLPlatformIndex": "0",
+        "Precision": "single",
+        "UseCpuPme": "false"
+      },
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "OpenCL",
+      "constrained": true,
+      "index": 3,
+      "label": "OpenCL-constrained-trigger",
+      "properties": {
+        "DeviceIndex": "0",
+        "DisablePmeStream": "false",
+        "OpenCLPlatformIndex": "0",
+        "Precision": "single",
+        "UseCpuPme": "false"
+      },
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    },
+    {
+      "backend": "CPU",
+      "constrained": false,
+      "index": 4,
+      "label": "CPU-free-below",
+      "properties": {},
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "CPU",
+      "constrained": false,
+      "index": 5,
+      "label": "CPU-free-trigger",
+      "properties": {},
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    },
+    {
+      "backend": "CPU",
+      "constrained": true,
+      "index": 6,
+      "label": "CPU-constrained-below",
+      "properties": {},
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "CPU",
+      "constrained": true,
+      "index": 7,
+      "label": "CPU-constrained-trigger",
+      "properties": {},
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    },
+    {
+      "backend": "Reference",
+      "constrained": false,
+      "index": 8,
+      "label": "Reference-free-below",
+      "properties": {},
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "Reference",
+      "constrained": false,
+      "index": 9,
+      "label": "Reference-free-trigger",
+      "properties": {},
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    },
+    {
+      "backend": "Reference",
+      "constrained": true,
+      "index": 10,
+      "label": "Reference-constrained-below",
+      "properties": {},
+      "stress": 10000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "below"
+    },
+    {
+      "backend": "Reference",
+      "constrained": true,
+      "index": 11,
+      "label": "Reference-constrained-trigger",
+      "properties": {},
+      "stress": 50000000.0,
+      "stress_start": [
+        10.0,
+        10.0,
+        0.0
+      ],
+      "tier": "trigger"
+    }
+  ],
+  "first_negative_series_rehabilitated": false,
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/openmm-cpu-sign-reproducer.md": "2b0e5bc9a17ed555351e21153f97e4d598e94380873a53686229449ba09f8c82",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/openmm-representable-force-control.md": "e1b1c1c3793c772cb7a0fb3cf4f5ab49694ccf5c8c0d2ae1ac5ac4cc20d3d62c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/openmm-cpu-sign-reproducer-evidence.json": "f6c300add70b8c0860db6f5c29108510423fe0e8c0623fa77e65164e7988d5b2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/openmm-cpu-sign-reproducer-plan.json": "532830349f824414d1b0b6068894732cc6200dfba7e0cfc7a926da6c1c1dbaa2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-cpu-sign-evidence.json": "8d7042463abb1c0863f5a95242043ce92531f83ab28d86298ef61e6cc87a9cfe",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-local-noop-validation.json": "fa32e6e80cb484a9b6820f3327e35f1faf12b8b04e5a0cc4dae6845cccbe56b0",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/common-minimize-36a30cb.cpp": "03960701c5a424b794589d7dd61ce596dc2c29fa244c6a3ca002ff9a003a13e8",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/minimize-kernel-36a30cb.cc": "b0869b292da8fa4a78819552234bad71fa62dff8c984701eb3b02498581705ee"
+  },
+  "installed_dependency_modified": false,
+  "metadata_only_not_binary_hash_attestation": true,
+  "policy": {
+    "constraint_rounding_factor": 32,
+    "energy_absolute": 0.001,
+    "energy_relative": 2e-06,
+    "finite_difference_absolute": 1e-05,
+    "finite_difference_relative": 1e-06,
+    "gradient_absolute": 0.001,
+    "gradient_relative": 2e-05,
+    "integrator_constraint_tolerance": 1e-05,
+    "max_iterations": 1,
+    "maximum_callbacks": 256,
+    "native_calls": 12,
+    "native_retries": 0,
+    "penalty_relative": 2e-05,
+    "per_case_seconds": 30,
+    "tolerance": 10.0,
+    "total_seconds": 360
+  },
+  "preflight_limitations": [
+    "Platform.getLoadedPlugins is unavailable",
+    "external native-library directory discovery permission denied; not bypassed"
+  ],
+  "runtime": {
+    "extension_path": "/Users/lilpoundcake/micromamba/envs/dvbfixer/lib/python3.12/site-packages/openmm/_openmm.cpython-312-darwin.so",
+    "machine": "arm64",
+    "python": "/Users/lilpoundcake/micromamba/envs/dvbfixer/bin/python",
+    "revision": "36a30cbca54e727b216b606f3c011b67201eb8b4",
+    "version": "8.5.2.dev-36a30cb"
+  },
+  "schema": "dvbfixer.private-representable-force-plan.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_openmm_cpu_sign.py": "d2bebec23043c8ff2fb791cbff8cc4ced56d7539237b39b472a89641bf085069",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_openmm_representable.py": "c504e96532d289fb49d272b2187a2d5ff89781670205a9710cb02c6e5ea56501",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_openmm_cpu_sign_reproducer.py": "f35d8e30276db0ad55d27abf0d46b8af1040551c02dfe4f2872edf5cc07bd3c1",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_openmm_representable_control.py": "78ac2701ed82665ed67d89cb885ed0e8882e0bb7a2b7bea0d97d03ebc4aecd37"
+  }
+}
