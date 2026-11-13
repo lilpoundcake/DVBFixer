@@ -1,0 +1,2017 @@
+{
+  "cases": [
+    {
+      "energy_error": 3.814697265625e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 32122.80078125,
+          "maximum_envelope_excess": 0.5076744236306788,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.09668503897208,
+            "original_bound": 0.0053619337007794424,
+            "reported": 217.58364868164062,
+            "residual": 0.5130363573314582
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 32122.80078125,
+          "maximum_envelope_excess": -0.0005513290144436179,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.98176541448629,
+            "original_bound": 0.001039635308289726,
+            "reported": -1.9812771081924438,
+            "residual": 0.000488306293846108
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 4096.0,
+          "maximum_envelope_excess": -0.000551354057788849,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.9817653894424438,
+            "original_bound": 0.001039635307788849,
+            "reported": -1.9812771081924438,
+            "residual": 0.00048828125
+          }
+        }
+      },
+      "ordinal": 0,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 0.0,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 606,
+          "failed_components_on_constrained_atoms": 606,
+          "maximum_absolute_residual": 255877.998046875,
+          "maximum_envelope_excess": 0.5077201267556788,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.10034714834708,
+            "original_bound": 0.005362006942966942,
+            "reported": 217.58726501464844,
+            "residual": 0.5130821336986457
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 255877.998046875,
+          "maximum_envelope_excess": -0.0007714308350661235,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "371",
+              "",
+              "GLN",
+              "HE22"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 14.491298271839355,
+            "original_bound": 0.001289825965436787,
+            "reported": 14.490779876708984,
+            "residual": 0.0005183951303706635
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 262144.0,
+          "maximum_envelope_excess": -0.0007710271453857422,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "371",
+              "",
+              "GLN",
+              "HE22"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 14.49129867553711,
+            "original_bound": 0.0012898259735107422,
+            "reported": 14.490779876708984,
+            "residual": 0.000518798828125
+          }
+        }
+      },
+      "ordinal": 1,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 0.0,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 57653.77087402344,
+          "maximum_envelope_excess": 0.5077190656594874,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.1534019579174,
+            "original_bound": 0.005363068039158348,
+            "reported": 217.64031982421875,
+            "residual": 0.5130821336986457
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 57653.77087402344,
+          "maximum_envelope_excess": -0.0007148224273722872,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 0.827413616773228,
+            "original_bound": 0.00102,
+            "reported": 0.8277187943458557,
+            "residual": 0.00030517757262771283
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 65536.0,
+          "maximum_envelope_excess": -0.0007148242187500001,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 0.8274136185646057,
+            "original_bound": 0.00102,
+            "reported": 0.8277187943458557,
+            "residual": 0.00030517578125
+          }
+        }
+      },
+      "ordinal": 2,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 0.0,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 30255.400634765625,
+          "maximum_envelope_excess": 0.5077791752175929,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.19968186514396,
+            "original_bound": 0.00536399363730288,
+            "reported": 217.68653869628906,
+            "residual": 0.5131431688548957
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 30255.400634765625,
+          "maximum_envelope_excess": -0.0008140759740765861,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 15.885959511993974,
+            "original_bound": 0.001317729263305664,
+            "reported": 15.886463165283203,
+            "residual": 0.0005036532892290779
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 8192.0,
+          "maximum_envelope_excess": -0.0008141892242431641,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 15.88595962524414,
+            "original_bound": 0.001317729263305664,
+            "reported": 15.886463165283203,
+            "residual": 0.0005035400390625
+          }
+        }
+      },
+      "ordinal": 3,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 0.0,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 8982.762817382812,
+          "maximum_envelope_excess": 0.5076865076760889,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.25542222158927,
+            "original_bound": 0.005365108444431786,
+            "reported": 217.74237060546875,
+            "residual": 0.5130516161205207
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 8982.762817382812,
+          "maximum_envelope_excess": -0.0003107765680251185,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.223457571977946,
+            "original_bound": 0.0011044691514395589,
+            "reported": 5.222663879394531,
+            "residual": 0.0007936925834144404
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 4096.0,
+          "maximum_envelope_excess": -0.0003110121154785157,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.223457336425781,
+            "original_bound": 0.0011044691467285157,
+            "reported": 5.222663879394531,
+            "residual": 0.00079345703125
+          }
+        }
+      },
+      "ordinal": 4,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 4.76837158203125e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 604,
+          "failed_components_on_constrained_atoms": 604,
+          "maximum_absolute_residual": 18886.851531982422,
+          "maximum_envelope_excess": 0.5076853916482569,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.31122361319083,
+            "original_bound": 0.005366224472263817,
+            "reported": 217.7981719970703,
+            "residual": 0.5130516161205207
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 18886.851531982422,
+          "maximum_envelope_excess": -0.0005396999078688687,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.225532767290446,
+            "original_bound": 0.001104510655345809,
+            "reported": 5.224967956542969,
+            "residual": 0.0005648107474769404
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 16384.0,
+          "maximum_envelope_excess": -0.0005399354553222656,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.225532531738281,
+            "original_bound": 0.0011045106506347656,
+            "reported": 5.224967956542969,
+            "residual": 0.0005645751953125
+          }
+        }
+      },
+      "ordinal": 5,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 4.76837158203125e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 5545.959381103516,
+          "maximum_envelope_excess": 0.5076688981179835,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.3729606737377,
+            "original_bound": 0.005367459213474754,
+            "reported": 217.85992431640625,
+            "residual": 0.5130363573314582
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 5545.959381103516,
+          "maximum_envelope_excess": -0.00044866786417615927,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.227356192583414,
+            "original_bound": 0.0011045602416992189,
+            "reported": 5.2280120849609375,
+            "residual": 0.0006558923775230596
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 8192.0,
+          "maximum_envelope_excess": -0.0004484323120117189,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.22735595703125,
+            "original_bound": 0.0011045602416992189,
+            "reported": 5.2280120849609375,
+            "residual": 0.0006561279296875
+          }
+        }
+      },
+      "ordinal": 6,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.960464477539062e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 1814.0612182617188,
+          "maximum_envelope_excess": 0.5075454746560695,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.44061814444083,
+            "original_bound": 0.005368812362888817,
+            "reported": 217.92770385742188,
+            "residual": 0.5129142870189582
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 1814.0612182617188,
+          "maximum_envelope_excess": -0.0006842114093711087,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "451",
+              "",
+              "HOH",
+              "O"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 10.513319378226083,
+            "original_bound": 0.0012102769088745118,
+            "reported": 10.513845443725586,
+            "residual": 0.0005260654995034031
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 2048.0,
+          "maximum_envelope_excess": -0.0006838486862182618,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "451",
+              "",
+              "HOH",
+              "O"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 10.51331901550293,
+            "original_bound": 0.0012102769088745118,
+            "reported": 10.513845443725586,
+            "residual": 0.00052642822265625
+          }
+        }
+      },
+      "ordinal": 7,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.960464477539062e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 604,
+          "failed_components_on_constrained_atoms": 604,
+          "maximum_absolute_residual": 1529.0114612579346,
+          "maximum_envelope_excess": 0.5076354807595851,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.51794968740958,
+            "original_bound": 0.005370358993748192,
+            "reported": 218.00494384765625,
+            "residual": 0.5130058397533332
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 1529.0114612579346,
+          "maximum_envelope_excess": -0.0005293164965162213,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.404820212325717,
+            "original_bound": 0.001048106780052185,
+            "reported": -2.405339002609253,
+            "residual": 0.0005187902835359637
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 1024.0,
+          "maximum_envelope_excess": -0.000529307951927185,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.404820203781128,
+            "original_bound": 0.001048106780052185,
+            "reported": -2.405339002609253,
+            "residual": 0.000518798828125
+          }
+        }
+      },
+      "ordinal": 8,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.960464477539062e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 606,
+          "failed_components_on_constrained_atoms": 606,
+          "maximum_absolute_residual": 653.6721935272217,
+          "maximum_envelope_excess": 0.5077404712991358,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.60899888174552,
+            "original_bound": 0.005372179977634911,
+            "reported": 218.09588623046875,
+            "residual": 0.5131126512767707
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 653.6721935272217,
+          "maximum_envelope_excess": -0.0008516184623732625,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "366",
+              "",
+              "MET",
+              "C"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -12.405266995487978,
+            "original_bound": 0.0012481132698059082,
+            "reported": -12.40566349029541,
+            "residual": 0.00039649480743264576
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 512.0,
+          "maximum_envelope_excess": -0.0008513847541809082,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "366",
+              "",
+              "MET",
+              "C"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -12.405266761779785,
+            "original_bound": 0.0012481132698059082,
+            "reported": -12.40566349029541,
+            "residual": 0.000396728515625
+          }
+        }
+      },
+      "ordinal": 9,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 3.2782554626464844e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 604,
+          "failed_components_on_constrained_atoms": 604,
+          "maximum_absolute_residual": 335.05018186569214,
+          "maximum_envelope_excess": 0.5077535798196436,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.7165123094799,
+            "original_bound": 0.005374330246189598,
+            "reported": 218.20338439941406,
+            "residual": 0.5131279100658332
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 335.05018186569214,
+          "maximum_envelope_excess": -0.0005177752250160028,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.249565360063883,
+            "original_bound": 0.0011050030517578125,
+            "reported": 5.250152587890625,
+            "residual": 0.0005872278267418096
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 256.0,
+          "maximum_envelope_excess": -0.0005175396728515625,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.249565124511719,
+            "original_bound": 0.0011050030517578125,
+            "reported": 5.250152587890625,
+            "residual": 0.00058746337890625
+          }
+        }
+      },
+      "ordinal": 10,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 3.2782554626464844e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 606,
+          "failed_components_on_constrained_atoms": 606,
+          "maximum_absolute_residual": 156.76015973091125,
+          "maximum_envelope_excess": 0.5077360117654445,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.83197556631583,
+            "original_bound": 0.005376639511326317,
+            "reported": 218.31886291503906,
+            "residual": 0.5131126512767707
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 156.76015973091125,
+          "maximum_envelope_excess": -2.9659075113659238e-05,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.257332083696696,
+            "original_bound": 0.0011051681518554689,
+            "reported": 5.2584075927734375,
+            "residual": 0.0010755090767418096
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 128.0,
+          "maximum_envelope_excess": -2.942352294921886e-05,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.257331848144531,
+            "original_bound": 0.0011051681518554689,
+            "reported": 5.2584075927734375,
+            "residual": 0.00107574462890625
+          }
+        }
+      },
+      "ordinal": 11,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 1.0587911840678754e-22,
+      "status": "readback"
+    },
+    {
+      "energy_error": 2.682209014892578e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 605,
+          "failed_components_on_constrained_atoms": 605,
+          "maximum_absolute_residual": 172.04065442085266,
+          "maximum_envelope_excess": 0.5075812781839014,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 218.93926011221427,
+            "original_bound": 0.005378785202244286,
+            "reported": 218.42630004882812,
+            "residual": 0.5129600633861457
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 172.04065442085266,
+          "maximum_envelope_excess": -0.0007643890503654257,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.9508358490566025,
+            "original_bound": 0.0010390222096443177,
+            "reported": -1.9511104822158813,
+            "residual": 0.000274633159278892
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 128.0,
+          "maximum_envelope_excess": -0.0007643640065193177,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.9508358240127563,
+            "original_bound": 0.0010390222096443177,
+            "reported": -1.9511104822158813,
+            "residual": 0.000274658203125
+          }
+        }
+      },
+      "ordinal": 12,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 7.62939453125e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 268245.69482421875,
+          "maximum_envelope_excess": 5.125321673440634,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.40554057526776,
+            "original_bound": 0.005408110811505356,
+            "reported": 215.27481079101562,
+            "residual": 5.130729784252139
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 268245.69482421875,
+          "maximum_envelope_excess": -0.0003154242846021588,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.391148337325717,
+            "original_bound": 0.0010478376150131225,
+            "reported": -2.391880750656128,
+            "residual": 0.0007324133304109637
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 262144.0,
+          "maximum_envelope_excess": -0.0003154157400131225,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.391148328781128,
+            "original_bound": 0.0010478376150131225,
+            "reported": -2.391880750656128,
+            "residual": 0.000732421875
+          }
+        }
+      },
+      "ordinal": 1000,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 0.0,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 32032.20458984375,
+          "maximum_envelope_excess": 5.125336859292685,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.4091874258537,
+            "original_bound": 0.005408183748517074,
+            "reported": 215.2784423828125,
+            "residual": 5.130745043041202
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 32032.20458984375,
+          "maximum_envelope_excess": -0.00031068135318136863,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.218696829790446,
+            "original_bound": 0.001104373936595809,
+            "reported": 5.217903137207031,
+            "residual": 0.0007936925834144404
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 512.0,
+          "maximum_envelope_excess": -0.0003109169006347656,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.218696594238281,
+            "original_bound": 0.0011043739318847656,
+            "reported": 5.217903137207031,
+            "residual": 0.00079345703125
+          }
+        }
+      },
+      "ordinal": 1001,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.7220458984375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 57653.77087402344,
+          "maximum_envelope_excess": 5.125335799112021,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.46219645905683,
+            "original_bound": 0.005409243929181137,
+            "reported": 215.33145141601562,
+            "residual": 5.130745043041202
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 57653.77087402344,
+          "maximum_envelope_excess": -0.000712167449501228,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.393467673263217,
+            "original_bound": 0.0010478693534652643,
+            "reported": -2.393131971359253,
+            "residual": 0.0003357019039640363
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 65536.0,
+          "maximum_envelope_excess": -0.0007121759939193726,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.393467664718628,
+            "original_bound": 0.0010478693532943726,
+            "reported": -2.393131971359253,
+            "residual": 0.000335693359375
+          }
+        }
+      },
+      "ordinal": 1002,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.7220458984375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 30255.400634765625,
+          "maximum_envelope_excess": 5.125350131997763,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.50849162507245,
+            "original_bound": 0.005410169832501449,
+            "reported": 215.3777313232422,
+            "residual": 5.130760301830264
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 30255.400634765625,
+          "maximum_envelope_excess": -0.0007616374836067836,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "361",
+              "",
+              "GLU",
+              "CD"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -9.440886431648835,
+            "original_bound": 0.0011888177286329767,
+            "reported": -9.440459251403809,
+            "residual": 0.000427180245026193
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 4096.0,
+          "maximum_envelope_excess": -0.0007615716361999512,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "361",
+              "",
+              "GLU",
+              "CD"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -9.440886497497559,
+            "original_bound": 0.0011888177299499512,
+            "reported": -9.440459251403809,
+            "residual": 0.00042724609375
+          }
+        }
+      },
+      "ordinal": 1003,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.7220458984375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 8982.762817382812,
+          "maximum_envelope_excess": 5.125287981729208,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.56424724030683,
+            "original_bound": 0.005411284944806137,
+            "reported": 215.4335479736328,
+            "residual": 5.130699266674014
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 8982.762817382812,
+          "maximum_envelope_excess": -0.0007427320246965405,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.395817526778842,
+            "original_bound": 0.0010479163505355768,
+            "reported": -2.395512342453003,
+            "residual": 0.0003051843258390363
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 4096.0,
+          "maximum_envelope_excess": -0.000742740569114685,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "382",
+              "",
+              "EPE",
+              "N4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -2.395817518234253,
+            "original_bound": 0.001047916350364685,
+            "reported": -2.395512342453003,
+            "residual": 0.00030517578125
+          }
+        }
+      },
+      "ordinal": 1004,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 5.7220458984375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 18886.851531982422,
+          "maximum_envelope_excess": 5.125302123880087,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.62007914948651,
+            "original_bound": 0.005412401582989731,
+            "reported": 215.48936462402344,
+            "residual": 5.130714525463077
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 18886.851531982422,
+          "maximum_envelope_excess": -0.00046877445373947474,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -0.09898561418380325,
+            "original_bound": 0.00102,
+            "reported": -0.09843438863754272,
+            "residual": 0.0005512255462605253
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 16384.0,
+          "maximum_envelope_excess": -0.0004687762451171876,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -0.09898561239242554,
+            "original_bound": 0.00102,
+            "reported": -0.09843438863754272,
+            "residual": 0.0005512237548828125
+          }
+        }
+      },
+      "ordinal": 1005,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 2.6226043701171875e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 5545.959381103516,
+          "maximum_envelope_excess": 5.125224597024618,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.68172465729901,
+            "original_bound": 0.00541363449314598,
+            "reported": 215.55108642578125,
+            "residual": 5.130638231517764
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 5545.959381103516,
+          "maximum_envelope_excess": -0.0008163269547908567,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "273",
+              "",
+              "GLN",
+              "HB3"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 9.129254286606738,
+            "original_bound": 0.0011825924110412597,
+            "reported": 9.129620552062988,
+            "residual": 0.0003662654562504031
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 8192.0,
+          "maximum_envelope_excess": -0.0008163814735412597,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "273",
+              "",
+              "GLN",
+              "HB3"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 9.129254341125488,
+            "original_bound": 0.0011825924110412597,
+            "reported": 9.129620552062988,
+            "residual": 0.0003662109375
+          }
+        }
+      },
+      "ordinal": 1006,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 1.6689300537109375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 2717.7777729034424,
+          "maximum_envelope_excess": 5.125345309915243,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.74959575104901,
+            "original_bound": 0.005414991915020981,
+            "reported": 215.61883544921875,
+            "residual": 5.130760301830264
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 2717.7777729034424,
+          "maximum_envelope_excess": -0.000764804661416274,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.9743954193691025,
+            "original_bound": 0.001039487908387382,
+            "reported": -1.9741207361221313,
+            "residual": 0.000274683246971108
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 3072.0,
+          "maximum_envelope_excess": -0.0007648297047615051,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "362",
+              "",
+              "ILE",
+              "H"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": -1.9743953943252563,
+            "original_bound": 0.001039487907886505,
+            "reported": -1.9741207361221313,
+            "residual": 0.000274658203125
+          }
+        }
+      },
+      "ordinal": 1007,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 1.6689300537109375e-06,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 1007.5537109375,
+          "maximum_envelope_excess": 5.125328507241903,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.8267899649162,
+            "original_bound": 0.005416535799298325,
+            "reported": 215.696044921875,
+            "residual": 5.130745043041202
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 1007.5537109375,
+          "maximum_envelope_excess": -0.0006014371818031123,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.236580130571696,
+            "original_bound": 0.001104741668701172,
+            "reported": 5.237083435058594,
+            "residual": 0.0005033044868980596
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 1024.0,
+          "maximum_envelope_excess": -0.0006012016296386719,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.236579895019531,
+            "original_bound": 0.001104741668701172,
+            "reported": 5.237083435058594,
+            "residual": 0.0005035400390625
+          }
+        }
+      },
+      "ordinal": 1008,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 7.152557373046875e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 621.6055917739868,
+          "maximum_envelope_excess": 5.12535720322579,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 220.91786967683026,
+            "original_bound": 0.005418357393536606,
+            "reported": 215.78709411621094,
+            "residual": 5.130775560619327
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 621.6055917739868,
+          "maximum_envelope_excess": -0.0007010140684561663,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "414",
+              "",
+              "HOH",
+              "O"
+            ],
+            "axis": "y",
+            "constrained": true,
+            "expected": 59.896310449738195,
+            "original_bound": 0.002197926208994764,
+            "reported": 59.894813537597656,
+            "residual": 0.0014969121405385977
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 512.0,
+          "maximum_envelope_excess": -0.0007025648498535158,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "414",
+              "",
+              "HOH",
+              "O"
+            ],
+            "axis": "y",
+            "constrained": true,
+            "expected": 59.89630889892578,
+            "original_bound": 0.002197926177978516,
+            "reported": 59.894813537597656,
+            "residual": 0.001495361328125
+          }
+        }
+      },
+      "ordinal": 1009,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 3.8743019104003906e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 523.0323452949524,
+          "maximum_envelope_excess": 5.125187208108603,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 221.02529155183026,
+            "original_bound": 0.005420505831036606,
+            "reported": 215.89468383789062,
+            "residual": 5.130607713939639
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 523.0323452949524,
+          "maximum_envelope_excess": -0.0006698795038161342,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.249527213091227,
+            "original_bound": 0.0011049905442618245,
+            "reported": 5.249092102050781,
+            "residual": 0.0004351110404456904
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 512.0,
+          "maximum_envelope_excess": -0.0006701150512695314,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "381",
+              "",
+              "DAN",
+              "HO4"
+            ],
+            "axis": "x",
+            "constrained": false,
+            "expected": 5.2495269775390625,
+            "original_bound": 0.0011049905395507814,
+            "reported": 5.249092102050781,
+            "residual": 0.00043487548828125
+          }
+        }
+      },
+      "ordinal": 1010,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 3.8743019104003906e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 227.23984026908875,
+          "maximum_envelope_excess": 5.125215414895712,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 221.14083110261151,
+            "original_bound": 0.0054228166220522305,
+            "reported": 216.01019287109375,
+            "residual": 5.130638231517764
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 227.23984026908875,
+          "maximum_envelope_excess": -0.0004501217197647202,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "273",
+              "",
+              "GLN",
+              "HB3"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 9.12852187775843,
+            "original_bound": 0.0011825850868225098,
+            "reported": 9.129254341125488,
+            "residual": 0.0007324633670577896
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 256.0,
+          "maximum_envelope_excess": -0.0004501632118225098,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "273",
+              "",
+              "GLN",
+              "HB3"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": 9.128521919250488,
+            "original_bound": 0.0011825850868225098,
+            "reported": 9.129254341125488,
+            "residual": 0.000732421875
+          }
+        }
+      },
+      "ordinal": 1011,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    },
+    {
+      "energy_error": 2.086162567138672e-07,
+      "hypotheses": {
+        "physical": {
+          "failed_components": 635,
+          "failed_components_on_constrained_atoms": 635,
+          "maximum_absolute_residual": 95.3019950389862,
+          "maximum_envelope_excess": 5.125289563455282,
+          "passed": false,
+          "witness": {
+            "atom_key": [
+              "A",
+              "439",
+              "",
+              "HOH",
+              "H2"
+            ],
+            "axis": "x",
+            "constrained": true,
+            "expected": 221.2481003897209,
+            "original_bound": 0.005424962007794418,
+            "reported": 216.1173858642578,
+            "residual": 5.130714525463077
+          }
+        },
+        "source_sign": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 95.3019950389862,
+          "maximum_envelope_excess": -0.0005140426429707304,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -4.505411090258022,
+            "original_bound": 0.001090119743347168,
+            "reported": -4.505987167358398,
+            "residual": 0.0005760771003764376
+          }
+        },
+        "source_sign_float32": {
+          "failed_components": 0,
+          "failed_components_on_constrained_atoms": 0,
+          "maximum_absolute_residual": 128.0,
+          "maximum_envelope_excess": -0.000514100456237793,
+          "passed": true,
+          "witness": {
+            "atom_key": [
+              "A",
+              "376",
+              "",
+              "GLU",
+              "OE1"
+            ],
+            "axis": "y",
+            "constrained": false,
+            "expected": -4.505411148071289,
+            "original_bound": 0.001090119743347168,
+            "reported": -4.505987167358398,
+            "residual": 0.000576019287109375
+          }
+        }
+      },
+      "ordinal": 1012,
+      "original_energy_envelope_passed": true,
+      "original_penalty_energy_envelope_passed": true,
+      "penalty_energy_error": 0.0,
+      "status": "readback"
+    }
+  ],
+  "installed_binary_attested": false,
+  "limits": "Source-sign/quantization attribution is distinct from a physically correct objective gradient. Old strict/native failures remain preserved; no OpenMM patch or public capability.",
+  "new_h_samples": 0,
+  "new_minimizations": 0,
+  "original_tolerances_changed": false,
+  "physical_qualification_rehabilitated": false,
+  "plan_sha256": "1dfa5ce8dc9c64ef02918b70194f8de86885d33caeb4f800a2c5e514c497f6c8",
+  "private_artifacts": {
+    "callback-000.json.gz": "0f259936382bcc77df2633c2219c76a0e89d282c50a3f053c8846cae9b8f19b2",
+    "callback-001.json.gz": "b4ef37643e83898467ed8b6a604dcb9c9cef135aafc1df0cdd65af468db2955a",
+    "callback-002.json.gz": "826f1101ab9f43cb438da2afdfd7ef24fe2f269228f1fabb7e19961a8661d40b",
+    "callback-003.json.gz": "a1b1236a6c41f52d9dfdd3f6c0cef85b3ad08238e3dd7c1960b7adc08db5b10a",
+    "callback-004.json.gz": "9469d704ba038c06b4eef57d80db2276dcd9661e5580b2530bfc74cd851ca44e",
+    "callback-005.json.gz": "4e52c483e7c31e610b2a9e9d81fcc0235bd029e138c4aedcef4a77b7b351562d",
+    "callback-006.json.gz": "2c9897f8662ad0a9d872e6ee068f94b1b55b7174637cb0b3f96a458c9cd788b7",
+    "callback-007.json.gz": "4eae20381a14183d3b5f660576b0e153e7698a551cce104e83e49d3863cfbd9b",
+    "callback-008.json.gz": "64f146ed667e7e5cbc9ce22d6fe023fa812ef19de6e52598e2de426284ad1ea7",
+    "callback-009.json.gz": "54c780e9fdeee2039ae1ff5549362651f3df36a267d7b2c8d71de28e5a0d2079",
+    "callback-010.json.gz": "54cc4d1ace3658e4af6d38141f218bb8b3ee1114ba3cf9818844c8f02ffc006b",
+    "callback-011.json.gz": "ae990aed7c837f9b2c9ddf158b2d16a724ad3dc59fe957e68e562d6c0b224cb3",
+    "callback-012.json.gz": "28d8445be526b0666f36eb9292c097c8872a20ae516a792d4a20d53dfcb54bb8",
+    "callback-1000.json.gz": "2056b27419f19fa9bb810fa7c956e3658c237043b36cd42fe03fee90b5ef87fe",
+    "callback-1001.json.gz": "eb3fbf082f31f5596601eb69c8e8bff59f81c8a4c589a664779a09a8dbf16c15",
+    "callback-1002.json.gz": "4ca2d9d12e64035236b1dbba9583b71bbcbea49d2f125e1823477db4510283a7",
+    "callback-1003.json.gz": "57010ebd7d93888778cf76d8cf560a23f0668553f11f8b3f6702bb86c7db8606",
+    "callback-1004.json.gz": "b5843c13e0850ef55e25547c01b6bc6e8ce4cf3d8971197be46868c1008085bd",
+    "callback-1005.json.gz": "575ffe71da44c68227cab186447e804ecaffe7d295aa4f315d05c71bb7284236",
+    "callback-1006.json.gz": "9e3c275e95a5e27a1c4ad543ab0923e4a9cd386536927a3a59133058715ffe94",
+    "callback-1007.json.gz": "6a7c62c564c1b6ba4c27100900aa2b0f61da52fb4f14d5b1dfbc441d9cd3aa49",
+    "callback-1008.json.gz": "4f3c6e8c680c9e731c21a2475dce9fe54fc43290819a4f9f36cb52d92c06a1ec",
+    "callback-1009.json.gz": "879cd0df660a5fc02c3afe7a187196352f5a8f3d0a73531d8fa3956fefafd361",
+    "callback-1010.json.gz": "3ddaed07fe7cf8813972a904b5e00ba2df2a2fef95c6f44bea2d0a2150ba48be",
+    "callback-1011.json.gz": "0f9a6adc454c378d74298162be2b092a560cd9901866c0a9f63464ce08f7d6ca",
+    "callback-1012.json.gz": "a4ebeb0267bb366248c003ec513ac9eda3ecbc49b5a781782ecb9a5cd63a956b",
+    "executed-plan.json": "1dfa5ce8dc9c64ef02918b70194f8de86885d33caeb4f800a2c5e514c497f6c8"
+  },
+  "schema": "dvbfixer.private-cpu-sign-readback-evidence.v1"
+}

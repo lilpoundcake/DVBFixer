@@ -90,3 +90,45 @@ remain mandatory. Geometric preservation and physical numerical qualification
 are separate outcomes; the old 26 failed gradient callbacks stay failed even
 if the new geometric endpoints improve. Constrained stationarity and public
 readiness are not inferred from a returned minimizer or a zero-D-Cα structure.
+
+## Separate source-sign attribution of old CPU readback failures
+
+Exact-revision source inspection identified a checkable sign discrepancy in
+`CommonMinimizeKernel::evaluateCpu`. With delta `(positions[y]-positions[x])/r`,
+the positive penalty derivative adds `+K*(r-r0)*delta` to y and subtracts it
+from x. The inspected CPU fallback code does the reverse. The device upload can
+also quantize the resulting gradient to float32. This inspection does not attest
+the installed binary and is NOT a reason to redefine the physical audit.
+
+The [separate prospective contract](../plans/post-hydrogen-cpu-sign-readback.md)
+and [fixed 26-state plan](post-hydrogen-cpu-sign-plan.json) were frozen at
+**`5ef747c`** before force queries. The
+[complete scalar results](post-hydrogen-cpu-sign-evidence.json) used one default
+CPU Context and one energy/force query for each of the original 26 callbacks,
+without minimization, H placement, repairs, fitted offsets or tolerance changes.
+Both physical and source formulas were declared in advance and evaluated over
+the complete gradient arrays with the ORIGINAL component envelopes.
+
+| Formula | Full gradient-envelope passes |
+|---|---:|
+| physical gradient + positive penalty derivative | **0/26** |
+| physical gradient - positive penalty derivative | **26/26** |
+| float32 transport of the source-sign formula | **26/26** |
+
+All **16,120** failed physical-gradient components belong to constrained atoms;
+no unconstrained components fail that comparison. Source-sign agreement already
+passes without requiring float32 transport, so do not claim quantization alone
+explains or repairs these failures. Maximum absolute residuals at extreme-force
+components (~2.68e5, ~2.62e5 after float32) remain explicitly recorded; passing
+here means the unchanged absolute/relative envelope, not bit equality. For
+example, the first state's A/HOH439/H2 x component is ~218.096685 for the physical
+formula versus reported ~217.583649, outside its ~0.005362 original bound.
+
+Two synthetic finite-difference/comparison tests preserve the physical meaning:
+the positive derivative matches energy finite differences; the reversed source
+sign does NOT. A native-source explanation is therefore **not physical-gradient
+qualification**. This supports a source-consistent CPU-fallback constraint-sign
+concern rather than harmless GPU arithmetic alone. Installed binary/event
+causality, a controlled upstream reproducer and any external issue or dependency
+patch remain separate gates. No external issue was filed and no OpenMM code
+was changed. The old 0/26 physical outcomes and strict admission refusal stand.
