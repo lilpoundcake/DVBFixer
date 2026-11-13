@@ -1,0 +1,300 @@
+{
+  "cases": [
+    {
+      "geometry_passed": true,
+      "index": 0,
+      "kind": "original-thr2",
+      "label": "unseeded",
+      "mode": "captured",
+      "moved": 1,
+      "moved_geometry": [
+        {
+          "after_four_volume_angstrom3": -2.6337270758368243,
+          "atom": {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "2"
+            },
+            "name": "HB"
+          },
+          "before_four_volume_angstrom3": 5.792915930345398,
+          "heavy_volume_angstrom3": -0.1983892885655523,
+          "radius_nm": 0.10368671139989168
+        }
+      ],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 1,
+      "kind": "original-thr2",
+      "label": "unseeded",
+      "mode": "Reference",
+      "moved": 1,
+      "moved_geometry": [
+        {
+          "after_four_volume_angstrom3": -2.63189836260357,
+          "atom": {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "2"
+            },
+            "name": "HB"
+          },
+          "before_four_volume_angstrom3": 5.787773226555225,
+          "heavy_volume_angstrom3": -0.1983892885655523,
+          "radius_nm": 0.10360885227815482
+        }
+      ],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 2,
+      "kind": "original-thr2",
+      "label": "seed-1",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 3,
+      "kind": "original-thr2",
+      "label": "seed-1",
+      "mode": "Reference",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 4,
+      "kind": "original-thr2",
+      "label": "seed-2",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 5,
+      "kind": "original-thr2",
+      "label": "seed-2",
+      "mode": "Reference",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "not-recorded",
+      "status": "proposed",
+      "supported": 56
+    },
+    {
+      "geometry_passed": true,
+      "index": 6,
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "amber",
+      "status": "proposed",
+      "supported": 97
+    },
+    {
+      "geometry_passed": true,
+      "index": 7,
+      "kind": "fixed-real-cohort",
+      "label": "ubiquitin-water",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 97
+    },
+    {
+      "geometry_passed": true,
+      "index": 8,
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "amber",
+      "status": "proposed",
+      "supported": 407
+    },
+    {
+      "geometry_passed": true,
+      "index": 9,
+      "kind": "fixed-real-cohort",
+      "label": "antibody-disulfide",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 407
+    },
+    {
+      "geometry_passed": true,
+      "index": 10,
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "amber",
+      "status": "proposed",
+      "supported": 390
+    },
+    {
+      "geometry_passed": true,
+      "index": 11,
+      "kind": "fixed-real-cohort",
+      "label": "acidic-context-ph3",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 390
+    },
+    {
+      "geometry_passed": true,
+      "index": 12,
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "amber+glycam",
+      "status": "proposed",
+      "supported": 728
+    },
+    {
+      "geometry_passed": true,
+      "index": 13,
+      "kind": "fixed-real-cohort",
+      "label": "pdb-glycoprotein",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 728
+    },
+    {
+      "geometry_passed": true,
+      "index": 14,
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "mode": "captured",
+      "moved": 1,
+      "moved_geometry": [
+        {
+          "after_four_volume_angstrom3": 2.297369784050226,
+          "atom": {
+            "component": {
+              "alternate_location": "",
+              "chain_id": "A",
+              "insertion_code": "",
+              "model": 1,
+              "occurrence": 1,
+              "sequence_number": "0"
+            },
+            "name": "HA"
+          },
+          "before_four_volume_angstrom3": -0.16772741329776192,
+          "heavy_volume_angstrom3": 0.9245134362573871,
+          "radius_nm": 0.11988270241210547
+        }
+      ],
+      "observations_exact": true,
+      "requested_ff": "amber",
+      "status": "proposed",
+      "supported": 448
+    },
+    {
+      "geometry_passed": true,
+      "index": 15,
+      "kind": "fixed-real-cohort",
+      "label": "protein-ligands",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 448
+    },
+    {
+      "geometry_passed": true,
+      "index": 16,
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "amber+glycam",
+      "status": "proposed",
+      "supported": 286
+    },
+    {
+      "geometry_passed": true,
+      "index": 17,
+      "kind": "fixed-real-cohort",
+      "label": "glycam-glycoprotein",
+      "mode": "captured",
+      "moved": 0,
+      "moved_geometry": [],
+      "observations_exact": true,
+      "requested_ff": "charmm",
+      "status": "proposed",
+      "supported": 286
+    }
+  ],
+  "contexts": 0,
+  "evidence_sha256": "6d754cc863e16a879c0aa40ab2a3ff38f623b392edb2fb1080395e35bfd7e9f1",
+  "limits": "Independent NumPy proposal geometry/preservation; shared source admission. Refusals remain outcomes, not passes. No dynamic claim.",
+  "minimizations": 0,
+  "plan_sha256": "d412d8df2c7c307b590e963f687c25828297c7307fb329966b410ed2dc31122f",
+  "production_changed": false,
+  "schema": "dvbfixer.private-post-h-static-audit.v1",
+  "script_sha256": "a564a7b336c620581f0f590c5883fd1670534b29c01cea957ab6faaad70b97f5"
+}

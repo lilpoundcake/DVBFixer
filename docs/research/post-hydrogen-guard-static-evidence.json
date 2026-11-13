@@ -1,0 +1,282 @@
+{
+  "artifacts": {
+    "case-00.json.gz": "7cedb16d8dc97224e563d880f23fb70255561e949c1b4d4def8e9ef21c15f451",
+    "case-01.json.gz": "ae78fb0b38330b14f977916707f98344309af536d348ace77d078ddd188ea7ba",
+    "case-02.json.gz": "e41a3cdfa559465f497c18e59bfa804cdbec1906124676e813cef0575b161d12",
+    "case-03.json.gz": "4da749605481c3e17e1f16a963885ac4e62b0c33819aecb49ac39c72904eb9e8",
+    "case-04.json.gz": "7e8ce377d5dd39763dfc3a62c013a72e72bc2b7f2b46f28fc4927432e0756837",
+    "case-05.json.gz": "c1a727c37fc59104e1fdee86746b34ef6f955fd080389ccaa85c19836817f7ac",
+    "case-06.json.gz": "a0c669e50027478a60f4fc7ba1c3b5acb612398296b0e88ec9a49a09042b03b7",
+    "case-07.json.gz": "2a0eeac927833e09785d373903d38bef67055368ed056de3fc43c5874e79937e",
+    "case-08.json.gz": "56fb0394f9b857e0a41747d93c1e104b13f3cd7e6fde1f6f7a1bed0ff0e86c5b",
+    "case-09.json.gz": "76ce9f7c259fd9ba27509389271d3eb8a678d45a33541edc60ad974cffa843cc",
+    "case-10.json.gz": "30c6c95f7cc144dfcc1c3d16f1a2af168033bfec6478437f10366758739fcfca",
+    "case-11.json.gz": "ba9576fe436b5c66728518a2a19277f5b57f61a6025e5e79da16c83cedfce2a5",
+    "case-12.json.gz": "a7add620796d53b23708b9d4216a9d9c6e2fbd6488818e2b39186f6a336ffb28",
+    "case-13.json.gz": "18d92111443b9c74b828fc315dab7598b77160f106f015c583475f43e6d170ef",
+    "case-14.json.gz": "ae182076749a833756e875c83c44963fdc973a5b0f797367cbdd2cc6323941b6",
+    "case-15.json.gz": "f639d1a5f3fd9f98550b802d7763faecfc97524c75586fa4993a6c1b85f8b114",
+    "case-16.json.gz": "c8507bab812e0844ebeb305f89dcb0e5f171987537830f317b56b0ddba1f6f82",
+    "case-17.json.gz": "b26ae74e09753991564dd491c96f6c80f44b747711aa0e6c05f73a52f75398db"
+  },
+  "cases": [
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 0,
+      "moved": [
+        {
+          "component": {
+            "alternate_location": "",
+            "chain_id": "A",
+            "insertion_code": "",
+            "model": 1,
+            "occurrence": 1,
+            "sequence_number": "2"
+          },
+          "name": "HB"
+        }
+      ],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-00.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 1,
+      "moved": [
+        {
+          "component": {
+            "alternate_location": "",
+            "chain_id": "A",
+            "insertion_code": "",
+            "model": 1,
+            "occurrence": 1,
+            "sequence_number": "2"
+          },
+          "name": "HB"
+        }
+      ],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-01.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 2,
+      "moved": [],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-02.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 3,
+      "moved": [],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-03.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 4,
+      "moved": [],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-04.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 642,
+      "index": 5,
+      "moved": [],
+      "new_h": 315,
+      "observed_exact": true,
+      "proposal_file": "case-05.json.gz",
+      "status": "proposed",
+      "supported": 56,
+      "unsupported": 259
+    },
+    {
+      "admitted": true,
+      "atoms": 1405,
+      "index": 6,
+      "moved": [],
+      "new_h": 745,
+      "observed_exact": true,
+      "proposal_file": "case-06.json.gz",
+      "status": "proposed",
+      "supported": 97,
+      "unsupported": 648
+    },
+    {
+      "admitted": true,
+      "atoms": 1405,
+      "index": 7,
+      "moved": [],
+      "new_h": 745,
+      "observed_exact": true,
+      "proposal_file": "case-07.json.gz",
+      "status": "proposed",
+      "supported": 97,
+      "unsupported": 648
+    },
+    {
+      "admitted": true,
+      "atoms": 6686,
+      "index": 8,
+      "moved": [],
+      "new_h": 3514,
+      "observed_exact": true,
+      "proposal_file": "case-08.json.gz",
+      "status": "proposed",
+      "supported": 407,
+      "unsupported": 3107
+    },
+    {
+      "admitted": true,
+      "atoms": 6686,
+      "index": 9,
+      "moved": [],
+      "new_h": 3514,
+      "observed_exact": true,
+      "proposal_file": "case-09.json.gz",
+      "status": "proposed",
+      "supported": 407,
+      "unsupported": 3107
+    },
+    {
+      "admitted": true,
+      "atoms": 5262,
+      "index": 10,
+      "moved": [],
+      "new_h": 2612,
+      "observed_exact": true,
+      "proposal_file": "case-10.json.gz",
+      "status": "proposed",
+      "supported": 390,
+      "unsupported": 2222
+    },
+    {
+      "admitted": true,
+      "atoms": 5262,
+      "index": 11,
+      "moved": [],
+      "new_h": 2612,
+      "observed_exact": true,
+      "proposal_file": "case-11.json.gz",
+      "status": "proposed",
+      "supported": 390,
+      "unsupported": 2222
+    },
+    {
+      "admitted": true,
+      "atoms": 10107,
+      "index": 12,
+      "moved": [],
+      "new_h": 4986,
+      "observed_exact": true,
+      "proposal_file": "case-12.json.gz",
+      "status": "proposed",
+      "supported": 728,
+      "unsupported": 4258
+    },
+    {
+      "admitted": true,
+      "atoms": 10107,
+      "index": 13,
+      "moved": [],
+      "new_h": 4986,
+      "observed_exact": true,
+      "proposal_file": "case-13.json.gz",
+      "status": "proposed",
+      "supported": 728,
+      "unsupported": 4258
+    },
+    {
+      "admitted": true,
+      "atoms": 6155,
+      "index": 14,
+      "moved": [
+        {
+          "component": {
+            "alternate_location": "",
+            "chain_id": "A",
+            "insertion_code": "",
+            "model": 1,
+            "occurrence": 1,
+            "sequence_number": "0"
+          },
+          "name": "HA"
+        }
+      ],
+      "new_h": 3043,
+      "observed_exact": true,
+      "proposal_file": "case-14.json.gz",
+      "status": "proposed",
+      "supported": 448,
+      "unsupported": 2595
+    },
+    {
+      "admitted": true,
+      "atoms": 6155,
+      "index": 15,
+      "moved": [],
+      "new_h": 3043,
+      "observed_exact": true,
+      "proposal_file": "case-15.json.gz",
+      "status": "proposed",
+      "supported": 448,
+      "unsupported": 2595
+    },
+    {
+      "admitted": true,
+      "atoms": 4117,
+      "index": 16,
+      "moved": [],
+      "new_h": 1829,
+      "observed_exact": true,
+      "proposal_file": "case-16.json.gz",
+      "status": "proposed",
+      "supported": 286,
+      "unsupported": 1543
+    },
+    {
+      "admitted": true,
+      "atoms": 4117,
+      "index": 17,
+      "moved": [],
+      "new_h": 1829,
+      "observed_exact": true,
+      "proposal_file": "case-17.json.gz",
+      "status": "proposed",
+      "supported": 286,
+      "unsupported": 1543
+    }
+  ],
+  "contexts": 0,
+  "minimizations": 0,
+  "new_h_sampling": false,
+  "plan_sha256": "d412d8df2c7c307b590e963f687c25828297c7307fb329966b410ed2dc31122f",
+  "production_changed": false,
+  "schema": "dvbfixer.private-post-h-static-evidence.v1"
+}
