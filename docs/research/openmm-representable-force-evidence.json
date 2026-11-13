@@ -1,0 +1,1026 @@
+{
+  "all_eleven_controls_passed": true,
+  "cases": [
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "OpenCL",
+        "constrained": false,
+        "index": 0,
+        "label": "OpenCL-free-below",
+        "properties": {
+          "DeviceIndex": "0",
+          "DisablePmeStream": "false",
+          "OpenCLPlatformIndex": "0",
+          "Precision": "single",
+          "UseCpuPme": "false"
+        },
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 25.727648735046387,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.11920928955078125,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 3.1246337890625,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 3.1246337890625,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0001068115234375,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232944.0,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "OpenCL",
+        "constrained": false,
+        "index": 1,
+        "label": "OpenCL-free-trigger",
+        "properties": {
+          "DeviceIndex": "0",
+          "DisablePmeStream": "false",
+          "OpenCLPlatformIndex": "0",
+          "Precision": "single",
+          "UseCpuPme": "false"
+        },
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.95367431640625,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 50.442626953125,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 50.442626953125,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164672.0,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "OpenCL",
+        "constrained": true,
+        "index": 2,
+        "label": "OpenCL-constrained-below",
+        "properties": {
+          "DeviceIndex": "0",
+          "DisablePmeStream": "false",
+          "OpenCLPlatformIndex": "0",
+          "Precision": "single",
+          "UseCpuPme": "false"
+        },
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 25.728646993637085,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.11920928955078125,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 3.1246337890625,
+              "strict_passed": true,
+              "witness": {
+                "axis": "z",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 2,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 5.321226835245255,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.7629495859146118,
+                "expected": 202.63473391532338,
+                "original_bound": 0.005052694678306468,
+                "particle": 0,
+                "reported": 197.31350708007812
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 5.32122802734375,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.7629495859146118,
+                "expected": 202.63473510742188,
+                "original_bound": 0.005052694702148438,
+                "particle": 0,
+                "reported": 197.31350708007812
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232944.0,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 2.6613473892156403,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "OpenCL",
+        "constrained": true,
+        "index": 3,
+        "label": "OpenCL-constrained-trigger",
+        "properties": {
+          "DeviceIndex": "0",
+          "DisablePmeStream": "false",
+          "OpenCLPlatformIndex": "0",
+          "Precision": "single",
+          "UseCpuPme": "false"
+        },
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.95367431640625,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 50.442626953125,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.7629414796829224,
+                "expected": 199.4642138481195,
+                "original_bound": 0.005010503540039062,
+                "particle": 0,
+                "reported": 200.52517700195312
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 50.442626953125,
+              "strict_passed": true,
+              "witness": {
+                "axis": "z",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 2,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "z",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 2,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164672.0,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.5304813384954254,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": false,
+      "representable_trigger_nodes": [
+        0
+      ],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "CPU",
+        "constrained": false,
+        "index": 4,
+        "label": "CPU-free-below",
+        "properties": {},
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.3433401584625244,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 7.777158498764038,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232952.2228415,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "CPU",
+        "constrained": false,
+        "index": 5,
+        "label": "CPU-free-trigger",
+        "properties": {},
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 1.0013306140899658,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 38.88590693473816,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164761.114093,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "CPU",
+        "constrained": true,
+        "index": 6,
+        "label": "CPU-constrained-below",
+        "properties": {},
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.22358545660972595,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 2.9802322387695312e-08,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 15.178482650729507,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 207.513348912111,
+                "original_bound": 0.00515026697824222,
+                "particle": 0,
+                "reported": 192.3348662613815
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 15.178485179048181,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 207.5133514404297,
+                "original_bound": 0.0051502670288085944,
+                "particle": 0,
+                "reported": 192.3348662613815
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232952.22284034,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 7.5892413253647595,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "CPU",
+        "constrained": true,
+        "index": 7,
+        "label": "CPU-constrained-trigger",
+        "properties": {},
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 1.0013301372528076,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 2.842170943040401e-14,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 11.035696530131673,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 205.46266978241508,
+                "original_bound": 0.005109253395648302,
+                "particle": 0,
+                "reported": 194.4269732522834
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 38.88590741157532,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 205.46267700195312,
+                "original_bound": 0.005109253540039063,
+                "particle": 0,
+                "reported": 194.4269732522834
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164761.1140926,
+          "ordinal": 0,
+          "penalty_energy_error": 1.6940658945086007e-21,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 5.517848265065849,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "Reference",
+        "constrained": false,
+        "index": 8,
+        "label": "Reference-free-below",
+        "properties": {},
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.3433401584625244,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 7.777158498764038,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232952.2228415,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "Reference",
+        "constrained": false,
+        "index": 9,
+        "label": "Reference-free-trigger",
+        "properties": {},
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 1.0013306140899658,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 0.0,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 38.88590693473816,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164761.114093,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 0.0,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "Reference",
+        "constrained": true,
+        "index": 10,
+        "label": "Reference-constrained-below",
+        "properties": {},
+        "stress": 10000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "below"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": false,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 0.22358545660972595,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 2.9802322387695312e-08,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 15.178482650729507,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 207.513348912111,
+                "original_bound": 0.00515026697824222,
+                "particle": 0,
+                "reported": 192.3348662613815
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 15.178485179048181,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 207.5133514404297,
+                "original_bound": 0.0051502670288085944,
+                "particle": 0,
+                "reported": 192.3348662613815
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 240232952.22284034,
+          "ordinal": 0,
+          "penalty_energy_error": 0.0,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 7.5892413253647595,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    },
+    {
+      "callbacks": 1,
+      "case": {
+        "backend": "Reference",
+        "constrained": true,
+        "index": 11,
+        "label": "Reference-constrained-trigger",
+        "properties": {},
+        "stress": 50000000.0,
+        "stress_start": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "tier": "trigger"
+      },
+      "native_returned": true,
+      "nodes": [
+        {
+          "above_detector_below_capacity": true,
+          "energy_error": 0.0,
+          "energy_passed": true,
+          "finite_difference_maximum_error": 1.0013301372528076,
+          "finite_difference_passed": true,
+          "hypotheses": {
+            "physical": {
+              "allowance_passed": true,
+              "failed_components": 0,
+              "maximum_residual": 2.842170943040401e-14,
+              "strict_passed": true,
+              "witness": {
+                "axis": "y",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 0.0,
+                "original_bound": 0.00102,
+                "particle": 0,
+                "reported": -0.0
+              }
+            },
+            "source_sign": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 11.035696530131673,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 205.46266978241508,
+                "original_bound": 0.005109253395648302,
+                "particle": 0,
+                "reported": 194.4269732522834
+              }
+            },
+            "source_sign_float32": {
+              "allowance_passed": false,
+              "failed_components": 2,
+              "maximum_residual": 38.88590741157532,
+              "strict_passed": false,
+              "witness": {
+                "axis": "x",
+                "constraint_arithmetic_allowance": 0.0,
+                "expected": 205.46267700195312,
+                "original_bound": 0.005109253540039063,
+                "particle": 0,
+                "reported": 194.4269732522834
+              }
+            }
+          },
+          "iteration": 0,
+          "maximum_reported_gradient": 1201164761.1140926,
+          "ordinal": 0,
+          "penalty_energy_error": 1.6940658945086007e-21,
+          "penalty_energy_passed": true,
+          "penalty_gradient_maximum": 5.517848265065849,
+          "reported_gradient_exceeds_fixed_capacity": false
+        }
+      ],
+      "physical_control_passed": true,
+      "representable_trigger_nodes": [],
+      "returncode": 0,
+      "status": "completed"
+    }
+  ],
+  "execution_sha256": "0c000585f1bca421d51df7515926271fae65d06024e22e8c08ae31f64a762378",
+  "first_series_outcome_changed": false,
+  "installed_binary_source_identity_attested": false,
+  "installed_dependency_modified": false,
+  "internal_fallback_event_directly_observed": false,
+  "limits": "Separate prospective representable-force threshold control; previous oversized-force failures remain unchanged. Source-consistent public-reporter inconsistency is not correct native physics, direct internal-event evidence or a patched dependency.",
+  "numerical_readback_sha256": "03c1cd839b09407b9e69c976bd484740ad125a6a72d82fd41303b9c8144f89ce",
+  "plan_sha256": "7f4be232de0303b1b8968c8846a2a1837fa4c138f96d7c1a3821070e872054bd",
+  "representable_primary_signal_observed": true,
+  "schema": "dvbfixer.private-representable-force-evidence.v1",
+  "structural_qualification_rehabilitated": false
+}

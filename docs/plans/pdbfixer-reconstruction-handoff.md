@@ -2,6 +2,44 @@
 
 ## Authorization and baseline
 
+**Isolated synthetic OpenMM reproducer (2026-11-13):** user instructed continued
+work after the explicit isolated-reproducer proposal at `330b40a`. Branch
+`research/openmm-cpu-sign-reproducer`; no installed package/source patch, new
+environment, protein run, production/main change or external issue. First
+prospective series `287eacb`:12 native calls/162 callbacks, primary FALSE and
+all-controls FALSE, preserved. Excessive OpenCL stress gives incorrect gradients
+even WITHOUT constraints; one low-stress callback fails the old energy bound.
+No thresholds widened or cases repeated until green.
+
+**Separate representable threshold control `63adfc2`:** pinned convertForces
+detector is2^30, below signed capacity2^31. New synthetic constants/starting stress
+coordinates and diagnostic maxIterations1 were frozen before another12 calls.
+All12 complete with one callback each; constrained OpenCL representable trigger
+shows physical-gradient inconsistency and all11 other controls pass. Physical
+particle0/x derivative199.4642138481195 matches independent FD199.46421384833772,
+but native reports200.52517700195312, outside both original strict and OpenCL
+arithmetic bounds. Source-sign plus float32 transport matches ALL9 components
+exactly, max residual0. This establishes local installed PUBLIC-REPORTER/objective
+inconsistency, not directly witnessed internal fallback or binary/source identity,
+and does not explain HA286 causally or rehabilitate structural qualification.
+
+Total24 synthetic native calls/174 callbacks, zero retries/structural reruns.
+Portable `scripts/openmm_cpu_sign_minimal.py` needs only stdlib+OpenMM and no
+private/project input. Its compact native entry was NOT additionally executed;
+byte-identical System and offline retained-callback replay are verified, default
+entry is nonexecuting. Thirteen new engineering/packaging controls and all62
+focused controls pass. Protected native-library directory discovery was denied
+and not bypassed; runtime metadata is not a native-binary hash attestation. See
+[synthetic studies and portable reproducer](../research/openmm-cpu-sign-reproducer.md).
+Next action requires a separate user choice: upstream issue or isolated dependency
+fix testing. Neither happens automatically and installed OpenMM remains intact.
+Final full fast suite **3,305 passed**, three optional Torch/Biotite skips,
+33 slow deselections; all62 focused controls, style/type/generated/map checks,
+frozen hashes, links and raw-payload scans pass. First-series failure and old
+structural qualification remain unchanged; no jobs remain running.
+
+### Earlier compatible-noop and structural outcomes (unchanged)
+
 **Compatible-noop private continuation (2026-11-13):** after the explicit policy
 proposal at `5284081`, the user instructed continued work. New branch
 `research/post-hydrogen-local-noop`; static freeze `666c745`, separate native
