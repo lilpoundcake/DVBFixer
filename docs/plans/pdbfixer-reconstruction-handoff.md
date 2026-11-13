@@ -2,6 +2,38 @@
 
 ## Authorization and baseline
 
+**Upstream report preparation after `32be60e` (2026-11-13):** user's continued-
+work instruction started `research/openmm-upstream-report`. Publication is now
+BLOCKED by OpenMM's explicit AI policy: every issue must begin with a summary
+written by the HUMAN submitter in their own words; AI-generated technical material
+must be labeled and human-reviewed. No such opening/review was supplied; do NOT
+invent one, treat a generic continued-work instruction as that text, or post the
+appendix alone. Future replies to maintainer questions must come from the human,
+not automatic AI-generated answers. No issue/comment/PR was posted or attempted.
+See [technical appendix awaiting human opening](../research/openmm-upstream-technical-appendix.md)
+and [readiness/policy gate](../research/openmm-upstream-report-readiness.json).
+
+Duplicate checks found related #5394 (unconstrained CUDA fallback performance)
+and #5434/merged #5435 (known Apple M3 conversion overflow); the new report must
+stay specific to representable-range constraint-gradient sign behavior, not
+re-report those issues. No exact sign duplicate found in the performed searches,
+not an exhaustive absence guarantee. Template testInstallation output is NOT
+available and this is disclosed, rather than claiming it passed.
+
+**Portable native entry is now verified:** separate prospective freeze `8e376cd`
+allowed ONE unchanged compact-entry packaging call, no parameter/source change
+or retry. It returned exit0 with one callback, the same physical-gradient failure
+and exact float32 source-sign match. Earlier records correctly describe the
+wrapper as unexecuted at their snapshot; this later packaging verification does
+not alter those records. Scientific study remains24 calls/174 callbacks; total
+including this explicitly separate packaging call is25. Thirteen existing pure-
+math/packaging tests rerun pass; last unchanged-source full fast suite is3,305.
+No source/test/installed dependency/main change; no jobs are running. Need the
+user's own short summary (Russian is acceptable for faithful translation) and
+technical review before issue creation can proceed.
+
+### Earlier isolated reproducer and structural outcomes (unchanged)
+
 **Isolated synthetic OpenMM reproducer (2026-11-13):** user instructed continued
 work after the explicit isolated-reproducer proposal at `330b40a`. Branch
 `research/openmm-cpu-sign-reproducer`; no installed package/source patch, new

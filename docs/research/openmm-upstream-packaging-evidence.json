@@ -1,0 +1,51 @@
+{
+  "artifacts": {
+    "executed-plan.json": "63fd375c13703890e148c9c4504ffd73f697d10ab3cc6a9cdab99431322db6d8",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "e502cd1af6bc4153c1cea10750e8c2617f936daeae8a91d6472cdd7000bebe8e"
+  },
+  "external_issue_filed": false,
+  "human_written_summary_received": false,
+  "native_retries": 0,
+  "new_scientific_cases_or_qualification_seeds": 0,
+  "packaging_native_calls": 1,
+  "packaging_verification_passed": true,
+  "parse_error": null,
+  "plan_sha256": "63fd375c13703890e148c9c4504ffd73f697d10ab3cc6a9cdab99431322db6d8",
+  "reported": {
+    "callbacks": [
+      {
+        "iteration": 0,
+        "maximum_reported_gradient": 1201164672.0,
+        "particle0_x_physical": 199.4642138481195,
+        "particle0_x_reported": 200.52517700195312,
+        "particle0_x_source_sign": 200.52517652511037,
+        "physical": {
+          "maximum_error": 50.442626953125,
+          "original_constraint_allowance_passed": false,
+          "strict_passed": false
+        },
+        "source_sign": {
+          "maximum_error": 50.442626953125,
+          "original_constraint_allowance_passed": true,
+          "strict_passed": true
+        },
+        "source_sign_float32": {
+          "maximum_error": 0.0,
+          "original_constraint_allowance_passed": true,
+          "strict_passed": true
+        },
+        "warning": "Matching an incorrect source sign is NOT a physically correct gradient."
+      }
+    ],
+    "limits": "Synthetic diagnostic, not convergence, source/binary attestation or a dependency fix.",
+    "platform": "OpenCL",
+    "returned": true,
+    "revision": "36a30cbca54e727b216b606f3c011b67201eb8b4",
+    "runtime_version": "8.5.2.dev-36a30cb"
+  },
+  "returncode": 0,
+  "schema": "dvbfixer.private-upstream-portable-packaging-evidence.v1",
+  "source_sha256": "5fb99aa2ca86f66128a4fcf771c56409baa20fbb53feff8c16529de1ca16c36f",
+  "status": "completed"
+}
