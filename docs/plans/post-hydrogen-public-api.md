@@ -17,7 +17,8 @@ Validate links, source hashes and no public coordinate/RNG/State payloads.
 ## Public API adapter, before scientific execution
 
 Use only public Modeller topology/positions and the public `addHydrogens` call.
-The private adapter prepares a deep-copied working model, snapshots occurrence-
+The private adapter prepares an independent working model via public Topology
+constructors (rebinding every bond endpoint, not naive deepcopy), snapshots occurrence-
 aware identities/graph before and after, runs the unchanged selective rule on
 the raw returned geometry and commits topology/positions only after admission.
 On API failure or guard/ownership refusal, the caller's model is untouched.
@@ -117,3 +118,30 @@ This is one independently activated structure and one declared sampling label,
 not an accuracy/rate estimate or public readiness. If an unrelated scientific
 blocker prevents whole-system construction, preserve it and stop that arm; do
 not repair chemistry or fall back to an easier scientific case to get green.
+
+## Constraint-aware readback, before enrollment execution
+
+Kept input waters can introduce native distance constraints. Do not disable them
+to reuse an unconstrained audit. Independently add each reporter-declared
+harmonic penalty `0.5*K*(r-r0)^2` and its analytic Cartesian gradient to the
+physical System readback. This is readback only, not a new production force.
+Source inspection uses the exact runtime revision's CommonMinimizeKernel /
+ReferenceMinimize implementations; record physical and penalty errors separately.
+
+Prospective numerical envelopes: physical system-energy error <=1e-3 kJ/mol plus
+2e-6 times max(1,abs(E)); mobile-gradient component error <=1e-3 kJ/mol/nm plus
+2e-5 times max(1,abs(native gradient),abs(reconstructed gradient)). Only particles
+touching constraints get an additional single-precision penalty-arithmetic
+allowance: sum over their constraints of `32*eps32*abs(K)*(r+r0)`. Double/Reference
+readback gets no such allowance. Penalty-energy agreement uses 1e-3 kJ/mol plus
+2e-5 times max(1,abs(reporter penalty energy)). Report measured maxima as well as
+these bounds; do not widen them after outcomes or label bounded agreement exact.
+Finite-difference toy tests must validate the analytic penalty before execution.
+
+Report final constraint errors and last-callback→return coordinate differences;
+native final constraint projection can cause genuine return motion. Retain such
+motion explicitly rather than applying the old unconstrained exact-return test.
+Exact native gradient-stop certification is reported only for unconstrained
+phases; with constraints retain gradient/statistics/iteration data and state
+that constrained stationarity is not certified by this audit. No global-minimum
+claim follows from either check.
