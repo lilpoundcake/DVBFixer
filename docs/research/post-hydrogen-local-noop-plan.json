@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "arm": "baseline",
+      "index": 0,
+      "journal": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/h-1-journal.json.gz",
+      "repair": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-after-repair-01/case-00-repair.json.gz"
+    },
+    {
+      "arm": "guarded",
+      "index": 1,
+      "journal": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-01/h-1-journal.json.gz",
+      "repair": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-after-repair-01/case-01-repair.json.gz"
+    }
+  ],
+  "inputs": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/plans/post-hydrogen-local-noop.md": "c9601e9f8041c68ba0936c9e1c27ec5d895361b0800a8c8b69c921958ed5eeb5",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-after-repair-evidence.json": "241f68549ed6519bbfba86bd9ff9fcb76317c91cae8c8d5443278a4d78bfb3c2",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-after-repair-plan.json": "cfa9c556a4d43c3420d47d7bd1e14dead46b4a7d71fbe1a50b30abb22dd2cc29",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-00/h-1-journal.json.gz": "59cbf4630d304441bd55912f3f964bf11f9a9f1b52cd011769e839eaece75f5c",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-1vcu-public-api-01/case-01/h-1-journal.json.gz": "ee4ce2bb852913b8e0adfc61a74b2be07a78b43a953d5c12aa876327f2773583",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-after-repair-01/case-00-repair.json.gz": "41fa43106ea341c9dd0fa7494b125aa26fa19e53466a579f81c559d609daa082",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tmp/pdbfixer-research/post-hydrogen-after-repair-01/case-01-repair.json.gz": "36954439a77b8e61a007ca71ff75614bb184ca1662057b03d9f4a93d4705f4a9"
+  },
+  "parent_plan": "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/docs/research/post-hydrogen-after-repair-plan.json",
+  "policy": {
+    "audits": 2,
+    "maximum_seconds": 120,
+    "native_continuation_requires_separate_freeze": true,
+    "new_contexts": 0,
+    "new_h_samples": 0,
+    "new_minimizations": 0,
+    "new_repairs": 0,
+    "policy_calls": 2
+  },
+  "production_changed": false,
+  "schema": "dvbfixer.private-post-h-local-noop-plan.v1",
+  "source_hashes": {
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/audit_post_h_local_noop.py": "9675d4072e7ef481d88b1c0e502239318782fadf6b34fbbf3266d1a3398cbcf3",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/post_hydrogen_local_noop.py": "98271521f60a535a413b1eac61e185aea1f0467e2533b4acc537bb1d87d49c60",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/scripts/research_post_h_local_noop.py": "54478f475a91bb6b3861f94bea69dc918e81c2ee352a41021f63f113dd83dc71",
+    "/Users/lilpoundcake/claude/dvbfixer-pdbfixer-research/tests/test_post_hydrogen_local_noop.py": "b94c9a9f8b9ad9b824392f5f32b6093ef540de8c9503c5966bcffd579b57f858"
+  }
+}
