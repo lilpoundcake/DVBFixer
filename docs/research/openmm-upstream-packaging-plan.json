@@ -1,0 +1,24 @@
+{
+  "schema": "dvbfixer.private-upstream-portable-packaging-plan.v1",
+  "source": "scripts/openmm_cpu_sign_minimal.py",
+  "source_sha256": "5fb99aa2ca86f66128a4fcf771c56409baa20fbb53feff8c16529de1ca16c36f",
+  "runtime_version": "8.5.2.dev-36a30cb",
+  "runtime_revision": "36a30cbca54e727b216b606f3c011b67201eb8b4",
+  "command_after_same_interpreter": [
+    "scripts/openmm_cpu_sign_minimal.py",
+    "--run-native",
+    "--platform",
+    "OpenCL"
+  ],
+  "maximum_packaging_native_calls": 1,
+  "maximum_seconds": 30,
+  "native_retries": 0,
+  "new_scientific_cases_or_qualification_seeds": 0,
+  "prior_scientific_calls_unchanged": 24,
+  "external_issue_creation_allowed_without_human_opening": false,
+  "required_observation": "exit0, returned=true, nonempty callbacks, physical original-allowance failure and zero source-sign-float32 residual at a callback",
+  "controlled_evidence": {
+    "docs/plans/openmm-upstream-report.md": "e03735e2220f80a7116f6661f3c091abdfb1edcbe4835d39c8f66f6a55495780",
+    "docs/research/openmm-representable-force-evidence.json": "2253062ec7a3e7abf7b58bffd0634c07ff968b8c6a31e990352d17e615df1a60"
+  }
+}
