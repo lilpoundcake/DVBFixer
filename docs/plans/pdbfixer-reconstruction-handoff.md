@@ -2,6 +2,57 @@
 
 ## Authorization and baseline
 
+**Public-API/1VCU continuation frozen at `94b8098` (2026-11-13):** renewed user
+instruction authorizes private continuation on `research/post-hydrogen-public-api`,
+not production/default/main. A transactional post-H adapter now uses an independently
+constructed public Topology/Modeller, explicit original-H lineage, existing-atom
+graph/bond-metadata checks and geometry-typed refusal without FF fallback. It
+distinguishes native API rounding from exact raw→guard preservation. Twenty-one
+pre-native controls pass (23 with existing accounting controls); naive Topology
+deepcopy was found unsafe for Bond ownership before qualification and replaced
+with explicit public endpoint rebinding. The frozen pair uses retained 1VCU
+prepared PDB/DatRecord, source with zero observed H, one prepared HA coordinate
+patch and guard-after-each-public-H-call versus observational baseline. Normal
+variant strip/readd, GAFF2 handling, --no-solvent and existing chirality policies
+remain intact; owned caches share baseline chemistry parameters only. Native
+qualification is now failed/blocked as recorded below, not presumed successful.
+Kept-water constraint penalties
+have a prospectively fixed independent analytic/numerical audit, not altered
+native physics. See [the adapter scope and experiment](../research/post-hydrogen-public-api.md).
+All variant-1/variant-2 evidence remains unchanged; no early OpenMM hook or global
+LocalEnergyMinimizer interception is introduced.
+
+**Public-API pair result is negative:** baseline completed two whole phases with
+DAN/EPE present (6,205 output atoms, zero detected D-Cα); guarded stopped atomically
+after the native FF-provided H return, before any whole phase/output. The typed
+geometry refusal did not cause FF fallback. Baseline GLU228/HA (~2.137 Å) and
+guarded PRO379/HA (~1.651 Å) violate the unchanged 1.5 Å radius admission. Native
+API return and wrapper commit are separate: guarded's raw API did return, while
+the wrapper returned no model. Baseline starting energy is ~2.345e13 kJ/mol and
+SER0/HA stays spatially incompatible after whole relaxation despite positive
+Cα volume; do not call that full geometry qualification.
+
+**No retries or threshold widening:** offline timing control `8c458ea` repaired
+BOTH retained raw returns with the ordinary production helper, then applied the
+unchanged guard. Repair counts 362/343, exact heavy positions and unchanged
+Python/NumPy RNG. Baseline handoff reproduces its real whole start within the
+fixed float32 bound, but PRO379/HA remains 1.650683 Å in guarded and still refuses.
+It is spatially compatible (descriptive sign check), not an accepted bond length.
+Both-states-admitted gate is FALSE; no native run from the easier subset.
+
+**Physical attestation remains incomplete:** original GPU audit fails fixed
+envelopes at 26 early phase-1 callbacks, none in phase 2, with 213 water distance
+constraints. All 52 CPU/Reference secondary readbacks frozen at `9a0aeba` executed
+without new optimization. CPU energies match to ~7.63e-6 kJ/mol, consistent with
+documented GPU-overflow CPU fallback, but complete component-gradient envelopes
+pass 0/26 on both backends. No tolerance expanded or original failure erased.
+Final engineering suite is **3,269 passed**, three optional skips, 33 slow
+deselections; 24 focused controls and style/type/generated/map checks pass, not
+scientific readiness. See the public-API result/validation for the decision gate:
+global strict refusal versus a separately authorized compatible-noop local policy
+with unchanged strict bounds on moved H. No such policy change or production
+activation has been made.
+
 **Post-H variant 2 authorized after `70cbda6` (2026-11-13):** user explicitly
 selected checking the post-`addHydrogens` route while retaining variant 1 as a
 fallback. Isolated `research/post-hydrogen-guard`; contract `d7fe7a3`, static

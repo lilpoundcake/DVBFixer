@@ -1,0 +1,488 @@
+{
+  "cases": [
+    {
+      "backend": "CPU",
+      "cases": [
+        {
+          "gradient_maximum_error": 32122.80078125,
+          "ordinal": 0,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 3.814697265625e-06
+        },
+        {
+          "gradient_maximum_error": 32032.20458984375,
+          "ordinal": 1,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 0.0
+        },
+        {
+          "gradient_maximum_error": 31049.853271484375,
+          "ordinal": 2,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 0.0
+        },
+        {
+          "gradient_maximum_error": 30255.400634765625,
+          "ordinal": 3,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 1.9073486328125e-06
+        },
+        {
+          "gradient_maximum_error": 8982.762817382812,
+          "ordinal": 4,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 0.0
+        },
+        {
+          "gradient_maximum_error": 18886.851531982422,
+          "ordinal": 5,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 4.76837158203125e-07
+        },
+        {
+          "gradient_maximum_error": 5545.959381103516,
+          "ordinal": 6,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 2.384185791015625e-07
+        },
+        {
+          "gradient_maximum_error": 1814.0612182617188,
+          "ordinal": 7,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.960464477539062e-07
+        },
+        {
+          "gradient_maximum_error": 1529.0114612579346,
+          "ordinal": 8,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.960464477539062e-07
+        },
+        {
+          "gradient_maximum_error": 395.3669681549072,
+          "ordinal": 9,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.960464477539062e-07
+        },
+        {
+          "gradient_maximum_error": 465.5786714553833,
+          "ordinal": 10,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 3.2782554626464844e-07
+        },
+        {
+          "gradient_maximum_error": 179.88069987297058,
+          "ordinal": 11,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 3.2782554626464844e-07
+        },
+        {
+          "gradient_maximum_error": 200.14338326454163,
+          "ordinal": 12,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": false,
+          "status": "readback",
+          "system_energy_error": 2.682209014892578e-07
+        },
+        {
+          "gradient_maximum_error": 64794.15466308594,
+          "ordinal": 1000,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 7.62939453125e-06
+        },
+        {
+          "gradient_maximum_error": 268410.001953125,
+          "ordinal": 1001,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 7.62939453125e-06
+        },
+        {
+          "gradient_maximum_error": 57653.77087402344,
+          "ordinal": 1002,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.7220458984375e-06
+        },
+        {
+          "gradient_maximum_error": 30255.400634765625,
+          "ordinal": 1003,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.7220458984375e-06
+        },
+        {
+          "gradient_maximum_error": 8982.762817382812,
+          "ordinal": 1004,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.7220458984375e-06
+        },
+        {
+          "gradient_maximum_error": 18886.851531982422,
+          "ordinal": 1005,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5.7220458984375e-06
+        },
+        {
+          "gradient_maximum_error": 3694.359893798828,
+          "ordinal": 1006,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 2.6226043701171875e-06
+        },
+        {
+          "gradient_maximum_error": 4956.035888671875,
+          "ordinal": 1007,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 1.6689300537109375e-06
+        },
+        {
+          "gradient_maximum_error": 1387.1353950500488,
+          "ordinal": 1008,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 1.6689300537109375e-06
+        },
+        {
+          "gradient_maximum_error": 807.4243717193604,
+          "ordinal": 1009,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 7.152557373046875e-07
+        },
+        {
+          "gradient_maximum_error": 232.742045879364,
+          "ordinal": 1010,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 3.8743019104003906e-07
+        },
+        {
+          "gradient_maximum_error": 173.5539848804474,
+          "ordinal": 1011,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 3.8743019104003906e-07
+        },
+        {
+          "gradient_maximum_error": 223.3019950389862,
+          "ordinal": 1012,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": false,
+          "status": "readback",
+          "system_energy_error": 2.086162567138672e-07
+        }
+      ]
+    },
+    {
+      "backend": "Reference",
+      "cases": [
+        {
+          "gradient_maximum_error": 3586472.3764648438,
+          "ordinal": 0,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 6753.780818939209
+        },
+        {
+          "gradient_maximum_error": 5502335.429199219,
+          "ordinal": 1,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 10336.599025726318
+        },
+        {
+          "gradient_maximum_error": 1048218.4113769531,
+          "ordinal": 2,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 917.4147891998291
+        },
+        {
+          "gradient_maximum_error": 246219.02893066406,
+          "ordinal": 3,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 4766.058225631714
+        },
+        {
+          "gradient_maximum_error": 162772.43310546875,
+          "ordinal": 4,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5136.1550941467285
+        },
+        {
+          "gradient_maximum_error": 232693.67294311523,
+          "ordinal": 5,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 4446.984296321869
+        },
+        {
+          "gradient_maximum_error": 40421.47543334961,
+          "ordinal": 6,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 648.2603163719177
+        },
+        {
+          "gradient_maximum_error": 62860.6721572876,
+          "ordinal": 7,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 1085.859414935112
+        },
+        {
+          "gradient_maximum_error": 21371.12668609619,
+          "ordinal": 8,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 730.3549511432648
+        },
+        {
+          "gradient_maximum_error": 9246.752605438232,
+          "ordinal": 9,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 819.4463629126549
+        },
+        {
+          "gradient_maximum_error": 5230.2719373703,
+          "ordinal": 10,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 206.9579050540924
+        },
+        {
+          "gradient_maximum_error": 3222.4794216156006,
+          "ordinal": 11,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 1.0587911840678754e-22,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 136.25953778624535
+        },
+        {
+          "gradient_maximum_error": 1030.8030755668879,
+          "ordinal": 12,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": false,
+          "status": "readback",
+          "system_energy_error": 214.13089372217655
+        },
+        {
+          "gradient_maximum_error": 3586472.3764648438,
+          "ordinal": 1000,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 6753.780811309814
+        },
+        {
+          "gradient_maximum_error": 5688813.0869140625,
+          "ordinal": 1001,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 10336.599018096924
+        },
+        {
+          "gradient_maximum_error": 1048218.4113769531,
+          "ordinal": 1002,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 917.414794921875
+        },
+        {
+          "gradient_maximum_error": 246219.02893066406,
+          "ordinal": 1003,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 4766.05823135376
+        },
+        {
+          "gradient_maximum_error": 162772.43310546875,
+          "ordinal": 1004,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 5136.155099868774
+        },
+        {
+          "gradient_maximum_error": 232693.67294311523,
+          "ordinal": 1005,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 4446.984301567078
+        },
+        {
+          "gradient_maximum_error": 40421.47543334961,
+          "ordinal": 1006,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 648.2603185176849
+        },
+        {
+          "gradient_maximum_error": 62860.6721572876,
+          "ordinal": 1007,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 1085.8594160079956
+        },
+        {
+          "gradient_maximum_error": 21371.12668609619,
+          "ordinal": 1008,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 730.3549522161484
+        },
+        {
+          "gradient_maximum_error": 9246.752605438232,
+          "ordinal": 1009,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 819.4463630318642
+        },
+        {
+          "gradient_maximum_error": 5230.2719373703,
+          "ordinal": 1010,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 206.95790511369705
+        },
+        {
+          "gradient_maximum_error": 3222.4794216156006,
+          "ordinal": 1011,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": true,
+          "status": "readback",
+          "system_energy_error": 136.25953784585
+        },
+        {
+          "gradient_maximum_error": 1062.8026339411736,
+          "ordinal": 1012,
+          "original_numerical_envelopes_passed": false,
+          "penalty_energy_error": 0.0,
+          "reported_gradient_exceeds_fixed_force_capacity": false,
+          "status": "readback",
+          "system_energy_error": 213.1930470019579
+        }
+      ]
+    }
+  ],
+  "limits": "Secondary read-only attribution; original GPU audit failure and guarded refusal remain unchanged. No constrained-stationarity or production-readiness claim.",
+  "new_h_sampling": 0,
+  "new_minimizations": 0,
+  "original_gpu_readback_passed": false,
+  "plan_sha256": "d068a8e25fb637b9bc63d1ce51cebbfaa3bf0a5e9de0544ba54d90ab6ebeb8cf",
+  "schema": "dvbfixer.private-post-h-overflow-readback-evidence.v1"
+}
