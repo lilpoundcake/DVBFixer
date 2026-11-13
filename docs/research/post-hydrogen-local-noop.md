@@ -132,3 +132,68 @@ concern rather than harmless GPU arithmetic alone. Installed binary/event
 causality, a controlled upstream reproducer and any external issue or dependency
 patch remain separate gates. No external issue was filed and no OpenMM code
 was changed. The old 0/26 physical outcomes and strict admission refusal stand.
+
+## Native outcome: local projection is not sufficient
+
+All three paths executed once and returned both phases: **six minimizer calls,
+12,128 callbacks**. The [complete all-node native audit](post-hydrogen-local-noop-native-audit.json)
+has no audit errors, no missing phases and no replacement paths. Phase Systems
+are byte-identical to the captured source; requested/applied transport and own-
+return continuity pass. Both source states remain enrolled. All phases retain
+DAN/EPE and 213 constraints; no new solvent, H placement, repair, reflection,
+post-hoc projection or installed/native force modification occurred.
+
+| Path | Callbacks phase 1 / 2 | Final incompatible moved HA | Phase-1 negative-Cα nodes | Physical-envelope failures phase 1 / 2 |
+|---|---:|---|---:|---:|
+| baseline projection | 1960 / 1571 | **A:286/HA** | 7 | 26 / 0 |
+| guarded unmodified control | 2312 / 2329 | A:0/HA, A:283/HA, A:286/HA | 8 | 26 / 0 |
+| guarded projection | 2291 / 1665 | **A:286/HA** | 9 | 26 / 0 |
+
+The two projection paths improve final SER0/HA and HA283 relative to the
+unmodified guarded control (the reused original baseline also retained a final
+SER0 conflict). Nevertheless **0/2 proposal paths pass the prospective geometric
+criterion**. HA286 crosses back to an incompatible sign at phase-1 callback31
+in both, and is incompatible at both phase returns. Its final heavy normalized
+volume is still positive but small (~0.0360/~0.0369), while its HA four-ligand
+volume is strongly negative (~-0.9773/~-0.9861). Normal final C-H lengths of
+~1.0852/~1.0857 Å do not rescue this wrong-side geometry.
+
+SER0 has four incompatible phase-1 nodes in each projection path, first at
+callback26 when its heavy sign is temporarily negative. All three paths contain
+transient D-Cα; every final returned state has **zero** D-Cα. No phase-2 negative
+Cα node appears. These are retained private downstream States, not published
+production structures, and no unplanned emergency repair was applied to hide
+the prospective all-node failure.
+
+PRO379/HA stays compatible at every recorded node and relaxes from its warned
+1.650683 Å start to ~1.0909 Å in both guarded paths. This shows that the compatible
+no-op policy did avoid the old admission blocker locally. It does not establish
+comprehensive geometry correctness or justify accepting every elongated bond.
+
+All starts remain astronomically high-energy (~2.3454e13 kJ/mol). Under unchanged
+original physics envelopes, **each phase 1 fails at 26 callbacks; all phase-2
+callbacks pass**. The new six-phase physical qualification therefore fails
+separately from the HA286/all-node geometry failure. The source-sign study above
+was confined to the ORIGINAL 26 callbacks; do not claim it directly attested the
+78 new failed callbacks or proved that CPU-sign behavior caused HA286 inversion.
+Constraint projection/return motion remains explicit and constrained stationarity
+uncertified. No force/threshold/acceptance endpoint was retuned after these data.
+
+## Validation and decision boundary
+
+Final full fast suite: **3,292 passed**, three optional Torch/Biotite skips,
+33 slow deselections. All **49 focused controls** (23 new in this branch),
+Ruff, strict-target mypy, generated CLI/GUI specs and agent maps pass. The
+[validation/quality record](post-hydrogen-local-noop-validation.json) separates
+these engineering passes from **failed native geometry and physical qualification**.
+Variant 1/2, core strict proposer, old API adapter, production and fixtures are
+unchanged. Production/default registration and main merge remain disabled.
+
+The local compatible-noop policy is a valid bounded atomic proposal on these
+two retained states, but **not a sufficient post-H safeguard through whole
+relaxation**. Do not enable it publicly, retry this cohort, silently add a
+post-whole projection or change native constraints/forces. The next work needs
+a separately chosen research scope: an isolated native constraint-sign
+reproducer/dependency investigation, revisiting the earlier initializer route,
+or a separately specified later-stage geometry policy. No such new native
+experiment, dependency patch or public issue is executed in this record.

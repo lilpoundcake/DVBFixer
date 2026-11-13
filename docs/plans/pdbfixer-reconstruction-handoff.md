@@ -2,6 +2,58 @@
 
 ## Authorization and baseline
 
+**Compatible-noop private continuation (2026-11-13):** after the explicit policy
+proposal at `5284081`, the user instructed continued work. New branch
+`research/post-hydrogen-local-noop`; static freeze `666c745`, separate native
+freeze `8850683`. This is a separate policy, NOT a pass for the old strict API
+adapter. Both retained post-ordinary-repair states independently audit: only
+HA at A:0/283/286 projects, all no-ops/observations exact, original ownership
+preserved and Python/NumPy RNG unchanged. Guarded PRO379/HA stays 1.650683 Å with
+a visible warning, not certified geometry. Moved H keep the original strict
+distance/sign/contact bounds via the unchanged original proposer. Three new
+shared-baseline-physics native paths (baseline projection, guarded unmodified,
+guarded projection) returned all six whole phases, without H samples, repair,
+extra relaxation, reflection, retries or altered forces/anchors. Original
+baseline unmodified is reused, not rerun. This does not establish a matching
+independently constructed guarded FF or live API capability. Full native audit
+is a separate result gate; native returns alone are not geometry/physics passes.
+See [local policy, retained states and numerical attribution](../research/post-hydrogen-local-noop.md).
+
+**Final native outcome is negative:** all 12,128 callbacks audited with no
+missing phases or audit errors; both projection paths fail the prospective
+all-node geometry criterion (0/2). SER0/HA and HA283 improve at the final
+endpoints, but HA286 becomes incompatible at phase-1 callback31 in both and
+remains incompatible at both phase returns. Phase-1 transient negative Cα nodes
+are 7/8/9 across baseline-projection / guarded-unmodified / guarded-projection;
+all final States have zero D-Cα and no phase-2 negative node. Each phase 1 has
+26 failed physical-envelope callbacks; all phase-2 callbacks pass. Exact captured
+System bytes, own-return continuity and bounded transport pass independently.
+No post-hoc projection, reflection, extra phase or physics change hid these
+failures. PRO379 stays compatible and relaxes to a normal bond length, but the
+new no-op policy is NOT a sufficient full post-H safeguard. The old strict gate,
+earlier variants and original source trajectory remain unchanged.
+
+**CPU source-sign attribution, frozen `5ef747c`:** all 26 original failed
+callbacks received one read-only default CPU query each, no minimization. Original
+physical-plus-positive-penalty gradients pass **0/26**, while the prospective
+source-sign (physical-minus-penalty) hypothesis passes **26/26**, with or without
+float32 upload modeling, under the unchanged component-wise envelopes. All
+16,120 failed physical components are constrained-atom components. Positive
+penalty finite differences match the physical formula, NOT the source sign.
+This supports a source-consistent `CommonMinimizeKernel::evaluateCpu` constraint-
+gradient sign concern, not a physically correct native gradient or installed-
+binary attestation. Original failures are preserved; no dependency patch or
+external issue was made. Final full fast suite **3,292 passed**, three optional
+Torch/Biotite skips, 33 slow deselections; all 49 focused controls pass. Native
+qualification and production/default/main remain separate, unapproved gates.
+The sign study enrolled only the OLD 26 callbacks, not the 78 new native
+mismatches; do not claim direct attribution of those new failures or causal
+explanation of HA286. Further native/dependency work requires a separately
+chosen prospective scope. See the local-policy validation: engineering PASS,
+native geometry and physical qualification FAILED; no jobs remain running.
+
+### Earlier strict public-API experiment (unchanged negative result)
+
 **Public-API/1VCU continuation frozen at `94b8098` (2026-11-13):** renewed user
 instruction authorizes private continuation on `research/post-hydrogen-public-api`,
 not production/default/main. A transactional post-H adapter now uses an independently
