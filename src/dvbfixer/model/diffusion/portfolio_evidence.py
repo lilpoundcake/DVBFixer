@@ -27,7 +27,7 @@ from dvbfixer.model.diffusion.input_preparation import (
     audit_preparation_payloads,
     preparation_options,
 )
-from dvbfixer.model.diffusion.portfolio_contract import PortfolioEvidence
+from dvbfixer.model.diffusion.portfolio_contract import PortfolioAnchoredEvidence, PortfolioEvidence
 from dvbfixer.model.diffusion.private_artifact import read_private_artifact_bytes
 from dvbfixer.model.diffusion.refinement_evidence import (
     StagedRefinementEvidence,
@@ -76,9 +76,10 @@ class PortfolioEvidenceAudit:
     selected_assessment: RepairAssessment
     final_assessment: RepairAssessment
     preparation_verified: bool
+    anchor_audit: dict | None = None
 
     def validation_record(self):
-        return {"kind": "independent-private-portfolio-validation", "schema_version": 1,
+        record = {"kind": "independent-private-portfolio-validation", "schema_version": 1,
             "request_sha256": digest(self.request.to_json()),
             "source_sha256": hashlib.sha256(self.payloads["source"]).hexdigest(),
             "candidate_sha256": hashlib.sha256(self.payloads["candidate"]).hexdigest(),
@@ -87,17 +88,34 @@ class PortfolioEvidenceAudit:
             "preparation_verified": self.preparation_verified,
             "passed": self.final_assessment.geometry_passed and not self.final_assessment.admission_failures,
             "scientific_qualification": False, "public_profile_enabled": False}
+        if self.anchor_audit is not None:
+            record["anchor_audit"] = self.anchor_audit
+        return record
 
 
 def audit_portfolio_evidence(evidence: PortfolioEvidence, workspace: Path) -> PortfolioEvidenceAudit:
+    return _audit_portfolio_evidence(evidence, workspace, require_geometry=True)
+
+
+def inspect_portfolio_anchor_inputs(evidence: PortfolioEvidence, workspace: Path) -> PortfolioEvidenceAudit:
+    """Validate donor/assembly/local-attempt custody before a new private repair.
+
+    Geometry failure is expected input evidence, never publication acceptance.
+    Already anchored evidence cannot recursively expand observed mobility.
+    """
+    if isinstance(evidence, PortfolioAnchoredEvidence) or evidence.repair_report is None:
+        raise DiffusionContractError("post-portfolio input requires a generated-only local attempt")
+    return _audit_portfolio_evidence(evidence, workspace, require_geometry=False)
+
+
+def _audit_portfolio_evidence(evidence, workspace, *, require_geometry):
     if workspace.is_symlink() or not workspace.is_dir():
         raise DiffusionContractError("portfolio workspace must be a regular directory")
     root = workspace.resolve(strict=True)
     payloads = {}
     total = 0
     for role, artifact in evidence.artifacts().items():
-        limit = (256_000 if role in {"selection_source", "repair_selector_source", "repair_kernel_source",
-                                    "repair_conditioning_source"} else MAX_PORTFOLIO_PAYLOAD_BYTES)
+        limit = 256_000 if role.endswith("source") and role != "source" else MAX_PORTFOLIO_PAYLOAD_BYTES
         data = read_private_artifact_bytes(root, artifact, max_bytes=min(limit, MAX_PORTFOLIO_TOTAL_BYTES - total))
         payloads[role] = data
         total += len(data)
@@ -158,7 +176,10 @@ def audit_portfolio_evidence(evidence: PortfolioEvidence, workspace: Path) -> Po
         parents.append(GapParent(entry.candidate_id, entry.seed, digest(request.to_json()), digest(source),
             entry.coordinates.sha256, entry.sampler_trace.sha256, entry.staged_evidence.sha256,
             stage_text))
-    selected, final = (payloads[role].decode("utf-8") for role in ("selected", "candidate"))
+    anchored = isinstance(evidence, PortfolioAnchoredEvidence)
+    stage1_role = "anchor-stage1" if anchored else "candidate"
+    stage1_reference = evidence.anchor.stage1 if anchored else evidence.candidate
+    selected, final = (payloads[role].decode("utf-8") for role in ("selected", stage1_role))
     if len(evidence.choices) != len(request.gaps):
         raise DiffusionContractError("portfolio lineage differs from request whole-gap inventory")
     protocol = strict_json(payloads["search_protocol"])
@@ -179,7 +200,7 @@ def audit_portfolio_evidence(evidence: PortfolioEvidence, workspace: Path) -> Po
         raise DiffusionContractError("portfolio selection/report differs from bound lineage")
     before = audit_portfolio_materialization(request, source, tuple(parents), evidence.choices, selected)
     if evidence.repair_report is None:
-        if payloads["selected"] != payloads["candidate"]:
+        if payloads["selected"] != payloads[stage1_role]:
             raise DiffusionContractError("portfolio changed coordinates without an explicit repair operation")
     else:
         operation = strict_json(payloads["repair_report"])
@@ -191,7 +212,7 @@ def audit_portfolio_evidence(evidence: PortfolioEvidence, workspace: Path) -> Po
         if (operation.get("operation") != "generated-only-issue-local-refinement-v1"
                 or operation.get("publication_qualified") is not False
                 or operation.get("input_sha256") != evidence.selected.sha256
-                or operation.get("output_sha256") != evidence.candidate.sha256
+                or operation.get("output_sha256") != stage1_reference.sha256
                 or json_bytes(operation.get("scope")) != json_bytes(asdict(scope))
                 or operation.get("mobile_atoms") != mobile
                 or type(operation.get("refinement_seed")) is not int or operation["refinement_seed"] < 0
@@ -200,6 +221,37 @@ def audit_portfolio_evidence(evidence: PortfolioEvidence, workspace: Path) -> Po
             raise DiffusionContractError("portfolio repair operation differs from independent mobility/budget")
     after = audit_portfolio_materialization(request, source, tuple(parents), evidence.choices,
         selected, repaired_text=final if evidence.repair_report is not None else None)
-    if not after.geometry_passed or after.admission_failures:
+    anchor_audit = None
+    if anchored:
+        from dvbfixer.model.diffusion.portfolio_anchors import (
+            REVISION,
+            anchor_repair_scope,
+            audit_portfolio_anchor_repair,
+        )
+
+        candidate_text = payloads["candidate"].decode("utf-8")
+        audit = audit_portfolio_anchor_repair(request, source, selected, final, candidate_text)
+        operation = strict_json(payloads["anchor-report"])
+        indices, residues, atoms, anchors = anchor_repair_scope(request, source, selected, final)
+        from dvbfixer.model.diffusion.anchor_policy import build_anchor_restraints
+
+        restraints = build_anchor_restraints(source, anchors, observed_atoms=request.fixed_atoms, bfactor_source="auto")
+        expected = {"operation": REVISION, "input_sha256": evidence.selected.sha256,
+            "stage1_sha256": stage1_reference.sha256, "output_sha256": evidence.candidate.sha256,
+            "request_sha256": digest(request.to_json()), "source_sha256": digest(source),
+            "gap_indices": indices, "mobile_generated_atoms": [asdict(a) for a in atoms],
+            "authorized_anchors": [asdict(r) for r in anchors], "restraints": [asdict(r) for r in restraints],
+            "movement_limits": asdict(audit.movement_limits), "audit": asdict(audit),
+            "publication_qualified": False, "new_sampling": False}
+        if (any(json_bytes(operation.get(k)) != json_bytes(v) for k, v in expected.items())
+                or type(operation.get("refinement_seed")) is not int or operation["refinement_seed"] < 0
+                or type(operation.get("max_iterations")) is not int or not 1 <= operation["max_iterations"] <= 2000
+                or type(operation.get("restart_count")) is not int or not 0 <= operation["restart_count"] <= 8):
+            raise DiffusionContractError("post-portfolio operation differs from independent anchor audit/budget")
+        if not audit.summary.passed:
+            raise DiffusionContractError("post-portfolio independent anchor geometry/movement audit failed")
+        anchor_audit = asdict(audit)
+        after = assessment_adapter(request, source)(candidate_text, frozenset(r.atom for r in restraints))
+    if (require_geometry and not after.geometry_passed) or after.admission_failures:
         raise DiffusionContractError("portfolio final whole-complex geometry/admission failed")
-    return PortfolioEvidenceAudit(request, payloads, before, after, prepared)
+    return PortfolioEvidenceAudit(request, payloads, before, after, prepared, anchor_audit)

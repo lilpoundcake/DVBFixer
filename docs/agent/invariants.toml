@@ -5,16 +5,17 @@ verification_note = "Validated against this base plus the uncommitted private-po
 
 [invariants.INV-PORTFOLIO-CUSTODY-AND-MOBILITY]
 status = "partial"
-statement = "A portfolio retains each gap's original parent identity and frozen source frame; issue-local repair moves only independently identified generated gaps, and publication/resume re-audits custody, whole-complex geometry and exact generated-only .dat ownership."
+statement = "A portfolio retains each gap's parent identity and frozen donor source frame. Schema-1 repair moves only identified generated gaps. Explicit schema-2 post-assembly escalation additionally moves independently justified direct anchors within unchanged per-anchor limits; all clean gaps and nonmobile records remain exact. Publication/resume re-audits custody, geometry and generated-only .dat ownership."
 owner = "src/dvbfixer/model/diffusion/portfolio_evidence.py::audit_portfolio_evidence"
 enforcement = [
   "src/dvbfixer/model/diffusion/gap_portfolio.py::audit_portfolio_materialization",
   "src/dvbfixer/model/diffusion/portfolio_evidence.py::audit_portfolio_evidence",
+  "src/dvbfixer/model/diffusion/portfolio_anchors.py::audit_portfolio_anchor_repair",
   "src/dvbfixer/model/diffusion/portfolio_publication.py::read_portfolio_bundle",
   "src/dvbfixer/model/diffusion/portfolio_publication.py::resume_portfolio_bundle",
 ]
 failure_mode = "A mixed result could be mislabelled as one seed, move observations or clean gaps, lose preparation custody, free observed atoms through .dat, or reuse a different/incomplete artifact."
-test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py"]
+test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py", "tests/test_diffusion_portfolio_anchors.py"]
 known_exceptions = ["Private workflow only; public profile, product integration and scientific qualification remain disabled."]
 
 [invariants.INV-NAMING-PRESERVE-STRUCTURE]

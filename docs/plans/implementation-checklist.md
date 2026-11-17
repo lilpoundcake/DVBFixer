@@ -17,6 +17,10 @@ See [scope, invariants and evaluation gates](diffusion-geometry-repair.md).
 - [x] Private P2 publication/readback/resume and generated-only `.dat` handoff:
   eight completed bundles revalidated, including source-prepared 1BRS and the
   separate corrected 1N8Z arm; 9CQD/1HE8 retained as geometry rejections.
+- [x] Explicit private post-assembly bounded-anchor stage using existing P0/P1
+  kernel/acceptance, separate schema-2 evidence and unchanged movement limits.
+  Donors remain generated-only; original P2 outcomes remain historical. Public
+  admission and broader scientific qualification are separate gates.
 - [x] Repeatable fixed-budget historical ten-case workflow without new neural
   sampling or replacement of original seed outcomes; stronger donor audit
   revalidation recorded separately from the frozen execution.

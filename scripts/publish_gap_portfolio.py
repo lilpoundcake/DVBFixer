@@ -39,9 +39,13 @@ def main():
     parser.add_argument("--cohort", type=Path, required=True)
     parser.add_argument("--case", required=True)
     parser.add_argument("--work", type=Path, required=True)
-    parser.add_argument("--bundle", type=Path, required=True)
+    parser.add_argument("--bundle", type=Path)
+    parser.add_argument("--evidence-only", action="store_true",
+        help="Retain complete donor/preparation inputs for a separate post-assembly repair; grants no acceptance")
     parser.add_argument("--resume", action="store_true", help="Read-only exact reuse of a complete matching bundle")
     args = parser.parse_args()
+    if (not args.evidence_only and args.bundle is None) or (args.evidence_only and args.resume):
+        parser.error("publication needs --bundle; --evidence-only cannot resume")
     if args.portfolio.is_symlink() or (args.repair is not None and args.repair.is_symlink()):
         raise ValueError("portfolio/repair inputs must be regular directories")
     portfolio = args.portfolio.resolve(strict=True)
@@ -152,6 +156,9 @@ def main():
                    asdict(value) if hasattr(value, "__dataclass_fields__") else value)
            for key, value in values.items()}})
     write("publication-evidence.json", proof.to_json().encode())
+    if args.evidence_only:
+        print(json.dumps({"evidence_only": True, "accepted": False}), flush=True)
+        return
     if args.resume:
         published = resume_portfolio_bundle(args.bundle, proof)
     else:

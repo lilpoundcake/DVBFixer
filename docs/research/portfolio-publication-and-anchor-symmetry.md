@@ -5,6 +5,143 @@ Date: 2026-11-10. Continuation of the
 P3 is explicitly excluded. Public CLI/Homology/GUI portfolio admission and higher
 production anchor ceilings remain disabled.
 
+## Post-assembly bounded-anchor continuation
+
+The original generated-only P2 workflow below is retained unchanged. A new
+explicit private escalation, `post-portfolio-bounded-anchors-v1`, now connects
+the already implemented bounded-anchor kernel and independent staged acceptance
+to a **completed patchwork assembly**. This is not selection of moved-anchor
+donors: every donor still shares the unchanged observed source frame.
+
+The order is assembly → generated-only issue-local attempt → residual-driven
+anchor authorization → bounded-anchor attempt → independent whole-complex audit.
+As in P0/P1, the anchor attempt restarts from the assembled projection, **not**
+from a failed generated-only result. The latter is preserved as eligibility
+evidence. The source and frozen sampling request are never rewritten.
+
+Only direct flanks named by residual actionable findings may move; preexisting
+source-only findings cannot authorize motion. Generated mobility covers gaps
+attributed to assembly or residual defects. Clean generated gaps, other observed
+atoms, all metadata and noncoordinate records remain byte-identical. Unattributed
+geometry findings retain the existing conservative generated-gap scope; they
+cannot independently authorize an observed anchor. Geometry is scored after PDB
+rounding, and both kernel walls and independent acceptance use the unchanged
+per-anchor limits in the original source frame:
+
+- backbone RMSD ≤ **0.5 Å**;
+- Cα displacement ≤ **0.5 Å**;
+- maximum heavy-atom displacement ≤ **1.25 Å**.
+
+`portfolio_anchors.py` reuses `refine_generated_region`, experimental-B-aware
+`build_anchor_restraints`, and `audit_staged_anchor_repair`. The portfolio audit
+additionally rechecks exact clean-gap/nonmobile-record custody and global all-L.
+Neither a local pass, a restraint strength nor a runner receipt grants movement
+permission or replaces final geometry acceptance.
+
+### Private workflow
+
+For a new generated-only local attempt with optional anchor escalation:
+
+```bash
+python scripts/repair_gap_portfolio.py --portfolio <selection> \
+  --output <new-repair-directory> --relax-anchors \
+  --cohort <original-retained-cohort> --case 9CQD \
+  --bundle <new-anchored-bundle>
+```
+
+For an already retained failed local attempt, do not rerun it:
+
+```bash
+python scripts/publish_gap_portfolio.py --portfolio <selection> \
+  --repair <retained-generated-only-attempt> --cohort <original-retained-cohort> \
+  --case 9CQD --work <new-evidence-workspace> --evidence-only
+python scripts/repair_portfolio_anchors.py --workspace <new-evidence-workspace> \
+  --output <new-anchor-attempt> --bundle <new-anchored-bundle> \
+  --refinement-seed 7 --max-iterations 250 --restart-count 4 --platform CPU
+```
+
+`--evidence-only` creates complete donor/preparation custody, not an accepted
+bundle. The repair independently audits that custody before calling the kernel;
+only the expected geometry failure is permitted as input. Existing directories
+are never adopted. Raw assembly, failed generated-only result, trial coordinates,
+execution failures and final reports remain retained. An already clean local
+attempt is not escalated. Unsupported or unjustified anchor motion fails closed.
+
+### Versioning, publication and reuse
+
+Anchored evidence uses **schema 2**, with explicit stage-1 bytes, separate anchor
+operation/report and adapter/kernel/conditioning/acceptance/policy snapshots.
+Schema-1 evidence and old bundles retain their original semantics and exact
+resume identity. The new reader explicitly dispatches evidence versions; an old
+schema-1-only reader cannot silently adopt anchor motion. The private bundle
+index remains the disjoint `experimental-gap-portfolio-bundle` kind.
+
+Publication re-audits the original donors, selected projection, generated-only
+local attempt, authorized generated/observed masks, movement limits and final
+geometry. Rehashed masks, increased limits or forged audit receipts fail. The
+`.dat` still lists **only diffusion-generated atoms**; moved observed anchors are
+recorded separately in validation/provenance and are never relabelled generated.
+Resume remains read-only and binds every operation/source snapshot. Repeated
+anchor escalation from an anchored result is refused; bounds cannot accumulate.
+
+This is private integration, not public CLI/Homology/GUI admission or broader
+scientific qualification. The historical 8/10 P2 outcome and original 27/50 seed
+outcomes below are not replaced by these additional controls. P3 and larger
+movement limits are not involved.
+
+Verification of this continuation: **2,289 fast tests passed**, three existing
+optional Torch/Biotite skips, 33 slow cases deselected; all 20 new anchor-portfolio
+tests are included. All eight previously published schema-1 bundles passed
+independent readback and exact resume under the extended reader with every file
+byte unchanged. These are software/custody checks, not new scientific samples or
+evidence of general scientific qualification. The separate CPU controls completed
+with the outcomes below. Evidence: `tmp/portfolio-anchors-v1/fast-tests.json` and
+`tmp/portfolio-anchors-v1/old-bundle-compatibility-01/summary.json`.
+
+### Executed saved-assembly controls
+
+Both cases used optimizer seed 7, CPU, 250 iterations and four restarts, with
+no new neural sampling, thresholds or donor substitution. These are additional
+routes on retained candidates, not replacements for historical seed/P2 outcomes.
+
+| Case | Mobile generated gaps | Authorized anchors | Final private result |
+|---|---|---|---|
+| 9CQD | W26–28 (3 residues) | W25, W29 | Geometry/movement/custody passed; schema-2 bundle published, independently read and exactly resumed |
+| 1HE8 | A322–352 (31), A896–901 (6), A968–980 (13) | A895, A981 | Rejected: A976 Ramachandran and A895 movement above limits; diagnostics retained, no accepted bundle |
+
+The 1HE8 generated mask includes A322–352 because the anchor stage restarts from
+the assembled projection, where that gap was still defective, not the later
+generated-only coordinates. It does not silently discard that repair task.
+
+| Observed anchor | Backbone RMSD (Å) | Cα displacement (Å) | Maximum heavy displacement (Å) | Within unchanged limits |
+|---|---:|---:|---:|---|
+| 9CQD W25 | 0.1995 | 0.1027 | 0.3215 | yes |
+| 9CQD W29 | 0.4850 | 0.3373 | 1.0484 | yes |
+| 1HE8 A895 | 0.5645 | 0.5091 | 1.2844 | **no** |
+| 1HE8 A981 | 0.3372 | 0.3569 | 0.5572 | yes |
+
+1HE8 retains a gross A976 Ramachandran outlier (φ 162.6°, ψ −23.2°); passing
+clash/junction checks alone cannot grant acceptance. Its A895 overrun is retained
+as a genuine failure, not a reason to expand bounds or conceal the last proposal.
+9CQD demonstrates that the missing post-assembly integration, not an inherent
+ban on moving observed anchors, prevented this generated-only P2 route from
+passing. This single saved-assembly control is not prospective qualification.
+
+Evidence: `tmp/portfolio-anchors-v1/retained-controls-01/`, including declarations,
+complete original donor/preparation evidence, failed stage-1 coordinates, trial
+coordinates/reports, final anchor audits and the accepted 9CQD bundle. The old
+P2 and original cohort results remain unchanged; the combined route has an
+accepted result for nine of the ten retained structures, with 1HE8 still open.
+
+A further separate-process audit confirmed the 9CQD bundle's readback and exact
+resume with unchanged bytes and **532 generated / zero observed atoms** in its
+DatRecord. It independently refused 1HE8 publication before destination
+reservation and verified unchanged historical summary digests and selected/local
+coordinates. Evidence: `tmp/portfolio-anchors-v1/independent-readback-02/summary.json`.
+The first extra audit attempt hit the outer 120-second orchestration timeout;
+its directory remains retained separately. The successful second audit used no
+new refinement or sampling and did not overwrite that interrupted attempt.
+
 ## A disjoint, private publication format
 
 `portfolio_contract.py`, `portfolio_evidence.py` and `portfolio_publication.py`

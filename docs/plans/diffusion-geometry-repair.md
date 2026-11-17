@@ -131,6 +131,10 @@ are implemented. A retained 1KTZ portfolio plus D131–136-only repair passed fu
 geometry/custody; the original 0/5 remains unchanged. Separate private manifest-last
 bundle/`.dat`, preparation custody and exact read-only resume are now implemented;
 public scientific qualification and CLI/Homology/GUI integration remain open.
+An explicit private post-assembly bounded-anchor escalation is now wired to the
+existing staged kernel/auditor. It retains generated-only donors and frozen
+requests, records schema-2 evidence, and audits clean-gap custody and the same
+0.5/0.5/1.25 Å movement limits. This is not moved-anchor donor recombination or P3.
 See the [publication/calibration continuation](../research/portfolio-publication-and-anchor-symmetry.md) and
 [evidence and remaining gates](../research/gap-portfolios-and-anchor-calibration.md).
 

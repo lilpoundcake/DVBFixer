@@ -122,3 +122,40 @@ class PortfolioBundleIndex(_JsonContract):
         if (any(not isinstance(a, ArtifactReference) for a in (self.evidence, self.dat, self.validation))
                 or len({a.path for a in (self.evidence, self.dat, self.validation)}) != 3):
             raise DiffusionContractError("portfolio index needs distinct typed references")
+
+
+@dataclass(frozen=True, slots=True)
+class PortfolioAnchorArtifacts:
+    stage1: ArtifactReference
+    report: ArtifactReference
+    adapter_source: ArtifactReference
+    kernel_source: ArtifactReference
+    conditioning_source: ArtifactReference
+    acceptance_source: ArtifactReference
+    policy_source: ArtifactReference
+
+    def artifacts(self):
+        return {name: getattr(self, name) for name in self.__dataclass_fields__}
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class PortfolioAnchoredEvidence(PortfolioEvidence):
+    """Explicit schema-2 extension; schema-1 artifacts/identities stay unchanged."""
+
+    anchor: PortfolioAnchorArtifacts
+    _schema_version: ClassVar[int] = 2
+
+    def __post_init__(self):
+        super(PortfolioAnchoredEvidence, self).__post_init__()
+        if not isinstance(self.anchor, PortfolioAnchorArtifacts) or self.repair_report is None:
+            raise DiffusionContractError("post-portfolio anchors require explicit stage-1 repair evidence")
+
+    def artifacts(self):
+        values = super(PortfolioAnchoredEvidence, self).artifacts()
+        values.update({f"anchor-{name}": a for name, a in self.anchor.artifacts().items()})
+        return values
+
+
+def decode_portfolio_evidence(raw):
+    cls = PortfolioAnchoredEvidence if raw.get("schema_version") == 2 else PortfolioEvidence
+    return cls.from_dict(raw)

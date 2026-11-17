@@ -25,7 +25,16 @@ def main():
     parser.add_argument("--refinement-seed", type=int, default=7)
     parser.add_argument("--max-iterations", type=int, default=250)
     parser.add_argument("--restart-count", type=int, default=4)
+    parser.add_argument("--relax-anchors", action="store_true",
+        help="Escalate a failed generated-only attempt through the private post-assembly bounded-anchor contract")
+    parser.add_argument("--cohort", type=Path, help="Original retained cohort, required for --relax-anchors custody")
+    parser.add_argument("--case", help="Original retained case, required for --relax-anchors custody")
+    parser.add_argument("--bundle", type=Path, help="New accepted anchored bundle destination (optional)")
     args = parser.parse_args()
+    if args.relax_anchors and (args.cohort is None or args.case is None):
+        parser.error("--relax-anchors requires --cohort and --case")
+    if args.bundle is not None and not args.relax_anchors:
+        parser.error("--bundle here requires --relax-anchors")
     args.output.mkdir(parents=True, exist_ok=False)
     request = DiffusionRequest.from_json((args.portfolio / "request.json").read_text())
     source = (args.portfolio / "source.pdb").read_text()
@@ -73,6 +82,23 @@ def main():
             "output_sha256": digest(result.coordinate_text)}
         (args.output / "independent-audit.json").write_text(json.dumps(summary, indent=2) + "\n")
         print(json.dumps(summary), flush=True)
+        if args.relax_anchors and not passed:
+            import subprocess
+            import sys
+
+            scripts = Path(__file__).resolve().parent
+            workspace = args.output / "anchor-inputs"
+            subprocess.run([sys.executable, str(scripts / "publish_gap_portfolio.py"),
+                "--portfolio", str(args.portfolio), "--repair", str(args.output),
+                "--cohort", str(args.cohort), "--case", args.case,
+                "--work", str(workspace), "--evidence-only"], check=True)
+            command = [sys.executable, str(scripts / "repair_portfolio_anchors.py"),
+                "--workspace", str(workspace), "--output", str(args.output / "anchors"),
+                "--refinement-seed", str(args.refinement_seed), "--max-iterations", str(args.max_iterations),
+                "--restart-count", str(args.restart_count)]
+            if args.bundle is not None:
+                command.extend(["--bundle", str(args.bundle)])
+            subprocess.run(command, check=True)
     except Exception as exc:
         (args.output / "failure.json").write_text(json.dumps({"type": type(exc).__name__, "error": str(exc)}, indent=2) + "\n")
         raise

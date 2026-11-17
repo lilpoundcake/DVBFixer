@@ -328,9 +328,10 @@ known_divergences = ["Legacy amber and charmm retain permissive component handli
 [contracts.diffusion-private-gap-portfolio-bundle]
 status = "partial"
 owner = "src/dvbfixer/model/diffusion/portfolio_publication.py::publish_portfolio_bundle"
-description = "Private schema-1 multi-parent bundle with frozen donor request/source custody, generated-only DatRecord, independently derived issue-local mobility, source-preparation evidence, manifest-last commit and exact read-only resume. Public product capability and scientific qualification remain disabled."
+description = "Private multi-parent bundle with frozen donor request/source custody, generated-only DatRecord, independently derived mobility, source-preparation evidence, manifest-last commit and exact read-only resume. Schema 1 is generated-only; explicit schema-2 evidence authorizes a post-assembly bounded-anchor attempt with independently recomputed masks and unchanged per-anchor limits. Public capability and scientific qualification remain disabled."
 producers = [
   "scripts/publish_gap_portfolio.py::main",
+  "scripts/repair_portfolio_anchors.py::main",
   "src/dvbfixer/model/diffusion/portfolio_publication.py::publish_portfolio_bundle",
 ]
 consumers = [
@@ -347,11 +348,11 @@ identity_keys = [
 source_mutation = "Original sources, source-preparation reports/snapshots, parents and sampler traces remain byte-identical. Only manifest references are relocated; historical internal trace paths are matched by bound artifact digest, not traversed."
 commit_behavior = "Audit before reservation, durably stage flat payloads, recompute staged validation and DatRecord, exclusively reserve destination, then commit bundle.json last. Directory existence is never readiness."
 failure_behavior = "Unknown kinds/versions, incomplete custody, wrong source/mobility/geometry/DatRecord, modified receipts, symlinks/hardlinks, undeclared entries and mismatched resume identity fail closed. Existing or crash-left destinations are never adopted, overwritten or deleted."
-test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py"]
+test_files = ["tests/test_diffusion_portfolio_publication.py", "tests/test_diffusion_gap_portfolio.py", "tests/test_diffusion_portfolio_anchors.py"]
 known_divergences = [
   "This is a private experimental format, not schema-4 single-seed sampling or atom-completion publication; the old readers must reject it.",
   "A private geometry/custody pass does not grant structural accuracy, scientific qualification or public/API/GUI admission.",
-  "Moved-anchor donors and P3 reconstruction are outside this version.",
+  "Moved-anchor donors and P3 reconstruction remain unsupported. Schema-2 post-assembly anchor motion is a distinct operation, never donor motion or silent schema-1 relaxation.",
 ]
 
 [contracts.diffusion-runner-publication-provenance]
