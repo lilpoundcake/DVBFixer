@@ -62,7 +62,7 @@ class ChiralityError(RuntimeError):
 
 # Bond-length targets (nm). Matches AMBER14-standard covalent bond
 # lengths for the given parent element. Used as both the tolerance
-# for "misplaced" detection (with a 1.6x safety factor) and the
+# for "misplaced" detection (with a 1.2x safety factor) and the
 # replacement bond length when we repair.
 _BOND_LEN_NM = {
     "O": 0.097,   # O-H
@@ -87,8 +87,10 @@ _SIBLING_H_MIN_NM = 0.15  # 1.5 Å
 
 # Misplaced-parent-distance factor: an H is misplaced if its
 # distance to its bonded parent exceeds this multiple of the
-# expected covalent bond length.
-_PARENT_DIST_FACTOR = 1.6
+# expected covalent bond length. Allow 20% for geometry variation, but
+# catch stretched O-H bonds (~1.25 Å) left by addHydrogens that escaped
+# the old 60% tolerance even though they are far from the ~0.97 Å target.
+_PARENT_DIST_FACTOR = 1.2
 
 # Fallback bond length when the parent element isn't in _BOND_LEN_NM.
 _DEFAULT_BOND_LEN_NM = 0.1
