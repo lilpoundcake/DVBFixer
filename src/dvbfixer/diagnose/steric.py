@@ -14,8 +14,11 @@ Two engines:
 from __future__ import annotations
 
 import sys
+from functools import lru_cache
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 from dvbfixer.diagnose._common import HBOND_HEAVY_ELEMENTS, is_water
 from dvbfixer.diagnose.geometry import (
@@ -39,7 +42,8 @@ CLASH_MODE_PRESETS: dict[str, tuple[float, float]] = {
 }
 DEFAULT_CLASH_MODE = "chimerax"
 DETERMINISTIC_STERIC_ENGINE = "dvbfixer-python-steric"
-DETERMINISTIC_STERIC_ENGINE_VERSION = "1"
+DETERMINISTIC_STERIC_ENGINE_VERSION = "2"
+BOND_EXCLUSION_POLICY = "topology-and-intra-residue-templates.v2"
 SEVERE_OVERLAP_A = 0.90
 
 # Module-level defaults (used only when the caller passes ``None``).
@@ -48,18 +52,6 @@ _CLASH_WARNING_OVERLAP_A, _CLASH_ERROR_OVERLAP_A = CLASH_MODE_PRESETS[DEFAULT_CL
 # Neighbor-list cutoff (Å). Should be > 2 * max vdW radius to catch all
 # possible overlaps. 3.0 Å covers everything up to S-S contact.
 _NEIGHBOR_CUTOFF_A = 3.0
-
-# Distance-based covalent-bond inference for the exclusion set. Any
-# atom pair closer than these cutoffs is treated as bonded regardless
-# of what ``topology.bonds()`` says — this catches HETATMs (glycans,
-# ligands, ions), AMBER/CHARMM protonation variants, and other
-# non-standard residues that OpenMM's PDBFile can't infer bonds for.
-# Narrow enough to avoid confusing short H-bonds (~1.8 Å heavy-heavy)
-# with covalent bonds; wide enough to catch stretched CONECT-less
-# HETATM bonds. Element-pair keys.
-_COVALENT_MAX_A_HEAVY_HEAVY = 1.90
-_COVALENT_MAX_A_X_H = 1.30
-_COVALENT_MAX_A_SS = 2.25  # disulfide (S-S)
 
 # Hydrogen-bond geometric envelope. A pair (polar H, acceptor) with
 # donor-H covalent bond to N/O/S is skipped as a valid H-bond, not
@@ -110,49 +102,71 @@ def _find_binary(name: str) -> str | None:
     return None
 
 
-def _covalent_cutoff_a(sym_i: str, sym_j: str) -> float:
-    """Element-pair covalent cutoff for distance-based bond inference."""
-    a, b = sym_i.upper(), sym_j.upper()
-    if a == "H" or b == "H":
-        return _COVALENT_MAX_A_X_H
-    if a == "S" and b == "S":
-        return _COVALENT_MAX_A_SS
-    return _COVALENT_MAX_A_HEAVY_HEAVY
+@lru_cache(maxsize=1)
+def _intra_residue_templates() -> dict[str, tuple[tuple[str, str], ...]]:
+    """Read OpenMM's bond definitions, never a coordinate-derived graph."""
+    root = ElementTree.parse(str(files("openmm.app") / "data" / "residues.xml")).getroot()
+    return {
+        residue.attrib["name"]: tuple(
+            (bond.attrib["from"], bond.attrib["to"])
+            for bond in residue.findall("Bond")
+            if not any(bond.attrib[key].startswith(("-", "+")) for key in ("from", "to"))
+        )
+        for residue in root.findall("Residue")
+    }
 
 
 def _build_neighbor_graph(
     topology: Any,
-    atoms: list[Any],
-    coords_a: Any,
-    pairs_within_cutoff: set[tuple[int, int]],
-) -> dict[int, set[int]]:
-    """Merge topology bonds with distance-inferred bonds.
+    include_water: bool,
+) -> tuple[dict[int, set[int]], list[Any]]:
+    """Use supplied bonds and unique intra-residue template atom names only.
 
-    OpenMM's ``PDBFile`` only auto-infers bonds for STANDARD residue
-    templates — HETATMs (glycans, ligands, ions), AMBER protonation
-    variants (HIE, CYX, LYN, ASH, GLH), CHARMM variants (HSD, HSE,
-    HSP), and sugar residues get NO bonds from ``topology.bonds()``.
-    Without this augmentation, their real covalent bonds appear as
-    clashes (a bonded C-C at 1.53 Å reads as 1.87 Å overlap against
-    vdW sum 3.40 Å).
+    Proximity is the signal being tested, not evidence of a bond. In
+    particular, never infer an inter-residue edge here: one false edge
+    would also suppress adjacent contacts through 1-3/1-4 expansion.
+    Return residues whose intra-residue connectivity remains unresolved.
+    The supplied topology (including its parser's bond decisions) is trusted;
+    no force-field topology or input residue/atom name is mutated.
     """
-    import numpy as np
+    from dvbfixer.ffutils.variants import VARIANT_TO_PARENT
 
     neighbors: dict[int, set[int]] = {}
     for b1, b2 in topology.bonds():
         neighbors.setdefault(b1.index, set()).add(b2.index)
         neighbors.setdefault(b2.index, set()).add(b1.index)
 
-    for i, j in pairs_within_cutoff:
-        ai, aj = atoms[i], atoms[j]
-        if ai.element is None or aj.element is None:
+    templates = _intra_residue_templates()
+    unresolved = []
+    for residue in topology.residues():
+        if not include_water and is_water(residue.name):
             continue
-        cutoff = _covalent_cutoff_a(ai.element.symbol, aj.element.symbol)
-        d = float(np.linalg.norm(coords_a[i] - coords_a[j]))
-        if d <= cutoff:
-            neighbors.setdefault(i, set()).add(j)
-            neighbors.setdefault(j, set()).add(i)
-    return neighbors
+        atoms = list(residue.atoms())
+        by_name: dict[str, list[Any]] = {}
+        for atom in atoms:
+            by_name.setdefault(atom.name, []).append(atom)
+        parent = "HOH" if is_water(residue.name) else VARIANT_TO_PARENT.get(residue.name, residue.name)
+        template = templates.get(parent, ())
+        template_names = {name for pair in template for name in pair}
+        for a, b in template:
+            if len(by_name.get(a, ())) == len(by_name.get(b, ())) == 1:
+                i, j = by_name[a][0].index, by_name[b][0].index
+                neighbors.setdefault(i, set()).add(j)
+                neighbors.setdefault(j, set()).add(i)
+        # A fully supplied connected graph is accepted for unknown chemistry.
+        # Missing intermediate atoms in a known template belong to the separate
+        # structural checks; they must not trigger invented shortcut bonds.
+        indices = {atom.index for atom in atoms}
+        visited = set()
+        frontier = {atoms[0].index} if atoms else set()
+        while frontier:
+            visited.update(frontier)
+            frontier = {j for i in frontier for j in neighbors.get(i, ()) if j in indices} - visited
+        duplicate_names = any(len(matches) != 1 for matches in by_name.values())
+        known_names = bool(template) and set(by_name) <= template_names
+        if duplicate_names or (len(atoms) > 1 and not known_names and visited != indices):
+            unresolved.append(residue)
+    return neighbors, unresolved
 
 
 def _expand_exclusions(neighbors: dict[int, set[int]]) -> set[frozenset[int]]:
@@ -253,6 +267,7 @@ def clashes_python(
     *,
     measurement_sink: list[GeometryMeasurement] | None = None,
     neighbor_cutoff_a: float = _NEIGHBOR_CUTOFF_A,
+    provenance: dict[str, Any] | None = None,
 ) -> list[Finding]:
     """Pure-Python clash detection via scipy cKDTree.
 
@@ -266,10 +281,9 @@ def clashes_python(
     values or picks a different preset (e.g. ``"molprobity"``, 0.4/0.5 Å,
     MolProbity's official clashscore floor).
 
-    Bond exclusion includes both the OpenMM topology bond set AND
-    a distance-inferred graph — so HETATMs and non-standard residues
-    without CONECT records don't have their real covalent bonds
-    reported as clashes.
+    Bond exclusion uses supplied topology bonds and intra-residue OpenMM
+    templates (including shared protonation-variant parent names), never
+    proximity. Undescribed connectivity produces a WARNING, not new bonds.
 
     Hydrogen bonds (polar H..N/O/S/F at 1.4 – 2.6 Å) are also
     skipped — MolProbity's ``probe`` classifies those as "hbond",
@@ -287,9 +301,35 @@ def clashes_python(
     err_a = _CLASH_ERROR_OVERLAP_A if clash_error_a is None else clash_error_a
 
     atoms = list(topology.atoms())
-    n = len(atoms)
-    if n == 0:
+    neighbors, unresolved = _build_neighbor_graph(topology, include_water)
+    connectivity = {
+        "bond_exclusion_policy": BOND_EXCLUSION_POLICY,
+        "connectivity_status": "unresolved" if unresolved else "as_supplied_or_templated",
+        "unresolved_residues": [
+            {"chain": residue.chain.id, "resid": str(residue.id),
+             "icode": getattr(residue, "insertionCode", "").strip(), "resname": residue.name}
+            for residue in unresolved
+        ],
+    }
+    if provenance is not None:
+        provenance.update(connectivity)
+        provenance["status"] = "partial" if unresolved else "complete"
+    if not atoms:
         return []
+    findings: list[Finding] = []
+    for residue in unresolved:
+        chain, resid = _res_loc(residue)
+        findings.append(Finding(
+            severity=Severity.WARNING, category="steric_connectivity",
+            chain=chain, resid=resid, resname=residue.name,
+            message=f"{chain}/{residue.name}{resid}: incomplete or ambiguous connectivity for Python "
+                    "steric exclusions; close contacts are not inferred as bonds. "
+                    "Missing covalent links may cause false-positive clashes; "
+                    "intra-residue clashes are not evaluated.",
+            fix_hint="Provide chemically verified topology/CONECT records or use supported MolProbity Probe",
+            extra={"bond_exclusion_policy": BOND_EXCLUSION_POLICY,
+                   "atoms": [atom_identity(atom).to_dict() for atom in residue.atoms()]},
+        ))
 
     coords_nm = np.array([positions[a.index].value_in_unit(nanometer) for a in atoms])
     coords_a = coords_nm * 10.0
@@ -298,12 +338,10 @@ def clashes_python(
     # Query all pairs within the cutoff.
     pairs = tree.query_pairs(r=neighbor_cutoff_a)
     if not pairs:
-        return []
+        return findings
 
-    neighbors = _build_neighbor_graph(topology, atoms, coords_a, pairs)
     excluded = _expand_exclusions(neighbors)
 
-    findings: list[Finding] = []
     for i, j in sorted(pairs):
         ai = atoms[i]
         aj = atoms[j]
@@ -311,10 +349,8 @@ def clashes_python(
             continue
         if frozenset({ai.index, aj.index}) in excluded:
             continue
-        # Skip pairs within the same residue — intra-residue vdW is
-        # baked into the FF template and any close contact is either
-        # already handled (1-2/1-3/1-4 above) or a template-defined
-        # tight geometry (e.g. sugar ring puckers).
+        # Preserve the existing inter-residue scope. This check does not
+        # validate arbitrary intra-residue geometry, even for supplied graphs.
         if ai.residue is aj.residue:
             continue
         # Skip water (unless the user opted in).
@@ -346,6 +382,8 @@ def clashes_python(
                         "distance_angstrom": d,
                         "vdw_sum_angstrom": ri + rj,
                         "one_two_one_three_one_four_excluded": True,
+                        "bond_exclusion_policy": BOND_EXCLUSION_POLICY,
+                        "connectivity_status": connectivity["connectivity_status"],
                     },
                 )
             )
@@ -370,6 +408,7 @@ def clashes_python(
                 extra={
                     "geometry_schema": "dvbfixer.geometry.v1",
                     "metric": "steric_vdw_overlap.v1",
+                    "bond_exclusion_policy": BOND_EXCLUSION_POLICY,
                     "engine": {
                         "name": DETERMINISTIC_STERIC_ENGINE,
                         "version": DETERMINISTIC_STERIC_ENGINE_VERSION,
@@ -396,6 +435,8 @@ def steric_overlap_measurements_python(
     topology: Any,
     positions: Any,
     include_water: bool = False,
+    *,
+    provenance: dict[str, Any] | None = None,
 ) -> list[GeometryMeasurement]:
     """Return deterministic Python vdW overlaps without severity policy.
 
@@ -413,6 +454,7 @@ def steric_overlap_measurements_python(
         clash_error_a=float("inf"),
         measurement_sink=measurements,
         neighbor_cutoff_a=2.0 * max(_VDW_A.values()),
+        provenance=provenance,
     )
     return sorted(measurements, key=lambda item: item.atoms)
 
@@ -486,6 +528,7 @@ def run_all(
         include_water=include_water,
         clash_warn_a=clash_warn_a,
         clash_error_a=clash_error_a,
+        provenance=state,
     )
     if provenance is not None:
         provenance.update(state)

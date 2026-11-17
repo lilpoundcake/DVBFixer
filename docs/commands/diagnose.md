@@ -41,6 +41,25 @@ structures should be split or corrected before minimization.
 - **Steric analysis** — Python neighbor search + van der Waals radii,
   or the optional validated MolProbity Probe adapter when supported.
 
+### Python steric exclusions (engine version 2)
+
+The Python engine uses supplied topology bonds and OpenMM intra-residue bond
+templates, including shared AMBER/CHARMM variant-parent mappings. Short distances
+never create bonds or 1–3/1–4 exclusions. Supply chemically verified `CONECT`
+records for inter-residue covalent links not already represented by the parser;
+unknown ligand/glycan chemistry is not reconstructed by this diagnostic.
+
+Unresolved intra-residue connectivity produces a `steric_connectivity` WARNING
+and JSON `status: "partial"`. Missing links can cause false-positive clashes;
+intra-residue clashes remain outside this Python check. Supplied topology bonds
+are trusted, including bonds assigned by the input parser. A connected supplied
+graph is not independent proof of chemical correctness.
+
+Scoped `deterministic_steric` evidence always uses this Python policy, even when
+the main findings come from Probe. It retains its own connectivity status and
+unresolved-residue list. Successful Probe findings are unchanged. Earlier Python
+engine reports may have hidden close contacts; re-run affected validation gates.
+
 ## Usage
 
 ```bash

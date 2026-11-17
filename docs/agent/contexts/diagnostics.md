@@ -84,6 +84,13 @@ Exit statuses are part of the public contract:
   duplicate identities are reported as ambiguous rather than chosen.
 - Reusable steric evidence is deterministically ordered and always uses the
   versioned Python engine with a pinned 0.90 Å severe-overlap definition.
+- Python steric engine v2 never derives exclusion bonds from distance. It uses
+  supplied topology bonds plus unique intra-residue OpenMM template atom names;
+  variant parents come from the shared variant map. Unresolved connectivity emits
+  `steric_connectivity` and partial provenance, including in scoped evidence.
+  Preserve regression coverage in `tests/test_diagnose_steric_exclusions.py`:
+  short contacts, ignored-water bridges and intra-residue shortcuts must not
+  suppress external clashes. Supplied topology bonds remain trusted.
 - Explicit PDB chain transitions are boundaries, never internal chain breaks.
 - Multi-model input is analyzed as MODEL 1 only and receives a WARNING finding.
 - Coordinate-identical complete protein chains are suspicious but non-fatal.
