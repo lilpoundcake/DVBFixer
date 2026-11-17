@@ -109,12 +109,16 @@ def build_bonded_controls(output):
                     rdMolTransforms.SetDihedralDeg(mol.GetConformer(), index, index+1, index+2, index+3, angle)
                 coords = np.asarray(mol.GetConformer().GetPositions())
                 matches = [(i, j) for i, j in candidates if 2.4 < np.linalg.norm(coords[i] - coords[j]) < 2.9]
-                no_extra_inferred_bonds = all(
-                    np.linalg.norm(coords[i] - coords[j]) > steric._covalent_cutoff_a(
-                        mol.GetAtomWithIdx(i).GetSymbol(), mol.GetAtomWithIdx(j).GetSymbol()
+                # Preserve the historical hydrocarbon control geometry. These
+                # fixed C/H separation floors are control-selection criteria,
+                # NOT a bond inference policy in the production Python engine.
+                historical_separation = all(
+                    np.linalg.norm(coords[i] - coords[j]) > (
+                        1.30 if "H" in (mol.GetAtomWithIdx(i).GetSymbol(),
+                                        mol.GetAtomWithIdx(j).GetSymbol()) else 1.90
                     ) for i, j in nonbonds
                 ) if matches else False
-                if matches and no_extra_inferred_bonds:
+                if matches and historical_separation:
                     target, found = matches[0], True
                     break
             if not found:
@@ -144,19 +148,16 @@ def build_bonded_controls(output):
                           "target_expected_clash": case != "bonded-ethane",
                           "target_bond_graph_distance": len(Chem.GetShortestPath(mol, *target)) - 1,
                           "selection_policy": ("MMFF-relaxed covalent ethane" if case == "bonded-ethane" else
-                                               "torsion grid, target 2.4-2.9 A, no accidental distance-inferred bonds; no detector findings used for selection"),
+                                                "torsion grid, target 2.4-2.9 A, historical nonbonded C/H separation floors 1.90/1.30 A; no detector findings used for selection"),
                           "target_distance_angstrom": float(np.linalg.norm(coords[target[0]] - coords[target[1]]))}
     return controls
 
 
 def explain_discordant_pairs(pdb, python_pairs, probe_pairs, contacts):
     """Expose the production Python filters, without redefining their chemistry."""
-    from scipy.spatial import cKDTree
-
     atoms = list(pdb.topology.atoms())
     coords = np.asarray(pdb.positions.value_in_unit(nanometer)) * 10
-    nearby = cKDTree(coords).query_pairs(r=steric._NEIGHBOR_CUTOFF_A)
-    neighbors = steric._build_neighbor_graph(pdb.topology, atoms, coords, nearby)
+    neighbors, _ = steric._build_neighbor_graph(pdb.topology, include_water=False)
     excluded = steric._expand_exclusions(neighbors)
     lookup = {}
     for atom in atoms:

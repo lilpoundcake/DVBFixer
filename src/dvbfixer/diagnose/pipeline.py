@@ -254,8 +254,9 @@ def _scope_payload(
             }
         )
 
+    steric_provenance: dict[str, Any] = {}
     steric_measurements = steric.steric_overlap_measurements_python(
-        topology, positions, include_water=include_water
+        topology, positions, include_water=include_water, provenance=steric_provenance
     )
     scoped_steric = [
         measurement
@@ -287,6 +288,7 @@ def _scope_payload(
             ),
         ),
         "deterministic_steric": {
+            **steric_provenance,
             "engine": {
                 "name": steric.DETERMINISTIC_STERIC_ENGINE,
                 "version": steric.DETERMINISTIC_STERIC_ENGINE_VERSION,
