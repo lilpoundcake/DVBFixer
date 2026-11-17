@@ -8,6 +8,15 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.5] — 2026-11-17
+
+### Fixed
+
+- Keep reducing-end GLYCAM ROH caps next to their source sugars with distinct,
+  collision-free residue numbers. Preserve the existing O1 coordinates and
+  CONECT links instead of appending the cap after unrelated protein chains,
+  which caused residue-identity collisions after OpenMM PDB serialization.
+
 ## [0.10.4] — 2026-11-05
 
 ### Added
