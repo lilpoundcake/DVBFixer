@@ -1,5 +1,10 @@
 # Mac reconstruction backends and local multi-seed portfolios: handoff
 
+**Current entry point (2026-11-14):**
+[Experimental structure coordinate completion](experimental-structure-completion-handoff.md).
+The design, authorizations and results below retain their historical scope;
+consult the current handoff before continuing the retained-structure work.
+
 Date: 2026-11-11. **Design/documentation approved; implementation, installation,
 weight downloads and experimental execution require separate user permission.**
 Do not interpret approval to write this handoff, or previous 1HE8 runs, as
@@ -14,6 +19,13 @@ selection and unqualified surface diagnostics are recorded in the
 This is not full-plan completion or approval to waive the resource/capability
 gates. The authorization statements below describe the original design boundary;
 new runs remain bounded by their separately retained declarations.
+
+Current scope amendment: the user has deferred enormous experimental gaps such
+as7N8X and domain-scale/focused-submodel omissions from the active loop-completion
+evaluation. See the authoritative
+[loop-focused amendment](mac-reconstruction-real-gaps.md#current-user-amendment-loop-completion-not-domain-scale-prediction).
+Historical long-gap quotas do not override this direction; existing source
+preparation is not automatic scientific admission.
 
 ## 1. Objective and boundaries
 
@@ -429,3 +441,12 @@ a separately frozen complete interface/broader-family cohort if further sampling
 is desired; local MSA/homolog asset provenance if those cells are desired; and a
 separate product scope if integration is desired. None is silently inferred.
 No public capability, P3, commit or push was enabled by this continuation.
+
+2026-11-12 continuation design: the user prioritizes real incomplete large
+structures and difficult1HE8-like cases over artificial-mask accuracy. The
+[expanded continuation handoff](mac-reconstruction-real-gaps.md) now tracks every
+unfinished comparator/conditioning, anchor, topology, donor-workflow and final
+evaluation deliverable. It starts without a new hard gap/tail-length cap, retains
+resource limits, and treats crystal RMSD only as an optional control metric.
+The prior study has since been committed/pushed at `b17e7af`; this next handoff is
+design, not completed new execution or authorization for an unbounded campaign.

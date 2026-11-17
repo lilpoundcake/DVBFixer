@@ -10,6 +10,10 @@ that discover that filename.
 (Protein Data Bank) structural biology files. Installed as a single
 `dvbfixer` command with 26 subcommands, plus the React/Node GUI in `gui/`.
 
+Project purpose, goals, non-goals and quality criteria are defined in
+[`docs/project-goals.md`](docs/project-goals.md). Individual research handoffs
+describe narrower tasks; they do not redefine the whole project's scope.
+
 ## Prep backends: `legacy` (default) vs `tleap-reduce` (opt-in)
 
 `feat/tleap-reduce-backend` was merged into `main` (`5ca7e17`) — it is
@@ -125,6 +129,31 @@ then `export MAMBA_ROOT_PREFIX=/opt/mamba` before `micromamba create`,
 and keep `/opt/mamba/envs/dvbfixer/bin` on `PATH` so subprocesses that
 call bare `dvbfixer` resolve it. See
 [docs/known-issues.md](docs/known-issues.md) for the full write-up.
+
+## Investigation and implementation scope
+
+**Keep investigation proportional to the task.**
+
+For a small, localized task, start with the directly relevant code and its
+immediate callers or tests. Do not survey the repository or audit adjacent
+systems by default.
+
+Expand the investigation only when you encounter a concrete dependency,
+contradiction, or failure that affects the requested change. A merely possible
+concern is not enough.
+
+Stop investigating once you can explain the relevant behavior, identify a
+sufficient change, and verify it with a focused check. Do not seek exhaustive
+understanding or certainty unrelated to the task.
+
+If an apparently simple task turns out to require substantially broader work,
+explain the specific blocker before expanding scope.
+
+**Make the smallest coherent change.**
+
+Meet the current requirement and preserve existing contracts and invariants.
+Prefer established patterns. Do not add unrelated refactoring, speculative
+safeguards, or infrastructure for hypothetical future needs.
 
 ## Working in this codebase — hard rules
 

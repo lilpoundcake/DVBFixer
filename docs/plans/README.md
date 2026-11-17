@@ -1,12 +1,18 @@
 # Plan status and remaining work
 
-Updated 2026-10-28. This is a navigation/status summary, not a new implementation
+Updated 2026-11-14. This is a navigation/status summary, not a new implementation
 proposal. The [implementation checklist](implementation-checklist.md) is the
 canonical completion tracker; older milestone lists in individual plans may
 describe historical stages, capability requirements or optional experiments.
 An unchecked historical box alone does not prove that code is still missing.
 
 ## Current status
+
+Current reconstruction entry point:
+[Experimental structure coordinate completion](experimental-structure-completion-handoff.md).
+It defines known-sequence completion of missing coordinates in public experimental
+structures and consolidates the latest direction; older reconstruction plans
+retain historical evidence, not conflicting current execution instructions.
 
 2026-11-03 addition: [GUI practical improvements handoff](gui-practical-improvements-handoff.md)
 tracks actionable diffusion output, multi-seed entry, navigation and Job Monitor.
@@ -17,7 +23,8 @@ milestone context; use the handoff and canonical checklist for this new work.
 | Plan | Implemented / completed | Remaining boundary |
 |---|---|---|
 | [Mac reconstruction and multi-seed portfolios](mac-reconstruction-portfolios-handoff.md) / [fixed validation](mac-reconstruction-fixed-validation.md) / [results](../research/mac-reconstruction-comparison-2026-11-11.md) | Authorized private MPS studies, compatible assembly/shared refinement, A/C/D and E subset complete; independent two-entry validation: 90/90 ML and 23/30 MODELLER final passes, all120 independently audited | No whole1HE8 acceptance; interface refusals retained; local MSA/homolog assets, broad accuracy, positive anchor bounds, topology/trajectories and public integration remain unqualified |
-| [Real missing regions and 1HE8 anchor investigation](mac-reconstruction-real-gaps.md) | User-directed next priority: natural gaps in large experimental structures; completion geometry/custody, not crystal RMSD, is the endpoint | Next backend/context budget must be frozen; existing bounded relaxation improved 1HE8 but left explicit geometry/movement failures |
+| [Real-gap continuation handoff](mac-reconstruction-real-gaps.md) | All 233 source tasks accounted; 194 deposited gap axes/projection custody and actual context omissions checked. Per-case reviews flag 229 artifact-overlapping gaps in 106 entries; database-relative deletions are not coordinate targets. Prior six case-arms retain one final pass and zero donor approvals | No new restoration runs queued. Construct/task semantics, loop/context admission, group-safe splits, matched comparisons, topology and public integration remain open. 7N8X excluded; recruitment/limit calibration paused; 200 remains a planning target |
+| [Experimental RFD3 source-link custody](rfd3-source-link-custody.md) | Private full-water 1KTZ export independently audited: 710 restored atoms, 3,312 unchanged observations, 21 target pairs, L-Cα/THR β-R and no new warnings. Same-assembly proposal transfer, explicit S–S priors and bounded refinement retain all prior failed arms. Fast suite: 2,848 passed | Incomplete/not MD-ready: genuine B136/D136 OXT errors outside frozen mask require receptor free-terminus versus amidation/capping confirmation. Native oxidized target already confirmed; original18source annotations/request/native graph failure unchanged. No new neural sample, broader qualification or public capability |
 | [Diffusion geometry repair](diffusion-geometry-repair.md) | P0/P1 controls; private P2 search/repair, manifest-last bundle/`.dat`/preparation custody/read-only resume; ten-case historical workflow and factorial/symmetry analysis | Original seed outcomes unchanged; public portfolio admission, prospective scientific qualification, broader calibration and P3 remain open |
 | [Generated-loop intersections/threading](diffusion-geometry-repair.md#generated-loop-intersectionthreading-detector-requested-follow-up-2026-11-10) | User-requested validation follow-up; no detector or topology guarantee yet | Distinguish 3D crossings from suspected open-path threading; audit raw/assembled/refined proposals and qualify positive/negative controls before any fatal gate; separate from P3 |
 | [Geometry-gated anchor relaxation](geometry-gated-anchor-relaxation-handoff.md) | Experimental runner/validation/publication/resume and CLI/ZBS/Homology/GUI integration; approved movement limits; native 9CQD replays and real-complex pre-anchor findings | [Return to 1BRS sparse context, 1GC1 generated torsions, 1HE8 timeouts and live raw/final adapter acceptance](geometry-gated-anchor-relaxation-handoff.md#real-complex-follow-up-work-packages); broader motion-bound/B-policy calibration and target-GPU acceptance remain open |

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 import sys
 import time
 from pathlib import Path
@@ -263,12 +264,15 @@ def test_runner_preflight_rejects_invalid_timeout(tmp_path: Path, timeout: float
 
 def test_runner_preflight_timeout_cleans_up_inherited_output_pipes(tmp_path: Path) -> None:
     response = _successful_response()
-    runner = _preflight_runner(
-        tmp_path,
-        "import subprocess, sys\n"
-        "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(10)'])\n"
-        f"print({response.to_json()!r}, end='')",
+    runner = tmp_path / "runner.sh"
+    # Exercise inherited pipe cleanup, not Python/subprocess import latency.
+    # The background sleeper retains both output pipes after the shell exits.
+    runner.write_text(
+        "#!/bin/sh\nsleep 10 &\n"
+        f"printf '%s' {shlex.quote(response.to_json())}\n",
+        encoding="utf-8",
     )
+    runner.chmod(0o755)
     checkpoint = tmp_path / "checkpoint.pt"
     checkpoint.write_bytes(b"checkpoint")
     started = time.monotonic()

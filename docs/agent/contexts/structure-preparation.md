@@ -13,6 +13,31 @@ heavy-atom completion, protonation, hydrogen placement, and the `.dat` handoff
 to minimization. It records ownership, ordering, and externally visible
 contracts; it does not reproduce scientific algorithms.
 
+## Private 1KTZ continuation boundary (2026-11-14)
+
+See the [current research handoff](../../plans/experimental-structure-completion-handoff.md).
+Private helpers under `model/diffusion/` are not public capabilities:
+`rfd3_terminal_torsions.py` enforces graph-cut missing-atom ownership;
+`rfd3_movement_wall.py` adds finite inward walls, not mathematical hard
+constraints; `rfd3_assembly_copy.py` transfers an explicitly declared same-assembly
+proposal without treating it as experimental truth; `rfd3_disulfide_restraint.py`
+limits explicit priors to approved generated/observed S–S bonds;
+`rfd3_missing_stereocentre.py` supports one reviewed missing-point correction,
+never automatic observed stereochemistry repair; `rfd3_full_context.py` preserves
+original context lines and builds a canonical generated-only DatRecord.
+
+Native fixed-coordinate fidelity must pass before materialization. Returned-stage
+and final movement checks remain required even with walls. Preserve all rejected
+arms, frozen requests, source records and actual warnings/errors. The retained
+full-water 1KTZ candidate passes restored-mask geometry but still has genuine
+missing OXT at B136/D136 outside its frozen 710-atom mask. Receptor free termini
+versus amidation/capping are deferred to future user-facing preparation, not a
+current restoration blocker; native oxidized TGF-β3 is already confirmed.
+Preserve both errors. Do not expand masks, add charges/caps or label it MD-ready.
+Diagnose's conservative water-tail fallback must not hide those OXT omissions or
+invent termini across caps/cyclic bonds/unresolved sequence gaps; regression
+controls are in `tests/test_diagnose_terminal_waters.py`.
+
 ## Scope
 
 - `src/dvbfixer/model/` owns sequence/SEQRES placement, Modeller invocation,
@@ -64,6 +89,9 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
 | Experimental completion trace / `.dat` / publication | `src/dvbfixer/model/diffusion/atom_completion_trace.py::CompletionSamplerTrace`; `atom_completion_evidence.py::audit_completion_evidence`; `atom_completion_publication.py::publish_completion_bundle`, `read_completion_bundle` |
 | Private template comparison / held-out scoring | `src/dvbfixer/model/diffusion/atom_completion_benchmark.py::template_completion_proposal`, `heldout_completion_metrics` |
 | Pre-diffusion observed-heavy preparation | `src/dvbfixer/model/diffusion/observed_completion.py::missing_observed_atoms`, `prepare_observed_completion`, `audit_completion_preparation` |
+| Private offline RFD3 source-link custody (not runner-enabled) | `src/dvbfixer/model/diffusion/rfd3_custody_records.py::build_ledger`; `src/dvbfixer/model/diffusion/rfd3_custody.py::materialize_private_candidate`; `src/dvbfixer/model/diffusion/rfd3_custody_validation.py::audit_final_bytes`; `src/dvbfixer/model/diffusion/rfd3_custody_geometry.py::audit_geometry_with_declared_links` |
+| Private RFD3 derivative custody/fixed-water FF input (not public capability) | `src/dvbfixer/model/diffusion/rfd3_refinement.py::build_refinement_input`, `audit_refined_bytes`; `src/dvbfixer/model/diffusion/rfd3_water_context.py::assess_water_context` |
+| Private approved native graph and terminal-only custody | `src/dvbfixer/model/diffusion/rfd3_native_topology.py::validate_native_graph`; `src/dvbfixer/model/diffusion/rfd3_terminal_restoration.py::audit_native_terminal_transport`, `audit_terminal_derivative` |
 | Diffusion scope boundary | `src/dvbfixer/model/diffusion/scope.py::assess_diffusion_scope` |
 | Diffusion pipeline | `src/dvbfixer/model/diffusion/pipeline.py::run_diffusion_pipeline` |
 | Diffusion adapter preflight | `src/dvbfixer/model/diffusion/preflight.py::assess_adapter_preflight` |
@@ -83,6 +111,25 @@ diffusion runner launch. Focused checks: `tests/test_altlocs.py`,
 
 ## Contracts
 
+- The [private RFD3 custody contract](../../plans/rfd3-source-link-custody.md)
+  does not replace old native graph failures with scientific passes. Check raw
+  fidelity before generated-only materialization, preserve original observations
+  and resolved source links, and independently audit final bytes and geometry.
+  The1KTZ placeholder control is NOT a prediction;old1UBQ replay is not new
+  sampling. Terminal/water/precision/execution gates and public profiles remain
+  unchanged. Immutable declared-link geometry must be checked separately from
+  generated/junction-only diagnostics;source bytes alone do not prove geometry.
+- Private RFD3 refinement must keep native raw fidelity separate from derivative
+  missing-atom motion. Original protein/water records remain fixed; temporary
+  FF-only water serial remapping is not permission to rewrite context. Preserve
+  source-only inferred disulfides rather than equating the full FF graph with
+  explicit records alone. The user has confirmed the separate1KTZ native21-pair
+  UniProt target. Actual MODELLER graph/202active-atom transport and subsequent
+  native fixation pass; no source18annotations/frozen request was rewritten.
+  Audit complete native nonactive coordinates **before** materialization and
+  protect inactive proposal atoms, not just observations. The terminal derivative
+  and subsequent21-pair FF derivative remain rejected: final geometry and the
+  latter's3Å movement gate fail. No retrospective bound increase or public pass.
 - Scientific stages consume normalized PDB. CIF normalization and chain mapping
   belong at the CLI boundary; do not add stage-local CIF readers.
 - PDB identity is case-sensitive. Atom identity is `(chain, resid, icode, atom)`;

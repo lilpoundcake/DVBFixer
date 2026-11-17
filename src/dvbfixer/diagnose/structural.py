@@ -79,9 +79,48 @@ def check_missing_residues(fixer: Any) -> list[Finding]:
 
 
 def check_missing_terminals(fixer: Any) -> list[Finding]:
-    """Terminal atoms (OXT on C-terminus, H2/H3 on N-terminus) missing."""
+    """Missing terminal atoms, including a protein end followed only by waters.
+
+    PDBFixer tests the final residue of each Topology chain. Deposited waters
+    sharing a protein's chain ID can hide an otherwise free missing OXT. Supplement
+    only that narrow case; do not mutate the fixer's topology/detection state,
+    infer capped/cyclic termini, or cap an observed flank before a known gap.
+    """
+    from dvbfixer.ffutils import PROTEIN_RESIDUES
+
+    missing = {res: list(atoms) for res, atoms in fixer.missingTerminals.items()}
+    topology = getattr(fixer, "topology", None)
+    if topology is not None:
+        bonds = tuple(topology.bonds())
+        gaps = getattr(fixer, "missingResidues", {})
+        for chain in topology.chains():
+            residues = list(chain.residues())
+            if not residues or not is_water(residues[-1].name):
+                continue
+            nonwater = [(i, res) for i, res in enumerate(residues) if not is_water(res.name)]
+            if not nonwater:
+                continue
+            position, res = nonwater[-1]
+            atoms = {atom.name: atom for atom in res.atoms()}
+            if res.name not in PROTEIN_RESIDUES or not {"N", "CA", "C", "O"} <= atoms.keys() or "OXT" in atoms or res in missing:
+                continue
+            if any(c == chain.index and index > position and names for (c, index), names in gaps.items()):
+                continue
+            # Waters can also make PDBFixer's SEQRES matching inconclusive. A
+            # longer declared sequence with no resolved gap map cannot establish
+            # that this last observed residue is the actual C-terminus. Do not
+            # invent a cap on an unresolved flank (no sequence placement here).
+            chain_gaps = [names for (c, _), names in gaps.items() if c == chain.index and names]
+            declared = [seq for seq in (getattr(fixer, "sequences", ()) or ()) if seq.chainId == chain.id]
+            observed_count = sum(residue.name in PROTEIN_RESIDUES for _, residue in nonwater)
+            if not chain_gaps and any(len(seq.residues) > observed_count for seq in declared):
+                continue
+            carbon = atoms["C"]
+            if any((a is carbon and b.residue is not res) or (b is carbon and a.residue is not res) for a, b in bonds):
+                continue
+            missing[res] = ["OXT"]
     findings: list[Finding] = []
-    for res, atoms in fixer.missingTerminals.items():
+    for res, atoms in missing.items():
         chain, resid = _res_loc(res)
         names = ", ".join(a if isinstance(a, str) else a.name for a in atoms)
         findings.append(

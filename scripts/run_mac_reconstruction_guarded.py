@@ -70,6 +70,27 @@ def resource_stop_reason(*, elapsed, timeout, peak_rss, pressure, critical_secon
     return None
 
 
+def stop_owned_process(process):
+    """Reap a self-stopped child even if macOS denies signalling its dead group."""
+    signal_error = None
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    except PermissionError as exc:
+        signal_error = str(exc)
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        # Permission denial is not proof of termination. Never treat a live
+        # unmanageable process as stopped or launch another scientific child.
+        if signal_error is not None:
+            raise RuntimeError("cannot terminate owned child; process remains unconfirmed")
+        os.killpg(process.pid, signal.SIGKILL)
+        process.wait(timeout=10)
+    return signal_error
+
+
 def main():
     import psutil
 
@@ -103,6 +124,7 @@ def main():
         critical_since = None
         low_since = None
         telemetry = []
+        termination_signal_error = None
         with (root / "output.log").open("xb") as output:
             process = subprocess.Popen(command, env=env, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
             while process.poll() is None:
@@ -137,13 +159,7 @@ def main():
                 if (root / "device-limit-exceeded.json").exists():
                     reason = "mps-driver-limit"
                 if reason:
-                    try:
-                        os.killpg(process.pid, signal.SIGTERM)
-                        process.wait(timeout=10)
-                    except subprocess.TimeoutExpired:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                    termination_signal_error = stop_owned_process(process)
                     break
                 time.sleep(0.5)
             returncode = process.wait()
@@ -151,6 +167,7 @@ def main():
             "resource_policy": args.resource_policy,
             "wall_seconds": time.monotonic() - start, "peak_aggregate_rss_bytes": peak_rss,
             "swap_growth_bytes": psutil.swap_memory().used - swap_start,
+            "termination_signal_error_after_confirmed_child_exit": termination_signal_error,
             "scientific_acceptance": False, "scope": "technical execution, independent scientific audit still required"}
         (root / "execution.json").write_text(json.dumps(report, indent=2) + "\n")
         (root / "host-telemetry.json").write_text(json.dumps(telemetry, indent=2) + "\n")

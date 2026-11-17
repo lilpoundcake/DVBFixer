@@ -151,6 +151,14 @@ def worker(case: Path, output: Path, seed: int, recover_native: Path | None = No
     save(output / "result.json", row)
 
 
+def job_timeout_seconds(job):
+    """A study may charge shared preparation against, never extend, the ceiling."""
+    value = job.get("timeout_seconds", 1800)
+    if type(value) not in (int, float) or not 0 < value <= 1800:
+        raise ValueError("job timeout must be positive and at most1800seconds")
+    return float(value)
+
+
 def execute(output: Path):
     import fcntl
 
@@ -168,6 +176,7 @@ def execute(output: Path):
     with (PROJECT / ".artifacts/mac-reconstruction-2026-11-11/ml.lock").open("a+") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         for job in plan["jobs"]:
+            timeout_seconds = job_timeout_seconds(job)
             if sum(p.stat().st_size for p in output.rglob("*") if p.is_file()) > 10*1024**3:
                 raise RuntimeError("10 GiB evidence cap exceeded; no more jobs launched")
             work = output / "execution" / f"{job['case_id']}-seed-{job['seed']}"
@@ -196,7 +205,7 @@ def execute(output: Path):
                         pressure = int(pressure_result.stdout.strip()) if pressure_result.returncode == 0 and pressure_result.stdout.strip().isdigit() else -1
                         critical = (critical if critical is not None else now) if pressure >= 4 else None
                         low = (low if low is not None else now) if psutil.virtual_memory().available < 1024**3 else None
-                        reason = resource_stop_reason(elapsed=now-started, timeout=1800, peak_rss=peak, pressure=pressure,
+                        reason = resource_stop_reason(elapsed=now-started, timeout=timeout_seconds, peak_rss=peak, pressure=pressure,
                             critical_seconds=0 if critical is None else now-critical, low_headroom_seconds=0 if low is None else now-low)
                         if pressure == -1:
                             reason = "host-pressure-telemetry-unavailable"

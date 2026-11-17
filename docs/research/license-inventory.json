@@ -5,9 +5,11 @@
     "CONTRIBUTING.md": "e070542205afe63805e6ad0046f390e442a9b8a923a8577479c0b1e55cda6d0a",
     "LICENSE": "38956e39a1e8aaa69f298c335c312cad66335fa04e73dc37b677827ce5f33900",
     "MANIFEST.in": "fbd5daabf6e189b5c29123e7838429f5d63b49b1bd63d893b17b42a92dc4db60",
+    "deploy/boltz-2/mps-fork-per-step-callback.patch": "9e5a4f9293e3b8cef54fc8e7d52dd8e1cf1fb75de2dcdb4344f74a3dfe6ea955",
     "deploy/boltz-2/per-step-callback.patch": "8e193714caae7815687506c92fe8c67cf6b43fee203f4b95f98ff73ce8418fc5",
     "deploy/openmm-cuda122/environment.yml": "1c2e433f5eb12a6f837737e0755a1f003f37ad1d7629d4370117a4acb0496f17",
     "deploy/protenix-v1/environment.yml": "19b2a45d0d1709f5239258cb42597ad1db40c658aa3df9d9601ff8b4bb626f5f",
+    "deploy/protenix-v1/mps-confidence-dtype.patch": "c8dab4e7cee4847fb511e5bdea39e323b9fbee0e08672107353adb2ac4a1ffa4",
     "deploy/protenix-v1/per-step-callback.patch": "cc4153be3dfd241124ea183d592884799300046b6ea7d3eccae8409b9fe21aa0",
     "deploy/protenix-v1/profile-lock.json": "3fb3661be2b6748650b90bf9b0aaa7a09cbba9accc13253a6c29f644001b5d2e",
     "deploy/protpardelle-1c/apple-portability.patch": "627891e28d5055cb0d903f542af695569d7133b0480cab8f25d154dc8ccc78c9",
@@ -17,6 +19,7 @@
     "deploy/protpardelle-1c/environment-cuda-refinement.yml": "b0c381491367acaf0141e8234db644c71c81c2f294f1f40968046f4896a33dfa",
     "deploy/protpardelle-1c/environment-cuda.yml": "512ff332b920b8d5c88ce7ce26c91c6f9dbb227f6c594ac99e6894c850d8a71f",
     "deploy/protpardelle-1c/per-step-callback.patch": "30ea7332d3cc223ef2f9492eb2f31556a5951d9318e6e64347b6681ad1d88afe",
+    "deploy/rfd3/source-component-width.patch": "25c6ea008701ca876efa94f30b2df1e6f8ee059d623f0ef3f9a885e20dc59fe8",
     "deploy/rfdiffusion-v1/Dockerfile": "baea5a9a1439936980b7de6ae547a430b71536d6a1ec85721fbca9f6d306edc4",
     "deploy/rfdiffusion-v1/adapter-environment.yml": "040778369c69a3e8d8ab25357273f7058ce1ecad036b2d5dc609562e7a018d6c",
     "deploy/rfdiffusion-v1/environment.yml": "e36300c79f489f420d069d9688953ee4830fe563b8edc77f5de458e77464fe23",
@@ -55,7 +58,7 @@
     "text": "BSD-3-Clause"
   },
   "project_version": "0.10.4",
-  "record_count": 810,
+  "record_count": 813,
   "records": [
     {
       "addons": [],
@@ -11983,6 +11986,15 @@
       "boundary": "pending-source-review",
       "compatibility_review": "unknown",
       "dependency_enumeration": "pending",
+      "id": "review-input:deploy/boltz-2/mps-fork-per-step-callback.patch",
+      "license_review": "unknown",
+      "sha256": "9e5a4f9293e3b8cef54fc8e7d52dd8e1cf1fb75de2dcdb4344f74a3dfe6ea955",
+      "source": "deploy/boltz-2/mps-fork-per-step-callback.patch"
+    },
+    {
+      "boundary": "pending-source-review",
+      "compatibility_review": "unknown",
+      "dependency_enumeration": "pending",
       "id": "review-input:deploy/boltz-2/per-step-callback.patch",
       "license_review": "unknown",
       "sha256": "8e193714caae7815687506c92fe8c67cf6b43fee203f4b95f98ff73ce8418fc5",
@@ -12005,6 +12017,15 @@
       "license_review": "unknown",
       "sha256": "19b2a45d0d1709f5239258cb42597ad1db40c658aa3df9d9601ff8b4bb626f5f",
       "source": "deploy/protenix-v1/environment.yml"
+    },
+    {
+      "boundary": "pending-source-review",
+      "compatibility_review": "unknown",
+      "dependency_enumeration": "pending",
+      "id": "review-input:deploy/protenix-v1/mps-confidence-dtype.patch",
+      "license_review": "unknown",
+      "sha256": "c8dab4e7cee4847fb511e5bdea39e323b9fbee0e08672107353adb2ac4a1ffa4",
+      "source": "deploy/protenix-v1/mps-confidence-dtype.patch"
     },
     {
       "boundary": "pending-source-review",
@@ -12086,6 +12107,15 @@
       "license_review": "unknown",
       "sha256": "30ea7332d3cc223ef2f9492eb2f31556a5951d9318e6e64347b6681ad1d88afe",
       "source": "deploy/protpardelle-1c/per-step-callback.patch"
+    },
+    {
+      "boundary": "pending-source-review",
+      "compatibility_review": "unknown",
+      "dependency_enumeration": "pending",
+      "id": "review-input:deploy/rfd3/source-component-width.patch",
+      "license_review": "unknown",
+      "sha256": "25c6ea008701ca876efa94f30b2df1e6f8ee059d623f0ef3f9a885e20dc59fe8",
+      "source": "deploy/rfd3/source-component-width.patch"
     },
     {
       "boundary": "pending-source-review",
