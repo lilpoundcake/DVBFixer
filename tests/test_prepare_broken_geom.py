@@ -155,15 +155,44 @@ END
 """
 
 
-def test_prepare_repairs_missing_hg_when_oxt_present(tmp_workdir: Path) -> None:
+@pytest.mark.parametrize("stretch_hg", [False, True], ids=["native", "stretched-hg"])
+def test_prepare_repairs_missing_hg_when_oxt_present(
+    tmp_workdir: Path, monkeypatch: pytest.MonkeyPatch, stretch_hg: bool,
+) -> None:
     """Actual reported failure mode: HG missing, OXT present.
 
     OpenMM's Modeller.addHydrogens places the new HG right on top of the
     existing OXT (a CSER template misbehaviour). The 0.4.2 post-addHydrogens
     repair pass in dvbfixer.ffutils.geometry detects the coincident /
-    over-long H-parent distance and re-places HG at ~0.97 Å from OG in
-    the linear-anti direction from CB.
+    over-long H-parent distance and re-places HG at ~0.97 Å from OG.
+
+    Also inject the stretched, non-coincident 1.251 Å bond seen in Linux CI
+    deterministically, instead of relying on addHydrogens' random placement.
     """
+    if stretch_hg:
+        from openmm.app import Modeller
+        from openmm.unit import nanometer
+
+        add_hydrogens = Modeller.addHydrogens
+
+        def add_with_stretched_hg(modeller, *args, **kwargs):
+            result = add_hydrogens(modeller, *args, **kwargs)
+            residue = next(r for r in modeller.topology.residues()
+                           if r.chain.id == "B" and r.id == "126")
+            atoms_by_name = {a.name: a for a in residue.atoms()}
+            og = modeller.positions[atoms_by_name["OG"].index].value_in_unit(nanometer)
+            oxt = modeller.positions[atoms_by_name["OXT"].index].value_in_unit(nanometer)
+            # Point away from OXT so coincidence detection cannot mask the
+            # parent-distance bug.
+            direction = og - oxt
+            length = math.sqrt(sum(x * x for x in direction))
+            modeller.positions[atoms_by_name["HG"].index] = (
+                og + direction * (0.1251378 / length)
+            ) * nanometer
+            return result
+
+        monkeypatch.setattr(Modeller, "addHydrogens", add_with_stretched_hg)
+
     in_pdb = tmp_workdir / "hg_missing.pdb"
     in_pdb.write_text(_SER_INPUT_HG_MISSING_OXT_PRESENT)
     out = tmp_workdir / "repaired.pdb"

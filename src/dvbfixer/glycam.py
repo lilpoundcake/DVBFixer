@@ -930,7 +930,11 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
     # Write output PDB
     serial = 0
     out_lines = []
-    roh_atoms = []  # (atom_dict, resseq) for ROH cap
+    # ROH is a separate residue, not another name for the root sugar.
+    # Reserve numbers against every input residue (including other heterogens).
+    used_resseqs = defaultdict(set)
+    for atom in atoms:
+        used_resseqs[atom['chain']].add(atom['resseq'])
 
     # Determine residue order from input
     reskey_order = []
@@ -943,9 +947,9 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
 
     # Track old serial -> new serial for CONECT remapping
     serial_map = {}
-    roh_serial_map = {}  # old serial -> new serial for ROH atoms
 
     for reskey in reskey_order:
+        roh_atoms = []
         atom_indices = residues[reskey]
         first_atom = atoms[atom_indices[0]]
         pdb_resname = first_atom['resname']
@@ -983,7 +987,7 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
 
             # For reducing-end sugars: extract O1 for ROH cap
             if add_roh and reskey in root_sugars and atom['name'] == 'O1':
-                roh_atoms.append((dict(atom), reskey[1]))
+                roh_atoms.append(dict(atom))
                 # Don't write O1 in the sugar itself
                 continue
 
@@ -1012,16 +1016,24 @@ def convert_to_glycam(input_path, output_path, add_roh=True, verbose=False):
             line = _format_atom_line(atom, out_resname, serial)
             out_lines.append(line)
 
-    # Add ROH cap residues at end
-    for roh_atom, orig_resseq in roh_atoms:
-        serial += 1
-        roh_serial_map[roh_atom['serial']] = serial
-        serial_map[roh_atom['serial']] = serial
-        roh_atom['name'] = 'O1'
-        line = _format_atom_line(roh_atom, 'ROH', serial, new_resseq=orig_resseq)
-        out_lines.append(line)
-        if verbose:
-            print(f"  Added ROH cap at {roh_atom['chain']}:{orig_resseq}")
+        # Emit the existing O1 immediately after its sugar, not after all
+        # chains. Otherwise OpenMM reads A/B/C/A as four chain objects and
+        # introduces TER boundaries on writing, exposing reused residue IDs.
+        for roh_atom in roh_atoms:
+            used = used_resseqs[roh_atom['chain']]
+            cap_resseq = max(used) + 1
+            if not 1 <= cap_resseq <= 9999:
+                cap_resseq = next((number for number in range(1, 10000) if number not in used), None)
+            if cap_resseq is None:
+                raise ValueError(f"No free PDB residue number for ROH in chain {roh_atom['chain']!r}")
+            used.add(cap_resseq)
+            serial += 1
+            serial_map[roh_atom['serial']] = serial
+            roh_atom['icode'] = ' '
+            line = _format_atom_line(roh_atom, 'ROH', serial, new_resseq=cap_resseq)
+            out_lines.append(line)
+            if verbose:
+                print(f"  Added ROH cap at {roh_atom['chain']}:{cap_resseq}")
 
     # Write TER
     out_lines.append('TER\n')

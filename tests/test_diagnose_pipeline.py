@@ -341,7 +341,7 @@ def test_exact_scope_reports_completeness_boundary_and_steric_evidence(
     assert payload["scope"]["boundaries"][0]["status"] == "missing_atom"
     assert payload["scope"]["deterministic_steric"]["engine"] == {
         "name": "dvbfixer-python-steric",
-        "version": "1",
+        "version": "2",
     }
     assert payload["scope"]["finding_aggregates"]["bond_angle"]["count"] >= 0
 
@@ -352,3 +352,59 @@ def test_exact_scope_requires_json(tmp_workdir: Path, capsys: pytest.CaptureFixt
 
     assert _run([str(in_pdb), "--scope-residue", "A:1"]) == 2
     assert "requires --format json" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("probe_succeeds", [False, True])
+def test_scope_does_not_hide_close_contacts_even_when_probe_is_used(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str], monkeypatch, probe_succeeds: bool
+) -> None:
+    import json
+    from types import SimpleNamespace
+
+    from dvbfixer.diagnose import probe, steric
+
+    pdb = tmp_workdir / "close.pdb"
+    source = (
+        "HETATM    1  C1  LG1 A   1       0.000   0.000   0.000  1.00 20.00           C\n"
+        "HETATM    2  C2  LG2 A   2       1.800   0.000   0.000  1.00 20.00           C\nEND\n"
+    )
+    pdb.write_text(source)
+    monkeypatch.setattr(steric, "_find_binary", lambda _: "probe" if probe_succeeds else None)
+    monkeypatch.setattr(probe, "analyze", lambda *a, **kw: SimpleNamespace(
+        findings=[], status="complete", version="2.18", reason=None,
+    ))
+    code = _run([str(pdb), "--only", "steric", "--format", "json", "--scope-residue", "A:1"])
+    report = json.loads(capsys.readouterr().out)
+    assert code == (0 if probe_succeeds else 1)
+    evidence = report["scope"]["deterministic_steric"]
+    assert evidence["severe_overlap_count"] == 1
+    assert evidence["max_overlap_angstrom"] == pytest.approx(1.6)
+    assert evidence["bond_exclusion_policy"] == "topology-and-intra-residue-templates.v2"
+    assert pdb.read_text() == source
+
+
+def test_scope_retains_unresolved_connectivity_with_successful_probe(
+    tmp_workdir: Path, capsys: pytest.CaptureFixture[str], monkeypatch
+) -> None:
+    import json
+    from types import SimpleNamespace
+
+    from dvbfixer.diagnose import probe, steric
+
+    pdb = tmp_workdir / "unknown.pdb"
+    pdb.write_text(
+        "HETATM    1  C1  LIG A   1       0.000   0.000   0.000  1.00 20.00           C\n"
+        "HETATM    2  C2  LIG A   1      10.000   0.000   0.000  1.00 20.00           C\nEND\n"
+    )
+    monkeypatch.setattr(steric, "_find_binary", lambda _: "probe")
+    monkeypatch.setattr(probe, "analyze", lambda *a, **kw: SimpleNamespace(
+        findings=[], status="complete", version="2.18", reason=None,
+    ))
+    assert _run([str(pdb), "--only", "steric", "--format", "json", "--scope-residue", "A:1"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["steric"]["actual_engine"] == "molprobity-probe"
+    evidence = report["scope"]["deterministic_steric"]
+    assert evidence["status"] == "partial"
+    assert evidence["unresolved_residues"] == [
+        {"chain": "A", "resid": "1", "icode": "", "resname": "LIG"}
+    ]

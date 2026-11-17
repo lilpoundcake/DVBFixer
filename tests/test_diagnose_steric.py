@@ -1,9 +1,8 @@
 """Unit tests for `dvbfixer.diagnose.steric` — bond-exclusion behaviour
 and clash-threshold calibration.
 
-Regression coverage for the 0.5.1 bug where `topology.bonds()` was
-empty for HETATMs / non-standard residues and their real covalent
-bonds were reported as ERROR clashes.
+Supplied bonds and intra-residue templates define exclusions; distance
+alone must never hide a nonbonded contact.
 """
 
 from __future__ import annotations
@@ -19,6 +18,7 @@ from openmm.unit import Quantity, nanometer  # noqa: E402
 from dvbfixer.diagnose.report import Severity  # noqa: E402
 from dvbfixer.diagnose.steric import (  # noqa: E402
     CLASH_MODE_PRESETS,
+    _build_neighbor_graph,
     clashes_python,
     steric_overlap_measurements_python,
 )
@@ -55,39 +55,40 @@ def _make_topology(
 
 def test_bonded_hetatm_cc_not_reported_as_clash() -> None:
     """A two-atom HETATM with C-C at ~1.53 Å (real bond) must be
-    recognised as bonded via distance inference and NOT reported as a
-    clash, even though ``topology.bonds()`` is empty."""
+    excluded using its supplied bond, never inferred from proximity."""
     top, pos = _make_topology(
         [("C1", "C"), ("C2", "C")],
         [(0.0, 0.0, 0.0), (1.53, 0.0, 0.0)],
-        add_bonds=False,
+        add_bonds=True,
     )
     findings = clashes_python(top, pos)
+    assert _build_neighbor_graph(top, False)[0] == {0: {1}, 1: {0}}
     assert findings == [], (
-        f"Expected zero clash findings (bond inference should exclude "
+        f"Expected zero clash findings (supplied bond should exclude "
         f"C-C at 1.53 Å), got: {[str(f) for f in findings]}"
     )
 
 
 def test_bonded_hetatm_ch_not_reported_as_clash() -> None:
-    """C-H at 1.09 Å (typical X-H bond) is recognised as bonded."""
+    """A supplied C-H bond is preserved."""
     top, pos = _make_topology(
         [("C1", "C"), ("H1", "H")],
         [(0.0, 0.0, 0.0), (1.09, 0.0, 0.0)],
-        add_bonds=False,
+        add_bonds=True,
     )
     findings = clashes_python(top, pos)
+    assert _build_neighbor_graph(top, False)[0] == {0: {1}, 1: {0}}
     assert findings == []
 
 
 def test_bonded_hetatm_ss_disulfide_not_reported() -> None:
-    """Disulfide S-S at 2.05 Å (typical bond length) is recognised as
-    bonded despite exceeding the heavy-heavy default cutoff."""
-    top, pos = _make_topology(
-        [("SG", "S"), ("SG", "S")],
-        [(0.0, 0.0, 0.0), (2.05, 0.0, 0.0)],
-        add_bonds=False,
+    """A supplied S-S bond is preserved regardless of distance."""
+    top, pos = _make_two_residue_topology(
+        [("SG", "S")], [("SG", "S")],
+        [(0.0, 0.0, 0.0), (2.05, 0.0, 0.0)], r1_name="CYS", r2_name="CYS",
     )
+    first, second = list(top.atoms())
+    top.addBond(first, second)
     findings = clashes_python(top, pos)
     assert findings == []
 
@@ -95,17 +96,14 @@ def test_bonded_hetatm_ss_disulfide_not_reported() -> None:
 def test_true_cc_clash_still_error() -> None:
     """Two carbon atoms at 2.0 Å with NO covalent relationship must
     still be reported as an ERROR clash (overlap = 3.40 - 2.0 = 1.4 Å,
-    well above the 0.5 Å ERROR threshold). Constructed as two
-    single-atom residues so the geometry-inference cutoff (1.90 Å
-    heavy-heavy) doesn't accidentally treat them as bonded."""
+    well above the default 0.9 Å ERROR threshold)."""
     top = Topology()
     chain = top.addChain("X")
     r1 = top.addResidue("LG1", chain)
     r2 = top.addResidue("LG2", chain)
     top.addAtom("C1", Element.getBySymbol("C"), r1)
     top.addAtom("C1", Element.getBySymbol("C"), r2)
-    # 2.00 Å apart — above the 1.90 Å heavy-heavy bond cutoff, so
-    # geometric inference correctly treats them as non-bonded.
+    # Different residues with no declared bond.
     positions_nm = [(0.0, 0.0, 0.0), (0.200, 0.0, 0.0)]
     pos = Quantity(positions_nm, nanometer)
     findings = clashes_python(top, pos)
@@ -122,7 +120,7 @@ def test_true_cc_clash_still_error() -> None:
     assert findings[0].extra["overlap_angstrom"] == pytest.approx(1.4)
     assert findings[0].extra["engine"] == {
         "name": "dvbfixer-python-steric",
-        "version": "1",
+        "version": "2",
     }
 
     measurements = steric_overlap_measurements_python(top, pos)
@@ -186,8 +184,8 @@ def test_backbone_amide_hbond_not_reported_as_clash() -> None:
         positions_a=[
             (0.00, 0.00, 0.00),  # C
             (1.23, 0.00, 0.00),  # O (bonded to C)
-            (3.29, 0.00, 0.00),  # N (2.06 Å from O)
-            (2.20, 0.00, 0.00),  # H (bonded to N, 2.06 Å from O — H-bond!)
+            (4.29, 0.00, 0.00),  # N (3.06 Å from O)
+            (3.29, 0.00, 0.00),  # H (bonded to N, 2.06 Å from O — H-bond!)
         ],
         r1_bonds=[(0, 1)],  # C=O
         r2_bonds=[(0, 1)],  # N-H

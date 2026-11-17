@@ -7,7 +7,7 @@ GROMACS topologies. Use the command line or the browser-based GUI with Mol*.
 See [project goals and scope](docs/project-goals.md) for purpose, boundaries and
 quality criteria.
 
-Current release: **0.10.4**.
+Current release: **0.10.5**.
 
 ## Install
 
