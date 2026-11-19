@@ -10,7 +10,7 @@ from dvbfixer.domain.structure_identity import ExactAtomRef
 from .authority_geometry import geometry_view
 from .contracts import ContractError, ReconstructionRequest, _identity, _point, digest_record
 from .measurement import Point, _cross, _dot, _sub, _unit
-from .metric_geometry import GeneratedMetricGeometryPlan
+from .metric_geometry import GeneratedMetricGeometryPlan, SourceMetricGeometryPlan
 from .proposals import GeometryPlan, PlacementKind
 
 
@@ -60,6 +60,13 @@ class JointMetricGeometryPlan(GeneratedMetricGeometryPlan):
     @property
     def digest(self) -> str:
         return digest_record(("chemical-joint-H-geometry-plan-v1", self))
+
+
+@dataclass(frozen=True, kw_only=True)
+class JointSourceMetricGeometryPlan(JointMetricGeometryPlan, SourceMetricGeometryPlan):
+    @property
+    def digest(self) -> str:
+        return digest_record(("chemical-joint-source-only-metric-plan-v1", self))
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,8 @@
 # Chemical reconstruction — active development handoff
 
 Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
-joint-sp3-H and WP2H planar-N/thiol controls checked; final fast suite passed (3638), split slow boundaries
+joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
+final fast suite passed (3674), split slow boundaries
 passed. WP2F's large combined slow-inclusive run remains incomplete after outer
 timeouts. General
 reconstruction and scientific acceptance remain
@@ -1056,10 +1057,86 @@ the explicit source manifest was added, without changing checksums/assertions.
 Initial failures remain in the [validation record](chemical-reconstruction-extended-h-validation.json).
 WP2F's large combined slow timeout remains unresolved.
 
-Next: declare explicit leaving-atom/variant state proofs (not a residue-name guess)
+Next at WP2H (bounded PRO/HIP declarations completed in WP2I below): declare explicit leaving-atom/variant state proofs (not a residue-name guess)
 before PRO or histidine can progress; continue toward all20 heavy/H coverage and
 full retained-complex sidechain reconstruction. Native-H/name/orientation evidence,
 measured/partial H, actual-neighbour/polymer chemistry, linked/ring heavy repair,
 broader complex qualification and production/public/default/dependency/license
 gates remain separate and open. Do not repair ARG's fixed source or infer a state
 merely to increase this protocol's pass count.
+
+## WP2I — declared PRO/HIP states and source-only metrics (2026-11-20)
+
+The [state declaration protocol](chemical-reconstruction-declared-state-v1.md)
+was frozen as `19dc275` from `1d52019`. The new private
+`PeptideStateDeclaration` binds exact target/state, parent/ALA/inventory digests and
+both directed substitutions. `DeclaredPeptideAuthority` subclasses the existing
+authority but re-proves its whole projection on construction and uses a separate
+tagged digest/provenance. The shared witness assembler, inventory transport,
+source adapter, variants owner and independent validators remain canonical.
+
+PRO explicitly removes its CCD-marked leaving N-H, not absent H2. HIP is an
+explicit caller-requested state whose name maps to HIS through the existing
+`VARIANT_TO_PARENT`; the unchanged +1 CCD HIS graph must exactly match the HIP RTP
+inventory after peptide leaving-atom removal. No sidechain atom, formal charge or
+bond order is edited. This does NOT establish the native protonation of 1UBQ HIS68
+or select a state from pH. Unchanged-graph HID/HIE declarations refuse their exact
+inventory mismatch; neutral transformations remain unimplemented.
+
+The H compiler requires a real fixed/unit-occupancy incoming C with an explicit
+order-1 peptide bond. PRO uses no fictitious backbone H/type and adds the fixed
+N/Cpre/CA/CD plane at the existing 0.05-A bound. HIP reuses exact ff19SB amide
+typing. Virtual ALA chemistry never substitutes for real observed neighbours or
+enters output; actual-neighbour/polymer heavy-angle qualification is still open.
+
+Two initial PRO integration refusals are retained, not retrospectively passed:
+
+1. `controls-01`: chemistry was proved, but no backbone H meant no amide override
+   metrics and the nonempty metric-plan contract refused before construction.
+2. Before repeating, [the integration addendum](chemical-reconstruction-declared-state-metrics-v1.md)
+   was frozen as `50fb041`, materializing complete source H metrics rather than
+   weakening that contract. `controls-02` then hit the old nonplanar-override guard,
+   again without constructing any PRO coordinates.
+3. Before another run, [the source-only ledger contract](chemical-reconstruction-source-metrics-v1.md)
+   was frozen as `96da6bb`. Separate `SourceMetricGeometryPlan` and
+   `JointSourceMetricGeometryPlan` now bind complete H bond/angle coverage to the
+   exact canonical graph, provenance, protium mask and unchanged numerical source
+   values. The auditor checks that equality without generation. Old planar
+   override and nonempty guards remain unchanged; arbitrary cone/joint overrides
+   remain refused. PRO carries 25 genuine source metrics, not dummy N-H rows.
+
+Final `controls-03` executes the SAME eight declarations with unchanged states,
+observations, masks, synthetic anchors and bounds: synthetic PRO (7 H) and HIP
+(8 H), observed 1UBQ A/PRO19 (7 H) and A/HIS68 explicitly requested as HIP (8 H)
+all pass raw/rounded geometry and conditional CIP. HID/HIE unchanged-graph proofs,
+wrong-PRO-H2 and wrong-source-pin remain refused. No state/target substitution,
+phase search, heavy repair, optimizer, reflection or tolerance change was used.
+These are bounded controls on known cases, not independent folds/native-H quality.
+
+Saved readback decodes all four final views/declarations/source proofs and repeats
+eight geometry and eight conditional-CIP audits with coordinate construction and
+fitting forbidden. The two observed original/prepared sources match; HIP and all
+four chemistry-negative evidence files match BOTH earlier runs byte-for-byte.
+PRO input declarations, chemical graphs, observations, masks and typing match both
+earlier runs. Final replays across nine arms reproduce all 159 files byte-for-byte,
+including the original WP2H PRO/HIS refusals; no repeat is counted as new science.
+
+Verification: 36 new cases; final focused fast **744 passed**, three slow deselected;
+split declared/extended/joint/H/seeded/renumber/fixture boundaries **143 passed**.
+Full fast **3674 passed**, three existing optional Torch/Biotite skips, 33 slow
+deselected. Ruff passes;
+scoped strict typing passes 22 selected files and source-bound nonincremental strict
+checking passes 23. Ambient-import typing still exposes the exact 793 prior legacy
+diagnostics, not suppressed or called a global pass. An initial wrong-kind test
+fixture retained covalent order on an UNKNOWN link and correctly failed DTO
+construction; its valid unknown-link fixture now tests the compiler's refusal.
+See the [validation record](chemical-reconstruction-declared-state-validation.json)
+for all source/report/protocol hashes and initial/final outcomes.
+
+Next: retain the separation between explicit state selection and graph-changing
+microstate transformations. Continue all20 heavy/H and whole-sidechain/closure
+work with declared chemistry, not inferred neutral histidines or a PRO-only
+product. Measured/partial H, actual-neighbour/polymer evidence, external heavy
+angles, native-H/name/orientation quality, broader linked/complex qualification,
+the unresolved WP2F combined slow timeout and production/public/default/dependency/
+data-license gates remain open.

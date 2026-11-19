@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import combinations
 
 from dvbfixer.domain.structure_identity import ExactAtomRef
 
@@ -10,13 +11,16 @@ from .contracts import (
     ConstraintKind,
     ContractError,
     LinkKind,
+    Operation,
     ReconstructionRequest,
     Unit,
     _identity,
     _number,
     _sha,
+    canonical_graph_digest,
     digest_record,
 )
+from .measurement import angle_degrees
 from .proposals import AuditPolicy, GeometryPlan, PlacementKind, Strategy
 
 
@@ -83,6 +87,59 @@ class GeneratedMetricGeometryPlan(MetricGeometryPlan):
         return digest_record(("chemical-generated-metric-plan-v1", self))
 
 
+@dataclass(frozen=True, kw_only=True)
+class SourceMetricGeometryPlan(GeneratedMetricGeometryPlan):
+    authority_graph_digest: str
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        _sha(self.authority_graph_digest)
+
+    @property
+    def digest(self) -> str:
+        return digest_record(("chemical-source-only-metric-plan-v1", self))
+
+
+def _source_metric_findings(request: ReconstructionRequest, plan: SourceMetricGeometryPlan) -> set[str]:
+    targets = [c for c in request.components if c.identity in request.targets]
+    if len(targets) != 1 or targets[0].resolved is None or request.operation != Operation.HYDROGENS:
+        return {"source-metrics-need-one-resolved-H-target"}
+    target = targets[0]
+    assert target.resolved is not None
+    graph = target.resolved.graph
+    pin = canonical_graph_digest(graph)
+    errors = set()
+    if pin != plan.authority_graph_digest:
+        errors.add("source-metric-graph-binding")
+    generated = frozenset(ExactAtomRef(target.identity, a.name) for a in graph.atoms if a.element == "H")
+    if (not generated or generated != request.ownership.generated or any(a.element == "D" for a in graph.atoms)):
+        errors.add("source-metrics-need-exact-complete-protium-mask")
+    ideals, _bonds = geometry_view(request)
+    adjacent: dict[ExactAtomRef, set[ExactAtomRef]] = {ExactAtomRef(target.identity, a.name): set() for a in graph.atoms}
+    expected = {}
+    for bond in graph.bonds:
+        a, b = ExactAtomRef(target.identity, bond.atom1), ExactAtomRef(target.identity, bond.atom2)
+        adjacent[a].add(b)
+        adjacent[b].add(a)
+        if {a, b} & generated:
+            expected[metric_key((a, b))] = bond.ideal_length
+    try:
+        for centre, neighbours in adjacent.items():
+            for a, b in combinations(sorted(neighbours), 2):
+                if {a, centre, b} & generated:
+                    expected[metric_key((a, centre, b))] = angle_degrees(ideals[a], ideals[centre], ideals[b])
+    except (KeyError, ValueError):
+        return errors | {"source-metric-ideal-authority-unusable"}
+    if set(expected) != {metric_key(m.atoms) for m in plan.metrics}:
+        errors.add("source-metric-complete-coverage")
+    for metric in plan.metrics:
+        if metric.source_sha256 != pin:
+            errors.add("source-metric-provenance-binding")
+        if expected.get(metric_key(metric.atoms)) != metric.value:
+            errors.add("source-metric-cannot-override-authority")
+    return errors
+
+
 def audit_policy_for(plan: GeometryPlan, atoms: tuple[ExactAtomRef, ...], generated: frozenset[ExactAtomRef]) -> AuditPolicy:
     if isinstance(plan, GeneratedMetricGeometryPlan) and set(atoms) & generated:
         return plan.generated_policy
@@ -97,6 +154,8 @@ def metric_findings(request: ReconstructionRequest, plan: GeometryPlan) -> set[s
     if not isinstance(plan, MetricGeometryPlan):
         return {"planar-needs-explicit-metric-plan"} if any(p.kind == PlacementKind.PLANAR for p in plan.placements) else set()
     errors = set()
+    if isinstance(plan, SourceMetricGeometryPlan):
+        errors.update(_source_metric_findings(request, plan))
     ideals, bonds = geometry_view(request)
     available = set(ideals) | {o.identity for o in request.observations}
     connected = set(bonds) | {frozenset((c.link.component_atom, c.link.other_atom))
@@ -109,7 +168,7 @@ def metric_findings(request: ReconstructionRequest, plan: GeometryPlan) -> set[s
             errors.add("metric-cannot-override-only-observed-geometry")
         if not set(metric.atoms) <= available:
             errors.add("metric-unknown-atom")
-        if not set(metric.atoms) & request.ownership.generated <= planar_atoms:
+        if not isinstance(plan, SourceMetricGeometryPlan) and not set(metric.atoms) & request.ownership.generated <= planar_atoms:
             errors.add("metric-generated-atom-strategy-unqualified")
         pairs = (metric.atoms,) if len(metric.atoms) == 2 else (metric.atoms[:2], metric.atoms[1:])
         if any(frozenset(pair) not in connected for pair in pairs):

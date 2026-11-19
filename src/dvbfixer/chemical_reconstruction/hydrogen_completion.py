@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from itertools import combinations
 
 from dvbfixer.domain.structure_identity import ExactAtomRef
 
@@ -14,11 +15,16 @@ from .contracts import (
     Ownership,
     ReconstructionRequest,
     Unit,
+    canonical_graph_digest,
     digest_record,
 )
-from .joint_hydrogen_geometry import DirectionGroup, JointMetricGeometryPlan
+from .joint_hydrogen_geometry import (
+    DirectionGroup,
+    JointMetricGeometryPlan,
+    JointSourceMetricGeometryPlan,
+)
 from .measurement import _cross, _dot, _sub, _unit, angle_degrees, torsion_degrees
-from .metric_geometry import GeneratedMetricGeometryPlan, GeometryMetric
+from .metric_geometry import GeneratedMetricGeometryPlan, GeometryMetric, SourceMetricGeometryPlan
 from .peptide_state import LocalPeptideAuthority, PeptideStateError
 from .proposals import AuditPolicy, Candidate, Placement, PlacementKind, Strategy
 
@@ -49,7 +55,7 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
 
 def compile_extended_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
                                 incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
-                                backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                                backbone_types: tuple[str, str, str] | None, fixed_policy: AuditPolicy,
                                 generated_policy: AuditPolicy) -> CompleteHydrogenView:
     """Separate opt-in: authority-proven planar N and neutral thiol, not new states."""
     return _compile_hydrogens(base, authority, incoming_carbon, parameters, backbone_types=backbone_types,
@@ -58,7 +64,7 @@ def compile_extended_hydrogens(base: ReconstructionRequest, authority: LocalPept
 
 def _compile_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
                        incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
-                       backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                       backbone_types: tuple[str, str, str] | None, fixed_policy: AuditPolicy,
                        generated_policy: AuditPolicy, extended: bool) -> CompleteHydrogenView:
     target = authority.identity
     component = next((c for c in base.components if c.identity == target), None)
@@ -112,6 +118,8 @@ def _compile_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAutho
                     and any(set(p) == {parent, *adjacent[parent]} for p in authority.parent.planar_groups)
                     and all(bonds[frozenset((parent, h))].order == 1 for h in hs))
         if parent == "N" and hs == ("H",) and neighbours == ("CA",):
+            if backbone_types is None:
+                raise PeptideStateError("backbone-H-requires-explicit-parameter-types")
             anchors = (ref("N"), incoming_carbon, ref("CA"))
             metrics.extend(parameters.metrics(ref("N"), ref("H"), ref("CA"), incoming_carbon, atom_types=backbone_types))
             placements.append(Placement(ref("H"), anchors, PlacementKind.PLANAR))
@@ -174,6 +182,21 @@ def _compile_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAutho
         groups.append(HydrogenGroup(ref(parent), kind, tuple(ref(h) for h in hs), tuple(ref(n) for n in neighbours), anchors))
     if {p.atom for p in placements} != {ref(h) for h in hydrogen_names} or len(placements) != len(hydrogen_names):
         raise PeptideStateError("complete-H-plan-mask-mismatch")
+    source_only = extended and not metrics
+    plan: GeneratedMetricGeometryPlan
+    if source_only:
+        # No backbone H means no amide override. Keep the nonempty metric-plan
+        # contract by carrying complete explicit CCD H metrics, not a dummy row.
+        pin = canonical_graph_digest(graph)
+        source = f"Exact derived canonical graph {pin}; CCD {authority.parent.component.provenance.sha256}; parent {authority.parent.digest}"
+        for bond in graph.bonds:
+            if {bond.atom1, bond.atom2} & hydrogen_names:
+                metrics.append(GeometryMetric((ref(bond.atom1), ref(bond.atom2)), bond.ideal_length, Unit.ANGSTROM, source, pin))
+        for centre in sorted(adjacent):
+            for first, last in combinations(sorted(adjacent[centre]), 2):
+                if {first, centre, last} & hydrogen_names:
+                    metrics.append(GeometryMetric((ref(first), ref(centre), ref(last)),
+                                    angle_degrees(positions[first], positions[centre], positions[last]), Unit.DEGREE, source, pin))
     origin = base.origin
     if origin is not None:
         origin = replace(origin, settings=(*origin.settings,
@@ -181,8 +204,12 @@ def _compile_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAutho
                          ("complete_H_authority", digest_record((authority.digest, parameters.digest, backbone_types)))))
     request = replace(base, operation=Operation.HYDROGENS, ownership=Ownership(frozenset(ref(h) for h in hydrogen_names)),
                       constraints=tuple(dict.fromkeys(constraints)), origin=origin)
-    plan = GeneratedMetricGeometryPlan(request.digest, Strategy.INTERNAL, fixed_policy, tuple(placements), tuple(metrics),
-                                       generated_policy=generated_policy)
+    if source_only:
+        plan = SourceMetricGeometryPlan(request.digest, Strategy.INTERNAL, fixed_policy, tuple(placements), tuple(metrics),
+                                         generated_policy=generated_policy, authority_graph_digest=canonical_graph_digest(graph))
+    else:
+        plan = GeneratedMetricGeometryPlan(request.digest, Strategy.INTERNAL, fixed_policy, tuple(placements), tuple(metrics),
+                                           generated_policy=generated_policy)
     return CompleteHydrogenView(request, plan, tuple(groups))
 
 
@@ -194,8 +221,14 @@ def compile_joint_hydrogens(view: CompleteHydrogenView) -> CompleteHydrogenView:
     if not groups or any(p.kind != PlacementKind.CONE for p in view.plan.placements if p.atom in selected):
         raise PeptideStateError("joint-H-upgrade-needs-original-complete-carbon-cone-groups")
     placements = tuple(replace(p, kind=PlacementKind.JOINT) if p.atom in selected else p for p in view.plan.placements)
-    plan = JointMetricGeometryPlan(view.request.digest, view.plan.strategy, view.plan.policy, placements, view.plan.metrics,
-                                   generated_policy=view.plan.generated_policy, joint_groups=groups)
+    plan: JointMetricGeometryPlan
+    if isinstance(view.plan, SourceMetricGeometryPlan):
+        plan = JointSourceMetricGeometryPlan(view.request.digest, view.plan.strategy, view.plan.policy, placements, view.plan.metrics,
+                                             generated_policy=view.plan.generated_policy, joint_groups=groups,
+                                             authority_graph_digest=view.plan.authority_graph_digest)
+    else:
+        plan = JointMetricGeometryPlan(view.request.digest, view.plan.strategy, view.plan.policy, placements, view.plan.metrics,
+                                       generated_policy=view.plan.generated_policy, joint_groups=groups)
     return replace(view, plan=plan)
 
 
