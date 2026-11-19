@@ -1,0 +1,68 @@
+{
+  "schema": "dvbfixer.ccd-extended-H-source-pins.v1",
+  "retrieved_date": "2026-11-20",
+  "protocol_commit_before_download": "c6c13b0",
+  "source_url_template": "https://files.rcsb.org/ligands/download/{component_id}.cif",
+  "dictionary": "https://www.wwpdb.org/data/ccd",
+  "usage_policy": "https://www.wwpdb.org/about/usage-policies",
+  "data_license": "CC0-1.0",
+  "notes": "Unmodified free-molecule CCD sources; not polymer or H-quality qualification. No generated coordinates or PyRosetta/Dunbrack data. Old CCD manifest unchanged.",
+  "components": {
+    "ASN": {
+      "sha256": "81491bbdb49f96e2945192c07510324d206298d3479029b76defba2ed6ab2dc7",
+      "modified_date": "2024-09-27",
+      "atom_count": 17,
+      "bond_count": 16,
+      "source_url": "https://files.rcsb.org/ligands/download/ASN.cif"
+    },
+    "GLN": {
+      "sha256": "b542ea5c013fbe0c7acee8e3f42d5dc4e392bd16c0aa545edbf6cb3c335ca30f",
+      "modified_date": "2024-09-27",
+      "atom_count": 20,
+      "bond_count": 19,
+      "source_url": "https://files.rcsb.org/ligands/download/GLN.cif"
+    },
+    "ARG": {
+      "sha256": "191c437cfa501e0a87d275ca3d39974a1a9c8dc704df61bfc442a4c314e196ac",
+      "modified_date": "2024-09-27",
+      "atom_count": 27,
+      "bond_count": 26,
+      "source_url": "https://files.rcsb.org/ligands/download/ARG.cif"
+    },
+    "CYS": {
+      "sha256": "b28c79381f9f41fe57a9e97468fc8101d5fd1064272a22da1eed6d05d27a24cc",
+      "modified_date": "2024-09-27",
+      "atom_count": 14,
+      "bond_count": 13,
+      "source_url": "https://files.rcsb.org/ligands/download/CYS.cif"
+    },
+    "TRP": {
+      "sha256": "4cea7e281ee404f3e72fc20d3ba98064373cdd9309a7f5c75479a04c4b6e36d6",
+      "modified_date": "2023-11-03",
+      "atom_count": 27,
+      "bond_count": 28,
+      "source_url": "https://files.rcsb.org/ligands/download/TRP.cif"
+    },
+    "GLY": {
+      "sha256": "c49458946b0ebc057db6ad0a4e1557a1caaed4c80a203accd458efddccbf92ff",
+      "modified_date": "2024-09-27",
+      "atom_count": 10,
+      "bond_count": 9,
+      "source_url": "https://files.rcsb.org/ligands/download/GLY.cif"
+    },
+    "PRO": {
+      "sha256": "08674e4d60bc40ad5702b8de6e5e4abb66c2bbb603832c021c31194f4b4e593c",
+      "modified_date": "2024-09-27",
+      "atom_count": 17,
+      "bond_count": 17,
+      "source_url": "https://files.rcsb.org/ligands/download/PRO.cif"
+    },
+    "HIS": {
+      "sha256": "89355e09d9c622dd514738e559d7a75ab0a1659df9a179978e88e1a44704a46f",
+      "modified_date": "2023-11-03",
+      "atom_count": 21,
+      "bond_count": 21,
+      "source_url": "https://files.rcsb.org/ligands/download/HIS.cif"
+    }
+  }
+}

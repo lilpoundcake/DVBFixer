@@ -11,6 +11,16 @@ verify that none of the source fixtures changed accidentally.
 
 ## Fixture inventory
 
+WP2H adds eight unmodified RCSB CCD sources under
+`chemical_reconstruction/ccd_h_groups_v1/` (ASN, GLN, ARG, CYS, TRP, GLY, PRO,
+HIS). Retrieved 2026-11-20 after protocol commit `c6c13b0`; exact source URLs,
+revision dates and hashes are in that directory's `manifest.json`. These CC0-1.0
+sources follow the [wwPDB usage policy](https://www.wwpdb.org/about/usage-policies).
+They are free-molecule authorities, not polymer states, experimental H holdouts,
+generated outputs or licensed rotamer data. See the
+[extended-H protocol](../../docs/plans/chemical-reconstruction-extended-h-v1.md).
+The original seven-component CCD manifest remains unchanged.
+
 | Tracked fixture | Historical source | Purpose |
 |---|---|---|
 | `ASN.pdb` | `test/ASN.pdb` | Minimal two-residue ASN input |

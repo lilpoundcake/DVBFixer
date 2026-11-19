@@ -22,3 +22,6 @@ docs/plans/chemical-reconstruction-amide-v1.md -text
 docs/plans/chemical-reconstruction-source-v1.md -text
 docs/plans/chemical-reconstruction-hydrogens-v1.md -text
 docs/plans/chemical-reconstruction-joint-h-v1.md -text
+tests/fixtures/chemical_reconstruction/ccd_h_groups_v1/*.cif -text -whitespace
+tests/fixtures/chemical_reconstruction/ccd_h_groups_v1/manifest.json -text
+docs/plans/chemical-reconstruction-extended-h-v1.md -text
