@@ -11,7 +11,7 @@ from .admission import admit
 from .authority_geometry import geometry_view
 from .contracts import LinkKind, ReconstructionRequest, Unit
 from .measurement import Point, angle_degrees, satisfied
-from .metric_geometry import explicit_metrics, metric_findings, metric_key
+from .metric_geometry import audit_policy_for, explicit_metrics, metric_findings, metric_key
 from .proposals import Candidate, CandidateAudit, GeometryPlan
 
 
@@ -51,7 +51,8 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
         adjacent[b].add(a)
         if a.component in request.targets and a in positions and b in positions:
             target = metrics.get(metric_key((a, b)), length)
-            if abs(math.dist(positions[a], positions[b])-target) > plan.policy.bond_tolerance_angstrom:
+            policy = audit_policy_for(plan, (a, b), request.ownership.generated)
+            if abs(math.dist(positions[a], positions[b])-target) > policy.bond_tolerance_angstrom:
                 errors.add("authority-bond-geometry")
     for centre in sorted(ideals):
         if centre.component not in request.targets or centre not in positions:
@@ -66,7 +67,8 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
             except ValueError:
                 errors.add("degenerate-authority-or-candidate-angle")
             else:
-                if abs(measured-ideal) > plan.policy.angle_tolerance_degrees:
+                policy = audit_policy_for(plan, (a, centre, b), request.ownership.generated)
+                if abs(measured-ideal) > policy.angle_tolerance_degrees:
                     errors.add("authority-angle-geometry")
     # Explicit cross-component metrics have no shared ideal-coordinate frame.
     # Measure every declared metric, independently of constructor completion.
@@ -80,7 +82,8 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
         except ValueError:
             errors.add("degenerate-candidate-metric")
         else:
-            tolerance = plan.policy.bond_tolerance_angstrom if len(atoms) == 2 else plan.policy.angle_tolerance_degrees
+            policy = audit_policy_for(plan, atoms, request.ownership.generated)
+            tolerance = policy.bond_tolerance_angstrom if len(atoms) == 2 else policy.angle_tolerance_degrees
             if abs(measured-target) > tolerance:
                 errors.add("explicit-metric-geometry")
     checked = []

@@ -173,13 +173,14 @@ class LocalPeptideAuthority:
     def digest(self) -> str:
         return digest_record(("local-peptide-state-v1", self))
 
-    def constraints(self, *, minimum_volume: float, planar_tolerance_angstrom: float) -> tuple[Constraint, ...]:
+    def constraints(self, *, minimum_volume: float, planar_tolerance_angstrom: float,
+                     include_hydrogens: bool = False) -> tuple[Constraint, ...]:
         mapping = dict(self.witness.node_map)
         labels = tuple((mapping[name].name, label) for name, label in self.witness.verified_cip
                        if mapping[name].component == self.identity)
         present = {a.name for a in self.state.graph.atoms}
         planes = tuple(p for p in self.parent.planar_groups if set(p) <= present)
-        constraints = ordered_constraints(self.state, labels, planes, self.identity, include_hydrogens=False,
+        constraints = ordered_constraints(self.state, labels, planes, self.identity, include_hydrogens=include_hydrogens,
                                           minimum_volume=minimum_volume, planar_tolerance_angstrom=planar_tolerance_angstrom)
         result = []
         for constraint in constraints:

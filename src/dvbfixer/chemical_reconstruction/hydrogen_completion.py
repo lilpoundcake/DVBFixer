@@ -1,0 +1,193 @@
+"""Private complete-H group planning; no measured-H replacement or phase search."""
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
+
+from dvbfixer.domain.structure_identity import ExactAtomRef
+
+from .amide_authority import AmideMetricAuthority
+from .ccd_authority import verify_cip
+from .contracts import (
+    Constraint,
+    ConstraintKind,
+    Operation,
+    Ownership,
+    ReconstructionRequest,
+    Unit,
+    digest_record,
+)
+from .measurement import _cross, _dot, _sub, _unit, angle_degrees, torsion_degrees
+from .metric_geometry import GeneratedMetricGeometryPlan, GeometryMetric
+from .peptide_state import LocalPeptideAuthority, PeptideStateError
+from .proposals import AuditPolicy, Candidate, Placement, PlacementKind, Strategy
+
+
+@dataclass(frozen=True)
+class HydrogenGroup:
+    parent: ExactAtomRef
+    kind: str
+    hydrogens: tuple[ExactAtomRef, ...]
+    heavy_neighbours: tuple[ExactAtomRef, ...]
+    anchors: tuple[ExactAtomRef, ExactAtomRef, ExactAtomRef]
+
+
+@dataclass(frozen=True)
+class CompleteHydrogenView:
+    request: ReconstructionRequest
+    plan: GeneratedMetricGeometryPlan
+    groups: tuple[HydrogenGroup, ...]
+
+
+def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
+                               incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
+                               backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                               generated_policy: AuditPolicy) -> CompleteHydrogenView:
+    target = authority.identity
+    component = next((c for c in base.components if c.identity == target), None)
+    if (base.targets != {target} or component is None or component.resolved != authority.state
+            or base.operation != Operation.HEAVY or base.ownership.generated or base.ownership.mobile
+            or base.ownership.temporary):
+        raise PeptideStateError("complete-H-needs-exact-authority-and-fixed-complete-heavy-input")
+    graph = authority.state.graph
+    atoms = {a.name: a for a in graph.atoms}
+    observed = {o.identity: o for o in base.observations}
+    selected = {a.name: o for a, o in observed.items() if a.component == target}
+    if any(o.element.upper() in {"H", "D"} for o in selected.values()):
+        raise PeptideStateError("measured-target-H-transport-unqualified")
+    heavy = {a.name for a in graph.atoms if a.element not in {"H", "D"}}
+    if set(selected) != heavy or any(o.occupancy != 1 for o in selected.values()):
+        raise PeptideStateError("complete-H-needs-exact-unit-occupancy-heavy-inventory")
+    if incoming_carbon not in observed or observed[incoming_carbon].element != "C":
+        raise PeptideStateError("complete-H-needs-real-observed-incoming-C")
+    adjacent: dict[str, set[str]] = {name: set() for name in atoms}
+    bonds = {}
+    for bond in graph.bonds:
+        adjacent[bond.atom1].add(bond.atom2)
+        adjacent[bond.atom2].add(bond.atom1)
+        bonds[frozenset((bond.atom1, bond.atom2))] = bond
+    hydrogen_names = {a.name for a in graph.atoms if a.element == "H"}
+    if not hydrogen_names or any(atoms[n].element == "D" for n in atoms):
+        raise PeptideStateError("explicit-protium-inventory-required")
+    if any(len(adjacent[h]) != 1 or not adjacent[h] <= heavy for h in hydrogen_names):
+        raise PeptideStateError("hydrogen-parent-connectivity-unqualified")
+    def ref(name: str) -> ExactAtomRef:
+        return ExactAtomRef(target, name)
+
+    positions = {a.name: a.ideal_position for a in graph.atoms}
+    constraints = list(base.constraints)
+    for q in authority.constraints(minimum_volume=.05, planar_tolerance_angstrom=.05, include_hydrogens=True):
+        if q.kind == ConstraintKind.PLANARITY and any(atoms[a.name].element == "H" for a in q.atoms):
+            q = replace(q, upper=.005)
+        constraints.append(q)
+    placements: list[Placement] = []
+    metrics: list[GeometryMetric] = []
+    groups: list[HydrogenGroup] = []
+    for parent in sorted(heavy):
+        hs = tuple(sorted(adjacent[parent] & hydrogen_names))
+        if not hs:
+            continue
+        neighbours = tuple(sorted(adjacent[parent] & heavy))
+        element = atoms[parent].element
+        single = all(bonds[frozenset((parent, n))].order == 1 for n in adjacent[parent])
+        if parent == "N" and hs == ("H",) and neighbours == ("CA",):
+            anchors = (ref("N"), incoming_carbon, ref("CA"))
+            metrics.extend(parameters.metrics(ref("N"), ref("H"), ref("CA"), incoming_carbon, atom_types=backbone_types))
+            placements.append(Placement(ref("H"), anchors, PlacementKind.PLANAR))
+            constraints.append(Constraint(ConstraintKind.PLANARITY, (*anchors, ref("H")), Unit.ANGSTROM, upper=.005))
+            kind = "backbone-amide"
+        elif element == "C" and atoms[parent].aromatic and len(neighbours) == 2 and len(hs) == 1:
+            anchors = (ref(parent), ref(neighbours[0]), ref(neighbours[1]))
+            h = hs[0]
+            source = f"CCD ideal local aromatic H; equal-priority geometric compromise; {authority.parent.digest}"
+            pin = authority.parent.component.provenance.sha256
+            metrics.extend((GeometryMetric((ref(parent), ref(h)), bonds[frozenset((parent, h))].ideal_length, Unit.ANGSTROM, source, pin),
+                            *(GeometryMetric((ref(n), ref(parent), ref(h)), angle_degrees(positions[n], positions[parent], positions[h]),
+                                             Unit.DEGREE, source, pin) for n in neighbours)))
+            placements.append(Placement(ref(h), anchors, PlacementKind.PLANAR))
+            constraints.append(Constraint(ConstraintKind.PLANARITY, (*anchors, ref(h)), Unit.ANGSTROM, upper=.005))
+            kind = "aromatic-CH"
+        elif element == "C" and single and (len(neighbours), len(hs)) in {(3, 1), (2, 2)}:
+            anchors = (ref(parent), ref(neighbours[0]), ref(neighbours[1]))
+            for h in hs:
+                directions = tuple(_unit(_sub(positions[n], positions[parent])) for n in (*neighbours[:2], h))
+                volume = _dot(directions[0], _cross(directions[1], directions[2]))
+                if abs(volume) < .05:
+                    raise PeptideStateError("degenerate-ideal-H-frame")
+                constraints.append(Constraint(ConstraintKind.STEREO_FRAME, (*anchors, ref(h)), Unit.DIMENSIONLESS,
+                                              orientation=1 if volume > 0 else -1, minimum_volume=.05,
+                                              label=atoms[parent].stereo or "ordered-CCD-H-frame-not-CIP"))
+                placements.append(Placement(ref(h), anchors, PlacementKind.CONE))
+            kind = "tetrahedral-CH" if len(hs) == 1 else "methylene"
+        elif single and len(neighbours) == 1 and (
+                len(hs) == 3 and (element == "C" or element == "N" and atoms[parent].formal_charge == 1)
+                or len(hs) == 1 and element == "O"):
+            b = neighbours[0]
+            frame = None
+            for a in sorted((adjacent[b] & heavy)-{parent}):
+                try:
+                    for h in hs:
+                        torsion_degrees((positions[a], positions[b], positions[parent], positions[h]))
+                except ValueError:
+                    continue
+                frame = (ref(a), ref(b), ref(parent))
+                break
+            if frame is None:
+                raise PeptideStateError("no-ideal-heavy-chain-H-frame")
+            anchors = frame
+            placements.extend(Placement(ref(h), anchors) for h in hs)
+            kind = "terminal-three-H" if len(hs) == 3 else "hydroxyl"
+        else:
+            raise PeptideStateError(f"hydrogen-group-unqualified:{parent}")
+        if not set(anchors) <= observed.keys():
+            raise PeptideStateError("H-frame-needs-observed-heavy-anchors")
+        groups.append(HydrogenGroup(ref(parent), kind, tuple(ref(h) for h in hs), tuple(ref(n) for n in neighbours), anchors))
+    if {p.atom for p in placements} != {ref(h) for h in hydrogen_names} or len(placements) != len(hydrogen_names):
+        raise PeptideStateError("complete-H-plan-mask-mismatch")
+    origin = base.origin
+    if origin is not None:
+        origin = replace(origin, settings=(*origin.settings,
+                         ("complete_H_policy", "complete-H-groups-v1-fixed-heavy"),
+                         ("complete_H_authority", digest_record((authority.digest, parameters.digest, backbone_types)))))
+    request = replace(base, operation=Operation.HYDROGENS, ownership=Ownership(frozenset(ref(h) for h in hydrogen_names)),
+                      constraints=tuple(dict.fromkeys(constraints)), origin=origin)
+    plan = GeneratedMetricGeometryPlan(request.digest, Strategy.INTERNAL, fixed_policy, tuple(placements), tuple(metrics),
+                                       generated_policy=generated_policy)
+    return CompleteHydrogenView(request, plan, tuple(groups))
+
+
+@dataclass(frozen=True)
+class ConditionalHydrogenCipAudit:
+    passed: bool
+    findings: tuple[str, ...]
+    target_labels: tuple[tuple[str, str], ...]
+    scope: str = "conditional target CIP with virtual ALA chemistry, not actual neighbour/full-polymer qualification"
+
+
+def audit_hydrogen_cip(view: CompleteHydrogenView, authority: LocalPeptideAuthority,
+                       candidate: Candidate) -> ConditionalHydrogenCipAudit:
+    r = view.request
+    component = next((c for c in r.components if c.identity == authority.identity), None)
+    if (candidate.request_digest != r.digest or candidate.plan_digest != view.plan.digest
+            or view.plan.request_digest != r.digest or component is None or component.resolved != authority.state
+            or candidate.strategy != view.plan.strategy or r.targets != {authority.identity}
+            or {a.identity for a in candidate.additions} != r.ownership.generated
+            or len(candidate.additions) != len(r.ownership.generated)):
+        return ConditionalHydrogenCipAudit(False, ("hydrogen-CIP-binding-or-mask",), ())
+    points = {o.identity: o.angstrom for o in r.observations}
+    if any(o.element != "H" or o.unit != Unit.ANGSTROM or o.occupancy != 1 for o in candidate.additions):
+        return ConditionalHydrogenCipAudit(False, ("hydrogen-CIP-element-or-unit",), ())
+    points.update({o.identity: o.position for o in candidate.additions})
+    flat = authority.witness.flat_fragments
+    positions = {a.name: a.ideal_position for a in flat.atoms}
+    mapping = dict(authority.witness.node_map)
+    for name, atom in mapping.items():
+        if atom.component == authority.identity:
+            if atom not in points:
+                return ConditionalHydrogenCipAudit(False, ("hydrogen-CIP-incomplete-target",), ())
+            positions[name] = points[atom]
+    try:
+        labels = verify_cip(flat, positions, extra_bonds=authority.witness.extra_bonds)
+    except ValueError as exc:
+        return ConditionalHydrogenCipAudit(False, (str(exc),), ())
+    return ConditionalHydrogenCipAudit(True, (), tuple((mapping[name].name, label) for name, label in labels
+                                                     if mapping[name].component == authority.identity))

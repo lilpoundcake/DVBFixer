@@ -17,7 +17,7 @@ from .contracts import (
     _sha,
     digest_record,
 )
-from .proposals import GeometryPlan, PlacementKind, Strategy
+from .proposals import AuditPolicy, GeometryPlan, PlacementKind, Strategy
 
 
 def metric_key(atoms: tuple[ExactAtomRef, ...]) -> tuple[ExactAtomRef, ...]:
@@ -63,6 +63,30 @@ class MetricGeometryPlan(GeometryPlan):
     @property
     def digest(self) -> str:
         return digest_record(("chemical-metric-geometry-plan-v1", self))
+
+
+@dataclass(frozen=True, kw_only=True)
+class GeneratedMetricGeometryPlan(MetricGeometryPlan):
+    generated_policy: AuditPolicy
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        p = self.generated_policy
+        if (not isinstance(p, AuditPolicy) or p.minimum_separation_angstrom != self.policy.minimum_separation_angstrom
+                or p.max_anchor_rmsd_angstrom != self.policy.max_anchor_rmsd_angstrom
+                or p.bond_tolerance_angstrom > self.policy.bond_tolerance_angstrom
+                or p.angle_tolerance_degrees > self.policy.angle_tolerance_degrees):
+            raise ContractError("generated bond/angle bounds must be explicit, no looser, with shared clash/anchor policy")
+
+    @property
+    def digest(self) -> str:
+        return digest_record(("chemical-generated-metric-plan-v1", self))
+
+
+def audit_policy_for(plan: GeometryPlan, atoms: tuple[ExactAtomRef, ...], generated: frozenset[ExactAtomRef]) -> AuditPolicy:
+    if isinstance(plan, GeneratedMetricGeometryPlan) and set(atoms) & generated:
+        return plan.generated_policy
+    return plan.policy
 
 
 def explicit_metrics(plan: GeometryPlan) -> dict[tuple[ExactAtomRef, ...], float]:

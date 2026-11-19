@@ -1,7 +1,8 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B/WP2C/WP2D and bounded WP2E source-bound
-preparation checked; three observed controls and final fast suite completed. General
+Date: 2026-11-19. Status: WP0–WP2E and bounded WP2F complete-selected-H controls
+checked; final fast suite passed, split slow boundaries passed, large combined
+slow-inclusive run remains incomplete after outer timeouts. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
@@ -820,3 +821,111 @@ H inventory/geometry transport on actual sources. Full-polymer/actual-neighbour
 chemistry, measured-H support, complete H families, distorted ring closure,
 qualification and public/default/dependency/data-license gates remain open. Do not
 promote two geometry successes to a public reconstruction or whole-complex claim.
+
+## 16. WP2F complete selected-residue H with fixed heavy observations
+
+[Protocol](chemical-reconstruction-hydrogens-v1.md) was frozen as `3b85d5c`
+before the twelve entries executed. Its prose incorrectly says five 1UBQ targets;
+the explicit table has **four** and twelve total entries. That typo was disclosed
+before execution; the frozen file is unchanged, the table followed exactly and
+no extra target substituted. Four targets in one source are not four independent folds.
+
+`hydrogen_completion` composes existing constructors for a complete explicit H
+inventory, never just the convenient atoms. Heavy observations, all context and
+occupancies remain fixed. It reuses source preparation/audit, canonical naming,
+conditional peptide chemistry and pinned backbone N-H metrics. Carbon CH/CH2
+groups use ideal-name signed cones, terminal C-H3/+1 N-H3 and hydroxyl groups use
+one deterministic heavy chain frame, and aromatic CH uses explicit CCD scalar
+planarity metrics. All frames are observed-heavy and selected from topology/ideal
+authority only; no observed-success frame retry, phase search, pH inference,
+rotamer optimization, reflection or heavy-atom repair exists. Unlisted groups,
+missing heavy atoms, measured target H/D and partial target occupancy refuse.
+
+`GeneratedMetricGeometryPlan` independently binds stricter generated-atom bond/
+angle bounds (0.02 A / 5 degrees) while retaining fixed-heavy bounds (0.10 A /
+12 degrees). Both use the same 0.7 A clash limit. H planes use 0.005 A; heavy
+planes keep 0.05 A. Old plan types/digests and default authority constraints are
+unchanged. Both fixed-heavy stereo frames and full four-ligand frames survive.
+RDKit also checks the complete joined witness with actual target heavy + generated
+H coordinates. This is conditional target CIP with virtual ALA chemistry, NOT
+actual-neighbour or full-polymer chemistry, H-position accuracy or pro-R/pro-S
+qualification. The old observed adapter's H refusal remains unchanged; this is a
+separate private research route, not CLI/Homology/GUI/public capability.
+
+### Actual outcomes: success and negative evidence remain separate
+
+Twelve declared entries completed. Five nominal synthetic complete-H views
+(ALA/THR/ILE/LYS/PHE: 5/7/11/13/9 H) passed raw/rounded geometry and conditional
+CIP. The synthetic ALA incoming-angle-100 case generated all five H, retained its
+amide-angle geometry rejection, and still passed conditional CIP.
+
+Six observed-source entries, selected before geometry inspection:
+
+| Target | Outcome |
+|---|---|
+| 1UBQ A/ALA28 | All 5 H, raw/rounded geometry and conditional CIP passed |
+| 1UBQ A/ILE3 | All 11 H retained; raw/rounded angle rejection, conditional CIP passed |
+| 1UBQ A/LYS6 | All 13 H retained; raw/rounded angle rejection, conditional CIP passed |
+| 1UBQ A/PHE45 | Fixed heavy-ring plane failed admission; no H constructor/CIP executed |
+| 1FR2 A/THR11 | All 7 H, raw/rounded geometry and conditional CIP passed |
+| 1A3N | Original full source retained; explicit altloc-selection refusal before request |
+
+There are **two observed geometry/CIP successes**, two geometry rejections, one
+fixed-input refusal and one preparation refusal, not six successful H trials.
+Ten total candidates (six synthetic/four observed) were constructed; all ten
+passed conditional CIP in raw and rounded forms, but only seven passed geometry.
+Nothing was filtered, relabelled, cropped, repaired or loosened to increase that count.
+
+Post-hoc diagnostic measurements identify ILE HA-CA-N and CG2-CB-HB residuals
+of about -5.75/-6.72 degrees, and LYS HB2-CB-HB3 / HD2-CD-HD3 residuals of about
+-9.73/-5.61 degrees, against the unchanged 5-degree bound. Independent exact-cone
+H placement is not adequate for all observed tetrahedral distortions. PHE45's
+already-observed ring deviates 0.06216 A from its declared plane versus 0.05 A;
+this is not a failed H construction. The earlier WP2E PHE mask rebuilt the ring
+instead of treating all its deposited coordinates as fixed, so that success is
+not contradicted. No new repair policy is inferred from either result.
+
+An initial unit hypothesis that moving HA alone would force RDKit CIP failure
+was wrong: the test retained S with unchanged heavy orientation while geometry
+correctly rejected the H. That case is now explicit negative geometry evidence;
+a mirrored complete synthetic stereocentre is separately rejected by CIP.
+Swapping identical methylene H can likewise retain CIP while failing ordered
+name-frame geometry. Do not use CIP alone as H-quality or stereospecific-name proof.
+The audit was not weakened or changed to produce an expected result.
+
+Original evidence is under `tmp/chemical-reconstruction-hydrogens-v1/controls-01/`.
+All 24 retained files replay byte-for-byte on final source. Saved source/request/
+plan/candidate readback independently remeasured 20 raw/rounded geometry audits
+and 20 conditional CIP audits **without proposal construction**, retaining every
+negative outcome. No experimental H reference, native-H score, phase ranking or
+candidate PDB/.dat/public bundle exists. Source/FF bytes and prior evidence remain
+unchanged; old CCD/peptide/naming/amide/source replays preserve 29/13/7/7/9 files.
+
+### Verification and unresolved integration behavior
+
+All **27 new regression cases** pass. Final focused fast lane: **634 passed,
+three existing slow tests deselected**. The 27 new cases plus both seeded rebuild
+slow boundaries passed together (**29 passed**, 14.6 s); renumber's slow boundary
+passed separately (one pass). The full fast suite passed **3565 tests**, three
+optional Torch/Biotite skips and 33 slow deselected. Ruff passes; scoped strict
+mypy passes 20 files (19 private modules plus I/O owner). Unsilenced mypy retains
+the same 71 diagnostic lines in four unchanged legacy files, not suppressed.
+
+The large 637-case slow-inclusive focused run was NOT completed after the unit
+correction: outer limits of 120 and 600 seconds expired while the seeded prepare
+test was displayed. Logs are retained. That legacy test separately passed in
+11 seconds and in the 29-case boundary run; the cause of the combined-run stall
+is unresolved. Do not relabel either timeout as a pass, attribute causality to
+the new H code without evidence, add skips, weaken assertions or change the
+production numerical platform. This remains a separate integration investigation.
+The [WP2F validation record](chemical-reconstruction-hydrogens-validation.json)
+binds protocol/source/report hashes, all positive/negative outcomes, readback and
+the unresolved combined-run timeout evidence.
+
+Next: declare a joint generated-only sp3-group fitting policy to distribute angular
+strain instead of independently satisfying two cone angles, preserving current
+negative results and the same observation ownership. Fixed-heavy ring defects
+require a distinct source policy, not a hidden H workaround. Broader complex/
+chemistry evidence, measured/partial H transport, all20 and stereospecific H names,
+actual neighbour/polymer chemistry, hydrogen-bond quality and production/default/
+dependency/data-license gates remain open.
