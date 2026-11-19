@@ -1,0 +1,142 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-peptide-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "5cd21aa",
+  "protocol_commit": "3b19d8d",
+  "protocol": "docs/plans/chemical-reconstruction-peptide-v1.md",
+  "protocol_sha256": "65578a5517e53b5d7da71e9cc65ccae8b87e468cf23dd1fe502ffdd8a511e9ad",
+  "protocol_unchanged_since_freeze": true,
+  "status": "wp2b-conditional-chemistry-and-source-probes-verified-not-scientifically-qualified",
+  "new_branch_or_worktree_created": false,
+  "source": {
+    "ccd_manifest": "tests/fixtures/chemical_reconstruction/ccd/manifest.json",
+    "ccd_manifest_sha256": "29c4f83b28435a34b666b5c1489c4f3423c53beb276e75d16cd0d8c3c055dece",
+    "rtp": "FF/amber19sb.ff/aminoacids.rtp",
+    "rtp_sha256": "ece03322c6df812c1467bfdb67240e694230ea28ba675d86cccb8a4823e9a419",
+    "all_63_fixture_checksum_entries_verified": true,
+    "existing_ccd_observed_and_forcefield_bytes_unchanged": true,
+    "new_downloads_or_pyrosetta_data_access": false,
+    "partial_charges_used_as_formal_charges": false
+  },
+  "implementation": {
+    "explicit_source_leaving_branch_substitutions": true,
+    "connected_joined_valence_charge_explicit_h_and_cip_proof": true,
+    "witnesses": "Two virtual neutral CCD ALA chemical partners, never actual neighbours, observations or generated atoms",
+    "witness_interunit_geometry_qualified": false,
+    "actual_neighbour_chemistry_verified": false,
+    "retained_all_source_context": true,
+    "source_repair_cropping_or_opportunistic_alias_fallback": false,
+    "withheld_coordinates_given_to_constructor": false,
+    "cb_prefix": "Existing CA/N/C two-angle cone with CIP-proven cyclic stereo-frame permutation",
+    "new_closure_solver": false,
+    "hydrogen_geometry": "Explicit refusal; retained free-CCD N-H coordinates are not amide-H geometry authority"
+  },
+  "probes": {
+    "original": "tmp/chemical-reconstruction-peptide-v1/probes-01/summary.json",
+    "diagnostic_replay": "tmp/chemical-reconstruction-peptide-v1/probes-diagnostic-02/summary.json",
+    "both_summary_sha256": "e800f179ec78aa880ebb9218b630d535670519f9a74bac23fff4a5980a7f8851",
+    "diagnostic_replay_byte_identical_summary": true,
+    "replay_counted_as_independent_evidence": false,
+    "declared": 12,
+    "executed_entries": 12,
+    "conditional_chemistry_passes": ["ALA/ALA", "THR/THR", "LYS/LYS", "PHE/PHE"],
+    "chemistry_refusals": {
+      "ILE/ILE": "derived-state-template-inventory-mismatch",
+      "LYS/LYN": "explicit-variant-projection-unqualified"
+    },
+    "unexpected_results": {
+      "LYS": "Frozen refusal prediction was wrong: pinned CCD LYS is already +1 charged and matches RTP LYS. No charge, H inventory or state edit was made.",
+      "ILE": "Fixed inverse canonical map lacks CD1/HD11/HD12/HD13 and has CD/HD1/HD2/HD3. Naming transport is unqualified, not chemically impossible. No post-result fallback added."
+    },
+    "observed_heavy": [
+      {
+        "source": "tests/fixtures/protein_context/1UBQ.pdb",
+        "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+        "target": "A/PHE45",
+        "status": "admission-refused",
+        "reason": "partial-occupancy-or-altloc-requires-explicit-selection",
+        "source_atoms": 660,
+        "retained_atoms": 653,
+        "explicit_withheld_atoms": 7
+      },
+      {
+        "source": "tests/fixtures/regressions/1FR2.pdb",
+        "sha256": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+        "target": "A/THR11",
+        "status": "input-refused",
+        "reason": "dangling or empty source CONECT"
+      },
+      {
+        "source": "tests/fixtures/protein_context/1A3N.pdb",
+        "sha256": "a4db006269e9b6f9db0eb5447a5d40e59d67857484a9294b9ca71d642ffe9861",
+        "target": "A/ALA5",
+        "status": "input-refused",
+        "reason": "ambiguous declared-link endpoints",
+        "source_altloc_atoms": 8,
+        "source_link_ssbond_records": 4
+      }
+    ],
+    "observed_coordinate_constructor_executions": 0,
+    "hydrogen_refusals": 3,
+    "hydrogen_refusal_reason": "amide-hydrogen-geometry-authority-unqualified",
+    "geometry_bounds_changed_after_outcomes": false,
+    "synthetic_regressions": "ALA CB and THR three-heavy-atom transport/cone controls; not observed-complex evidence"
+  },
+  "checks": {
+    "new_regression_tests": 19,
+    "initial_unit_failure": "One target-H fixture appended H after other residues, making occurrence 2. Corrected fixture insertion order without weakening parser/H gate.",
+    "focused": {
+      "passed": 513, "failures": 0, "errors": 0, "skips": 0,
+      "junit": "tmp/chemical-reconstruction-peptide-v1/focused-01.xml",
+      "junit_sha256": "a55abb2d80863f7364ad59db7b60f23931e6c0bbc64835a3449a939dc013f3eb"
+    },
+    "fast": {
+      "passed": 3448, "failures": 0, "errors": 0, "skips": 3, "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-peptide-v1/fast-01.xml",
+      "junit_sha256": "5572393ff789c45caa467ea8a66c8045f0392f7fdf13cd4bb511292ef2ec6b66",
+      "log_sha256": "f63f70c12c51640072c7607abd80e541f1792565e63581e098c490676072a08f",
+      "optional_skips": ["torch: cc94 production probe", "biotite.structure: reference metrics", "torch: diffusion sampler"],
+      "warnings": "Inherited SWIG deprecation warnings remain visible"
+    },
+    "ruff_all_source_and_new_script_tests": "passed; inherited UP038 configuration warning remains visible",
+    "scoped_mypy": "mypy --strict --follow-imports=silent src/dvbfixer/chemical_reconstruction: 13 modules pass; no new type ignores/config suppression",
+    "transitive_mypy": {
+      "status": "failed with 71 unchanged legacy errors, not suppressed or counted as pass",
+      "files": {"pdbutils/inference.py": 43, "acpype_export.py": 23, "ffutils/geometry.py": 4, "ffutils/__init__.py": 1},
+      "all_error_lines_match_unchanged_21a7162_archive": true,
+      "baseline_entry_point": "mypy --strict src/dvbfixer/pdbutils/sequence_evidence.py",
+      "log_sha256": "2f12ecf3814e85ff2eecc920471700914371fccc93a40c2c2cd1e10502b35f88",
+      "baseline_log_sha256": "220e2281bdd29eb38e564405c3153f5e3fb2839d35cbc9efe05ae3092e46939f"
+    },
+    "source_frozen_before_final_focused_and_fast_runs": true,
+    "documentation_quality": "PASS: all four planned records exist, no pending or broken local links, agent maps valid, final source/protocol/JUnit/evidence hashes verified, original attribute rules preserved and staged whitespace checked"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/ccd_authority.py": "d3a63b5207517a7fc55b75d7e956c34a4a1c046735283f3ba6ab02a4070b5bc4",
+    "src/dvbfixer/chemical_reconstruction/plan_compiler.py": "8401590fe2ae9bca1b26ef840a22b6b55fb8c07ee76e02e66c85949e729b6c8e",
+    "src/dvbfixer/chemical_reconstruction/peptide_state.py": "75d35a0a749584d6a973a99c8d15bcc28ead82494893cc3fbd8a9cd948fb416c",
+    "src/dvbfixer/chemical_reconstruction/observed_peptide.py": "048daf9be91694412e59c86a00e553f93ad7793c0e8b594fb825ab5b422f2310",
+    "scripts/chemical_reconstruction_peptide_controls.py": "ec3b4b0e72de83bfda64f6ea5a1d3dfbd4db7e7ac7804c2e11f19823a93361f7",
+    "tests/test_chemical_reconstruction_peptide.py": "0f4a16f2776b6a77a4ee2aa963e5566bdc77a376c32991ed79dc08bceac014b4"
+  },
+  "documentation_plan_completed": [
+    "docs/plans/chemical-reconstruction-peptide-v1.md",
+    "docs/plans/chemical-reconstruction-peptide-validation.json",
+    "docs/plans/chemical-reconstruction-handoff.md",
+    "docs/agent/tasks.toml"
+  ],
+  "pending_links": [],
+  "public_reconstruction_api_cli_gui_or_default_changes": false,
+  "pdb_dat_or_bundle_materialization_added": false,
+  "full_polymer_h_or_retained_complex_qualification": false,
+  "production_or_redistribution_permission_inferred": false,
+  "remaining_gates": [
+    "Qualified explicit naming transport",
+    "Prospectively declared source admission/preparation preserving originals and full context",
+    "External-anchor amide-H geometry",
+    "Actual neighbour chemistry and full polymer state/CIP",
+    "Observed retained-complex geometry and broader heavy/H qualification",
+    "Unchanged PyRosetta source/license and explicit production approval gates"
+  ]
+}

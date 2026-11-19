@@ -16,3 +16,4 @@ tests/fixtures/chemical_reconstruction/ccd/*.cif -text -whitespace
 # These metadata bytes are also bound by the frozen control runner.
 tests/fixtures/chemical_reconstruction/ccd/manifest.json -text
 docs/plans/chemical-reconstruction-ccd-v1.md -text
+docs/plans/chemical-reconstruction-peptide-v1.md -text

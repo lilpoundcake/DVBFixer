@@ -1,7 +1,8 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: private WP0/WP1 and WP2A pinned CCD authority/roundtrip
-slice checked. General reconstruction and scientific acceptance remain
+Date: 2026-11-19. Status: WP0/WP1/WP2A checked; bounded WP2B conditional peptide
+chemistry/observed-source probes and final regressions checked. General
+reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
@@ -500,3 +501,87 @@ upstream CIF padding is preserved through a narrow `.gitattributes` rule, not by
 changing source bytes or pins. Existing scientific tests/thresholds, production
 paths, environment and prior failure/license gates are unchanged. WP0's inherited
 41 legacy mypy errors remain documented, not suppressed or relabelled as passes.
+
+## 12. WP2B conditional peptide chemistry and observed-source probes
+
+[Protocol](chemical-reconstruction-peptide-v1.md) was frozen as `3b19d8d` before
+projection or probe execution. It is not edited after outcomes. Existing source
+CCDs and the pinned Amber19SB RTP parser/inventory are reused; partial charges
+are never converted into formal charges. Canonical naming maps come from the
+existing domain owner, not another variant/alias table.
+
+`peptide_state.assemble_witness` applies exact declared C/N substitutions and atom
+removals, checks leaving-branch ownership, consumed ports and connectedness, and
+proves the joined valence/CIP with explicit chemical extra bonds. Cross-unit
+geometry/ideal bond lengths are not invented. Source frames remain independent.
+`derive_local_peptide` uses two virtual neutral ALA partners; they are **chemical
+witnesses, not actual observed neighbours**, and never become request observations,
+generated atoms or output. Parent graphs, removals, source/state inventory and the
+complete proof are retained. The four accepted projected inventories have a peptide
+N–H count, but its geometry is still unqualified: the H operation and target measured
+H refuse explicitly. There is no pH-based state choice or silent LYS→LYN switch.
+
+`observed_peptide` reuses the existing whole-PDB atom/link parsers and peptide
+continuity owner. It retains every source chain, heterogen and water, original
+source SHA, exact identity and the explicit withhold mask. Only retained observation
+DTOs—not withheld experimental coordinates—reach the constructor. Target CB uses
+the existing two-angle cone against CA/N/C via a cyclically reordered, CIP-proven
+stereo frame; the remaining dependency plan reuses the chain compiler. Carbonyl
+phase cannot silently determine CB handedness. Old chain-only defaults and the
+frozen CCD roundtrip profile remain unchanged. No new planar/closure solver exists.
+
+### Actual outcomes, including incorrect pre-run expectations
+
+All **12 declared probes** completed. Chemistry: ALA, THR, **LYS** and PHE passed
+the conditional joined proof and inventory; ILE and LYN refused.
+
+- The protocol's LYS/LYS refusal prediction was wrong. The pinned CCD LYS is
+  already **+1 charged**, not neutral, and its retained inventory matches RTP LYS.
+  No charge/H correction or state substitution was made. This is an unexpected
+  valid proof, not justification to rewrite the frozen hypothesis.
+- ILE unexpectedly failed the fixed canonical inverse-name policy: the comparison
+  lacks CCD `CD1/HD11/HD12/HD13` and has RTP `CD/HD1/HD2/HD3`. This is a naming/
+  inventory boundary refusal, not evidence of impossible ILE chemistry. No
+  opportunistic alias fallback was added. A future qualified naming policy must
+  preserve this result and declare its source/name mapping explicitly.
+- LYS/LYN refused unsupported explicit variant projection as declared. The +1 CCD
+  is not silently deprotonated to satisfy a neutral template.
+
+Observed heavy probes produced **zero coordinate proposals**: 1UBQ A/PHE45 retained
+all context and refused partial occupancy (660 source atoms, 653 retained after
+seven explicit withholds); 1FR2's selected A/THR11 refused dangling/empty CONECT;
+1A3N's selected A/ALA5 refused ambiguous endpoints in the existing declared-link
+parser (eight source altloc atoms, four LINK/SSBOND records). These are input/
+admission refusals, not failed or passing native geometry trials. All three H arms
+gave the intended amide-H-geometry refusal. No context was cropped, heme stripped,
+source repaired or tolerance widened. The source files remain byte-identical.
+
+Original evidence is under `tmp/chemical-reconstruction-peptide-v1/probes-01/`.
+A separately labelled diagnostic replay adds parent/inventory and admission
+payloads; its summary, dispositions and authority digests are identical, and it
+is not independent evidence. Synthetic transport tests—not observed structures—
+exercise the new CB cone, three-atom THR completion, context retention and source
+guards. Those must not be reported as successful observed-complex reconstruction.
+
+### Typing and remaining work
+
+The [WP2B validation record](chemical-reconstruction-peptide-validation.json)
+binds the frozen protocol, final source hashes and retained reports: **513 focused
+passes; 3448 fast passes, three optional Torch/Biotite skips, 33 slow deselected**.
+All 19 new regressions pass. Ruff passes; no observed coordinates were generated.
+
+The private package's strict scoped command is now
+`mypy --strict --follow-imports=silent src/dvbfixer/chemical_reconstruction`:
+13 modules pass without new ignores/config suppression. The unsilenced strict
+command reports **71 errors in four unchanged legacy files** reached through the
+reused PDB/continuity adapters. The exact 71 error lines reproduce on the unmodified
+`21a7162` source archive with the old sequence-evidence entry point; logs remain
+retained. This is separate from WP0's 41-error broader non-strict baseline command,
+not a claim that repository-wide typing passes.
+
+Next: qualified explicit residue-name/H alias transport, independently specified
+source admission/preparation (preserving originals/context), and amide-H geometry
+with external anchors. Do not rerun/repair these frozen observed sources until a
+separate prospective policy is declared. Actual neighbour chemistry, full polymer
+state/CIP, H geometry, distorted closure and real-complex reconstruction remain
+unqualified; production/default/dependency changes remain disabled.
