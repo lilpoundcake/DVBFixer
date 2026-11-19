@@ -13,6 +13,7 @@ FIXTURE_METADATA = {
     FIXTURES / "cc89_apple_handoff" / "manifest.json",
     FIXTURES / "chemical_reconstruction" / "ccd" / "manifest.json",
     FIXTURES / "chemical_reconstruction" / "ccd_h_groups_v1" / "manifest.json",
+    FIXTURES / "chemical_reconstruction" / "ccd_all20_v1" / "manifest.json",
 }
 
 

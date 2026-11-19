@@ -21,6 +21,15 @@ generated outputs or licensed rotamer data. See the
 [extended-H protocol](../../docs/plans/chemical-reconstruction-extended-h-v1.md).
 The original seven-component CCD manifest remains unchanged.
 
+WP2J adds unmodified CCD ASP/GLU/LEU/MET/SER/TYR/VAL under
+`chemical_reconstruction/ccd_all20_v1/`, retrieved 2026-11-20 after prospective
+protocol commit `cbb28b4`. Its separate manifest binds exact URLs, revision dates,
+counts and hashes under the same wwPDB CC0-1.0 policy. These free-molecule sources
+complete the SOURCE residue inventory for the
+[all20 heavy/H coverage protocol](../../docs/plans/chemical-reconstruction-all20-v1.md),
+not all20 state, reconstruction or native-quality qualification. No old source
+manifest, generated output or licensed rotamer data is included or changed.
+
 | Tracked fixture | Historical source | Purpose |
 |---|---|---|
 | `ASN.pdb` | `test/ASN.pdb` | Minimal two-residue ASN input |

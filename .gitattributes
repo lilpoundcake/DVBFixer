@@ -28,3 +28,6 @@ docs/plans/chemical-reconstruction-extended-h-v1.md -text
 docs/plans/chemical-reconstruction-declared-state-v1.md -text
 docs/plans/chemical-reconstruction-declared-state-metrics-v1.md -text
 docs/plans/chemical-reconstruction-source-metrics-v1.md -text
+tests/fixtures/chemical_reconstruction/ccd_all20_v1/*.cif -text -whitespace
+tests/fixtures/chemical_reconstruction/ccd_all20_v1/manifest.json -text
+docs/plans/chemical-reconstruction-all20-v1.md -text

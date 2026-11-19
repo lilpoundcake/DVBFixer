@@ -1,0 +1,61 @@
+{
+  "schema": "dvbfixer.ccd-all20-source-pins.v1",
+  "retrieved_date": "2026-11-20",
+  "protocol_commit_before_download": "cbb28b4",
+  "source_url_template": "https://files.rcsb.org/ligands/download/{component_id}.cif",
+  "dictionary": "https://www.wwpdb.org/data/ccd",
+  "usage_policy": "https://www.wwpdb.org/about/usage-policies",
+  "data_license": "CC0-1.0",
+  "notes": "Unmodified free-molecule CCD authorities; not polymer/native conformation/H quality qualification. No generated candidates or PyRosetta/Dunbrack data. Prior CCD manifests unchanged.",
+  "components": {
+    "ASP": {
+      "sha256": "82c4a2d0b5eda0a32c36f106f0bb00edbc5bc51172db414fdc494025b7b8c858",
+      "modified_date": "2024-09-27",
+      "atom_count": 16,
+      "bond_count": 15,
+      "source_url": "https://files.rcsb.org/ligands/download/ASP.cif"
+    },
+    "GLU": {
+      "sha256": "99fa19054d31b07e7101b33ad9cc847cc6a209da60de279aed5e6a9236bb6da4",
+      "modified_date": "2024-09-27",
+      "atom_count": 19,
+      "bond_count": 18,
+      "source_url": "https://files.rcsb.org/ligands/download/GLU.cif"
+    },
+    "LEU": {
+      "sha256": "fc56e022bc8baa25dc6e543b2c46664e365779aa1dda9831576fdf10b30ab84b",
+      "modified_date": "2024-09-27",
+      "atom_count": 22,
+      "bond_count": 21,
+      "source_url": "https://files.rcsb.org/ligands/download/LEU.cif"
+    },
+    "MET": {
+      "sha256": "a89adea8738d069b0a7bb0c3efc26b362dcc624ef9abd3b3f4bfaedd785f3afd",
+      "modified_date": "2024-09-27",
+      "atom_count": 20,
+      "bond_count": 19,
+      "source_url": "https://files.rcsb.org/ligands/download/MET.cif"
+    },
+    "SER": {
+      "sha256": "46db0296a07732854d2c3ca67ed0f74f4c82ddc5698d0e59f433039a5d7c88a0",
+      "modified_date": "2024-09-27",
+      "atom_count": 14,
+      "bond_count": 13,
+      "source_url": "https://files.rcsb.org/ligands/download/SER.cif"
+    },
+    "TYR": {
+      "sha256": "fa0ef32f9d623e087a527b0a146c0494a5a656037c6448d956072dd2406fa554",
+      "modified_date": "2024-09-27",
+      "atom_count": 24,
+      "bond_count": 24,
+      "source_url": "https://files.rcsb.org/ligands/download/TYR.cif"
+    },
+    "VAL": {
+      "sha256": "9c3c807970c817b1e1a4b43164db91a5bf1e7bf438b3269c5649f6ce84d4c0ed",
+      "modified_date": "2023-11-03",
+      "atom_count": 19,
+      "bond_count": 18,
+      "source_url": "https://files.rcsb.org/ligands/download/VAL.cif"
+    }
+  }
+}
