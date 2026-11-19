@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_METADATA = {
     FIXTURES / "cc89_apple_handoff" / "manifest.json",
     FIXTURES / "chemical_reconstruction" / "ccd" / "manifest.json",
+    FIXTURES / "chemical_reconstruction" / "ccd_h_groups_v1" / "manifest.json",
 }
 
 

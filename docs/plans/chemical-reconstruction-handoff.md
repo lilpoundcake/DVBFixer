@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H and WP2G
-joint-sp3-H controls checked; final fast suite passed (3599), split slow boundaries
+Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
+joint-sp3-H and WP2H planar-N/thiol controls checked; final fast suite passed (3638), split slow boundaries
 passed. WP2F's large combined slow-inclusive run remains incomplete after outer
 timeouts. General
 reconstruction and scientific acceptance remain
@@ -986,7 +986,7 @@ closed by this small boundary run. See the
 [WP2G validation record](chemical-reconstruction-joint-h-validation.json) for
 source/protocol/report hashes and retained evidence paths.
 
-Next: prospectively declare broader explicit-chemistry/H coverage and independent
+Next at WP2G (bounded extension completed in WP2H below): prospectively declare broader explicit-chemistry/H coverage and independent
 quality evidence before extending this algorithm. Keep heavy reconstruction and
 H geometry as equal tracks within the shared retained-complex architecture.
 Measured/partial H, all20/linked chemistry, actual-neighbour/polymer witnesses,
@@ -994,3 +994,72 @@ stereospecific names, native-H/hydrogen-bond quality and broad complex qualifica
 remain open. Fixed-heavy ring repair requires a separate explicit source policy.
 Public/default/dependency replacement and production/data-license approval remain
 disabled; local PyRosetta research permission is not production permission.
+
+## WP2H — explicit planar-N and thiol H groups (2026-11-20)
+
+[Protocol](chemical-reconstruction-extended-h-v1.md) frozen as `c6c13b0` before
+acquiring eight unmodified RCSB CCD sources (ASN, GLN, ARG, CYS, TRP, GLY, PRO,
+HIS). The separate CC0 fixture manifest was pinned in `c3f8c0c` before numerical
+controls. The original CCD manifest, force fields, naming owner and all previous
+protocols/pins remain unchanged. This is still the same persistent branch.
+
+The separate `compile_extended_hydrogens` entry point admits N-H/two-heavy and
+N-H2/one-heavy groups only when their exact parent/neighbour set has the existing
+CCD authority's sanitized SP2 planarity proof and supported charge/H bonds. It
+also admits neutral single-bond thiol S-H, not thiolate or disulfide chemistry.
+Planar N-H reuses metric planar-exterior placement; named N-H2 and S-H use pinned
+CCD chain torsions in deterministic observed-heavy frames. N-H2 has an additional
+0.005-A complete-group/heavy-anchor plane. The unchanged joint-carbon compiler is
+then applied. No numerical engine, phase search, protonation inference, measured-H
+replacement, source repair or observed movement was introduced. The explicit origin
+policy is `complete-H-groups-v2-explicit-sp2-N-thiol`; old defaults still refuse
+the new group chemistries.
+
+All sixteen declared entries executed:
+
+- Six synthetic ASN/GLN/ARG/CYS/TRP/GLY cases passed raw/rounded geometry and
+  conditional CIP (6/8/13/5/10/3 H). These are ideal-authority consistency controls,
+  not native-H holdout evidence.
+- Observed 1UBQ A/ASN25 (6 H), A/GLN2 (8 H), A/GLY10 (3 H), and 1FR2 A/CYS23
+  (5 H), A/TRP74 (10 H) passed raw/rounded geometry plus conditional CIP with every
+  observation/context record retained under the existing source policy.
+- Observed 1UBQ A/ARG42 was refused before coordinate construction: its fixed-heavy
+  guanidinium plane deviation is 0.099886509 A against the unchanged 0.05-A bound.
+  No target substitution or implicit heavy-geometry correction was attempted.
+- Synthetic and observed PRO refuse the existing H2-based peptide substitution
+  (`removal outside named source components`). Both HIS entries refuse because
+  the exact same-named RTP state is unavailable; no HID/HIE/HIP substitution.
+
+Thus eight observed declarations yield six prepared requests, five constructors,
+five raw/rounded geometry/CIP passes, one fixed-input and two chemical-authority
+refusals. No all20 or missing-heavy-sidechain support follows from this H slice.
+Chemistry still uses virtual neutral-ALA witnesses, not actual-neighbour polymer
+chemistry. Conditional CIP still does not establish H-coordinate/pro-R/pro-S quality.
+
+Independent saved readback decoded twelve views, rechecked all eight original/
+prepared observed sources, repeated 22 geometry and 22 conditional-CIP audits with
+constructor/fitter calls forbidden, and remeasured the ARG fixed-plane refusal.
+All 146 files across the new controls and seven old arms replay byte-identically;
+these are regression replays, not independent trials.
+
+Verification: 39 new cases; final focused fast **708 passed**, three slow deselected;
+split joint/H/seeded/renumber/fixture boundaries **107 passed**; full fast
+**3638 passed**, three existing optional Torch/Biotite skips and 33 slow deselected.
+Ruff and scoped strict typing pass. Source-bound, nonincremental strict checking
+also passes 22 explicitly selected files including the shared geometry/sequence
+dependencies. The ambient-import invocation still reproduces the exact 793 legacy
+diagnostics: retain the import-context distinction, not a global typing-pass claim.
+An initial test expected a nonexistent specific planarity finding code; it now
+checks the real constraint-conflict code AND directly measures failure of that
+same plane. The fixture test initially lacked the new metadata allowlist entry;
+the explicit source manifest was added, without changing checksums/assertions.
+Initial failures remain in the [validation record](chemical-reconstruction-extended-h-validation.json).
+WP2F's large combined slow timeout remains unresolved.
+
+Next: declare explicit leaving-atom/variant state proofs (not a residue-name guess)
+before PRO or histidine can progress; continue toward all20 heavy/H coverage and
+full retained-complex sidechain reconstruction. Native-H/name/orientation evidence,
+measured/partial H, actual-neighbour/polymer chemistry, linked/ring heavy repair,
+broader complex qualification and production/public/default/dependency/license
+gates remain separate and open. Do not repair ARG's fixed source or infer a state
+merely to increase this protocol's pass count.

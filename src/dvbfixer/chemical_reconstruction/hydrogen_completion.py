@@ -40,9 +40,26 @@ class CompleteHydrogenView:
 
 
 def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
-                               incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
-                               backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
-                               generated_policy: AuditPolicy) -> CompleteHydrogenView:
+                                incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
+                                backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                                generated_policy: AuditPolicy) -> CompleteHydrogenView:
+    return _compile_hydrogens(base, authority, incoming_carbon, parameters, backbone_types=backbone_types,
+                              fixed_policy=fixed_policy, generated_policy=generated_policy, extended=False)
+
+
+def compile_extended_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
+                                incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
+                                backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                                generated_policy: AuditPolicy) -> CompleteHydrogenView:
+    """Separate opt-in: authority-proven planar N and neutral thiol, not new states."""
+    return _compile_hydrogens(base, authority, incoming_carbon, parameters, backbone_types=backbone_types,
+                              fixed_policy=fixed_policy, generated_policy=generated_policy, extended=True)
+
+
+def _compile_hydrogens(base: ReconstructionRequest, authority: LocalPeptideAuthority,
+                       incoming_carbon: ExactAtomRef, parameters: AmideMetricAuthority, *,
+                       backbone_types: tuple[str, str, str], fixed_policy: AuditPolicy,
+                       generated_policy: AuditPolicy, extended: bool) -> CompleteHydrogenView:
     target = authority.identity
     component = next((c for c in base.components if c.identity == target), None)
     if (base.targets != {target} or component is None or component.resolved != authority.state
@@ -90,23 +107,29 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
         neighbours = tuple(sorted(adjacent[parent] & heavy))
         element = atoms[parent].element
         single = all(bonds[frozenset((parent, n))].order == 1 for n in adjacent[parent])
+        planar_n = (extended and element == "N" and atoms[parent].formal_charge in {0, 1}
+                    and len(adjacent[parent]) == 3
+                    and any(set(p) == {parent, *adjacent[parent]} for p in authority.parent.planar_groups)
+                    and all(bonds[frozenset((parent, h))].order == 1 for h in hs))
         if parent == "N" and hs == ("H",) and neighbours == ("CA",):
             anchors = (ref("N"), incoming_carbon, ref("CA"))
             metrics.extend(parameters.metrics(ref("N"), ref("H"), ref("CA"), incoming_carbon, atom_types=backbone_types))
             placements.append(Placement(ref("H"), anchors, PlacementKind.PLANAR))
             constraints.append(Constraint(ConstraintKind.PLANARITY, (*anchors, ref("H")), Unit.ANGSTROM, upper=.005))
             kind = "backbone-amide"
-        elif element == "C" and atoms[parent].aromatic and len(neighbours) == 2 and len(hs) == 1:
+        elif ((element == "C" and atoms[parent].aromatic or planar_n)
+              and len(neighbours) == 2 and len(hs) == 1):
             anchors = (ref(parent), ref(neighbours[0]), ref(neighbours[1]))
             h = hs[0]
-            source = f"CCD ideal local aromatic H; equal-priority geometric compromise; {authority.parent.digest}"
+            source = (f"CCD ideal local planar N-H; equal-priority geometric compromise; {authority.parent.digest}" if planar_n else
+                      f"CCD ideal local aromatic H; equal-priority geometric compromise; {authority.parent.digest}")
             pin = authority.parent.component.provenance.sha256
             metrics.extend((GeometryMetric((ref(parent), ref(h)), bonds[frozenset((parent, h))].ideal_length, Unit.ANGSTROM, source, pin),
                             *(GeometryMetric((ref(n), ref(parent), ref(h)), angle_degrees(positions[n], positions[parent], positions[h]),
                                              Unit.DEGREE, source, pin) for n in neighbours)))
             placements.append(Placement(ref(h), anchors, PlacementKind.PLANAR))
             constraints.append(Constraint(ConstraintKind.PLANARITY, (*anchors, ref(h)), Unit.ANGSTROM, upper=.005))
-            kind = "aromatic-CH"
+            kind = "planar-NH" if planar_n else "aromatic-CH"
         elif element == "C" and single and (len(neighbours), len(hs)) in {(3, 1), (2, 2)}:
             anchors = (ref(parent), ref(neighbours[0]), ref(neighbours[1]))
             for h in hs:
@@ -119,9 +142,11 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
                                               label=atoms[parent].stereo or "ordered-CCD-H-frame-not-CIP"))
                 placements.append(Placement(ref(h), anchors, PlacementKind.CONE))
             kind = "tetrahedral-CH" if len(hs) == 1 else "methylene"
-        elif single and len(neighbours) == 1 and (
+        elif len(neighbours) == 1 and (single and (
                 len(hs) == 3 and (element == "C" or element == "N" and atoms[parent].formal_charge == 1)
-                or len(hs) == 1 and element == "O"):
+                or len(hs) == 1 and (element == "O" or extended and element == "S"
+                                       and atoms[parent].formal_charge == 0 and not atoms[parent].aromatic))
+                or planar_n and len(hs) == 2):
             b = neighbours[0]
             frame = None
             for a in sorted((adjacent[b] & heavy)-{parent}):
@@ -136,7 +161,12 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
                 raise PeptideStateError("no-ideal-heavy-chain-H-frame")
             anchors = frame
             placements.extend(Placement(ref(h), anchors) for h in hs)
-            kind = "terminal-three-H" if len(hs) == 3 else "hydroxyl"
+            if planar_n:
+                kind = "planar-NH2"
+                constraints.append(Constraint(ConstraintKind.PLANARITY, (*anchors, *(ref(h) for h in hs)),
+                                              Unit.ANGSTROM, upper=.005))
+            else:
+                kind = "terminal-three-H" if len(hs) == 3 else "thiol" if element == "S" else "hydroxyl"
         else:
             raise PeptideStateError(f"hydrogen-group-unqualified:{parent}")
         if not set(anchors) <= observed.keys():
@@ -147,7 +177,7 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
     origin = base.origin
     if origin is not None:
         origin = replace(origin, settings=(*origin.settings,
-                         ("complete_H_policy", "complete-H-groups-v1-fixed-heavy"),
+                          ("complete_H_policy", "complete-H-groups-v2-explicit-sp2-N-thiol" if extended else "complete-H-groups-v1-fixed-heavy"),
                          ("complete_H_authority", digest_record((authority.digest, parameters.digest, backbone_types)))))
     request = replace(base, operation=Operation.HYDROGENS, ownership=Ownership(frozenset(ref(h) for h in hydrogen_names)),
                       constraints=tuple(dict.fromkeys(constraints)), origin=origin)
