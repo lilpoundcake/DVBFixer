@@ -1,5 +1,16 @@
 # PDBFixer reconstruction: research plan and live handoff
 
+> **Forward development moved on 2026-11-19:** start with
+> [chemical-reconstruction handoff](chemical-reconstruction-handoff.md) on the
+> persistent `feature/chemical-reconstruction` branch, created from `a7d41f9`.
+> User explicitly requests reusing existing work and NO per-experiment/session
+> branches. This file remains the historical causal/qualification ledger; older
+> "next" sections and branch names are not the current roadmap. The shared
+> graph/geometry engine, full missing-subset protein reconstruction, nonprotein
+> extension and H geometry are the development objective. Upstream OpenMM issue
+> preparation is a separate human-gated task, not a reason to stop that work.
+> No old failure, license gate or production/default policy is superseded.
+
 ## Authorization and baseline
 
 **Upstream report preparation after `32be60e` (2026-11-13):** user's continued-

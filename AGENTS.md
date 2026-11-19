@@ -46,6 +46,7 @@ non-canonical residues.
 | Agent task/contract/invariant map | [`docs/agent/README.md`](docs/agent/README.md) |
 | Relaxation research and proposed benchmarks | [`docs/research/whole-complex-relaxation.md`](docs/research/whole-complex-relaxation.md) |
 | Reconstruction/modeling backend research | [`docs/research/reconstruction-and-modeling-backends.md`](docs/research/reconstruction-and-modeling-backends.md) |
+| Active in-house chemical reconstruction development and persistent branch | [`docs/plans/chemical-reconstruction-handoff.md`](docs/plans/chemical-reconstruction-handoff.md) |
 | Force-field selection matrix | [`docs/force-fields.md`](docs/force-fields.md) |
 | GUI button, control, and toolbar layout rules | [`docs/gui-design-system.md`](docs/gui-design-system.md) |
 | Tracked structural test inputs, provenance, and checksums | [`tests/fixtures/README.md`](tests/fixtures/README.md) |
@@ -614,6 +615,25 @@ command parser merely to inspect generated labels.
 - Reply in English by default. You may reply in Russian when the user explicitly permits or requests it.
 
 ## Current agent notes and recently established invariants
+
+- **Chemical reconstruction has ONE persistent development branch (user instruction,
+  2026-11-19): `feature/chemical-reconstruction`.** Continue all reconstruction/H
+  prototypes, experiments, implementation milestones and handoffs there; do NOT
+  create per-session/per-stage branches or worktrees unless the user explicitly
+  asks. Start with `docs/plans/chemical-reconstruction-handoff.md`; the long
+  `pdbfixer-reconstruction-handoff.md` is historical evidence, not the forward
+  roadmap or permission to fork another research branch. Reuse protein_completion,
+  exact domain identity, existing Class A nonprotein authority/reconstruction,
+  variants/DatRecord and validators. Target an extensible chemical graph/geometry
+  system with full missing sidechain subsets and H placement in retained complexes,
+  not a one/two-atom patch or protein-only input restriction. Generic support and
+  public/default/dependency replacement are NOT qualified or enabled by this
+  handoff. WP0 is the pure shared-contract/admission/adapters slice; no new native
+  cohort or public API merely to plan/admit chemistry. Preserve prior failed
+  geometry/physical outcomes and PyRosetta production/data-license gates. An
+  upstream OpenMM report remains a separate human-summary/review-gated side task,
+  not the critical path for this engine. Never auto-stash/reset unrelated edits
+  to switch branches, merge main or discard the old research evidence.
 
 - **PyRosetta rotamer use is research-only (user instruction, 2026-11-03).**
   The user explicitly authorizes local reconstruction experiments with the

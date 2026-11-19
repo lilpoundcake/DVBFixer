@@ -245,6 +245,7 @@ verification = ["pytest -q tests/test_prepare_glycam_fallback.py tests/test_qual
 status = "research"
 context = "docs/agent/contexts/structure-preparation.md"
 start = [
+  "docs/plans/chemical-reconstruction-handoff.md",
   "docs/research/reconstruction-and-modeling-backends.md",
   "docs/research/pdbfixer-usage-and-replacement-scope.md",
   "src/dvbfixer/protein_completion/service.py::complete_sidechain",

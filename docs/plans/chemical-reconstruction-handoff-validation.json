@@ -1,0 +1,83 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-handoff-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "a7d41f9",
+  "base_branch": "research/openmm-upstream-report",
+  "persistent_branch_user_instruction_recorded": true,
+  "per_experiment_or_session_branches_allowed_without_explicit_request": false,
+  "new_worktree_created": false,
+  "current_work_reused_without_cherry_picking_or_reset": true,
+  "active_handoff": "docs/plans/chemical-reconstruction-handoff.md",
+  "historical_handoff_retained": "docs/plans/pdbfixer-reconstruction-handoff.md",
+  "discovery_updated": [
+    "AGENTS.md",
+    "docs/agent/tasks.toml",
+    "docs/plans/pdbfixer-reconstruction-handoff.md"
+  ],
+  "development_scope": {
+    "extensible_chemical_graph_and_geometry_engine": true,
+    "whole_and_partial_protein_sidechains_required": true,
+    "one_or_two_missing_atom_product_limit": false,
+    "protein_only_input_architecture": false,
+    "heavy_and_hydrogen_geometry_are_equal_workstreams": true,
+    "complete_complex_context_and_external_links_required": true,
+    "authority_required_for_ambiguous_or_unknown_chemistry": true,
+    "generic_stereo_not_universal_l_or_s_label": true,
+    "preservation_reconstruction_protonation_parameterization_distinct": true,
+    "source_and_observation_ownership_preserved": true,
+    "existing_class_a_and_protein_contracts_reused_via_versioned_adapters": true,
+    "new_generic_api_or_module_claimed_implemented": false
+  },
+  "next_work_package": "WP0: pure shared graph/state/ownership/constraint contract and capability admission, explicit protein and Class A adapters and synthetic regressions; no native sampling/public registration",
+  "reuse_inventory_checked_against_source": true,
+  "old_negative_geometry_physics_accuracy_outcomes_preserved": true,
+  "pyrosetta_research_and_production_license_gates_preserved": true,
+  "upstream_report_human_summary_gate_preserved_as_separate_task": true,
+  "checks": {
+    "agent_maps_passed": true,
+    "focused_files": [
+      "tests/test_protein_completion.py",
+      "tests/test_protein_completion_source.py",
+      "tests/test_protein_completion_links.py",
+      "tests/test_nonprotein_reconstruction.py",
+      "tests/test_ccd_component_reconstruction.py",
+      "tests/test_pdbfixer_usage_inventory.py"
+    ],
+    "attempt_1": {
+      "passed": 170,
+      "setup_errors": 12,
+      "cause": "Agent command selected a pytest basetemp whose parent directory did not yet exist; failures precede affected test bodies",
+      "junit": "tmp/chemical-reconstruction-handoff-2026-11-19/focused.xml",
+      "junit_sha256": "b768391babc58402286f468a7576a9b05847ab02f83ca767c35646508dd27914",
+      "original_report_preserved": true
+    },
+    "attempt_2": {
+      "passed": 182,
+      "errors": 0,
+      "failures": 0,
+      "skips": 0,
+      "correction": "New basetemp under the now-existing parent; no source, threshold or environment change",
+      "junit": "tmp/chemical-reconstruction-handoff-2026-11-19/focused-02.xml",
+      "junit_sha256": "139944ce64db2c8fefb4d21cf0a6c30cc483676ff97d3075216b195ed6d69c95"
+    },
+    "last_inherited_full_fast_passed": 3305,
+    "inherited_optional_skips": 3,
+    "inherited_slow_deselected": 33,
+    "full_fast_suite_rerun_for_this_documentation_task": false,
+    "all_planned_files_and_local_links_valid": true,
+    "pending_links": [],
+    "private_coordinate_rng_table_payloads_added": false,
+    "whitespace_check_passed": true,
+    "documentation_quality": "PASS"
+  },
+  "implementation_started_in_this_task": false,
+  "scientific_source_tests_fixtures_or_thresholds_changed": false,
+  "new_scientific_cohort_executed": false,
+  "installed_environment_modified": false,
+  "production_defaults_or_dependencies_changed": false,
+  "public_capability_enabled": false,
+  "main_merged": false,
+  "general_chemistry_qualification_or_production_readiness_claimed": false,
+  "limits": "Handoff and persistent-branch setup only. Existing constrained protein prototypes and Class A isolated-component reconstruction are reusable, not a qualified universal engine. The 182 focused passes establish unchanged regression health after correcting an agent-created temp-directory setup error; they are not new scientific reconstruction successes. Development continues on this one branch with versioned contracts and explicit chemistry/H/downstream qualification gates."
+}
