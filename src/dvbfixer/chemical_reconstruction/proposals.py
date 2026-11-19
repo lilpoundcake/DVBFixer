@@ -27,6 +27,7 @@ class Strategy(StrEnum):
 class PlacementKind(StrEnum):
     CHAIN = "chain"
     CONE = "two-angle-cone"
+    PLANAR = "metric-planar-exterior"
 
 
 @dataclass(frozen=True)

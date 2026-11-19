@@ -34,6 +34,8 @@ from .contracts import (
     canonical_graph_digest,
 )
 from .measurement import angle_degrees, satisfied, torsion_degrees
+from .metric_geometry import explicit_metrics, metric_findings, metric_key
+from .planar_geometry import planar_exterior_tip
 from .proposals import Candidate, GeometryPlan, PlacementKind, ProposalResult, Strategy
 
 
@@ -42,6 +44,10 @@ def _plan_reason(request: ReconstructionRequest, plan: GeometryPlan) -> str | No
         return "plan-request-binding"
     if request.ownership.temporary or request.ownership.mobile:
         return "temporary-or-mobile-construction-not-implemented"
+    metric_errors = metric_findings(request, plan)
+    if metric_errors:
+        return sorted(metric_errors)[0]
+    metrics = explicit_metrics(plan)
     generated = request.ownership.generated
     if len(generated) > 4096:
         return "construction-budget"
@@ -69,11 +75,24 @@ def _plan_reason(request: ReconstructionRequest, plan: GeometryPlan) -> str | No
         available = {o.identity for o in request.observations}
         _, bonds = geometry_view(request)
         for placement in plan.placements:
-            if any(a.component != placement.atom.component for a in placement.anchors):
+            if placement.kind != PlacementKind.PLANAR and any(a.component != placement.atom.component for a in placement.anchors):
                 return "cross-component-internal-frame-not-implemented"
             if not set(placement.anchors) <= available:
                 return "plan-anchor-dependency"
             a, b, c = placement.anchors
+            if placement.kind == PlacementKind.PLANAR:
+                connected = set(bonds) | {frozenset((q.link.component_atom, q.link.other_atom))
+                                          for q in request.connections if q.kind == LinkKind.COVALENT}
+                if any(frozenset(pair) not in connected for pair in ((a, b), (a, c), (a, placement.atom))):
+                    return "planar-anchors-not-authoritatively-connected"
+                if any(metric_key(atoms) not in metrics for atoms in ((a, placement.atom),
+                        (b, a, placement.atom), (c, a, placement.atom))):
+                    return "planar-needs-explicit-length-and-both-angles"
+                if not any(q.kind == ConstraintKind.PLANARITY and q.atoms == (*placement.anchors, placement.atom)
+                           for q in request.constraints):
+                    return "planar-needs-explicit-plane-constraint"
+                available.add(placement.atom)
+                continue
             pairs = ((a, b), (b, c), (c, placement.atom)) if placement.kind == PlacementKind.CHAIN else (
                 (a, b), (a, c), (a, placement.atom))
             if any(frozenset(pair) not in bonds for pair in pairs):
@@ -86,20 +105,27 @@ def _plan_reason(request: ReconstructionRequest, plan: GeometryPlan) -> str | No
     ideals, bonds = geometry_view(request)
     for pair, length in bonds.items():
         a, b = sorted(pair)
-        if a.component in request.targets and abs(math.dist(ideals[a], ideals[b])-length) > plan.policy.bond_tolerance_angstrom:
+        if (metric_key((a, b)) not in metrics and a.component in request.targets
+                and abs(math.dist(ideals[a], ideals[b])-length) > plan.policy.bond_tolerance_angstrom):
             return "authority-ideal-bond-inconsistent"
     return None
 
 
 def _internal(request: ReconstructionRequest, plan: GeometryPlan, additions: list[Observation]) -> None:
     ideals, bonds = geometry_view(request)
+    metrics = explicit_metrics(plan)
     positions = {o.identity: o.angstrom for o in request.observations}
     elements = {ExactAtomRef(c.identity, a.name): a.element for c in request.components if c.resolved is not None
                 for a in c.resolved.graph.atoms}
     for placement in plan.placements:
         a, b, c = placement.anchors
         d = placement.atom
-        if placement.kind == PlacementKind.CHAIN:
+        if placement.kind == PlacementKind.PLANAR:
+            point = planar_exterior_tip(positions[a], positions[b], positions[c],
+                                        length=metrics[metric_key((a, d))],
+                                        first_angle=metrics[metric_key((b, a, d))],
+                                        second_angle=metrics[metric_key((c, a, d))])
+        elif placement.kind == PlacementKind.CHAIN:
             length = bonds[frozenset((c, d))]
             angle = angle_degrees(ideals[b], ideals[c], ideals[d])
             chi = torsion_degrees((ideals[a], ideals[b], ideals[c], ideals[d]))

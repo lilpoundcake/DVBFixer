@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B and bounded WP2C inventory naming
-transport checked; six naming controls and final fast suite completed. General
+Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B/WP2C and bounded WP2D metric geometry
+checked; synthetic amide controls and final fast suite completed. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
@@ -640,3 +640,85 @@ preparation and external-anchor amide-H geometry. Naming transport is now a
 reusable boundary, but actual neighbour chemistry, full polymer state/CIP,
 observed reconstruction, H geometry and general complex qualification remain
 open. Public/default/dependency and data-license gates are unchanged.
+
+## 14. WP2D explicit geometry metrics and external-anchor amide H
+
+[Protocol](chemical-reconstruction-amide-v1.md) was frozen as `8fa8cd9` before
+new construction/control execution. Planning had inspected the three pinned
+ff19SB parameter rows, explicitly disclosed in that protocol. No new source was
+downloaded and no PyRosetta data accessed.
+
+`metric_geometry.MetricGeometryPlan` is a separate private plan type, with explicit
+provenance-bound bond/angle metrics involving generated atoms only. It does not
+replace the original template geometry or modify CCD chemistry/coordinates.
+Duplicate/reversed metrics, observed-only overrides, missing connectivity and
+incomplete planar authority refuse. Its new digest binds metric values and
+provenance; old `GeometryPlan` fields/digests stay unchanged. The first metric
+placement is a planar exterior equal-stiffness angular compromise from three
+observed anchors. One anchor may be across an explicit covalent connection;
+unknown/absent linkage authority is not guessed from proximity. Other metric
+placement families are unqualified, not silently routed to template defaults.
+
+`amide_authority` selects three unique exact rows from the pinned existing
+`ffbonded.itp`: H-N length 0.101 nm, C-N-H 120 degrees and XC-N-H 118.04 degrees.
+The two angular stiffnesses are equal (418.4). Full-file and exact selected-token
+digests bind the source and units; wrong type/function, changed selection, absent/
+duplicate rows, unequal stiffness or pin mismatch refuse. The RTP must explicitly
+identify N/H/CA as N/H/XC. This is a narrow parameter adapter, not general wildcard
+force-field typing, protonation or a calibrated experimental geometry library.
+
+The constructor uses the actual observed neighbour plane and the declared
+analytical angular compromise. The measurement-only auditor independently checks
+every explicit metric, including cross-component angles, plus retained template
+metrics, stereo/planarity constraints and context clashes. Explicit N-H/CA-N-H
+metrics replace the incompatible free-CCD H geometry; no inter-template external
+ideal frame or bond length is manufactured. Raw failures and generated-only
+PDB-rounded audits survive. No observation is moved, optimizer called or second
+engine selected. No public API/CLI/GUI/default backend changed.
+
+### Actual outcomes and evidence boundaries
+
+Six synthetic controls executed: ALA, THR, ILE, LYS and PHE passed both raw and
+rounded geometry; ALA with incoming angle 100 degrees was rejected in both.
+The positive anchor angle 121.96 degrees is intentionally the exact complement
+of the two parameter equilibrium angles: these are **same-parameter synthetic
+consistency controls**, not independent experimental validation. Positive raw
+metric residuals are numerical zero; largest rounded length/angle deviations are
+about 0.00061 A / 0.0168 degrees. The distorted case retains 10.98-degree raw
+residuals on both angles against the fixed 5-degree tolerance. No source repair,
+tolerance change, anchor movement or coordinate ranking was used.
+
+Original evidence is in `tmp/chemical-reconstruction-amide-v1/controls-01/`.
+Post-control hardening binds exact parameter-row tokens, rejects a plain plan
+trying to use metric placement without metric authority, and requires all three
+anchors to be actual observations rather than merely referenced link metadata. Its labelled regression
+replay preserved all seven JSON records byte-for-byte. Additional old CCD,
+peptide and naming replays preserved all 29/13/7 prior JSON files byte-for-byte,
+including old defaults/digests, WP2B ILE refusal and all H refusals. Replays are
+regression checks, not independent scientific evidence.
+
+All **31 new regression cases** pass; final focused integrations passed **580 tests**.
+The earlier 579-case focused and 3514-pass fast runs are retained but superseded
+by the final observed-anchor gate and its extra test; they are not labelled as
+final-source verification.
+The final-source fast suite passed **3515 tests**, with three optional
+Torch/Biotite skips and 33 slow tests deselected; no failures or errors.
+They include proper rigid-frame equivariance, a deliberately poisoned free-CCD H
+coordinate (no effect on output), audit corruption, external-link/metric/plane
+gates and a retained opaque-context clash. One initial test fixture incorrectly
+attempted a coordination record with covalent order and was rejected by the
+existing contract before the intended assertion; the fixture now uses the wrong
+covalent endpoint. The shared connection guard was not weakened. Ruff passes;
+scoped strict mypy passes 17 private modules, while the unsilenced strict run
+retains the exact same 71 legacy diagnostic lines as baseline `21a7162`.
+The [WP2D validation record](chemical-reconstruction-amide-validation.json)
+binds the source/protocol/code/report hashes, exact outcomes and qualification
+limits; CLI reference and agent map checks pass with explicit source-path isolation.
+
+No observed PDB source was repaired/rerun, and the existing observed adapter still
+refuses H operations. This is a reusable metric boundary plus a first planar-H
+primitive, **not** full H placement or a one-atom product definition. Measured H
+transport, stereospecific methylene/methyl H geometry, arbitrary missing subsets,
+actual neighbour chemistry, full-polymer state and real retained-complex H
+qualification remain open. Source admission/preparation is the next separately
+declared slice; preserve original full context and the frozen WP2B refusals.

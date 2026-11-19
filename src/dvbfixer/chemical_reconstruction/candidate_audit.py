@@ -11,12 +11,14 @@ from .admission import admit
 from .authority_geometry import geometry_view
 from .contracts import LinkKind, ReconstructionRequest, Unit
 from .measurement import Point, angle_degrees, satisfied
+from .metric_geometry import explicit_metrics, metric_findings, metric_key
 from .proposals import Candidate, CandidateAudit, GeometryPlan
 
 
 def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidate: Candidate) -> CandidateAudit:
     planning = admit(request)
     errors = {f.code for f in planning.findings if f.code != "no-declared-capability-matches"}
+    errors.update(metric_findings(request, plan))
     if candidate.request_digest != request.digest or plan.request_digest != request.digest:
         errors.add("request-binding")
     if candidate.plan_digest != plan.digest:
@@ -41,13 +43,15 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
     positions = {o.identity: o.angstrom for o in request.observations}
     positions.update({a: o.position for a, o in additions.items()})
     ideals, bonds = geometry_view(request)
+    metrics = explicit_metrics(plan)
     adjacent: dict[ExactAtomRef, set[ExactAtomRef]] = {a: set() for a in ideals}
     for pair, length in bonds.items():
         a, b = sorted(pair)
         adjacent[a].add(b)
         adjacent[b].add(a)
         if a.component in request.targets and a in positions and b in positions:
-            if abs(math.dist(positions[a], positions[b])-length) > plan.policy.bond_tolerance_angstrom:
+            target = metrics.get(metric_key((a, b)), length)
+            if abs(math.dist(positions[a], positions[b])-target) > plan.policy.bond_tolerance_angstrom:
                 errors.add("authority-bond-geometry")
     for centre in sorted(ideals):
         if centre.component not in request.targets or centre not in positions:
@@ -56,13 +60,29 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
             if a not in positions or b not in positions:
                 continue
             try:
-                ideal = angle_degrees(ideals[a], ideals[centre], ideals[b])
+                key = metric_key((a, centre, b))
+                ideal = metrics[key] if key in metrics else angle_degrees(ideals[a], ideals[centre], ideals[b])
                 measured = angle_degrees(positions[a], positions[centre], positions[b])
             except ValueError:
                 errors.add("degenerate-authority-or-candidate-angle")
             else:
                 if abs(measured-ideal) > plan.policy.angle_tolerance_degrees:
                     errors.add("authority-angle-geometry")
+    # Explicit cross-component metrics have no shared ideal-coordinate frame.
+    # Measure every declared metric, independently of constructor completion.
+    for atoms, target in metrics.items():
+        if not set(atoms) <= positions.keys():
+            errors.add("unmeasured-metric")
+            continue
+        try:
+            measured = math.dist(positions[atoms[0]], positions[atoms[1]]) if len(atoms) == 2 else angle_degrees(
+                positions[atoms[0]], positions[atoms[1]], positions[atoms[2]])
+        except ValueError:
+            errors.add("degenerate-candidate-metric")
+        else:
+            tolerance = plan.policy.bond_tolerance_angstrom if len(atoms) == 2 else plan.policy.angle_tolerance_degrees
+            if abs(measured-target) > tolerance:
+                errors.add("explicit-metric-geometry")
     checked = []
     for index, constraint in enumerate(request.constraints):
         if not set(constraint.atoms) <= positions.keys():

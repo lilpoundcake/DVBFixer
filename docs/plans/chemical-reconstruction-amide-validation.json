@@ -1,0 +1,123 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-amide-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "1ae0de9",
+  "protocol_commit": "8fa8cd9",
+  "protocol": "docs/plans/chemical-reconstruction-amide-v1.md",
+  "protocol_sha256": "f5faf25e32b9bb72370192b3060bf161f82981330c55cd126f8c8989b676b18e",
+  "protocol_unchanged_since_freeze": true,
+  "status": "wp2d-synthetic-metric-geometry-slice-verified-not-scientifically-qualified",
+  "new_branch_or_worktree_created": false,
+  "source": {
+    "parameters": "FF/amber19sb.ff/ffbonded.itp",
+    "parameters_sha256": "b6fa511c5bd3f11a19484a418d10e32972e2c19788d464466926c7d8fbde1034",
+    "selected_rows_digest": "f16d19b955b40d3e2993bc92bc36b4405ea4997f03991b8058d4671d0c42848b",
+    "rtp_sha256": "ece03322c6df812c1467bfdb67240e694230ea28ba675d86cccb8a4823e9a419",
+    "canonical_naming_owner_sha256": "bc35adb9c9513356fbeefdf7bce88dd78883144697df9bc6fbed585bda5be566",
+    "ccd_manifest_sha256": "29c4f83b28435a34b666b5c1489c4f3423c53beb276e75d16cd0d8c3c055dece",
+    "planning_inspection": "Three existing FF parameter rows inspected before protocol freeze and disclosed there; no new coordinate control executed before freeze",
+    "new_downloads_or_pyrosetta_access": false,
+    "source_semantics": "Digest-bound SYNTHETIC observations, not parsed original PDB bytes; no withheld H coordinate used to place anchors or generate H"
+  },
+  "implementation": {
+    "metric_plan": "Separate private MetricGeometryPlan with sourced scalar bond/angle targets; no change to old plan fields/default digests",
+    "only_generated_involving_metrics_admitted": true,
+    "first_metric_strategy": "Planar exterior equal-stiffness angular compromise from three observed anchors",
+    "external_anchors_require_explicit_covalent_connectivity": true,
+    "parameter_adapter": "Unique exact typed/function rows; full source and selected-token pins; explicit units, no wildcard typing/state selection",
+    "metrics": {"N_H_angstrom": 1.01, "C_N_H_degrees": 120.0, "XC_N_H_degrees": 118.04, "equal_angle_stiffness": 418.4},
+    "independent_auditor_calls_constructor": false,
+    "template_h_coordinate_independence_regression_passed": true,
+    "ccd_chemistry_or_template_coordinates_mutated": false,
+    "optimizer_repair_ranking_or_second_engine": false,
+    "observations_moved": false,
+    "generated_only_rounding": true
+  },
+  "controls": {
+    "original": "tmp/chemical-reconstruction-amide-v1/controls-01/summary.json",
+    "regression_replay": "tmp/chemical-reconstruction-amide-v1/final-amide-replay-03/summary.json",
+    "summary_sha256": "01e7f070cebd5bcf7b6ece418763852a38c06d9611b36e4179c125b2385a2c5f",
+    "all_seven_json_records_byte_identical_after_hardening": true,
+    "declared": 6,
+    "executed_entries": 6,
+    "raw_and_rounded_passes": ["ALA", "THR", "ILE", "LYS", "PHE"],
+    "retained_raw_and_rounded_rejection": "ALA incoming angle 100 degrees",
+    "positive_incoming_angle_degrees": 121.96,
+    "positive_controls_are_same_parameter_synthetic_consistency_not_experimental_validation": true,
+    "positive_max_rounded_bond_residual_angstrom_approx": 0.000601,
+    "positive_max_rounded_angle_residual_degrees_approx": 0.01677,
+    "distorted_raw_angle_residuals_degrees": [10.98, 10.98],
+    "fixed_policy": {"bond_tolerance_angstrom": 0.02, "angle_tolerance_degrees": 5.0, "minimum_separation_angstrom": 0.7, "plane_tolerance_angstrom": 0.005},
+    "post_outcome_tolerance_or_input_changes": false,
+    "old_regression_replays": {"CCD_byte_identical_records": 29, "peptide_byte_identical_records": 13, "naming_byte_identical_records": 7},
+    "replays_counted_as_independent_evidence": false,
+    "observed_pdb_scientific_controls_executed": 0
+  },
+  "checks": {
+    "new_regression_cases": 31,
+    "initial_focused": {"passed": 206, "failed": 1, "failure": "Wrong-link fixture attempted coordination semantics with covalent order, refused by existing contract before intended check"},
+    "fixture_correction": "Use a valid covalent connection with the wrong endpoint; shared connection contract unchanged",
+    "post_control_hardening": "Bind selected parameter tokens, reject plain-plan metric bypass, require complete planar metric/plane authority and all three actual observed anchors in the independent auditor",
+    "prior_focused": {"passed": 579, "junit": "tmp/chemical-reconstruction-amide-v1/focused-final-02.xml", "status": "superseded before final observed-anchor gate"},
+    "focused": {
+      "passed": 580, "failures": 0, "errors": 0, "skips": 0,
+      "junit": "tmp/chemical-reconstruction-amide-v1/focused-final-03.xml",
+      "junit_sha256": "42fe2388174602de33fc9f3acfc27055636973728a92da7303a20b93ed97a51d"
+    },
+    "initial_fast": {
+      "passed": 3514, "failures": 0, "errors": 0, "skips": 3, "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-amide-v1/fast-01.xml",
+      "junit_sha256": "91c12227a6a32e00500f550803cc4d0a8391a334c3b96214e07c4cd660e3af75",
+      "status": "superseded; started before final observed-anchor gate and its additional regression"
+    },
+    "fast": {
+      "passed": 3515, "failures": 0, "errors": 0, "skips": 3, "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-amide-v1/fast-final-02.xml",
+      "junit_sha256": "753df075301df634f720ddbbbd41b5923714f33147cf45ae2d1d820ae4981f88",
+      "log_sha256": "9d9f7fdca731ffd864b4dc0e13179f7cdd506ac2ce5f552101ad81262ba7dd12",
+      "optional_skips": ["torch: cc94 production probe", "biotite.structure: reference metrics", "torch: diffusion sampler"],
+      "warnings": "Inherited SWIG deprecation warnings remain visible"
+    },
+    "ruff_all_source_and_new_script_tests": "passed; inherited UP038 configuration warning remains visible",
+    "agent_maps_and_cli_reference": "passed with explicit PYTHONPATH=src:.",
+    "scoped_strict_mypy": "17 private modules pass with --follow-imports=silent; no new ignores/config suppression",
+    "transitive_strict_mypy": {
+      "status": "failed, not counted as a pass",
+      "legacy_errors": 71,
+      "all_error_lines_match_unchanged_21a7162_archive": true,
+      "files": {"pdbutils/inference.py": 43, "acpype_export.py": 23, "ffutils/geometry.py": 4, "ffutils/__init__.py": 1},
+      "log": "tmp/chemical-reconstruction-amide-v1/mypy-transitive-final-02.log",
+      "log_sha256": "8c188c3cb2a331de6ef0384992af4fb0dda5e725804cd5cb316ea0bfe34f2325"
+    },
+    "source_frozen_before_final_focused_and_fast_runs": true,
+    "documentation_quality": "PASS: all four planned records exist, no pending or broken local links, agent maps and CLI reference valid, final source/protocol/JUnit/evidence hashes verified, original attribute rules preserved and staged whitespace checked"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/metric_geometry.py": "f6186b01e1d32589c0a9f9ab407a7dccb6d51643d8ab8fcaad26993840a6a974",
+    "src/dvbfixer/chemical_reconstruction/planar_geometry.py": "b7cf90bea120089c590ff1ad4c1be570f874f885df013ac4011b0579b2015f03",
+    "src/dvbfixer/chemical_reconstruction/amide_authority.py": "f2fd6b7db1537db3cba8c54bbfbf8dfc9f055c43192fbf6f60ea509fcc8ce961",
+    "src/dvbfixer/chemical_reconstruction/construction.py": "fd9ea0ef483a63d8df831682e411f2993bd809a86c339344ece62354e5d496a0",
+    "src/dvbfixer/chemical_reconstruction/candidate_audit.py": "0cb1a0991aa6896bb084e03c88098154cd8bf155e5a79cdb255ee1c70ebf9ec7",
+    "src/dvbfixer/chemical_reconstruction/proposals.py": "11ed3c41db7b5eada90816001a775b4e191a1061b503e215c4eb4b99cd6595ea",
+    "scripts/chemical_reconstruction_amide_controls.py": "b2d70065a54ba683fee06e12f9d10f72e3933894dce09fc6fbf0e6561974249d",
+    "tests/test_chemical_reconstruction_amide.py": "966284ab40d0aa5353bbeff884be19cca61a6bd21ff9e92b44604207d05885ff"
+  },
+  "documentation_plan_completed": [
+    "docs/plans/chemical-reconstruction-amide-v1.md",
+    "docs/plans/chemical-reconstruction-amide-validation.json",
+    "docs/plans/chemical-reconstruction-handoff.md",
+    "docs/agent/tasks.toml"
+  ],
+  "pending_links": [],
+  "observed_adapter_h_refusal_unchanged": true,
+  "public_reconstruction_api_cli_gui_or_default_changes": false,
+  "production_or_data_redistribution_permission_inferred": false,
+  "remaining_gates": [
+    "Prospective observed-source admission/preparation preserving originals and full context",
+    "Measured H transport and stereospecific methylene/methyl H placement",
+    "Arbitrary partial-H and heavy-atom subset coverage in retained complexes",
+    "Actual neighbour chemistry, full-polymer state/CIP and observed geometry qualification",
+    "Unchanged production/default/dependency and original-data license/approval gates"
+  ]
+}
