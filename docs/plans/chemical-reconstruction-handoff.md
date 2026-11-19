@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: private WP0 contract/admission/adapters implemented,
-checks completed with retained legacy mypy failures; coordinate generation and scientific acceptance remain
+Date: 2026-11-19. Status: private WP0 and bounded WP1 geometry proposals
+implemented and checked. General reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
@@ -16,8 +16,9 @@ future reconstruction work**, not a claim that a universal tool has shipped.
   on this branch. Create/switch to a different development branch only if the user
   explicitly requests it. Inspect unrelated local edits before switching; never
   reset/stash/discard them automatically.
-- Following the user's "start work" instruction, WP0 is implemented and checked
-  on this same branch. No new scientific sampling run is authorized by WP0.
+- Following the user's "start work" and subsequent "push and continue" instructions,
+  WP0 `374158d` was pushed and WP1 continues on this same branch. No new scientific
+  research cohort or production integration follows from this bounded implementation.
 - No main merge, release, default-backend switch, dependency removal, installed
   OpenMM patch or automatic upstream publication follows from this handoff.
 
@@ -247,7 +248,8 @@ a preparation backend with a PDBFixer-free end-to-end pipeline.
 5. Commit the coherent contract/adapter/tests slice here and update this handoff.
    Do not start another native sampling cohort or branch to finish WP0.
 
-**WP1 — shared geometry primitives / first cross-chemistry slice.** Adapt tested
+**WP1 — shared geometry primitives / first cross-chemistry slice; bounded private
+implementation checked.** Adapt tested
 internal-coordinate/anchor primitives and a Class A example to the agreed graph
 contract; independent validators must measure rather than call the generator.
 Close source and rounded geometry before selecting conformers. Existing ideal
@@ -301,7 +303,7 @@ green a test. Last inherited full fast suite:3305 passed,3 optional Torch/Biotit
 skips,33 slow deselected — historical unchanged-source result, not new generic-
 engine qualification or a fresh suite run in this documentation task.
 
-Resume with WP1 on this same branch. Do not restart completed PDBFixer/Rosetta/OpenMM investigations,
+Continue the WP1/WP2 geometry and H workstream on this same branch. Do not restart completed PDBFixer/Rosetta/OpenMM investigations,
 silently retry frozen scientific cohorts, or create per-phase branches. Report
 actual test outcomes and update per-work-package status here; historical handoffs
 remain evidence, while this document and the user's later instructions own the
@@ -369,9 +371,58 @@ reports remain under the narrowly ignored `tmp/chemical-reconstruction-wp0-v1/`.
 No new native reconstruction research cohort, production consumer or licensed
 data was added. The historical handoff validation JSON remains unchanged.
 
-WP1 next: choose a documented geometry authority and adapt the existing protein
+WP1 starting decision (now implemented below): choose a documented geometry authority and adapt the existing protein
 internal-coordinate and Class A construction primitives through the private graph
 contract with independent raw/rounded audits. The current Cartesian measurement
 module is not a constructor, full chemical validator, CIP implementation or
 calibrated steric policy. Do not expose a generic CLI/GUI/default or reinterpret
 these synthetic controls as native stereochemical/H qualification.
+
+## 10. WP1 geometry continuation
+
+The [geometry decision](chemical-reconstruction-geometry-v1.md) uses the selected
+state's explicitly supplied ideal graph/provenance/units as the authority for
+this bounded slice. This is data-driven geometry transport, not a calibrated
+all20 geometry library. Tests supply labelled synthetic authorities, never held-out
+native positions or licensed rotamer data. Real-chemistry data/qualification gates
+remain open.
+
+- `construction.propose` reuses `protein_completion.geometry.extend` and
+  `two_angle_tip` through explicitly ordered plans, and the existing Class A
+  `_fit_coordinates` rigid-fit owner through a separate lazy adapter. There is no
+  coordinate optimizer, ranker, emergency reflection or engine fallback.
+- Arbitrary admitted sequential missing subsets fit the plan: the synthetic
+  12-atom chain now exercises construction, not merely WP0 mask admission. A
+  separate explicit-H smoke uses the same authority; it is not general H chemical
+  count/protonation/geometry qualification.
+- The Class A route retains its connected CHNO, isolated, in-memory envelope,
+  requires the original explicit pH metadata without using it to choose a state,
+  and refuses any unowned missing graph atom. Temporary/mobile atoms and generated
+  external-link endpoints require future explicit strategies and currently refuse.
+- `candidate_audit.audit_candidate` measures rather than reconstructs: request/
+  plan bindings, exact generated inventory, graph bond/angle authority, every
+  declared constraint and severe generated/context separation. The whole shared
+  request remains intact around the target-only rigid fit. Unknown context remains
+  listed unassessed; no VDW/CIP/global-L/valence/MD capability is inferred.
+- Both raw and generated-only PDB-precision-rounded proposals must pass. Observed
+  coordinates, original units/order and context links are never rounded or moved.
+  Wrong or partial proposals and both failed audits remain in the private result.
+  No PDB bytes, workspace artifact, `.dat` or public bundle is written.
+
+[WP1 validation record](chemical-reconstruction-wp1-validation.json): 34 new
+synthetic geometry controls; 465 focused regressions passed with no skips, including
+WP0, legacy protein/Class A/evidence and existing chirality/seeded-rebuild/H guards.
+Strict mypy passes for all nine private package modules; Ruff passes for all source
+and new tests. Full fast: 3400 passed, three existing optional Torch/Biotite skips,
+33 slow deselected against the same frozen source snapshot. Agent maps, local
+links, source/evidence hashes and whitespace checks pass; all four planned WP1
+documentation/map files exist, with no pending links. No production source or
+existing scientific threshold changed.
+WP0's baseline-only 41 legacy mypy errors remain retained and out of scope.
+
+Next development after this slice: independently sourced/documented real-chemistry
+geometry authorities and prospective multi-residue/cross-chemistry controls; expand
+whole/partial sidechains, closure and geometry-preserving H together under WP2.
+Do not call a synthetic chain a realistic sidechain benchmark or enable production
+because its hard geometry passes. Prior native post-H/ranking failures and all
+license/source/evidence gates remain unchanged.

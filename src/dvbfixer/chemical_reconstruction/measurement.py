@@ -33,6 +33,21 @@ def _unit(a: Point) -> Point:
     return a[0]/length, a[1]/length, a[2]/length
 
 
+def angle_degrees(first: Point, centre: Point, last: Point) -> float:
+    a, b = _unit(_sub(first, centre)), _unit(_sub(last, centre))
+    return math.degrees(math.acos(max(-1., min(1., _dot(a, b)))))
+
+
+def torsion_degrees(points: tuple[Point, Point, Point, Point]) -> float:
+    b0 = _sub(points[0], points[1])
+    b1 = _unit(_sub(points[2], points[1]))
+    b2 = _sub(points[3], points[2])
+    d0, d2 = _dot(b0, b1), _dot(b2, b1)
+    v = _unit((b0[0]-d0*b1[0], b0[1]-d0*b1[1], b0[2]-d0*b1[2]))
+    w = _unit((b2[0]-d2*b1[0], b2[1]-d2*b1[1], b2[2]-d2*b1[2]))
+    return math.degrees(math.atan2(_dot(_cross(b1, v), w), _dot(v, w)))
+
+
 def satisfied(constraint: Constraint, points: tuple[Point, ...]) -> bool:
     """Positions arrive in angstrom; bounds retain their declared units."""
     kind = constraint.kind
@@ -47,16 +62,9 @@ def satisfied(constraint: Constraint, points: tuple[Point, ...]) -> bool:
         delta = _sub(points[0], points[1])
         value = math.sqrt(_dot(delta, delta))
     elif kind == ConstraintKind.ANGLE:
-        a, b = _unit(_sub(points[0], points[1])), _unit(_sub(points[2], points[1]))
-        value = math.degrees(math.acos(max(-1., min(1., _dot(a, b)))))
+        value = angle_degrees(points[0], points[1], points[2])
     elif kind == ConstraintKind.TORSION:
-        b0 = _sub(points[0], points[1])
-        b1 = _unit(_sub(points[2], points[1]))
-        b2 = _sub(points[3], points[2])
-        d0, d2 = _dot(b0, b1), _dot(b2, b1)
-        v = _unit((b0[0]-d0*b1[0], b0[1]-d0*b1[1], b0[2]-d0*b1[2]))
-        w = _unit((b2[0]-d2*b1[0], b2[1]-d2*b1[1], b2[2]-d2*b1[2]))
-        value = math.degrees(math.atan2(_dot(_cross(b1, v), w), _dot(v, w)))
+        value = torsion_degrees((points[0], points[1], points[2], points[3]))
     elif kind == ConstraintKind.PLANARITY:
         normal = _unit(_cross(_sub(points[1], points[0]), _sub(points[2], points[0])))
         value = max(abs(_dot(_sub(p, points[0]), normal)) for p in points[3:])

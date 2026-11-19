@@ -1,0 +1,91 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-wp1-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "374158d",
+  "wp0_pushed_to_origin": true,
+  "new_branch_or_worktree_created": false,
+  "status": "bounded-private-wp1-implemented-and-verified",
+  "decision": "docs/plans/chemical-reconstruction-geometry-v1.md",
+  "active_handoff": "docs/plans/chemical-reconstruction-handoff.md",
+  "scope": "Bounded private geometry construction and independent raw/rounded audit, not public/scientific qualification",
+  "authority": {
+    "source": "Explicit selected ChemicalState ideal graph, provenance, unit and graph/request hashes",
+    "test_data": "Synthetic literal-coordinate graphs only; not held-out experimental coordinates, empirical rotamer arrays or a calibrated geometry library",
+    "residue_name_graph_or_state_inference": false,
+    "new_licensed_tables_or_native_reference_scoring": false
+  },
+  "implementation": {
+    "internal_primitives_reused": ["protein_completion.geometry.extend", "protein_completion.geometry.two_angle_tip"],
+    "class_a_fit_reused": "nonprotein_reconstruction._fit_coordinates; no authority loader, state chooser, legacy geometry judge or publishing service",
+    "class_a_numpy_import": "lazy, only on explicit template execution",
+    "class_a_envelope": "Connected isolated CHNO in-memory graph; explicit existing pH metadata retained but never used for state selection; every missing graph atom must be owned",
+    "internal_strategy_categories": ["protein", "isolated-component"],
+    "one_or_two_atom_plan_limit": false,
+    "synthetic_twelve_missing_atom_construction_executed": true,
+    "explicit_hydrogen_geometry_smoke_executed": true,
+    "temporary_mobile_or_generated_external_link_construction_enabled": false,
+    "context_and_original_observations_preserved": true,
+    "independent_generated_inventory_bond_angle_constraint_and_context_measurements": true,
+    "contact_policy": "Explicit caller-supplied minimum separation with topological 1-2/1-3 exclusions; severe-overlap guard, not calibrated VDW/1-4/coordination physics",
+    "raw_and_generated_only_pdb_precision_rounding_audits_required": true,
+    "rounding_of_observations_or_file_publication": false,
+    "failed_partial_and_raw_rounded_proposals_retained": true,
+    "optimizer_reflection_stochastic_retry_or_ranking_added": false,
+    "geometry_approval_md_ready_and_source_coverage_flags": false
+  },
+  "checks": {
+    "new_synthetic_controls": 34,
+    "wp0_plus_wp1_controls": {"passed": 95, "failures": 0, "skips": 0},
+    "focused": {
+      "passed": 465,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "includes": "WP0/WP1, old protein/Class A/CCD/evidence/inventory, chirality, seeded rebuild, H postflight/preservation/contacts",
+      "junit": "tmp/chemical-reconstruction-wp1-v1/focused-01.xml",
+      "junit_sha256": "0da584247321e02d2f8a3ed477c8485da35c09a8dd63d110c36dc57c93643b7d"
+    },
+    "strict_mypy_new_package": "passed: 9 source files",
+    "ruff_new_package_and_tests": "passed; original UP038 removed-rule configuration warning remains visible",
+    "ruff_all_source": "passed with the same original configuration warning",
+    "legacy_mypy": "Inherited WP0 failure: 41 errors in 14 untouched files, reproduced on 21a7162; not rerun or suppressed in WP1",
+    "fast_suite": {
+      "passed": 3400,
+      "failures": 0,
+      "errors": 0,
+      "skips": 3,
+      "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-wp1-v1/fast-01.xml",
+      "junit_sha256": "3582f8c426bd918059250c3e877ea51be9924139a8a1bc069f4e912990ecf975",
+      "optional_skips": [
+        "test_cc94_denoiser_probe_checks_without_neutralizing_chains: torch unavailable",
+        "test_matches_independent_biotite_atom_aggregation_when_available: biotite.structure unavailable",
+        "test_protenix_callback_synchronizes_and_reinjects_on_device: torch unavailable"
+      ],
+      "source_unchanged_after_run": true
+    },
+    "agent_maps": "passed",
+    "documentation_quality": "PASS: all four planned documentation/map files exist, local links valid, no pending links, frozen source/focused/full-fast hashes and counts verified",
+    "whitespace": "passed",
+    "source_frozen_before_focused_and_full_fast_runs": true
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/__init__.py": "8487a33327adb007a40ae394231547fe57f76850a1cc1bb20e7acde1b74affc6",
+    "src/dvbfixer/chemical_reconstruction/adapters.py": "e771b35dbb87161b2d50a457617c3eef9176f014b3703f629c094173f54f18a2",
+    "src/dvbfixer/chemical_reconstruction/admission.py": "248dad5d0efaab24438181b600078ef7b83b32ac94f0e7ab20109c965d5f91de",
+    "src/dvbfixer/chemical_reconstruction/authority_geometry.py": "5519808d3972aff27d2bd82139b869030c1be66d6cfc57d7dd687fcde50f4fa4",
+    "src/dvbfixer/chemical_reconstruction/candidate_audit.py": "9451fa80d73574dc340440b2b8b2b2f2ad88281cf1871be53f010baa54a8c0bb",
+    "src/dvbfixer/chemical_reconstruction/construction.py": "b5722e7c7f2672689ed5e13642da22496fbda8ec034d466b4ec8b0380f32245d",
+    "src/dvbfixer/chemical_reconstruction/contracts.py": "9ed012b7b9d7cd07302a1dd94616d33c5d78abc880d735721fe137c6e3e3a713",
+    "src/dvbfixer/chemical_reconstruction/measurement.py": "2329201283a864326a641a61f689808276ece23d75b8148166dec35258c96432",
+    "src/dvbfixer/chemical_reconstruction/proposals.py": "7ee10f5dd733df4911b054b5212436450b781bc127743bc07e1b62a9cda69e82",
+    "tests/test_chemical_reconstruction_geometry.py": "4b6fc110dd95f5320581f0d557f0eaf14e010a0768f6b7176f41e3ca54732ec5"
+  },
+  "existing_protein_and_class_a_apis_policies_or_readers_changed": false,
+  "wp0_measurement_change": "Extracted the same angle/torsion arithmetic into shared measurement functions; all original WP0 controls pass",
+  "production_cli_gui_or_dependency_changes": false,
+  "old_scientific_data_failures_thresholds_or_license_gates_changed": false,
+  "new_native_research_cohort_executed": false,
+  "limits": "Private synthetic construction/measurement slice only. No general chemical valence, H-count, CIP, global L-chirality, calibrated steric policy, real sidechain accuracy or whole-source serialized preservation qualification. No public workflow, .dat writer or publication. Real geometry-data sourcing and multi-residue/cross-chemistry heavy/H qualification remain open."
+}
