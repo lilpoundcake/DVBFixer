@@ -147,7 +147,11 @@ def prepare_observed_probe(source: bytes, authority: LocalPeptideAuthority, *, w
 
 
 def compile_peptide_plan(probe: ObservedPeptideProbe, policy: AuditPolicy) -> GeometryPlan:
-    request = probe.request
+    return compile_peptide_request_plan(probe.request, policy)
+
+
+def compile_peptide_request_plan(request: ReconstructionRequest, policy: AuditPolicy) -> GeometryPlan:
+    """Shared deterministic sidechain plan, without inventing observed probe metadata."""
     target = next(iter(request.targets))
     cb = ExactAtomRef(target, "CB")
     initial: tuple[Placement, ...] = ()

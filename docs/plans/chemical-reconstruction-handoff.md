@@ -2,7 +2,8 @@
 
 Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
-final fast suite passed (3674), split slow boundaries
+WP2J all20 source heavy/H coverage is case-tested, not native-quality qualification.
+Final fast suite passed (3712), split slow boundaries
 passed. WP2F's large combined slow-inclusive run remains incomplete after outer
 timeouts. General
 reconstruction and scientific acceptance remain
@@ -1133,10 +1134,96 @@ construction; its valid unknown-link fixture now tests the compiler's refusal.
 See the [validation record](chemical-reconstruction-declared-state-validation.json)
 for all source/report/protocol hashes and initial/final outcomes.
 
-Next: retain the separation between explicit state selection and graph-changing
+Next at WP2I (bounded coverage completed in WP2J below): retain the separation between explicit state selection and graph-changing
 microstate transformations. Continue all20 heavy/H and whole-sidechain/closure
 work with declared chemistry, not inferred neutral histidines or a PRO-only
 product. Measured/partial H, actual-neighbour/polymer evidence, external heavy
 angles, native-H/name/orientation quality, broader linked/complex qualification,
 the unresolved WP2F combined slow timeout and production/public/default/dependency/
 data-license gates remain open.
+
+## WP2J — all20 source coverage, separate heavy/H arms (2026-11-20)
+
+The [all20 protocol](chemical-reconstruction-all20-v1.md) was frozen as `cbb28b4`
+from `91ef103`, before acquiring the seven remaining unmodified CC0 CCD sources
+(ASP/GLU/LEU/MET/SER/TYR/VAL). Their separate manifest and global fixture inventory/
+metadata allowlist were committed as `6c58855` before numerical controls. The
+original sources/manifests, FF, naming and variant owners remain unchanged.
+
+The exact declared state table covers twenty canonical SOURCE residue types;
+ASP requests ASH, GLU requests GLH, HIS requests HIP. These are explicit experimental
+states proved against unchanged CCD graphs, NOT native-state/pH inference or all
+default-state coverage. Every row uses the existing declared-state witness,
+inventory transport and validators. No new coordinate strategy, ring solver,
+rotamer search, phase ranking, source repair or public capability was introduced.
+
+`compile_peptide_request_plan` extracts the old probe helper's existing CB-cone /
+chain behavior, avoiding fake source-probe metadata for synthetic requests.
+`heldout_scoring.py::score_heavy_holdout` adds exact-identity, complete-mask,
+unit-occupancy heavy scoring AFTER proposals: unchanged-frame RMS/max displacement,
+no alignment, symmetry relabelling, acceptance gate or constructor input. Reference
+coordinates are retained separately; neither request nor compiler accepts them.
+Complete geometry-rejected candidates can be scored; incomplete ones cannot.
+
+All **80 declared entries** executed (20 sources x synthetic/observed x heavy/H):
+
+| Arm | Declared | Raw/rounded geometry passes | Other outcomes |
+|---|---:|---:|---|
+| Synthetic whole-sidechain heavy | 20 | 19 | GLY has no sidechain-heavy atoms: not applicable |
+| Synthetic complete H | 20 | 20, also conditional CIP | Same-authority consistency, not native quality |
+| Observed whole-sidechain heavy | 20 | 18 | GLY not applicable; no eligible interior MET |
+| Observed complete H | 20 | 16, also conditional CIP | Three fixed-plane refusals; no eligible interior MET |
+
+Heavy withholds every canonical sidechain heavy atom, not just one/two atoms;
+H keeps all original selected heavy atoms fixed. **These are separate arms, not a
+heavy-then-H workflow.** Heavy uses the unchanged WP2E 0.10-A / 12-degree policy;
+H uses fixed-heavy 0.10-A / 12-degree and generated 0.02-A / 5-degree bounds.
+Do not pool counts as one identically gated scientific success statistic.
+
+Observed H refuses 1UBQ ARG42, explicitly ASH/ASP21 and TYR59 before generation:
+fixed-plane deviations 0.099886509 / 0.141325012 / 0.064521902 A exceed the unchanged
+0.05-A bound. Heavy reconstruction deliberately removes those sidechains; its
+passes do not repair or overturn the fixed-input H refusals. MET1 is present only
+at the source terminus, not the required interior target; no later/different file
+was substituted. Both synthetic MET arms pass, so this is a selection limitation,
+not failed MET chemistry. GLY empty masks are never counted as reconstruction
+passes. PHE here is the declared first interior PHE4, NOT historical PHE45; THR is
+1UBQ THR7, NOT historical 1FR2 THR11. Previous refusals still replay unchanged.
+
+**Geometry acceptance is not native conformation recovery.** All eighteen complete
+observed heavy candidates have raw/rounded exact-name, unsymmetrized holdout
+scores. Raw RMSD median is **1.4313 A**, range **0.0867–5.9047 A**; worst is the
+ten-heavy TRP74 sidechain in 1FR2, despite its declared-geometry pass. The engine
+uses one pinned ideal phase, not complex-aware native conformer selection. Scores
+never influenced generation/ranking/acceptance and do not establish superiority
+over a baseline. Native-H accuracy remains unmeasured. These source families and
+synthetic consistency repetitions are not independent folds.
+
+Independent saved readback verifies 40 original/prepared source pairs, 78 requests,
+76 plans, 146 geometry audits, 72 full-H conditional-CIP audits and 74 heavy scores,
+with proposal/fitter calls forbidden. It separately remeasures the three fixed
+planes and checks native heldout identities/coordinates against saved originals.
+All 320 files across ten final replay arms match byte-for-byte, including old WP2H
+refusals and WP2I's final control outputs. Earlier WP2I PRO interface failures remain
+retained separately, not reclassified. Readbacks and replays are regression checks,
+not new scientific trials.
+
+Verification: **38 new cases** pass; focused fast **782 passed**, three slow
+deselected; split H/heavy/seeded/renumber/fixture boundaries **181 passed**. Full
+fast **3712 passed**, three existing optional Torch/Biotite skips, 33 slow
+deselected. Ruff and scoped
+strict typing pass 23 selected files; source-bound nonincremental strict checking
+passes 24. The ambient invocation retains the exact 793 legacy diagnostics, not
+hidden or counted as a global pass. Source fixture integrity is checked with exact
+set/checksum equality. See the
+[validation record](chemical-reconstruction-all20-validation.json) for hashes,
+denominators, native-score evidence and retained refusal details.
+
+Next: freeze a genuinely complex-aware conformer proposal/ranking policy and its
+heldout comparison before changing geometry or claiming native recovery. Keep
+full-sidechain and H correctness as equal tracks; their combined lineage/ownership
+and independent final audit remain a separate integration gate. No reduced masks,
+relabelled native references, permissive clash/plane thresholds or chosen-success
+targets to improve the observed table. Broader chemistry, actual-neighbour/polymer
+evidence, measured/partial H, native-H/name/orientation quality, the old unresolved
+WP2F slow timeout and public/default/dependency/production/license gates stay open.
