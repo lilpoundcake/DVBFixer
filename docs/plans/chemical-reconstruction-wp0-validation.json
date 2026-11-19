@@ -1,0 +1,109 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-wp0-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "21a7162",
+  "status": "wp0-implemented-and-verified-with-retained-legacy-mypy-failures",
+  "new_branch_or_worktree_created": false,
+  "active_handoff": "docs/plans/chemical-reconstruction-handoff.md",
+  "decision": "docs/plans/chemical-reconstruction-contract-v1.md",
+  "scope": "Private immutable shared contracts, semantic admission, declared fixed-constraint measurement, explicit protein and in-memory Class A compatibility adapters and synthetic controls only",
+  "implemented": {
+    "existing_domain_graph_identity_observation_and_link_types_reused": true,
+    "source_units_context_masks_states_links_constraints_bound_to_digest": true,
+    "state_ambiguity_and_unknown_chemistry_explicit": true,
+    "fixed_observation_conflicts_refuse_without_movement": true,
+    "missing_and_mobile_constraint_checks_explicitly_deferred": true,
+    "heavy_hydrogen_temporary_and_mobile_ownership_distinct": true,
+    "new_or_temporary_h_requires_explicit_inventory": true,
+    "capabilities_caller_supplied_with_no_default_backend": true,
+    "all_admission_readiness_and_generation_flags_false": true,
+    "opaque_context_preserved_and_listed_unassessed": true,
+    "canonical_graph_digest_matches_existing_class_a": true,
+    "protein_adapter_requires_explicit_graph_authority": true,
+    "unresolved_legacy_protein_links_not_guessed": true,
+    "class_a_initial_adapter_envelope": "In-memory UserMappedAuthority; connected CHNO organic subset, no target external links, redox/coordination metadata or known complex cofactor; narrower than legacy Class A, explicitly documented",
+    "local_or_online_authority_resolution_performed": false,
+    "generic_contract_limited_to_protein_or_chno_or_two_missing_atoms": false,
+    "geometry_generation_parameterization_or_minimization_added": false
+  },
+  "checks": {
+    "new_synthetic_controls": 61,
+    "focused": {
+      "passed": 335,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "includes_existing_protein_class_a_ccd_inventory_and_evidence_readers": true,
+      "junit": "tmp/chemical-reconstruction-wp0-v1/focused-final-04.xml",
+      "junit_sha256": "d4bbb3498082c2e6b8bf40f2437bcaf2a6379e276404d1c5bb48354ea1949b62"
+    },
+    "pure_boundary": {
+      "fresh_process_import_and_execution_guard": true,
+      "forbids_scientific_toolkits_data_file_reads_subprocess_and_network": true,
+      "python_source_discovery_allowed_during_imports_only": true,
+      "admission_and_digest_stable_under_pythonhashseed_1_and_2": true,
+      "initial_guard_development_failure": "53 controls passed and one failed because the first audit hook also blocked Python import-loader os.listdir; corrected to permit source discovery during imports only while still rejecting data I/O and all execution-time I/O. No scientific threshold or production policy was changed."
+    },
+    "strict_mypy_new_package": "passed: 5 source files",
+    "legacy_mypy": {
+      "status": "failed: 41 errors in 14 unchanged files",
+      "command": "python -m mypy src/dvbfixer/cli.py src/dvbfixer/ffutils src/dvbfixer/pdbutils src/dvbfixer/align.py",
+      "working_tree_log": "tmp/chemical-reconstruction-wp0-v1/legacy-mypy-01.log",
+      "unmodified_head_log": "tmp/chemical-reconstruction-wp0-v1/legacy-mypy-baseline-21a7162.log",
+      "unmodified_head_archive_reproduces_byte_identical_diagnostics": true,
+      "archive_contains": "Tracked Python source and pyproject.toml from 21a7162 only; ignored QA path, not a new worktree or branch",
+      "unrelated_errors_changed_or_suppressed": false
+    },
+    "ruff_new_package_and_tests": "passed; existing removed-rule UP038 configuration warning remains visible",
+    "ruff_all_source": "passed with the same existing removed-rule warning",
+    "agent_documentation_maps": "passed",
+    "whitespace": "passed",
+    "full_fast_suite": {
+      "passed": 3366,
+      "failures": 0,
+      "errors": 0,
+      "skips": 3,
+      "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-wp0-v1/fast-final-02.xml",
+      "junit_sha256": "0b3fd83a7ca8c495980b840bc51619681f62cc985ca75303281d1ee0432e41dd",
+      "optional_skips": [
+        "test_cc94_denoiser_probe_checks_without_neutralizing_chains: torch unavailable",
+        "test_matches_independent_biotite_atom_aggregation_when_available: biotite.structure unavailable",
+        "test_protenix_callback_synchronizes_and_reinjects_on_device: torch unavailable"
+      ],
+      "source_snapshot_note": "Full suite ran after deterministic ordering and 61-control coverage were added, before the final Class A Origin.settings policy-value retention follow-up. The final source hashes below include that follow-up, covered by the 335-pass focused-final-04 run and strict mypy/Ruff. No full-suite execution after that last metadata-only follow-up is claimed. Legacy source remained unchanged throughout."
+    },
+    "initial_fast_attempt": {
+      "passed": 3353,
+      "failures": 6,
+      "errors": 0,
+      "skips": 3,
+      "junit": "tmp/chemical-reconstruction-wp0-v1/fast-01.xml",
+      "junit_sha256": "643e4e315eadf8e134927b54da2d1a9c8059446aa167cc6d4cf112d5e0fe3ef1",
+      "cause": "Agent selected the scientific interpreter directly but omitted its bin directory from PATH; six unchanged subprocess tests could not start bare dvbfixer",
+      "retained": true,
+      "followup": "Set child command PATH to the existing selected environment bin; no package install, source patch, scientific threshold change or skip added. Initial run preceded final deterministic-order, breadth and origin-policy controls."
+    },
+    "documentation_quality": "PASS: all four planned documentation/map files exist, local links valid, no pending links, original failures retained, final source/focused hashes verified"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/__init__.py": "8487a33327adb007a40ae394231547fe57f76850a1cc1bb20e7acde1b74affc6",
+    "src/dvbfixer/chemical_reconstruction/adapters.py": "e771b35dbb87161b2d50a457617c3eef9176f014b3703f629c094173f54f18a2",
+    "src/dvbfixer/chemical_reconstruction/admission.py": "248dad5d0efaab24438181b600078ef7b83b32ac94f0e7ab20109c965d5f91de",
+    "src/dvbfixer/chemical_reconstruction/contracts.py": "9ed012b7b9d7cd07302a1dd94616d33c5d78abc880d735721fe137c6e3e3a713",
+    "src/dvbfixer/chemical_reconstruction/measurement.py": "772337acf6993ac5cfcd00e7c84d720ff18ba44cc7ac1edd9c21027eb76c13ad",
+    "tests/test_chemical_reconstruction.py": "f958a0ea8b1d2f32774e071cf77f4ff68eb934fcd47f53e97f78ff8ccb6e957f"
+  },
+  "old_source_apis_evidence_readers_or_policies_changed": false,
+  "production_consumers_or_defaults_changed": false,
+  "dependency_environment_or_release_metadata_changed": false,
+  "scientific_fixtures_or_existing_thresholds_changed": false,
+  "new_native_research_cohort_executed": false,
+  "licensed_data_added": false,
+  "upstream_issue_filed_or_openmm_patched": false,
+  "public_cli_gui_or_backend_registration_added": false,
+  "coordinates_produced": false,
+  "general_scientific_qualification_claimed": false,
+  "limits": "WP0 proves supplied-contract compatibility only. No source parsing/coverage verification, chemical valence or CIP validation, calibrated steric policy, coordinate construction, H placement, geometry qualification or MD readiness. Synthetic 12-missing-atom and cross-category controls show DTO/admission breadth, not successful reconstruction. All20/whole-sidechain/H/cross-chemistry qualification and production/data-license gates remain open. Continue with WP1 on the same branch."
+}

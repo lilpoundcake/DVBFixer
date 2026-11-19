@@ -1,7 +1,8 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: approved development direction; implementation and
-scientific acceptance are incomplete. This document is the **starting point for
+Date: 2026-11-19. Status: private WP0 contract/admission/adapters implemented,
+checks completed with retained legacy mypy failures; coordinate generation and scientific acceptance remain
+incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
 ## 1. Persistent branch and authorization
@@ -15,16 +16,19 @@ future reconstruction work**, not a claim that a universal tool has shipped.
   on this branch. Create/switch to a different development branch only if the user
   explicitly requests it. Inspect unrelated local edits before switching; never
   reset/stash/discard them automatically.
-- Current task is branch/handoff preparation, NOT implementation or another
-  scientific sampling run. Subsequent implementation starts with WP0 below.
+- Following the user's "start work" instruction, WP0 is implemented and checked
+  on this same branch. No new scientific sampling run is authorized by WP0.
 - No main merge, release, default-backend switch, dependency removal, installed
   OpenMM patch or automatic upstream publication follows from this handoff.
 
-Documentation scope (six files): this handoff and its validation JSON; discovery
+Original handoff setup scope (six files): this handoff and its validation JSON; discovery
 updates in `AGENTS.md`, the historical PDBFixer handoff and the existing agent
 task record; one narrow `.gitignore` entry for the retained QA artifacts. User's
 direct handoff request authorizes these bounded changes.
-Pending links: none; proposed files/types below are not existing APIs.
+WP0 documentation plan: shared-contract decision, this handoff update, task-map
+discovery and a separate WP0 validation JSON, plus a narrow test-artifact ignore
+entry. Pending links: none. The shared DTO/admission boundary now exists privately;
+the coordinate engine and later architecture below remain proposed.
 
 ## 2. Actual objective and non-negotiable distinctions
 
@@ -173,10 +177,11 @@ source + exact identity + explicit chemical authority
 - Version new graph contracts/adapter policies. Keep old `CompletionRequest`,
   Class A contracts, evidence kinds and replay semantics intact behind adapters.
 
-The first implementation may use a proposed private `chemical_reconstruction`
-namespace; **that namespace/API does not exist yet and its layout must be decided
-in WP0**. Reuse/adapt domain/nonprotein graph concepts rather than inventing a
-second ligand authority or renaming the old residue contract "universal".
+WP0 uses the private `chemical_reconstruction` namespace, as specified in the
+[shared-contract decision](chemical-reconstruction-contract-v1.md). It reuses
+domain/nonprotein graph concepts rather than inventing a second ligand authority
+or renaming the old residue contract "universal". This is a planning boundary,
+NOT an implemented generic coordinate engine or publicly registered capability.
 
 ### Hydrogen requirements are a parallel workstream, not a final afterthought
 
@@ -221,7 +226,7 @@ a preparation backend with a PDBFixer-free end-to-end pipeline.
 
 ## 7. Work packages and concrete next action
 
-**WP0 — first coding session; do this next, on this SAME branch.**
+**WP0 — first coding slice; implemented and checked on this SAME branch.**
 
 1. Read this handoff, existing agent research task, protein contracts and Class A
    domain/service. Rebind the existing usage inventory if touching call sites.
@@ -296,7 +301,7 @@ green a test. Last inherited full fast suite:3305 passed,3 optional Torch/Biotit
 skips,33 slow deselected — historical unchanged-source result, not new generic-
 engine qualification or a fresh suite run in this documentation task.
 
-Resume with WP0. Do not restart completed PDBFixer/Rosetta/OpenMM investigations,
+Resume with WP1 on this same branch. Do not restart completed PDBFixer/Rosetta/OpenMM investigations,
 silently retry frozen scientific cohorts, or create per-phase branches. Report
 actual test outcomes and update per-work-package status here; historical handoffs
 remain evidence, while this document and the user's later instructions own the
@@ -317,3 +322,56 @@ parent; its JUnit is retained. Only the launch directory was corrected for the
 second invocation; no source/scientific threshold/environment change. This is
 documentation/regression verification, not new chemistry qualification. No new
 native scientific cohort or production implementation was run for this handoff.
+
+## 9. WP0 implementation continuation
+
+The private [contract/admission decision](chemical-reconstruction-contract-v1.md)
+now maps to executable DTOs, a pure admission function, independent fixed-constraint
+measurement and explicit legacy protein/in-memory Class A adapters. No old APIs,
+evidence readers, scientific solver, source parser or production consumers changed.
+
+- All supplied observations and link endpoints remain bound to the request digest.
+  Case, insertion code, occurrence, coordinate units and source SHA are distinct.
+  Protein links without authoritative order remain unresolved instead of guessed.
+- Admission distinguishes invalid masks/fixed constraints, ambiguous state/link
+  chemistry, unassessed target chemistry and unsupported declared capability.
+  Missing/mobile constraints defer explicitly; all readiness/generation flags stay
+  false, including on contract admission. No full-source inventory claim.
+- H inventory is explicit; new/temporary H cannot be admitted from an unspecified
+  H inventory. Heavy, H and repack ownership remain separate. The synthetic
+  12-missing-atom control tests contract breadth, not whole-sidechain construction.
+- The first Class A compatibility adapter is intentionally the connected CHNO
+  in-memory subset, not all legacy Class A chemistry. Non-CHNO organic graphs
+  refuse at this adapter only. Generic DTOs/capability descriptors are not limited
+  to CHNO, protein or one/two missing atoms. Extract a shared Class A classification
+  policy before expanding this adapter; do not duplicate the old solver's rules.
+- Pure-boundary tests guard imports and execution against scientific toolkit
+  loading, data-file reads, subprocesses and network. Standard Python source
+  discovery is permitted during imports only, not during admission/adaptation.
+
+[WP0 validation record](chemical-reconstruction-wp0-validation.json): 61 new
+synthetic controls; 335 final focused tests passed, including unchanged protein,
+Class A, CCD, usage-inventory and evidence readers. Full fast run: 3366 passed,
+three existing optional Torch/Biotite skips, 33 slow deselected. The final small
+follow-up preserving Class A policy values explicitly in `Origin.settings` was
+checked by the 335-test focused run and static checks, not another full-suite run.
+Ruff passes for all source and the new tests; strict mypy passes for all five
+new package modules. The broader existing mypy command reports 41 errors in 14
+files, reproduced with byte-identical diagnostics on an unmodified `21a7162`
+source archive. Those unrelated failures were neither fixed nor suppressed.
+
+The first full invocation retained 3353 passes/six failures/three optional skips:
+the agent omitted the selected environment's bin directory from PATH, so six
+unchanged subprocess tests could not start `dvbfixer`. The corrected command only
+added that existing bin directory to its child PATH; no package installation,
+environment patch, threshold change or test skip. Both original and corrected
+reports remain under the narrowly ignored `tmp/chemical-reconstruction-wp0-v1/`.
+No new native reconstruction research cohort, production consumer or licensed
+data was added. The historical handoff validation JSON remains unchanged.
+
+WP1 next: choose a documented geometry authority and adapt the existing protein
+internal-coordinate and Class A construction primitives through the private graph
+contract with independent raw/rounded audits. The current Cartesian measurement
+module is not a constructor, full chemical validator, CIP implementation or
+calibrated steric policy. Do not expose a generic CLI/GUI/default or reinterpret
+these synthetic controls as native stereochemical/H qualification.
