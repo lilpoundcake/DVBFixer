@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: WP0/WP1/WP2A checked; bounded WP2B conditional peptide
-chemistry/observed-source probes and final regressions checked. General
+Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B and bounded WP2C inventory naming
+transport checked; six naming controls and final fast suite completed. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
@@ -585,3 +585,58 @@ with external anchors. Do not rerun/repair these frozen observed sources until a
 separate prospective policy is declared. Actual neighbour chemistry, full polymer
 state/CIP, H geometry, distorted closure and real-complex reconstruction remain
 unqualified; production/default/dependency changes remain disabled.
+
+## 13. WP2C explicit inventory naming transport
+
+[Protocol](chemical-reconstruction-naming-v1.md) was frozen as `340d49b` before
+the new six-control execution. It is a separate prospective naming policy, not
+a repair or relabelling of WP2B's ILE refusal. The old protocol, runner, tests,
+CCDs, RTP and canonical naming owner are byte-identical to `7802240`.
+
+The private `inventory_naming.transport_inventory` reuses the domain
+`atom_name_policy` with an explicit `AMBER19SB` / `STANDARD` selection. No alias
+table was added or edited. It records the raw inventory, complete simultaneous
+mapping/rule IDs, normalized inventory, exact source pin and policy selection.
+It refuses already-aliased input, implicit-identity collisions, malformed or
+unknown local tokens, mutable external rows and unsupported dialect/profile.
+The transport DTO verifies that its stored inventories/map agree with the owner
+policy, including the source-pin binding. Naming does not choose a chemical state.
+
+External row order and repetitions survive; `-C`/`+N` signs are preserved. Only
+external backbone C/N names are qualified here: neighbour residue chemistry is
+unknown, so the target residue's sidechain naming rules must NEVER be applied to
+an external sidechain atom. This is an explicit refusal, not a reason to discard
+the reference. No source PDB, observation identity or generated coordinate is
+renamed by this inventory adapter.
+
+### Actual outcomes and limits
+
+All six controls executed. ALA, THR, **ILE**, LYS and PHE passed the transported
+exact atom/bond inventory plus existing conditional peptide witness proof. ILE
+uses the existing canonical owner for `CD→CD1`, `HD1/2/3→HD11/12/13` and
+`HG11→HG13`; no graph search or post-result fallback was used. Renamed atom
+counts were 0/0/5/4/1 respectively. LYS/LYN still refused
+`explicit-variant-projection-unqualified`; no +1→neutral charge/H edit occurred.
+This is not a new formal-charge, bond-order or stereospecific H-coordinate
+authority. Equivalent-H naming is deterministic convention, not an independent
+pro-R/pro-S geometry qualification.
+
+Original evidence is in `tmp/chemical-reconstruction-naming-v1/controls-01/`.
+A labelled regression replay after name-shape hardening preserved all seven JSON
+files byte-for-byte and is not independent evidence. No observed WP2B input was
+repaired or rerun as a scientific trial. No coordinate constructor ran.
+
+The 36 new regression cases and focused integrations pass (**549 passed**).
+The final fast suite passed **3484 tests**, with three optional Torch/Biotite
+skips and 33 slow tests deselected; no failures or errors.
+Ruff passes. Scoped strict mypy passes 14 private modules; the unsilenced command
+still reports the same 71 legacy error lines as the unchanged `21a7162` archive.
+No error was hidden with a type ignore or config change.
+The [WP2C validation record](chemical-reconstruction-naming-validation.json)
+binds the pinned inputs, exact outcomes, final code and retained reports.
+
+Next independent work items remain prospectively specified source admission/
+preparation and external-anchor amide-H geometry. Naming transport is now a
+reusable boundary, but actual neighbour chemistry, full polymer state/CIP,
+observed reconstruction, H geometry and general complex qualification remain
+open. Public/default/dependency and data-license gates are unchanged.

@@ -1,0 +1,107 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-naming-validation.v1",
+  "date": "2026-11-19",
+  "branch": "feature/chemical-reconstruction",
+  "base_commit": "7802240",
+  "protocol_commit": "340d49b",
+  "protocol": "docs/plans/chemical-reconstruction-naming-v1.md",
+  "protocol_sha256": "4944476be83f67cc440894326dd066c4b59d8d10f720a70a180d2cbca36f7230",
+  "protocol_unchanged_since_freeze": true,
+  "status": "wp2c-inventory-naming-slice-verified-not-scientifically-qualified",
+  "new_branch_or_worktree_created": false,
+  "source": {
+    "rtp": "FF/amber19sb.ff/aminoacids.rtp",
+    "rtp_sha256": "ece03322c6df812c1467bfdb67240e694230ea28ba675d86cccb8a4823e9a419",
+    "canonical_owner": "src/dvbfixer/domain/force_field_naming.py",
+    "canonical_owner_sha256": "bc35adb9c9513356fbeefdf7bce88dd78883144697df9bc6fbed585bda5be566",
+    "ccd_manifest_sha256": "29c4f83b28435a34b666b5c1489c4f3423c53beb276e75d16cd0d8c3c055dece",
+    "all_63_fixture_checksums_verified": true,
+    "old_wp2b_protocol_runner_tests_and_source_bytes_unchanged": true,
+    "new_downloads_or_pyrosetta_access": false
+  },
+  "implementation": {
+    "owner": "domain.force_field_naming.atom_name_policy",
+    "explicit_target": "amber19sb",
+    "explicit_profile": "standard",
+    "new_alias_table_or_canonical_owner_edit": false,
+    "transport": "Immutable raw inventory, complete simultaneous map/rule IDs, normalized inventory and source pin, with binding verification",
+    "collision_check_includes_implicit_identity": true,
+    "already_aliased_inputs_refused": true,
+    "external_references": "Preserve signs/order/repetitions and local-name transport; only signed C/N backbone ports qualified. Never map external sidechains using target residue chemistry.",
+    "chemical_proof": "Existing joined CCD peptide witness and exact retained atom/bond inventory comparison, not naming alone",
+    "rtp_partial_charges_used_as_formal_charges": false,
+    "ccd_chemistry_or_coordinates_changed": false,
+    "stereospecific_h_coordinate_qualification": false
+  },
+  "controls": {
+    "original": "tmp/chemical-reconstruction-naming-v1/controls-01/summary.json",
+    "regression_replay": "tmp/chemical-reconstruction-naming-v1/regression-replay-02/summary.json",
+    "summary_sha256": "f1321723c7cbfc1d65275cd4083ffd2663039db642ec0c8e792dd5aca545635b",
+    "all_seven_json_files_byte_identical_on_replay": true,
+    "replay_counted_as_independent_evidence": false,
+    "declared": 6,
+    "executed_entries": 6,
+    "conditional_inventory_passes": ["ALA/ALA", "THR/THR", "ILE/ILE", "LYS/LYS", "PHE/PHE"],
+    "renamed_atom_counts": {"ALA": 0, "THR": 0, "ILE": 5, "LYS": 4, "PHE": 1},
+    "refusals": {"LYS/LYN": "explicit-variant-projection-unqualified"},
+    "ile_policy": "Existing STANDARD canonical owner supplies CD/HD aliases and HG11->HG13; no post-result fallback",
+    "unexpected_results": [],
+    "wp2b_ile_refusal_preserved": true,
+    "observed_source_repair_or_scientific_rerun": false,
+    "coordinate_constructor_executions": 0
+  },
+  "checks": {
+    "new_regression_cases": 36,
+    "initial_focused": {"passed": 174, "failures": 0, "errors": 0},
+    "initial_ruff": "Unused test import/import layout corrected; no runtime or chemistry gate change",
+    "post_control_hardening": "Restrict atom-name shape to bounded ASCII labels, rejecting control characters and malformed names; all original control JSON bytes unchanged",
+    "focused": {
+      "passed": 549, "failures": 0, "errors": 0, "skips": 0,
+      "junit": "tmp/chemical-reconstruction-naming-v1/focused-final-02.xml",
+      "junit_sha256": "e407a3462d3a792ae185b62289e4e8c4c86ee2bdcbb9813f3123dd2496c01256"
+    },
+    "fast": {
+      "passed": 3484, "failures": 0, "errors": 0, "skips": 3, "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-naming-v1/fast-01.xml",
+      "junit_sha256": "5d9506772bee87952b9f3ff5ab486996f2f85b1bd2fb1f68e936f7aab95e0fec",
+      "log_sha256": "83f24a956e66b91d09bb806aeae2e9ebe9fa394ad4b78993221bdd415c7222bd",
+      "optional_skips": ["torch: cc94 production probe", "biotite.structure: reference metrics", "torch: diffusion sampler"],
+      "warnings": "Inherited SWIG deprecation warnings remain visible"
+    },
+    "ruff_all_source_and_new_script_tests": "passed; inherited UP038 configuration warning remains visible",
+    "cli_reference_check": "passed with PYTHONPATH=src:.; initial invocation without source-path isolation resolved a sibling editable installation and is not a check of this branch",
+    "scoped_strict_mypy": "14 private modules pass with --follow-imports=silent; no new ignore/config suppression",
+    "transitive_strict_mypy": {
+      "status": "failed, not counted as a pass",
+      "legacy_errors": 71,
+      "all_error_lines_match_unchanged_21a7162_archive": true,
+      "files": {"pdbutils/inference.py": 43, "acpype_export.py": 23, "ffutils/geometry.py": 4, "ffutils/__init__.py": 1},
+      "log": "tmp/chemical-reconstruction-naming-v1/mypy-transitive-01.log",
+      "log_sha256": "c04c01561ad3f889c6de112e7267042090121cf3aa2f37cd7ca8378f59080553"
+    },
+    "source_frozen_before_final_focused_and_fast_runs": true,
+    "documentation_quality": "PASS: all four planned records exist, no pending or broken local links, agent maps valid, source/protocol/JUnit/evidence hashes verified and original attribute rules preserved"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/inventory_naming.py": "2dab9d2dd006d85cc4e207d29ae40968320918402cfa97eebc45a7d67461b3f6",
+    "scripts/chemical_reconstruction_naming_controls.py": "c4e3a2220327683ba1c68f4f6dd4f956e1b4d932a2fb6a403a6eaef92ae611cd",
+    "tests/test_chemical_reconstruction_inventory_naming.py": "e1092d0c0d196860c7f36810f15383b2b577146f5e61755fc5c6c1016e2914f8"
+  },
+  "documentation_plan_completed": [
+    "docs/plans/chemical-reconstruction-naming-v1.md",
+    "docs/plans/chemical-reconstruction-naming-validation.json",
+    "docs/plans/chemical-reconstruction-handoff.md",
+    "docs/agent/tasks.toml"
+  ],
+  "pending_links": [],
+  "public_reconstruction_api_cli_gui_or_default_changes": false,
+  "h_generation_or_observed_source_preparation_enabled": false,
+  "production_or_data_redistribution_permission_inferred": false,
+  "remaining_gates": [
+    "Prospectively specified observed-source admission/preparation preserving originals/context",
+    "External-anchor amide-H geometry and stereo-specific H coordinate qualification",
+    "Actual neighbour chemistry and full-polymer state/CIP",
+    "Observed heavy/H reconstruction and broader retained-complex qualification",
+    "Unchanged production/default/dependency and original-data license/approval gates"
+  ]
+}

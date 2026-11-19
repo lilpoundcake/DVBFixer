@@ -17,3 +17,4 @@ tests/fixtures/chemical_reconstruction/ccd/*.cif -text -whitespace
 tests/fixtures/chemical_reconstruction/ccd/manifest.json -text
 docs/plans/chemical-reconstruction-ccd-v1.md -text
 docs/plans/chemical-reconstruction-peptide-v1.md -text
+docs/plans/chemical-reconstruction-naming-v1.md -text
