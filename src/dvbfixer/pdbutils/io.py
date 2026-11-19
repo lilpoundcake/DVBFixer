@@ -13,7 +13,40 @@ using ``from dvbfixer.pdbutils import X`` keep working.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
+
+
+def update_conect(line: str, serial_map: Mapping[int, int]) -> str | None:
+    """CONECT: remap atom serial numbers. Each serial is 5 chars starting at col 6.
+
+    Returns None if any referenced serial isn't a real atom in this file
+    (not in `serial_map`) — some deposited PDBs carry stale/dangling
+    CONECT records left over from atoms that no longer exist (confirmed
+    on a real structure: an orphaned "CONECT 5111 5112 5113"-style
+    record with no matching ATOM/HETATM line at all). Silently passing
+    such an old serial number through UNCHANGED (the previous fallback,
+    ``serial_map.get(old_serial, old_serial)``) is actively harmful once
+    renumbered: that stale number can coincide with the NEW serial
+    dvbfixer assigns to a real, unrelated atom, fabricating a spurious
+    bond between atoms that were never actually connected. Dropping the
+    whole record is safer than keeping a partially-wrong one.
+    """
+    parts = []
+    parts.append(line[:6])  # "CONECT"
+    i = 6
+    while i + 5 <= len(line.rstrip('\n')):
+        s = line[i:i + 5].strip()
+        if s and s.isdigit():
+            old_serial = int(s)
+            new_serial = serial_map.get(old_serial)
+            if new_serial is None:
+                return None
+            parts.append(f"{new_serial:5d}")
+        else:
+            parts.append(line[i:i + 5])
+        i += 5
+    return ''.join(parts) + '\n'
 
 
 def build_serial_map(pdb_path: str | Path) -> dict[tuple[str, str, str], int]:

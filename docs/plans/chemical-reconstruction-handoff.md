@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B/WP2C and bounded WP2D metric geometry
-checked; synthetic amide controls and final fast suite completed. General
+Date: 2026-11-19. Status: WP0/WP1/WP2A/WP2B/WP2C/WP2D and bounded WP2E source-bound
+preparation checked; three observed controls and final fast suite completed. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
@@ -722,3 +722,101 @@ transport, stereospecific methylene/methyl H geometry, arbitrary missing subsets
 actual neighbour chemistry, full-polymer state and real retained-complex H
 qualification remain open. Source admission/preparation is the next separately
 declared slice; preserve original full context and the frozen WP2B refusals.
+
+## 15. WP2E source-bound observation preparation
+
+[Protocol](chemical-reconstruction-source-v1.md) was frozen as `0d83810` before
+the three new source controls. It explicitly declares metadata preparation and
+conservative opaque fractional occupancy, rather than repairing/rerunning WP2B
+under its old policy. Original fixtures, FF files and old protocols stay exact.
+
+`source_preparation.SourcePreparation` retains original/prepared ASCII/LF text,
+both hashes and exact one-based removed-record evidence. Its constructor recomputes
+the projection: only whole dangling/empty CONECT records can disappear. Valid
+records, ATOM/HETATM/ANISOU, coordinates, occupancy, names/order, headers and
+linkage metadata otherwise remain byte-identical. Malformed/self CONECT, altloc
+or multiple-model ambiguity refuse, rather than being sanitized opportunistically.
+The library accepts bytes and never overwrites a source path.
+
+`PreparedContextRequest` is a separate digest-tagged private contract; the original
+request fields, digests and occupancy refusal remain unchanged. Its explicit policy
+binds prepared-source hash, preparation digest, retained-observation digest and
+the exact fractional set. Only unselected unresolved UNKNOWN components qualify;
+fractional targets, resolved chemistry, owned/mobile atoms, constraint atoms and
+connection endpoints refuse. Target occupancy is checked BEFORE withholding.
+Fractional context coordinates/occupancies remain unchanged and fully participate
+in conservative clash checks: they are not normalized, moved or probabilistically
+discounted. No altloc exemption or observed-H capability was added.
+
+`audit_source_transport` independently reparses the prepared source and checks the
+exact ordered retained observation DTOs, counts, mask scope and origin/evidence
+bindings before compilation/construction. A rehashed but source-inconsistent DTO
+still fails this audit. The full original/prepared payloads and withheld reference
+coordinates do not enter the coordinate constructor. Existing admission, graph
+compiler, canonical naming, peptide proof, proposal and raw/rounded audits are reused.
+
+### Actual real-source outcomes, not broad qualification
+
+All **three declared controls** executed; preparation completed for two, requests
+and constructors executed for two, and both raw/rounded geometry audits passed:
+
+- **1UBQ A/PHE45:** seven sidechain heavy atoms proposed. Original and prepared
+  source bytes are identical; all 660 source atoms remain except the seven explicit
+  in-memory withholds (653 observations). All **57** fractional opaque-context
+  observations retain their original occupancy and coordinates; no metadata changed.
+- **1FR2 A/THR11:** three sidechain heavy atoms proposed, 1686 observations from
+  1689 source atoms. Exactly **nine dangling CONECT records** were dropped as whole
+  records; their original bytes and line numbers remain in evidence. Every structural
+  record and every other metadata line is unchanged. No chemistry/bond was invented.
+- **1A3N:** original full source retained, refused
+  `explicit-altloc-selection-required`. No prepared file, request or constructor
+  exists for that entry. No occupancy winner, alternate-atom deletion or heme strip.
+
+These are explicit observed-sidechain masks and fixed predeclared geometry checks,
+**not native-conformer accuracy**, template superiority, full-source chemical
+assessment, parameterization or MD readiness. No held-out RMSD scoring/ranking,
+geometry-bound adjustment, alternative engine or coordinate repair was performed.
+No PDB candidate, `.dat` or public bundle was written; retained `prepared.pdb`
+files are source metadata projections only. All source-coverage/MD/public flags
+remain false, and unresolved retained context remains visibly unassessed.
+
+Original evidence: `tmp/chemical-reconstruction-source-v1/controls-01/`.
+Post-control hardening adds observation-digest binding and independent transport
+audit. Its labelled `binding-replay-02/` has an identical summary, all five retained
+source PDBs and all raw/rounded additions, but request/plan digests intentionally
+change with the stronger binding; **the full evidence JSON is not byte-identical**.
+Independent saved JSON/source readback re-audited both candidates in raw/rounded
+form without calling the proposal constructor, and verified exact source changes,
+observation retention and every request/plan/source digest. Replays/readback are
+regressions, not additional independent scientific controls.
+
+### Shared helper extraction and checks
+
+The first adapter imported the existing `renumber.update_conect` owner. Static
+mypy traversal then reached 795 legacy errors in 51 CLI-dependent files; all 795
+error lines exactly reproduced on unchanged `21a7162` with the same legacy entry
+points. This was not a private-package typing failure, but unnecessary coupling.
+The existing helper was moved, **not reimplemented**, into `pdbutils.io`, with an
+identical executable-body/docstring AST and a typed signature. `renumber.update_conect`
+remains the same callable via import alias; `pdbutils` re-exports it too. A clean
+subprocess verifies source preparation does not import the renumber command module.
+
+Final scoped strict mypy passes **19 files** (18 private modules plus the extracted
+pure I/O owner). Unsilenced checking is back to the same 71 diagnostic lines in
+four untouched legacy files; both the initial 795-error and final 71-error logs
+are retained, not suppressed or labelled passes. Ruff passes. All **23 new
+regression cases** pass; final focused integrations passed **610 tests**, including
+renumber/SEQRES controls. The earlier 609-case focused and 3537-pass fast run are
+retained but superseded by extraction plus its import/alias regression.
+The final-source fast suite passed **3538 tests**, with three optional Torch/Biotite
+skips and 33 slow tests deselected; no failures or errors.
+Old CCD/peptide/naming/amide replays preserved all 29/13/7/7 JSON files byte-for-byte,
+including WP2B input and H refusals and original request/plan digests.
+The [WP2E validation record](chemical-reconstruction-source-validation.json) binds
+protocol/source/code/report hashes, observed outcomes, source readback and limits.
+
+Next: prospective broader retained-complex and missing-subset evidence plus explicit
+H inventory/geometry transport on actual sources. Full-polymer/actual-neighbour
+chemistry, measured-H support, complete H families, distorted ring closure,
+qualification and public/default/dependency/data-license gates remain open. Do not
+promote two geometry successes to a public reconstruction or whole-complex claim.

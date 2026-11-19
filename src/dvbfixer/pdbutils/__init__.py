@@ -25,6 +25,7 @@ from dvbfixer.pdbutils.io import (
     append_before_end,
     build_serial_map,
     remap_conect_records,
+    update_conect,
 )
 
 __all__ = [
@@ -35,5 +36,6 @@ __all__ = [
     "_strip_existing_conect",
     "build_serial_map",
     "remap_conect_records",
+    "update_conect",
     "append_before_end",
 ]

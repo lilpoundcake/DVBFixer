@@ -19,6 +19,7 @@ from .contracts import (
     HydrogenInventory,
     LinkKind,
     Operation,
+    PreparedContextRequest,
     ReconstructionRequest,
 )
 from .measurement import satisfied
@@ -63,7 +64,8 @@ def admit(request: ReconstructionRequest, capabilities: tuple[Capability, ...] =
         fail("repack-requires-only-observed-mobile-atoms")
     if request.operation != Operation.REPACK and not ownership.generated:
         fail("completion-requires-generated-mask")
-    if (any(o.occupancy != 1 for o in request.observations)
+    allowed_fractional = request.context_policy.fractional_atoms if isinstance(request, PreparedContextRequest) else frozenset()
+    if (any(o.occupancy != 1 and o.identity not in allowed_fractional for o in request.observations)
             or any(c.identity.alternate_location for c in request.components)):
         fail("partial-occupancy-or-altloc-requires-explicit-selection", status=AdmissionStatus.UNSUPPORTED)
     if len({c.identity.model for c in request.components}) != 1:

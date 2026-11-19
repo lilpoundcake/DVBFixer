@@ -405,6 +405,57 @@ class ReconstructionRequest:
         return digest_record((REVISION, self))
 
 
+@dataclass(frozen=True)
+class OpaqueContextPolicy:
+    prepared_source_sha256: str
+    preparation_digest: str
+    fractional_atoms: frozenset[ExactAtomRef]
+    observations_digest: str
+
+    def __post_init__(self) -> None:
+        _sha(self.prepared_source_sha256)
+        _sha(self.preparation_digest)
+        _sha(self.observations_digest)
+        _enum_set(self.fractional_atoms, ExactAtomRef, "exact fractional opaque context")
+        for atom in self.fractional_atoms:
+            _identity(atom)
+
+
+@dataclass(frozen=True, kw_only=True)
+class PreparedContextRequest(ReconstructionRequest):
+    """Explicit conservative fractional context; old requests keep old semantics."""
+    context_policy: OpaqueContextPolicy
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        policy = self.context_policy
+        if not isinstance(policy, OpaqueContextPolicy) or policy.prepared_source_sha256 != self.source_sha256:
+            raise ContractError("prepared-context-source-binding-mismatch")
+        if (self.origin is None or self.origin.adapter != "prepared-observed-peptide-v1"
+                or self.origin.request_digest != policy.preparation_digest):
+            raise ContractError("prepared-context-evidence-binding-mismatch")
+        if policy.observations_digest != digest_record(self.observations):
+            raise ContractError("prepared-context-observation-binding-mismatch")
+        fractional = frozenset(o.identity for o in self.observations if o.occupancy != 1)
+        if fractional != policy.fractional_atoms:
+            raise ContractError("fractional-context-exact-scope-required")
+        components = {c.identity: c for c in self.components}
+        forbidden = self.ownership.generated | self.ownership.temporary | self.ownership.mobile
+        forbidden |= frozenset(a for c in self.constraints for a in c.atoms)
+        forbidden |= frozenset(a for c in self.connections for a in (c.link.component_atom, c.link.other_atom))
+        if fractional & forbidden:
+            raise ContractError("fractional-context-cannot-be-owned-constrained-or-linked")
+        for atom in fractional:
+            component = components.get(atom.component)
+            if (component is None or atom.component in self.targets or component.kind != ChemistryKind.UNKNOWN
+                    or component.states or atom.component.alternate_location):
+                raise ContractError("fractional-context-must-be-unselected-opaque")
+
+    @property
+    def digest(self) -> str:
+        return digest_record(("chemical-prepared-context-request-v1", self))
+
+
 def digest_record(value: object) -> str:
     def canonical(item: object) -> object:
         if isinstance(item, StrEnum):
