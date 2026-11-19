@@ -7,6 +7,7 @@
   "persistent_branch_user_instruction_recorded": true,
   "per_experiment_or_session_branches_allowed_without_explicit_request": false,
   "new_worktree_created": false,
+  "retained_qa_artifacts_narrowly_ignored": "tmp/chemical-reconstruction-handoff-2026-11-19/",
   "current_work_reused_without_cherry_picking_or_reset": true,
   "active_handoff": "docs/plans/chemical-reconstruction-handoff.md",
   "historical_handoff_retained": "docs/plans/pdbfixer-reconstruction-handoff.md",

@@ -20,9 +20,10 @@ future reconstruction work**, not a claim that a universal tool has shipped.
 - No main merge, release, default-backend switch, dependency removal, installed
   OpenMM patch or automatic upstream publication follows from this handoff.
 
-Documentation scope (five files): this handoff and its validation JSON; discovery
+Documentation scope (six files): this handoff and its validation JSON; discovery
 updates in `AGENTS.md`, the historical PDBFixer handoff and the existing agent
-task record. User's direct handoff request authorizes these bounded changes.
+task record; one narrow `.gitignore` entry for the retained QA artifacts. User's
+direct handoff request authorizes these bounded changes.
 Pending links: none; proposed files/types below are not existing APIs.
 
 ## 2. Actual objective and non-negotiable distinctions
