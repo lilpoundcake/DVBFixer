@@ -39,6 +39,7 @@ verify that none of the source fixtures changed accidentally.
 | `protein_context/independent_followup/{2CI2,1R69,1CTF}.pdb` | Unmodified RCSB PDB downloads on 2026-11-03, 14:27 UTC, from `https://files.rcsb.org/download/<ID>.pdb`, after pre-download enrollment of all three sources | New-system three-chi/template scoring controls: first-model/first-ATOM-chain selection preserves 2CI2 chain I, and 1CTF has only one observed THR. Source-only regressions retain raw native gate deviations and template-stereo control inputs, not generated proposals, logs or public completion outputs. |
 | `protein_context/ncac_followup/{1PGB,1BPI,1CSP}.pdb` | Unmodified RCSB downloads on 2026-11-03 from `https://files.rcsb.org/download/<ID>.pdb`, after frozen three-system NCAC/relative-rotamer enrollment | Prospective negative controls: 1BPI retains altloc/occupancy refusals and a single-VAL shortfall; 1CSP retains incomplete context and scorer movement/import blockers. Original sources only, no repairs or generated outputs. |
 | `cc89_apple_handoff/{9WW8,8EK6,9Z0U}.{pdb,fasta}`, `manifest.json` | Whole observed protein references and unchanged FASTAs from the independently audited prospective cc89 cohorts; per-source RCSB CIF URLs and hashes are bound by the manifest and linked cohort manifests | Fresh-clone Apple handoff: four source-only masks, seeds 7/19; no Linux archives or checkpoint needed to materialize inputs |
+| `chemical_reconstruction/ccd/{ALA,THR,ILE,LYS,PHE,EOH,ACT}.cif`, `manifest.json` | Unmodified wwPDB CCD CIFs from `https://files.rcsb.org/ligands/download/<ID>.cif`, downloaded 2026-11-19 after protocol commit `67c99e8`; source pins/version dates in the manifest, CC0-1.0 under the [wwPDB usage policy](https://www.wwpdb.org/about/usage-policies) | All-atom authority/CIP and deterministic ideal-geometry roundtrips. Free amino-acid leaving atoms are retained: NOT a peptide/polymer state, experimental holdout or native conformation benchmark. No generated coordinates, reports or licensed rotamer data. See [frozen protocol](../../docs/plans/chemical-reconstruction-ccd-v1.md). |
 
 The protein-context materializer derives protein-only, heavy-atom inputs from
 these deposited sources. Heterogens (including 1A3N hemes) are excluded explicitly;
@@ -46,6 +47,13 @@ this is a protein-context mechanism study, not acceptance for complete hemoglobi
 chemistry. Low/high contact counts are structural proxies, not measured solvent
 accessibility. Derived masks, controls, and outcomes live in ignored evidence
 archives; only deposited source inputs and frozen manifests are tracked.
+
+The CCD source CIFs retain upstream trailing padding and original line endings
+byte-for-byte (`.gitattributes` narrowly disables whitespace/EOL conversion for
+these inputs only). Their exact SHA pins remain checked; code files are not
+exempted. The [frozen CCD protocol](../../docs/plans/chemical-reconstruction-ccd-v1.md)
+predates successful input acquisition and control execution. An earlier endpoint
+probe returned only an unsupported-content-type error, without coordinate content.
 
 The scoring-follow-up sources retain all original headers, bond annotations,
 waters/other deposited records and (for 1BTA) explicit hydrogens. The research

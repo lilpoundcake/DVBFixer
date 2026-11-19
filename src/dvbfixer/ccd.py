@@ -101,7 +101,8 @@ class CcdComponent:
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
+    def redirect_request(self, req: urllib.request.Request, fp: Any, code: int,
+                         msg: str, headers: Any, newurl: str) -> None:
         raise CcdError("CCD download redirects are disabled")
 
 
@@ -418,16 +419,30 @@ def ccd_to_heavy_atom_graph(component: CcdComponent) -> ChemicalGraph:
     charges, stereochemistry, bond orders, and ideal coordinates are used as one
     exact microspecies. Hydrogen placement remains outside this adapter.
     """
+    return _ccd_to_graph(component, include_hydrogens=False)
+
+
+def ccd_to_all_atom_graph(component: CcdComponent) -> ChemicalGraph:
+    """Retain every declared atom, including H/leaving atoms, as one exact state.
+
+    This converts data only: it does not verify valence, CIP, H completeness or
+    applicability to a linked/polymer residue. Callers must establish those gates.
+    """
+    return _ccd_to_graph(component, include_hydrogens=True)
+
+
+def _ccd_to_graph(component: CcdComponent, *, include_hydrogens: bool) -> ChemicalGraph:
     if component.ambiguous:
         raise CcdError("CCD marks this component as chemically ambiguous")
-    heavy_atoms = component.heavy_atoms
-    if not heavy_atoms:
-        raise CcdError("CCD component contains no heavy atoms")
-    if any(atom.ideal_position is None for atom in heavy_atoms):
-        raise CcdError("every CCD heavy atom needs ideal coordinates for reconstruction")
-    if component.formal_charge is None or any(atom.formal_charge is None for atom in heavy_atoms):
+    selected_atoms = component.atoms if include_hydrogens else component.heavy_atoms
+    qualifier = "" if include_hydrogens else "heavy "
+    if not selected_atoms:
+        raise CcdError(f"CCD component contains no {qualifier}atoms")
+    if any(atom.ideal_position is None for atom in selected_atoms):
+        raise CcdError(f"every CCD {qualifier}atom needs ideal coordinates for reconstruction")
+    if component.formal_charge is None or any(atom.formal_charge is None for atom in selected_atoms):
         raise CcdError("CCD formal charges must be explicit for reconstruction")
-    names = {atom.name for atom in heavy_atoms}
+    names = {atom.name for atom in selected_atoms}
     atoms = tuple(
         ChemicalAtom(
             atom.name,
@@ -437,7 +452,7 @@ def ccd_to_heavy_atom_graph(component: CcdComponent) -> ChemicalGraph:
             aromatic=atom.aromatic,
             stereo=atom.stereo,
         )
-        for atom in heavy_atoms
+        for atom in selected_atoms
         if atom.ideal_position is not None
     )
     positions = {atom.name: atom.ideal_position for atom in atoms}
@@ -464,10 +479,11 @@ def ccd_to_heavy_atom_graph(component: CcdComponent) -> ChemicalGraph:
         )
     net_charge = sum(atom.formal_charge for atom in atoms)
     if net_charge != component.formal_charge:
-        raise CcdError("CCD heavy-atom charges do not preserve the component formal charge")
+        scope = "all-atom" if include_hydrogens else "heavy-atom"
+        raise CcdError(f"CCD {scope} charges do not preserve the component formal charge")
     return ChemicalGraph(
         component_id=component.component_id,
-        state_id=f"ccd-{component.provenance.sha256[:16]}",
+        state_id=f"ccd-{'all-' if include_hydrogens else ''}{component.provenance.sha256[:16]}",
         atoms=atoms,
         bonds=tuple(bonds),
         net_charge=net_charge,

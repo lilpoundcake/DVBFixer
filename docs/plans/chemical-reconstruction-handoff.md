@@ -1,7 +1,7 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: private WP0 and bounded WP1 geometry proposals
-implemented and checked. General reconstruction and scientific acceptance remain
+Date: 2026-11-19. Status: private WP0/WP1 and WP2A pinned CCD authority/roundtrip
+slice checked. General reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
@@ -260,6 +260,8 @@ multi-χ and rings, then explicit backbone/terminal cases; authoritative geometr
 and stereo. Geometry-preserving H construction and orientation solving are an
 equal exit condition, not a promise after heavy integration. Keep empirical prior
 and physical/context scoring separate from hard validity.
+WP2A starts with pinned all-atom CCD authority and ideal roundtrip controls below;
+it does not close polymer residue/state, distorted-source, ranking or general H gates.
 
 **WP3 — cross-chemistry and whole-complex qualification.** Freeze new evidence
 cohorts/capability strata before execution: protein, isolated nonprotein and linked
@@ -426,3 +428,75 @@ whole/partial sidechains, closure and geometry-preserving H together under WP2.
 Do not call a synthetic chain a realistic sidechain benchmark or enable production
 because its hard geometry passes. Prior native post-H/ranking failures and all
 license/source/evidence gates remain unchanged.
+
+## 11. WP2A pinned CCD authority and chain compiler
+
+The [protocol](chemical-reconstruction-ccd-v1.md) was committed as `67c99e8`
+**before acquiring/inspecting the pinned control CIFs or executing controls**.
+An earlier webfetch endpoint probe returned only an unsupported-content-type error,
+not coordinates. It is immutable: the private runner
+checks its SHA and the post-acquisition source-pin manifest SHA. Do not edit that
+protocol to change outcomes; declare a separate version before future experiments.
+
+- Seven unmodified wwPDB CCD source CIFs and per-file pins are tracked below
+  `tests/fixtures/chemical_reconstruction/ccd/`. The existing CCD downloader/parser/
+  local pin checker are reused, not a second CIF reader or runtime network fallback.
+  Fixture provenance cites official CCD and CC0 usage-policy pages. PyRosetta/
+  Dunbrack permissions and public/production gates remain unchanged.
+- `ccd_to_all_atom_graph` is a data-conversion helper alongside the unchanged
+  heavy-only converter, not a public reconstruction workflow. All source H,
+  leaving atoms, explicit bonds/charges and ideal positions are retained. Free
+  amino acids keep OXT/HXT/H2; **these are not peptide-residue state authorities**.
+- The private `ccd_authority.load_geometry_authority` requires an actual SHA pin
+  even at runtime, then sanitizes a temporary explicit-H RDKit graph. Charge changes
+  or implicit-H additions during RDKit cleanup, unsupported radicals, unrepresented
+  bond stereo and CCD-versus-3D CIP contradictions refuse. There is no state/pH
+  selection, AddHs, experimental-coordinate import or silent source repair.
+- CIP agreement is established before deriving ordered stereo constraints. Full-H
+  controls also receive four-ligand and sp2/aromatic plane checks. The source graph
+  remains unchanged; RDKit version `2025.09.6` is retained in evidence.
+- `plan_compiler.compile_chain_plan` chooses ordered chain references from graph
+  adjacency, source ideal nondegeneracy and the observed mask, not from deleted
+  experimental coordinates or conformer scores. It does not change frames to repair
+  invalid observations and does not implement a new cone/planar/closure solver.
+
+All **28 predeclared entries** executed: seven components × heavy/H × two proper
+rigid transforms. **24 passed both raw and rounded declared-geometry audits**;
+four expected compiler refusals remain: EOH heavy-O deletion has fewer than three
+observed anchors, and ACT's terminal O has no supported chain frame. All 14 H
+entries (10 chiral, four achiral) passed independent raw/rounded CIP readback. Every observation inventory/
+coordinate tuple remained unchanged. Request/plan JSON hashes were independently
+recomputed; raw proposals and failures remain in the project, not system `/tmp`.
+
+These are **same-CCD-authority ideal roundtrips**, not experimental holdouts,
+independent conformational predictions or all20/protein-polymer/H qualification.
+PHE's ring passes only for the declared ideal frames; no distorted ring closure
+claim follows. The H arm uses the CCD heavy observations directly, not heavy-arm
+generated atoms silently promoted to observations. No PDB bytes, `.dat` or public
+bundle is emitted. A caller-supplied ideal graph remains a geometry authority,
+not a calibrated context-dependent protein geometry library.
+
+After the first formal run, nonnumerical hardening added strict invalid-pin refusal
+and refusal of RDKit source-charge cleanup. A labelled deterministic regression
+replay produced **all 29 JSON files byte-identical** to the retained first run;
+it is not additional independent evidence or another sampling cohort. Original
+reports are never overwritten. Tests use temporary mutated copies for negative
+source/charge/stereo controls, not edits to tracked inputs or wider thresholds.
+
+Next step: explicit polymer/variant/link/H state authority and prospective observed-
+complex controls, then planned planar/closure and conformer/orientation expansion.
+Do not simply drop every CCD leaving atom to make a peptide, or apply free-amino-
+acid H counts to an internal residue. Reuse existing variant/state/identity owners;
+complete heavy and H geometry together without weakening source preservation.
+
+[WP2A validation](chemical-reconstruction-ccd-validation.json): 29 new regression
+tests; 495 focused passes and 3429 full-fast passes, three existing optional Torch/
+Biotite skips and 33 slow deselected. Strict mypy passes for all 11 private modules;
+Ruff passes for all source and the new script/tests. The first full run retained
+3427 passes/one fixture-inventory failure/three skips: the inventory recognized only
+PDB/FASTA. It now explicitly includes CIF plus the CCD source-manifest allowlist,
+retaining exact set equality, duplicate detection and all 63 checksums. Original
+upstream CIF padding is preserved through a narrow `.gitattributes` rule, not by
+changing source bytes or pins. Existing scientific tests/thresholds, production
+paths, environment and prior failure/license gates are unchanged. WP0's inherited
+41 legacy mypy errors remain documented, not suppressed or relabelled as passes.

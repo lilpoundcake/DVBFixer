@@ -10,3 +10,9 @@ FF/amber19sb.ff/** whitespace=-blank-at-eol,-blank-at-eof
 
 # Unified diffs use a single-space context marker for blank source lines.
 deploy/**/*.patch whitespace=-blank-at-eol
+
+# Byte-pinned upstream source CIFs retain original padding and line endings.
+tests/fixtures/chemical_reconstruction/ccd/*.cif -text -whitespace
+# These metadata bytes are also bound by the frozen control runner.
+tests/fixtures/chemical_reconstruction/ccd/manifest.json -text
+docs/plans/chemical-reconstruction-ccd-v1.md -text

@@ -1,0 +1,19 @@
+{
+  "schema": "dvbfixer.ccd-geometry-source-pins.v1",
+  "retrieved_date": "2026-11-19",
+  "protocol_commit_before_download": "67c99e8",
+  "source_url_template": "https://files.rcsb.org/ligands/download/{component_id}.cif",
+  "dictionary": "https://www.wwpdb.org/data/ccd",
+  "usage_policy": "https://www.wwpdb.org/about/usage-policies",
+  "data_license": "CC0-1.0",
+  "notes": "Unmodified CCD source CIFs. Ideal-coordinate authority roundtrips only; amino-acid records retain free-molecule leaving atoms and are not polymer-residue state authorities. No generated candidates or PyRosetta/Dunbrack data.",
+  "components": {
+    "ALA": {"sha256": "6d32b34d4f7b3ddf0cd3dff3f98ddaf7649bc5303ff9a8bd95ba62283f47a1ca", "modified_date": "2024-09-27", "atom_count": 13, "bond_count": 12},
+    "THR": {"sha256": "feb75dfac5bfcc7045de7a75a31575f3bf3e5b411716a06e92712924759dd554", "modified_date": "2023-11-03", "atom_count": 17, "bond_count": 16},
+    "ILE": {"sha256": "8166adcc6acb4661f4a167b0a4295879612dfad3f1a6b6f1b7bd0589c5bded93", "modified_date": "2023-11-03", "atom_count": 22, "bond_count": 21},
+    "LYS": {"sha256": "318a0f6fa8f98682b35e1793517d5b683b9045c1e6174bc564b7d43e07e4c07c", "modified_date": "2024-09-27", "atom_count": 25, "bond_count": 24},
+    "PHE": {"sha256": "002c626d24aec78fd622459d4f4470c682c7c3f9f97d32414fec4313d780496e", "modified_date": "2024-09-27", "atom_count": 23, "bond_count": 23},
+    "EOH": {"sha256": "0fe22f96bfa6e70fd0069ad1b87d728aff9f55353c8eb9f7f459f4a61007fe4b", "modified_date": "2024-09-27", "atom_count": 9, "bond_count": 8},
+    "ACT": {"sha256": "84496b5575ab0672cfc921426995c80ae04968435ad9581c3b47d07ea1e0839d", "modified_date": "2024-09-27", "atom_count": 7, "bond_count": 6}
+  }
+}

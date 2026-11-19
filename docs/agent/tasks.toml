@@ -248,6 +248,7 @@ start = [
   "docs/plans/chemical-reconstruction-handoff.md",
   "docs/plans/chemical-reconstruction-contract-v1.md",
   "docs/plans/chemical-reconstruction-geometry-v1.md",
+  "docs/plans/chemical-reconstruction-ccd-v1.md",
   "src/dvbfixer/chemical_reconstruction/contracts.py::ReconstructionRequest",
   "src/dvbfixer/chemical_reconstruction/admission.py::admit",
   "src/dvbfixer/chemical_reconstruction/adapters.py::from_protein",
@@ -255,6 +256,9 @@ start = [
   "src/dvbfixer/chemical_reconstruction/construction.py::propose",
   "src/dvbfixer/chemical_reconstruction/candidate_audit.py::audit_candidate",
   "src/dvbfixer/chemical_reconstruction/proposals.py::GeometryPlan",
+  "src/dvbfixer/chemical_reconstruction/ccd_authority.py::load_geometry_authority",
+  "src/dvbfixer/chemical_reconstruction/plan_compiler.py::compile_chain_plan",
+  "scripts/chemical_reconstruction_ccd_controls.py::run_controls",
   "docs/research/reconstruction-and-modeling-backends.md",
   "docs/research/pdbfixer-usage-and-replacement-scope.md",
   "src/dvbfixer/protein_completion/service.py::complete_sidechain",
@@ -297,6 +301,7 @@ change_group = "missing-atom-rebuild-chirality"
 test_files = [
   "tests/test_chemical_reconstruction.py",
   "tests/test_chemical_reconstruction_geometry.py",
+  "tests/test_chemical_reconstruction_ccd.py",
   "tests/test_protein_completion.py",
   "tests/test_protein_rotamers.py",
   "tests/test_protein_completion_source.py",
@@ -321,6 +326,7 @@ test_files = [
 ]
 verification = [
   "pytest -q tests/test_chemical_reconstruction_geometry.py tests/test_chemical_reconstruction.py",
+  "pytest -q tests/test_chemical_reconstruction_ccd.py tests/test_ccd_component_reconstruction.py tests/test_fixture_manifest.py",
   "pytest -q tests/test_chemical_reconstruction.py tests/test_nonprotein_reconstruction.py tests/test_ccd_component_reconstruction.py",
   "pytest -q tests/test_protein_completion.py tests/test_pdbfixer_usage_inventory.py",
   "pytest -q tests/test_protein_rotamers.py tests/test_protein_rotamer_conventions.py",

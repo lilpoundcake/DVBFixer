@@ -9,7 +9,10 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Source-selection/provenance metadata is part of the portable input inventory,
 # unlike generated JSON reports. Keep this allowlist explicit.
-FIXTURE_METADATA = {FIXTURES / "cc89_apple_handoff" / "manifest.json"}
+FIXTURE_METADATA = {
+    FIXTURES / "cc89_apple_handoff" / "manifest.json",
+    FIXTURES / "chemical_reconstruction" / "ccd" / "manifest.json",
+}
 
 
 def test_fixture_manifest_is_complete_and_matches_checksums() -> None:
@@ -25,7 +28,7 @@ def test_fixture_manifest_is_complete_and_matches_checksums() -> None:
 
     fixture_inputs = {
         path.resolve() for path in FIXTURES.rglob("*")
-        if path.is_file() and path.suffix.lower() in {".pdb", ".fasta"}
+        if path.is_file() and path.suffix.lower() in {".pdb", ".fasta", ".cif"}
     }
     assert len(entries) == len(set(entries)), "fixture manifest repeats an input"
     expected_inputs = fixture_inputs | {path.resolve() for path in FIXTURE_METADATA}
