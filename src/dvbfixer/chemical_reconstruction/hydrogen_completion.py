@@ -16,6 +16,7 @@ from .contracts import (
     Unit,
     digest_record,
 )
+from .joint_hydrogen_geometry import DirectionGroup, JointMetricGeometryPlan
 from .measurement import _cross, _dot, _sub, _unit, angle_degrees, torsion_degrees
 from .metric_geometry import GeneratedMetricGeometryPlan, GeometryMetric
 from .peptide_state import LocalPeptideAuthority, PeptideStateError
@@ -153,6 +154,19 @@ def compile_complete_hydrogens(base: ReconstructionRequest, authority: LocalPept
     plan = GeneratedMetricGeometryPlan(request.digest, Strategy.INTERNAL, fixed_policy, tuple(placements), tuple(metrics),
                                        generated_policy=generated_policy)
     return CompleteHydrogenView(request, plan, tuple(groups))
+
+
+def compile_joint_hydrogens(view: CompleteHydrogenView) -> CompleteHydrogenView:
+    """Upgrade only admitted sp3 carbon cone groups; source/constraints stay exact."""
+    groups = tuple(DirectionGroup(g.parent, g.heavy_neighbours, g.hydrogens) for g in view.groups
+                   if g.kind in {"tetrahedral-CH", "methylene"})
+    selected = {h for g in groups for h in g.hydrogens}
+    if not groups or any(p.kind != PlacementKind.CONE for p in view.plan.placements if p.atom in selected):
+        raise PeptideStateError("joint-H-upgrade-needs-original-complete-carbon-cone-groups")
+    placements = tuple(replace(p, kind=PlacementKind.JOINT) if p.atom in selected else p for p in view.plan.placements)
+    plan = JointMetricGeometryPlan(view.request.digest, view.plan.strategy, view.plan.policy, placements, view.plan.metrics,
+                                   generated_policy=view.plan.generated_policy, joint_groups=groups)
+    return replace(view, plan=plan)
 
 
 @dataclass(frozen=True)

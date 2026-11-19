@@ -33,6 +33,11 @@ from .contracts import (
     Unit,
     canonical_graph_digest,
 )
+from .joint_hydrogen_geometry import (
+    JointMetricGeometryPlan,
+    joint_group_findings,
+    joint_group_points,
+)
 from .measurement import angle_degrees, satisfied, torsion_degrees
 from .metric_geometry import explicit_metrics, metric_findings, metric_key
 from .planar_geometry import planar_exterior_tip
@@ -47,6 +52,9 @@ def _plan_reason(request: ReconstructionRequest, plan: GeometryPlan) -> str | No
     metric_errors = metric_findings(request, plan)
     if metric_errors:
         return sorted(metric_errors)[0]
+    group_errors = joint_group_findings(request, plan)
+    if group_errors:
+        return sorted(group_errors)[0]
     metrics = explicit_metrics(plan)
     generated = request.ownership.generated
     if len(generated) > 4096:
@@ -117,10 +125,17 @@ def _internal(request: ReconstructionRequest, plan: GeometryPlan, additions: lis
     positions = {o.identity: o.angstrom for o in request.observations}
     elements = {ExactAtomRef(c.identity, a.name): a.element for c in request.components if c.resolved is not None
                 for a in c.resolved.graph.atoms}
+    joint_map = {h: g for g in plan.joint_groups for h in g.hydrogens} if isinstance(plan, JointMetricGeometryPlan) else {}
+    joint_cache = {}
     for placement in plan.placements:
         a, b, c = placement.anchors
         d = placement.atom
-        if placement.kind == PlacementKind.PLANAR:
+        if placement.kind == PlacementKind.JOINT:
+            group = joint_map[d]
+            if group.parent not in joint_cache:
+                joint_cache[group.parent] = joint_group_points(request, group)
+            point = joint_cache[group.parent][d]
+        elif placement.kind == PlacementKind.PLANAR:
             point = planar_exterior_tip(positions[a], positions[b], positions[c],
                                         length=metrics[metric_key((a, d))],
                                         first_angle=metrics[metric_key((b, a, d))],

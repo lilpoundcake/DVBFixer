@@ -10,6 +10,7 @@ from dvbfixer.domain.structure_identity import ExactAtomRef
 from .admission import admit
 from .authority_geometry import geometry_view
 from .contracts import LinkKind, ReconstructionRequest, Unit
+from .joint_hydrogen_geometry import joint_group_findings
 from .measurement import Point, angle_degrees, satisfied
 from .metric_geometry import audit_policy_for, explicit_metrics, metric_findings, metric_key
 from .proposals import Candidate, CandidateAudit, GeometryPlan
@@ -19,6 +20,7 @@ def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidat
     planning = admit(request)
     errors = {f.code for f in planning.findings if f.code != "no-declared-capability-matches"}
     errors.update(metric_findings(request, plan))
+    errors.update(joint_group_findings(request, plan))
     if candidate.request_digest != request.digest or plan.request_digest != request.digest:
         errors.add("request-binding")
     if candidate.plan_digest != plan.digest:

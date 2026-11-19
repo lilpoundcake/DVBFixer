@@ -1,8 +1,9 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-19. Status: WP0–WP2E and bounded WP2F complete-selected-H controls
-checked; final fast suite passed, split slow boundaries passed, large combined
-slow-inclusive run remains incomplete after outer timeouts. General
+Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H and WP2G
+joint-sp3-H controls checked; final fast suite passed (3599), split slow boundaries
+passed. WP2F's large combined slow-inclusive run remains incomplete after outer
+timeouts. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
@@ -922,10 +923,74 @@ The [WP2F validation record](chemical-reconstruction-hydrogens-validation.json)
 binds protocol/source/report hashes, all positive/negative outcomes, readback and
 the unresolved combined-run timeout evidence.
 
-Next: declare a joint generated-only sp3-group fitting policy to distribute angular
+Next at WP2F (completed in WP2G below): declare a joint generated-only sp3-group fitting policy to distribute angular
 strain instead of independently satisfying two cone angles, preserving current
 negative results and the same observation ownership. Fixed-heavy ring defects
 require a distinct source policy, not a hidden H workaround. Broader complex/
 chemistry evidence, measured/partial H transport, all20 and stereospecific H names,
 actual neighbour/polymer chemistry, hydrogen-bond quality and production/default/
 dependency/data-license gates remain open.
+
+## WP2G — joint generated-only sp3 H orientation (2026-11-20)
+
+The [frozen joint-H protocol](chemical-reconstruction-joint-h-v1.md) was committed
+as `7d8267b` on the persistent branch before numerical execution, with baseline
+`8daa3b6`. No branch/worktree, public capability, default replacement, chemistry
+change, mask/phase search or relaxed threshold was introduced.
+
+`joint_hydrogen_geometry.py` adds explicit `DirectionGroup` and digest-tagged
+`JointMetricGeometryPlan` records. `compile_joint_hydrogens` upgrades only neutral
+carbon 3-heavy/1-H and 2-heavy/2-H cone groups. All heavy-neighbour directions
+participate equally in one proper rotation, reusing the unchanged
+`model.diffusion.geometry.weighted_kabsch` owner on normalized antipodal clouds.
+Translation is checked but never applied; observations stay fixed. Each group's
+generated H shares that rotation and keeps source lengths/internal H-H angles.
+Backbone amide, aromatic CH, hydroxyl and terminal-three-H strategies are unchanged.
+The constructor caches one fit per group; the independent candidate auditor checks
+authority, complete membership, fixed-heavy ownership and geometry without fitting.
+
+All twelve declared comparison entries executed with the EXACT WP2F requests,
+constraints, states, masks, names and fixed/generated audit policies:
+
+- Five nominal synthetic controls passed raw/rounded geometry and conditional CIP.
+- Observed 1UBQ ALA28 (5 H), ILE3 (11 H), LYS6 (13 H) and 1FR2 THR11 (7 H) passed
+  raw/rounded geometry plus conditional CIP. ILE/LYS improve over the unchanged,
+  retained WP2F angular failures; the old algorithm still rejects those inputs.
+- Synthetic ALA incoming angle 100 remains geometry-rejected despite CIP pass.
+  PHE45 still refuses its fixed-heavy ring plane before construction; 1A3N still
+  refuses unresolved altloc. No fixed-heavy source workaround was added.
+
+These are known retrospective cases with a prospectively frozen algorithm, not
+independent folds or native-H accuracy evidence. Of six observed declarations,
+five produce prepared requests, four run coordinate construction and four pass;
+the other two are fixed-input/preparation refusals. Conditional CIP remains
+necessary but does not validate H coordinates or stereospecific H naming.
+
+Saved old/new views were decoded independently: request/constraints/policies and
+plan bindings match; saved observed originals/prepared bytes were rechecked.
+Twenty raw/rounded geometry and twenty conditional-CIP audits match the retained
+reports with constructor/fitter calls forbidden. All 113 files across joint,
+complete-H, source, amide, naming, peptide and CCD replays are byte-identical.
+Readback and replays are regressions, not additional scientific trials.
+
+Verification: 34 new cases; focused fast **668 passed**, three slow deselected;
+separate joint/H/seeded/renumber boundary process **67 passed**; full fast
+**3599 passed**, three existing optional Torch/Biotite skips, 33 slow deselected.
+Ruff passes and scoped strict mypy passes 21 files. Unsilenced mypy exposes 793
+legacy diagnostics in 51 files through the reused helper's dependency graph:
+the exact diagnostic multiset matches an unchanged `8daa3b6` source archive,
+with zero new errors. The helper was not copied/refactored to hide those errors.
+CLI/GUI generated checks pass when bound to this checkout (`PYTHONPATH=src:.`).
+The old WP2F large combined slow-inclusive timeout is still unresolved, not
+closed by this small boundary run. See the
+[WP2G validation record](chemical-reconstruction-joint-h-validation.json) for
+source/protocol/report hashes and retained evidence paths.
+
+Next: prospectively declare broader explicit-chemistry/H coverage and independent
+quality evidence before extending this algorithm. Keep heavy reconstruction and
+H geometry as equal tracks within the shared retained-complex architecture.
+Measured/partial H, all20/linked chemistry, actual-neighbour/polymer witnesses,
+stereospecific names, native-H/hydrogen-bond quality and broad complex qualification
+remain open. Fixed-heavy ring repair requires a separate explicit source policy.
+Public/default/dependency replacement and production/data-license approval remain
+disabled; local PyRosetta research permission is not production permission.

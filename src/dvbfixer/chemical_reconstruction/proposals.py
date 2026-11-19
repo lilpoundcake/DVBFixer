@@ -28,6 +28,7 @@ class PlacementKind(StrEnum):
     CHAIN = "chain"
     CONE = "two-angle-cone"
     PLANAR = "metric-planar-exterior"
+    JOINT = "joint-sp3-H-directions"
 
 
 @dataclass(frozen=True)
