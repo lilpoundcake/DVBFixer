@@ -1,0 +1,37 @@
+{
+  "schema": "dvbfixer.projected-parent-H-ledger.v1",
+  "protocol_commit": "24c8eb1",
+  "baseline_commit": "d6b090d",
+  "parent_summary_sha256": "903c0e6e7abe06e0ab8ac6dcda7ee99ecf124ac462b6880dc8f7e5aefaf50163",
+  "projection_digest_definition": "digest_record of complete typed ProjectionResult: SHA256 canonical JSON, no native-reference/RMSD fields",
+  "signature_definition": "SHA256 canonical JSON of rounded generated-only additions",
+  "entries": [
+    {
+      "id": "1UBQ",
+      "status": "projected-geometry-passed",
+      "reason": "declared-projection-geometry-only",
+      "parent_artifact": "tmp/chemical-reconstruction-port-projection-v1/controls-03/1UBQ/evidence.json",
+      "parent_sha256": "eafa303b84ba164a9e78dea6789ed90957984ba9eccc46298557ee531efe46fe",
+      "projection_digest": "e9e678d10d73cd9566ec50a7163b503da9fd04089c98b2d4c30410c84294c035",
+      "rounded_additions_sha256": "1469f920964a1bf1ff393fe08db848015129044a3ccdc4f80a0a9582877ec6d8"
+    },
+    {
+      "id": "1FR2",
+      "status": "refused",
+      "reason": "actual-incoming-template-unresolved:HIS",
+      "parent_artifact": "tmp/chemical-reconstruction-port-projection-v1/controls-03/1FR2/evidence.json",
+      "parent_sha256": "294d2195fdeef5dc7c852674a4fc959f5dd9553ae0c672680c391b3b6b16cb8a",
+      "projection_digest": null,
+      "rounded_additions_sha256": null
+    },
+    {
+      "id": "1A3N",
+      "status": "refused",
+      "reason": "explicit-altloc-selection-required",
+      "parent_artifact": "tmp/chemical-reconstruction-port-projection-v1/controls-03/1A3N/evidence.json",
+      "parent_sha256": "d87a62046efdf86d7bd471d5e0a289313404bbeedc424b2a7d594f85f3643547",
+      "projection_digest": null,
+      "rounded_additions_sha256": null
+    }
+  ]
+}
