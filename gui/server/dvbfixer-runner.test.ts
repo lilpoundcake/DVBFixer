@@ -217,7 +217,7 @@ describe('DVBfixer runner', () => {
   }, 15_000)
 
   it('strictly validates and initializes the concurrency configuration', async () => {
-    expect(parseDvbfixerMaxConcurrentProcesses(undefined)).toBe(1)
+    expect(parseDvbfixerMaxConcurrentProcesses(undefined)).toBe(2)
     expect(parseDvbfixerMaxConcurrentProcesses('64')).toBe(64)
     expect(parseDvbfixerMaxQueuedProcesses(undefined)).toBe(16)
     expect(parseDvbfixerMaxQueuedProcesses('256')).toBe(256)

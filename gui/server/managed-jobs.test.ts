@@ -86,6 +86,26 @@ afterEach(() => {
 })
 
 describe('managed DVBfixer jobs', () => {
+  it('finishes diagnosis of B while model A remains running in the same workspace', async () => {
+    resetDvbfixerProcessAdmission(2)
+    const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
+    for (const name of ['a.pdb', 'b.pdb']) fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), name), 'END\n')
+    useNode(`if(process.argv.includes('model')) { setInterval(()=>{},1000) } else { console.log('diagnosis B') }`)
+    const model = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'model', inputFile: 'a.pdb' })
+    try {
+      await vi.waitFor(() => expect(getManagedJob(dataRoot, workspace.id, model.id).status).toBe('running'))
+      const diagnose = createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'diagnose', inputFile: 'b.pdb' })
+      const result = await terminal(dataRoot, workspace.id, diagnose.id)
+      expect(result.status).toBe('succeeded')
+      expect(fs.readFileSync(path.join(workspaceRoot(dataRoot, workspace.id), result.stdoutLog), 'utf8')).toContain('diagnosis B')
+      expect(getManagedJob(dataRoot, workspace.id, model.id).status).toBe('running')
+      expect(listManagedJobs(dataRoot, workspace.id).map(job => job.id)).toEqual(expect.arrayContaining([model.id, diagnose.id]))
+      expect(() => createManagedJob(dataRoot, { workspaceId: workspace.id, command: 'prepare', inputFile: 'b.pdb' })).toThrow(/running/)
+    } finally {
+      cancelManagedJob(dataRoot, workspace.id, model.id)
+      expect((await terminal(dataRoot, workspace.id, model.id)).status).toBe('cancelled')
+    }
+  })
   it('persists stage events and exposes them through the existing job API after completion', async () => {
     const dataRoot = root(), workspace = listWorkspaces(dataRoot)[0]
     fs.writeFileSync(path.join(workspaceRoot(dataRoot, workspace.id), 'input.pdb'), 'END\n')

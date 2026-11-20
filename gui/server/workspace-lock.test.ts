@@ -21,6 +21,17 @@ afterEach(() => {
 })
 
 describe('workspace manifest lock', () => {
+  it('admits one independent diagnostic lane without weakening scientific exclusion', () => {
+    const root = temp()
+    const scientific = acquireWorkspaceRunLock(root, 'workspace-a')
+    const diagnostic = acquireWorkspaceRunLock(root, 'workspace-a', 'diagnose')
+    try {
+      expect(() => acquireWorkspaceRunLock(root, 'workspace-a')).toThrow(WorkspaceRunLockError)
+      expect(() => acquireWorkspaceRunLock(root, 'workspace-a', 'diagnose')).toThrow(WorkspaceRunLockError)
+    } finally { diagnostic(); scientific() }
+    const again = acquireWorkspaceRunLock(root, 'workspace-a', 'diagnose')
+    again()
+  })
   it('serializes scientific runs independently of manifest writes', () => {
     const root = temp()
     const release = acquireWorkspaceRunLock(root, 'workspace-a')

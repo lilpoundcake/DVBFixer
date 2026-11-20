@@ -10,6 +10,8 @@ import { useWorkspaceStore } from '../stores/workspaceStore'
 import { panelToolbarSx, workspaceRowColors } from '../ui/layout'
 import { fetchJobMonitorPage, MonitorHttpError, pollJobMonitor, type JobMonitorPage } from '../lib/job-monitor-polling'
 import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
+import { jobErrorSummary } from '../lib/tool-output'
+import { RunStructureInspection } from './RunStructureInspection'
 
 const jobKey = (job: ManagedJobRecord) => `${job.workspaceId}:${job.id}`
 
@@ -127,12 +129,19 @@ export function JobMonitor() {
         {isActiveManagedJob(job) && <LinearProgress
           variant={progress.percent === undefined ? 'indeterminate' : 'determinate'} value={progress.percent}
           aria-label={`${job.command} stage progress${progress.percent === undefined ? ' (indeterminate)' : ''}`} sx={{ my: 1 }} />}
-        {job.error && <Typography variant="caption" color="error">{job.error}</Typography>}
+        {job.error && <Box>
+          <Typography variant="body2" color="error">{jobErrorSummary(job.error)}</Typography>
+          <Box component="details" sx={{ fontSize: '0.75rem', '& summary': { cursor: 'pointer' } }}>
+            <summary>Full error details</summary>
+            <Box component="pre" sx={{ maxHeight: 180, overflow: 'auto', whiteSpace: 'pre-wrap', m: 0 }}>{job.error}</Box>
+          </Box>
+        </Box>}
         <DiffusionSeedOutcomes diffusion={job.diffusion} onOpenReport={file => {
           setTextPreview({ workspaceId: job.workspaceId, file, name: `${job.command} · Per-seed validation` })
           window.dispatchEvent(new Event('dvbfixer:open-text-viewer'))
         }} />
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
+          {!isActiveManagedJob(job) && <RunStructureInspection workspaceId={job.workspaceId} runDirectory={job.outputDir} />}
           {isActiveManagedJob(job) && <Button variant="outlined" color="error"
             aria-label={`Stop ${job.command} job ${job.id}`}
             disabled={stopping.has(jobKey(job)) || Boolean(job.cancellationRequestedAt) || !workspace || workspace.effectiveRole === 'reader'}

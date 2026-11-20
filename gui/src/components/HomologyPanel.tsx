@@ -31,16 +31,17 @@ import { bestMatchingChainId, chainIdentityLabel, targetSequences } from '../lib
 import { residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
 import { apiFetch } from '../lib/api-client'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
-import { anchorRefinementNotices, outputErrors } from '../lib/tool-output'
+import { anchorRefinementNotices, jobErrorSummary, outputErrors } from '../lib/tool-output'
 import { diffusionSeedError } from '../lib/diffusion-seeds'
 import { isActiveManagedJob, managedJobProgress, managedJobStatusLabel } from '../lib/managed-jobs'
 import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
+import { RunStructureInspection } from './RunStructureInspection'
 import { useHomologyJob } from '../hooks/useHomologyJob'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
   controlSx as toolbarControlSx, wideControlSx as targetSourceControlSx,
   actionTooltipWrapperSx as toolbarTooltipWrapperSx, primaryActionSx, compactIconButtonSx,
-  actionGroupSx,
+  actionGroupSx, formActionRowSx,
 } from '../ui/layout'
 
 interface TemplateSelection {
@@ -165,7 +166,7 @@ export function HomologyPanel() {
       setModelWarnings(anchorRefinementNotices(stdout, stderr))
       setModelErrors(outputErrors(stdout, stderr))
       setMessage(job.status === 'cancelled' ? 'Homology cancelled; diagnostics retained.'
-        : job.status === 'failed' ? `Homology failed: ${job.error || 'inspect the retained logs'}`
+        : job.status === 'failed' ? `Homology failed: ${job.error ? jobErrorSummary(job.error) : 'inspect the retained logs'}`
           : job.modelStatus === 'validation_failed' ? 'Rejected candidates retained for inspection, not accepted for use.'
             : `Model complete: ${job.outputFile || 'inspect the retained run reports'}`)
       void reloadWorkspace()
@@ -694,7 +695,8 @@ export function HomologyPanel() {
               {homologyJob.stopping ? 'Stopping…' : 'Stop Homology'}
             </Button>
           </>}
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {!homologyJob.active && <RunStructureInspection key={homologyJob.job.id} workspaceId={activeWorkspaceId} runDirectory={homologyJob.job.outputDir} />}
             {([['Stdout', homologyJob.job.stdoutLog], ['Stderr', homologyJob.job.stderrLog]] as const).map(([label, file]) =>
               <Button key={label} onClick={() => {
                 useWorkspaceStore.getState().setTextPreview({ workspaceId: activeWorkspaceId, file, name: `Homology · ${label}` })
@@ -891,7 +893,7 @@ export function HomologyPanel() {
 
         {tab === 3 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={homologyToolbarSx}>
+            <Box sx={{ ...homologyToolbarSx, ...formActionRowSx }}>
               <FormControl size="small" sx={toolbarControlSx}><InputLabel>Backend</InputLabel><Select label="Backend" value={project.modelOptions['--backend'] ?? 'modeller'}
                 onChange={event => setModelBackend(String(event.target.value))}>
                 <MenuItem value="modeller">Modeller</MenuItem><MenuItem value="diffusion">Diffusion</MenuItem>
@@ -916,7 +918,7 @@ export function HomologyPanel() {
                 </FormControl>
                 <TextField sx={toolbarControlSx} size="small" label="Seeds" value={project.modelOptions['--diffusion-seed'] ?? ''}
                   placeholder="7" error={!!diffusionSeedError(project.modelOptions['--diffusion-seed'])}
-                  helperText={diffusionSeedError(project.modelOptions['--diffusion-seed']) || 'Commas or spaces: 1, 17, 148. Default: 7; timeout covers all candidates.'}
+                   helperText={diffusionSeedError(project.modelOptions['--diffusion-seed']) || '1, 17, 148 · default: 7'}
                   onChange={event => update({ modelOptions: { ...project.modelOptions, '--diffusion-seed': event.target.value } })} />
                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Anchor repair</InputLabel>
                   <Select label="Anchor repair" value={project.modelOptions['--no-relax-anchors'] ? 'disabled' : 'enabled'}
@@ -927,7 +929,7 @@ export function HomologyPanel() {
                 <FormControl size="small" sx={toolbarControlSx}><InputLabel>Anchor restraints</InputLabel>
                   <Select label="Anchor restraints" value={project.modelOptions['--no-anchor-bfactor-weighting'] ? 'uniform' : 'auto'}
                     onChange={event => update({ modelOptions: { ...project.modelOptions, '--no-anchor-bfactor-weighting': event.target.value === 'uniform' } })}>
-                    <MenuItem value="auto">Experimental B / fallback</MenuItem><MenuItem value="uniform">Uniform</MenuItem>
+                    <MenuItem value="auto">Auto</MenuItem><MenuItem value="uniform">Uniform</MenuItem>
                   </Select>
                 </FormControl>
                  {project.modelOptions['--diffusion-model'] === 'protenix' && <FormControl size="small" sx={toolbarControlSx}><InputLabel>Protein context</InputLabel>
@@ -943,7 +945,7 @@ export function HomologyPanel() {
                       if (event.target.value !== 'regenerate') delete options['--diffusion-edit-flanks']
                       update({ modelOptions: options })
                     }}>
-                    <MenuItem value="reject">Reject edits</MenuItem><MenuItem value="regenerate">Regenerate (experimental)</MenuItem>
+                    <MenuItem value="reject">Reject</MenuItem><MenuItem value="regenerate">Regenerate (experimental)</MenuItem>
                   </Select>
                 </FormControl>
                 {project.modelOptions['--diffusion-regenerate-covered'] === true && <FormControl size="small" sx={toolbarControlSx}><InputLabel>Edit flanks</InputLabel>
@@ -957,8 +959,23 @@ export function HomologyPanel() {
                  onClick={runModel} disabled={busy !== '' || homologyJob.active || homologyJob.submitting || activeWorkspace?.effectiveRole === 'reader' || !project.alignmentGroups.length}>Run {(project.modelOptions['--backend'] ?? 'modeller') === 'diffusion' ? 'Diffusion' : 'Modeller'}</Button>
             </Box>
             <Typography variant="caption" color="text.secondary">
-              Selected spans form one fitted mosaic; earlier templates win overlaps. Diffusion generates only admitted regions and never falls back to Modeller. Clean geometry skips minimization. If generated-only repair fails, geometry-gated repair may release problematic immediate anchors: backbone RMSD ≤0.5 Å, Cα ≤0.5 Å and every heavy atom ≤1.25 Å. Modified anchors and measured movements appear in the run log and validation report. Experimental B factors weight restraints only; unknown provenance uses uniform fallback. Corrected Protpardelle CUDA/MPS uses source-only local context for one CYS-free internal gap of 5–10 residues (at most 512 source residues); Apple refinement runs on CPU. Explicit full/none context is rejected. Frozen legacy requests retain historical behavior.
+              Templates form one fitted model. Earlier templates take priority in overlaps.
             </Typography>
+            {project.modelOptions['--backend'] === 'diffusion' && <>
+              <Typography variant="caption" color="text.secondary">
+                Diffusion generates eligible regions only. No fallback to Modeller.
+              </Typography>
+              <Box component="details" sx={{ fontSize: '0.75rem', '& summary': { cursor: 'pointer' }, '& li': { mb: 0.5 } }}>
+                <summary>Modeling details</summary>
+                <Box component="ul" sx={{ my: 0.5, pl: 2.5 }}>
+                  <li><strong>Seeds:</strong> separate with commas or spaces. The timeout covers all candidates, not each seed.</li>
+                  <li><strong>Geometry:</strong> clean models skip minimization. Repair first moves generated atoms only.</li>
+                  <li><strong>Anchor repair:</strong> if enabled and needed, immediate anchors may move within backbone RMSD / Cα limits of 0.5 Å and a per-heavy-atom limit of 1.25 Å. Movements are recorded in the log and validation report.</li>
+                  <li><strong>Restraints:</strong> experimental B factors weight restraints only; unknown provenance uses uniform weights.</li>
+                  <li><strong>Protpardelle CUDA/MPS:</strong> source-only local context; case-tested for one CYS-free internal gap of 5–10 residues and at most 512 source residues. Full/none context is unsupported. Apple refinement uses CPU.</li>
+                </Box>
+              </Box>
+            </>}
           </Box>
         )}
       </Box>

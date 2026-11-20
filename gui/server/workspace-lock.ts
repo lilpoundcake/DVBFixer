@@ -266,15 +266,17 @@ export function withGlobalMigrationLock<T>(dataRoot: string, callback: () => T):
 
 /**
  * Acquire the durable per-workspace scientific-run lease.
+ * Diagnose has its own read-only lane; manifest publication still uses the
+ * ordinary serialized manifest transaction.
  *
  * The lock record includes host, boot, PID, and process-start identity, so a
  * dead same-host owner can be reaped without stealing a live or unverifiable
  * lock. The returned closure releases only the caller's token.
  */
-export function acquireWorkspaceRunLock(dataRoot: string, workspaceId: string): () => void {
+export function acquireWorkspaceRunLock(dataRoot: string, workspaceId: string, lane?: 'diagnose'): () => void {
   let lock: ReturnType<typeof acquire>
   try {
-    lock = acquire(dataRoot, workspaceId, `run-${workspaceId}`)
+    lock = acquire(dataRoot, workspaceId, `${lane || 'run'}-${workspaceId}`)
   } catch (error) {
     if (error instanceof WorkspaceManifestLockError) throw new WorkspaceRunLockError(workspaceId)
     throw error

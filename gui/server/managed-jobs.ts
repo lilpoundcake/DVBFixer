@@ -125,6 +125,12 @@ export function acquireWorkspaceRun(
   }
 }
 
+// Diagnose reads immutable inputs and publishes into its own job directory.
+// All modifying/scientific workflows retain the existing exclusive run lease.
+function localRunScope(workspaceId: string, command: string): string {
+  return command === 'diagnose' ? `diagnose:${workspaceId}` : workspaceId
+}
+
 function jobDirectory(dataRoot: string, workspaceId: string, jobId: string): string {
   if (!/^[0-9a-f-]{36}$/.test(jobId)) throw httpError(400, 'invalid job id')
   return path.join(workspaceRoot(dataRoot, workspaceId), 'runs', `job_${jobId}`)
@@ -181,11 +187,11 @@ function loadJob(dataRoot: string, workspaceId: string, jobId: string): ManagedJ
     const cancelledAt = readCancellationRequest(cancellationPath(dataRoot, workspaceId, jobId))
     if (cancelledAt) record.cancellationRequestedAt = cancelledAt
   }
-  if ((record.status === 'queued' || record.status === 'running') && !activeRuns.has(workspaceId)) {
+  if ((record.status === 'queued' || record.status === 'running') && !activeRuns.has(localRunScope(workspaceId, record.command))) {
     // Another server process may own the durable workspace lease. Only mark a
     // persisted active record orphaned when the lease can actually be acquired.
     try {
-      const release = acquireWorkspaceRunLock(dataRoot, workspaceId)
+      const release = acquireWorkspaceRunLock(dataRoot, workspaceId, record.command === 'diagnose' ? 'diagnose' : undefined)
       try {
         record.status = 'failed'
         record.finishedAt = new Date().toISOString()
@@ -561,8 +567,8 @@ function reserveManagedJob(dataRoot: string, request: ManagedJobRequest, request
   assertWorkspaceQuota(workspaceRoot(dataRoot, request.workspaceId), 64 * 1024)
   const id = crypto.randomUUID()
   const controller = new AbortController()
-  const releaseDurable = acquireWorkspaceRunLock(dataRoot, request.workspaceId)
-  const releaseLocal = acquireWorkspaceRun(request.workspaceId, id, controller)
+  const releaseDurable = acquireWorkspaceRunLock(dataRoot, request.workspaceId, request.command === 'diagnose' ? 'diagnose' : undefined)
+  const releaseLocal = acquireWorkspaceRun(localRunScope(request.workspaceId, request.command), id, controller)
   if (!releaseLocal) {
     releaseDurable()
     throw httpError(409, 'another DVBfixer job is already running in this workspace')
@@ -712,7 +718,7 @@ export function createManagedWorkflowJob(
 export function cancelManagedJob(dataRoot: string, workspaceId: string, jobId: string): ManagedJobRecord {
   const record = loadJob(dataRoot, workspaceId, jobId)
   if (record.status !== 'queued' && record.status !== 'running') return record
-  const active = activeRuns.get(workspaceId)
+  const active = activeRuns.get(localRunScope(workspaceId, record.command))
   try { fs.writeFileSync(cancellationPath(dataRoot, workspaceId, jobId), `${new Date().toISOString()}\n`, { mode: 0o600, flag: 'wx' }) } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
   }

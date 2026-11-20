@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { createJobProgressDecoder, type JobProgress } from './job-progress'
 
-const DEFAULT_MAX_CONCURRENT_PROCESSES = 1
+const DEFAULT_MAX_CONCURRENT_PROCESSES = 2
 const MAX_CONCURRENT_PROCESSES = 64
 const DEFAULT_MAX_QUEUED_PROCESSES = 16
 const MAX_QUEUED_PROCESSES = 256

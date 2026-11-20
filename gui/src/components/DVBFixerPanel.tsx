@@ -24,7 +24,7 @@ import { useStructureStore } from '../stores/structureStore'
 import { alignSequences, chainToSequence } from '../lib/alignment'
 import { filterSequenceableChains } from '../lib/chain-grouping'
 import { useWorkspaceStore, workspaceFileUrl, type WorkspaceArtifact } from '../stores/workspaceStore'
-import { acceptManagedJobUpdate, createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, type ManagedJobRecord } from '../lib/managed-jobs'
+import { acceptManagedJobUpdate, createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, toolRunBlocked, type ManagedJobRecord } from '../lib/managed-jobs'
 import { structureMetaFromArtifact } from '../lib/workspace-metadata'
 import { apiFetch, apiSse } from '../lib/api-client'
 import { v1Client } from '../lib/v1-client'
@@ -292,6 +292,7 @@ export function DVBFixerPanel() {
   const reloadWorkspace = useWorkspaceStore(state => state.reload)
   const updateToolState = useWorkspaceStore(state => state.updateToolState)
   const terminalHandledRef = useRef<Set<string>>(new Set())
+  const submittedViewRef = useRef(new Map<string, { file: string | null; input: string }>())
   const submitInFlightRef = useRef(false)
   const workspaceEpochRef = useRef(0)
   const pendingToolRef = useRef<string | null>(null)
@@ -308,7 +309,35 @@ export function DVBFixerPanel() {
   const toolResult = namingToolResult || (outputMatchesManagedJob(result, toolJob, workspace?.id) ? result : null)
 
   const jobActive = job?.workspaceId === workspace?.id && isActiveManagedJob(job)
+  const toolJobActive = isActiveManagedJob(toolJob)
+  const runBlocked = toolRunBlocked(knownJobs, workspace?.id, activeCmd?.name)
+  const hasActiveJobs = knownJobs.some(isActiveManagedJob)
   const activeJobId = jobActive ? job?.id : undefined
+
+  // Other tools keep running when a new job becomes the streamed foreground job.
+  useEffect(() => {
+    if (!workspace?.id || !hasActiveJobs) return
+    const controller = new AbortController()
+    let pending = false
+    const refresh = async () => {
+      if (pending) return
+      pending = true
+      try {
+        const { data } = await v1Client.GET('/api/v1/workspaces/{workspaceId}/jobs', {
+          params: { path: { workspaceId: workspace.id } }, signal: controller.signal, cache: 'no-store',
+        })
+        if (!data || controller.signal.aborted) return
+        const jobs = data as ManagedJobRecord[]
+        setJobHistory(jobs)
+        setJob(current => {
+          const next = jobs.find(item => item.id === current?.id)
+          return next && acceptManagedJobUpdate(current, next) ? next : current
+        })
+      } finally { pending = false }
+    }
+    const timer = window.setInterval(() => { void refresh().catch(() => {}) }, 2000)
+    return () => { controller.abort(); window.clearInterval(timer) }
+  }, [workspace?.id, hasActiveJobs])
 
   // Restore an interrupted/active run whenever this panel mounts or the
   // active workspace changes. The server is the source of truth.
@@ -344,6 +373,15 @@ export function DVBFixerPanel() {
   useEffect(() => {
     if (job && job.workspaceId === workspace?.id) setJobHistory(history => mergeManagedJobHistory(history, job))
   }, [job, workspace?.id])
+
+  // Background jobs still publish artifacts, even after another tool takes focus.
+  useEffect(() => {
+    const completed = knownJobs.filter(item => !isActiveManagedJob(item) && submittedViewRef.current.has(item.id) &&
+      item.id !== job?.id && !terminalHandledRef.current.has(item.id))
+    if (!completed.length) return
+    for (const item of completed) terminalHandledRef.current.add(item.id)
+    void reloadWorkspace().catch(reason => setError(String(reason)))
+  }, [knownJobs, job?.id, reloadWorkspace])
 
   // Stream state changes, with polling as a fallback for proxies where the
   // authenticated event stream is unavailable or disconnected.
@@ -413,14 +451,14 @@ export function DVBFixerPanel() {
     return () => controller.abort()
   }, [toolJob, workspace?.id])
 
-  const loadOutputStructure = useCallback(async (workspaceId: string, outputFile: string, artifact?: WorkspaceArtifact) => {
+  const loadOutputStructure = useCallback(async (workspaceId: string, outputFile: string, artifact?: WorkspaceArtifact, stillSelected: () => boolean = () => true) => {
     if (useWorkspaceStore.getState().active?.id !== workspaceId) return
     const plugin = useStructureStore.getState().plugin
     if (!plugin) return
     const response = await apiFetch(workspaceFileUrl(workspaceId, outputFile), { cache: 'no-store' })
     if (!response.ok) throw new Error(`Output cannot be loaded: HTTP ${response.status}`)
     const text = await response.text()
-    if (useWorkspaceStore.getState().active?.id !== workspaceId) return
+    if (useWorkspaceStore.getState().active?.id !== workspaceId || !stillSelected()) return
     const format = /\.(cif|mmcif)$/i.test(outputFile) ? 'mmcif' : 'pdb'
     await plugin.clear()
     const data = await plugin.builders.data.rawData({ data: text, label: outputFile })
@@ -442,13 +480,19 @@ export function DVBFixerPanel() {
     terminalHandledRef.current.add(job.id)
     setCancelling(false)
     const workspaceId = workspace.id
+    let disposed = false
     ;(async () => {
       const refreshed = await reloadWorkspace()
-      if (job.status !== 'succeeded' || !job.outputFile || !/\.(pdb|cif|mmcif|gro)$/i.test(job.outputFile)) return
+      if (disposed || job.status !== 'succeeded' || !job.outputFile || !/\.(pdb|cif|mmcif|gro)$/i.test(job.outputFile)) return
+      const started = submittedViewRef.current.get(job.id)
+      if (!started || job.command !== activeCmd?.name || inputFile !== started.input ||
+        useStructureStore.getState().fileName !== started.file) return
       const artifact = refreshed?.artifacts.find(item => item.file === job.outputFile)
-      await loadOutputStructure(workspaceId, job.outputFile, artifact)
+      await loadOutputStructure(workspaceId, job.outputFile, artifact,
+        () => !disposed && useStructureStore.getState().fileName === started.file)
     })().catch(reason => setError(reason.message || String(reason)))
-  }, [job, reloadWorkspace, workspace?.id, loadOutputStructure])
+    return () => { disposed = true }
+  }, [job, reloadWorkspace, workspace?.id, loadOutputStructure, activeCmd?.name, inputFile])
 
   const fetchSpec = useCallback(() => {
     apiFetch(`/api/dvbfixer-spec?t=${Date.now()}`, { cache: 'no-store' })
@@ -642,7 +686,7 @@ export function DVBFixerPanel() {
   }, [seqChains, fastaByChain, inputFile])
 
   const handleRun = useCallback(async () => {
-    if (!activeCmd || !workspace || jobActive || submitInFlightRef.current) return
+    if (!activeCmd || !workspace || runBlocked || submitInFlightRef.current) return
     const runInputs: Record<string, string | string[]> = { ...(inputsByCommand[activeCmd.name] ?? {}) }
     if (activeCmd.inputs[0] && !activeCmd.inputs[0].multi && inputFile) runInputs[activeCmd.inputs[0].dest] = inputFile
     const missing = activeCmd.inputs.find(input => input.required && (
@@ -655,6 +699,7 @@ export function DVBFixerPanel() {
     setError(null)
     setResult(null)
     const runEpoch = workspaceEpochRef.current
+    const startedView = { file: useStructureStore.getState().fileName, input: inputFile }
     try {
       if (activeCmd.name === 'atom-names') {
         setNamingResult(null)
@@ -707,9 +752,11 @@ export function DVBFixerPanel() {
           fastaContent,
         }),
       })
+      if (runEpoch !== workspaceEpochRef.current) return
       if (apiError) {
         setError(apiError.error.message || `HTTP ${response.status}`)
       } else {
+        submittedViewRef.current.set((data as ManagedJobRecord).id, startedView)
         setJob(data as ManagedJobRecord)
       }
     } catch (e: any) {
@@ -724,16 +771,16 @@ export function DVBFixerPanel() {
       submitInFlightRef.current = false
       setSubmitting(false)
     }
-  }, [activeCmd, inputFile, inputsByCommand, activeValues, buildFastaContent, jobActive, workspace, reloadWorkspace, loadOutputStructure])
+  }, [activeCmd, inputFile, inputsByCommand, activeValues, buildFastaContent, runBlocked, workspace, reloadWorkspace, loadOutputStructure])
 
   const cancelJob = useCallback(async () => {
-    if (!job || !workspace || !isActiveManagedJob(job) || cancelling) return
+    if (!toolJob || !workspace || !isActiveManagedJob(toolJob) || cancelling) return
     setCancelling(true)
     setError(null)
     try {
       const { data, error: apiError, response } = await v1Client.DELETE(
         '/api/v1/workspaces/{workspaceId}/jobs/{jobId}', {
-          params: { path: { workspaceId: workspace.id, jobId: job.id } },
+          params: { path: { workspaceId: workspace.id, jobId: toolJob.id } },
         },
       )
       if (apiError) throw new Error(apiError.error.message || `Cancel: HTTP ${response.status}`)
@@ -742,7 +789,7 @@ export function DVBFixerPanel() {
       setError(reason.message || String(reason))
       setCancelling(false)
     }
-  }, [cancelling, job, workspace])
+  }, [cancelling, toolJob, workspace])
 
   const inputOptions = useMemo(() => structures.filter(s => s.kind !== 'folder' && !!s.file), [structures])
 
@@ -827,7 +874,7 @@ export function DVBFixerPanel() {
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>
-                {jobActive && job?.command === activeCmd.name && (
+                {toolJobActive && (
                   <Button color="error" variant="outlined" disabled={cancelling} onClick={cancelJob}
                     startIcon={cancelling ? <CircularProgress size={12} /> : <CancelIcon />}>
                     {cancelling ? 'Cancelling…' : 'Cancel'}
@@ -837,12 +884,12 @@ export function DVBFixerPanel() {
                   sx={primaryActionSx}
                   variant="contained"
                   size="small"
-                  disabled={jobActive || submitting || activeCmd.inputs.some((input, index) => input.required && (
+                  disabled={runBlocked || submitting || activeCmd.inputs.some((input, index) => input.required && (
                     index === 0 && !(input.multi || input.nargs === '+' || input.nargs === '*')
                       ? !inputFile : !inputsByCommand[activeCmd.name]?.[input.dest]
                   ))}
                   onClick={handleRun}
-                  startIcon={jobActive || submitting ? <CircularProgress size={12} sx={{ color: 'white' }} /> : <PlayArrowIcon sx={{ fontSize: 16 }} />}
+                  startIcon={toolJobActive || submitting ? <CircularProgress size={12} sx={{ color: 'white' }} /> : <PlayArrowIcon sx={{ fontSize: 16 }} />}
                 >
                   Run {activeCmd.label}
                 </Button>
@@ -860,7 +907,7 @@ export function DVBFixerPanel() {
             {error && <Alert severity="error" sx={{ py: 0.25, fontSize: '0.75rem' }}>{error}</Alert>}
 
             {jobActive && job?.command !== activeCmd.name && <Typography variant="caption" color="text.secondary">
-              {job?.command} is running. Open its tab to view or cancel that run.
+              {job?.command} is running independently. Diagnostics can run alongside a scientific workflow; other workflows wait until it finishes.
             </Typography>}
             {!toolJob && !namingToolResult && !submitting && <Typography variant="caption" color="text.secondary">No runs yet for {activeCmd.label} in this workspace.</Typography>}
             {toolJob && !isActiveManagedJob(toolJob) && !toolResult && !error && <Typography variant="caption" color="text.secondary">Loading output for {activeCmd.label}…</Typography>}

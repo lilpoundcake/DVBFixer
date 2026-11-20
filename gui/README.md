@@ -345,7 +345,7 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_CORS_ALLOWED_ORIGINS` | `[]` | JSON array of additional exact HTTP(S) origins; same-origin requests remain allowed |
 | `DVBFIXER_GUI_MAX_UPLOAD_BYTES` | `268435456` | Maximum workspace import request body (256 MiB) |
 | `DVBFIXER_GUI_WORKSPACE_QUOTA_BYTES` | `5368709120` | Logical bytes per workspace (5 GiB); `0` disables the application quota |
-| `DVBFIXER_MAX_CONCURRENT_PROCESSES` | `1` | Process-wide FIFO limit for DVBFixer child processes (maximum 64) |
+| `DVBFIXER_MAX_CONCURRENT_PROCESSES` | `2` | Process-wide FIFO limit for DVBFixer child processes (maximum 64); set to `1` for serial execution |
 | `DVBFIXER_MAX_QUEUED_PROCESSES` | `16` | Maximum waiting DVBFixer child requests before overload rejection (maximum 256) |
 | `DVBFIXER_RATE_LIMIT_REQUESTS` | `120` | Requests allowed per direct client address and window; `0` disables |
 | `DVBFIXER_RATE_LIMIT_WINDOW_MS` | `60000` | Fixed rate-limit window duration |
@@ -361,6 +361,17 @@ The standalone server defaults to `127.0.0.1:5173`. Configuration:
 | `DVBFIXER_OS_MEMORY_MAX_BYTES` | unset | Maximum accepted cgroup memory limit when the preflight is enabled |
 | `DVBFIXER_OS_MEMORY_SWAP_MAX_BYTES` | unset | Maximum accepted cgroup swap limit when the preflight is enabled |
 | `DVBFIXER_OS_TASKS_MAX` | unset | Maximum accepted cgroup task limit when the preflight is enabled |
+
+Within a workspace, Diagnose can run alongside one scientific workflow (for
+example, model structure A while diagnosing B). Other scientific workflows
+remain exclusive. The shared process limit still applies: with a limit of `1`,
+the second task queues rather than running concurrently.
+
+Job Monitor and Homology provide **Inspect retained structures** after a run.
+This opens an isolated 3D preview of rejected or unvalidated diagnostic PDBs,
+including archived files. It never replaces the active structure, extracts files,
+or promotes a candidate to an accepted result. Previews are limited to 20 MiB per
+PDB and 512 MiB of archive scanning; complete evidence remains in the archive.
 
 Without auth configuration, loopback mode uses an implicit `local` principal
 and requires no browser token. Configured mode accepts 32-byte base64url bearer

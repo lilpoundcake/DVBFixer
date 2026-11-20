@@ -19,6 +19,8 @@ export async function runAltlocOperation(workspaceId: string, action: 'analyze' 
   if (!initial.input || initial.busy) return
   const generation = initial.generation + 1
   store.patch(workspaceId, { generation, busy: true, error: '', result: '', reportFile: '' })
+  // Navigate on explicit invocation, not on completion (which could steal focus).
+  openAltlocReview(workspaceId)
   const current = () => useAltlocStore.getState().sessions[workspaceId]?.generation === generation
   const request = async (body: AltlocRequest): Promise<AltlocResponse> => {
     const response = await apiFetch(`/api/workspaces/${encodeURIComponent(workspaceId)}/altlocs`, {
@@ -40,7 +42,6 @@ export async function runAltlocOperation(workspaceId: string, action: 'analyze' 
       choices = Object.fromEntries(report.residues.filter(row => row.selected).map(row => [row.key, row.selected!]))
       store.patch(workspaceId, { report, choices, activeKey: report.residues[0]?.key || '', focusLabel: '' })
       if (action === 'analyze' || !altlocSelectionComplete(report.residues, choices)) {
-        if (initial.policy === 'manual' || action === 'run') openAltlocReview(workspaceId)
         if (action === 'run') throw new Error('Some states require manual selection in the Altlocs table before Apply.')
         return
       }

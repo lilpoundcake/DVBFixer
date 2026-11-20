@@ -10,6 +10,13 @@ import { theme } from '../theme'
 import { UI, actionGroupSx, compactIconButtonSx, formActionRowSx, inspectionTableSx, panelToolbarSx, primaryActionSx, workflowToolbarSx, workspaceRunColors, workspaceRowColors } from './layout'
 
 describe('shared GUI control geometry', () => {
+  it('compacts whitespace without shrinking existing text or controls', () => {
+    expect(theme.typography.body2.fontSize).toBe('0.75rem')
+    expect(theme.typography.caption.fontSize).toBe('0.7rem')
+    expect(theme.components?.MuiButton?.styleOverrides?.root).toMatchObject({ fontSize: '0.75rem', height: 32 })
+    expect(theme.components?.MuiInputBase?.styleOverrides?.root).toMatchObject({ fontSize: '0.75rem' })
+    expect(UI.toolbarMinHeight).toBe(40)
+  })
   it('separates run headers from nested file stripes without borrowing selection colors', () => {
     expect(workspaceRunColors[0].header).not.toBe(workspaceRunColors[1].header)
     for (const band of workspaceRunColors) {
@@ -47,7 +54,9 @@ describe('shared GUI control geometry', () => {
   })
 
   it('wraps toolbars and action groups rather than shifting controls with transforms', () => {
-    expect(panelToolbarSx).toMatchObject({ alignItems: 'center', flexWrap: 'wrap', gap: 1, minHeight: 48 })
+    expect(panelToolbarSx).toMatchObject({ alignItems: 'center', flexWrap: 'wrap', gap: 1, minHeight: 40, py: 0.5 })
+    expect(panelToolbarSx['&:has(.MuiInputLabel-root)']).toEqual({ py: 1.25, rowGap: 1.5, minHeight: 52 })
+    expect(workflowToolbarSx['&:has(.MuiInputLabel-root)']).toBe(panelToolbarSx['&:has(.MuiInputLabel-root)'])
     expect(actionGroupSx).toMatchObject({ ml: 'auto', alignItems: 'center', flexWrap: 'wrap' })
     expect(formActionRowSx).toMatchObject({ alignItems: 'flex-start', gap: 1 })
     expect(formActionRowSx).not.toHaveProperty('transform')

@@ -20,7 +20,10 @@ export function DiffusionSeedOutcomes({ diffusion, onOpenReport }: {
         Seed {outcome.seed}: {outcome.status === 'not_returned' ? 'Not returned for final validation' : outcome.status === 'accepted' ? 'Accepted' : 'Rejected'}
         {outcome.candidateId ? ` · ${outcome.candidateId}` : ''}
       </Typography>
-      {outcome.findings.map((finding, index) => <Typography key={index} variant="caption" display="block">{finding}</Typography>)}
+      {outcome.findings.length > 0 && <Box component="details" sx={{ fontSize: '0.75rem' }}>
+        <summary>Validation findings ({outcome.findings.length}{outcome.omittedFindings ? '+' : ''})</summary>
+        {outcome.findings.map((finding, index) => <Typography key={index} variant="caption" display="block">{finding}</Typography>)}
+      </Box>}
       {outcome.hardGateFailures.length > 0 && <Typography variant="caption" display="block">
         Failed gates: {outcome.hardGateFailures.join(', ')}
       </Typography>}

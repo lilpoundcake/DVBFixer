@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, type ManagedJobRecord } from './managed-jobs'
+import { createManagedJobRequest, isActiveManagedJob, managedJobStatusLabel, mergeManagedJobHistory, outputMatchesManagedJob, selectRestoredManagedJob, selectToolManagedJob, toolRunBlocked, type ManagedJobRecord } from './managed-jobs'
 
 function job(status: ManagedJobRecord['status'], id: string = status): ManagedJobRecord {
   return {
@@ -12,6 +12,17 @@ function job(status: ManagedJobRecord['status'], id: string = status): ManagedJo
 }
 
 describe('managed job UI helpers', () => {
+  it('allows diagnosis during model reconstruction without unlocking a second scientific workflow', () => {
+    const model = { ...job('running', 'model-a'), command: 'model' }
+    const diagnose = { ...job('running', 'diagnose-b'), command: 'diagnose' }
+    expect(toolRunBlocked([model], 'workspace', 'diagnose')).toBe(false)
+    expect(toolRunBlocked([model], 'workspace', 'prepare')).toBe(true)
+    expect(toolRunBlocked([model, diagnose], 'workspace', 'diagnose')).toBe(true)
+    expect(toolRunBlocked([diagnose], 'workspace', 'model')).toBe(false)
+    expect(toolRunBlocked([model, diagnose], 'other', 'model')).toBe(false)
+    expect(selectToolManagedJob([model, diagnose], 'workspace', 'model')?.id).toBe('model-a')
+    expect(selectToolManagedJob([model, diagnose], 'workspace', 'diagnose')?.id).toBe('diagnose-b')
+  })
   it('includes the selected command in the managed-job request', () => {
     expect(createManagedJobRequest('prepare', {
       workspaceId: 'workspace-1', inputFile: 'input.pdb', inputs: {},
@@ -33,6 +44,11 @@ describe('managed job UI helpers', () => {
   it('formats concise terminal status', () => {
     expect(managedJobStatusLabel(job('succeeded'))).toContain('out.pdb')
     expect(managedJobStatusLabel(job('failed'))).toContain('exit 2')
+    const rejected = { ...job('succeeded'), command: 'model', diffusion: { report: 'outcomes.json', outcomes: [{
+      seed: 7, candidateId: 'seed-7', status: 'rejected' as const, findings: [], hardGateFailures: ['geometry'], omittedFindings: 0,
+    }] } }
+    expect(managedJobStatusLabel(rejected)).toBe('No accepted candidates · model')
+    expect(managedJobStatusLabel({ ...rejected, status: 'failed' })).toContain('Failed')
   })
 
   it('restores the latest run of the selected tool, not the latest workspace run', () => {
