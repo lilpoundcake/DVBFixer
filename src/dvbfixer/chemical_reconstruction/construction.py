@@ -22,6 +22,7 @@ from .admission import admit
 from .authority_geometry import geometry_view
 from .candidate_audit import audit_candidate
 from .contracts import (
+    Admission,
     AdmissionStatus,
     Capability,
     ChemistryKind,
@@ -201,19 +202,24 @@ def _template(request: ReconstructionRequest, plan: GeometryPlan, additions: lis
             additions.append(Observation(coordinate.identity, coordinate.element, coordinate.position, Unit.ANGSTROM))
 
 
-def propose(request: ReconstructionRequest, plan: GeometryPlan) -> ProposalResult:
-    """One deterministic proposal; retain raw/rounded failures, never rank/repair."""
+def proposal_admission(request: ReconstructionRequest, plan: GeometryPlan) -> Admission:
+    """Pure declaration/admission shared with constructor-free evidence audits."""
     # Element-agnostic coordinate math: this declaration is not an element-specific
     # scientific capability/parameter table or global backend registration.
     elements = {o.element.upper() for o in request.observations} | {
         a.element.upper() for c in request.components if c.resolved is not None for a in c.resolved.graph.atoms}
     if not elements:
-        return ProposalResult("unsupported", admit(request), plan.digest, "request-not-admitted")
+        return admit(request)
     capability = Capability(plan.strategy.value, frozenset({Operation.HEAVY, Operation.HYDROGENS}),
                             frozenset({ChemistryKind.PROTEIN, ChemistryKind.ISOLATED}), frozenset(elements),
                             frozenset(ConstraintKind), frozenset({LinkKind.COVALENT, LinkKind.COORDINATION}),
                             allow_opaque_context=True, minimum_anchors=3)
-    admission = admit(request, (capability,))
+    return admit(request, (capability,))
+
+
+def propose(request: ReconstructionRequest, plan: GeometryPlan) -> ProposalResult:
+    """One deterministic proposal; retain raw/rounded failures, never rank/repair."""
+    admission = proposal_admission(request, plan)
     if admission.status != AdmissionStatus.ADMITTED:
         return ProposalResult("unsupported", admission, plan.digest, "request-not-admitted")
     reason = _plan_reason(request, plan)

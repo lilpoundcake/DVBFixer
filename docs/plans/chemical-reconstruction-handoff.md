@@ -10,9 +10,10 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2L protocol and parent ledger are frozen; its first
-conditioning DTO/admission slice is implemented (3783 fast tests passed). This is NOT completion of WP2L.
-See the final section for the remaining decoder/staged-builder/audit/cohort work.
+**Current continuation:** bounded WP2L heavy→H composition, strict research
+readback and independent combined auditing are implemented. Seventeen of eighteen
+selected parents pass; PRO19's incoming-peptide-plane refusal is retained. This is
+not native-H/general-complex qualification. See the final section and validation.
 
 ## 1. Persistent branch and authorization
 
@@ -1374,7 +1375,7 @@ byte-identical. Ruff, agent maps and generated CLI/GUI checks pass. Scoped stric
 typing passes 27 files and source-bound nonincremental strict typing passes 28;
 the ambient diagnostic multiset remains exactly the same 793 legacy errors.
 
-**Next, on the SAME branch:** implement the bounded strict known-DTO research
+**Next at the first slice (implemented in the continuation below), on the SAME branch:** implement the bounded strict known-DTO research
 decoder; staged heavy→H constructor and separately role-labelled raw/rounded
 envelopes; constructor-free lineage/rounding/geometry/CIP/pair-coverage auditor;
 synthetic corruption/failure tests. Then execute the frozen twenty-entry continuation
@@ -1384,3 +1385,90 @@ motion, new phase/state/mask or fallback. The committed rounded heavy checkpoint
 must be identical in raw-H and rounded-H envelopes. The original WP2K ASH21
 negative and WP2F timeout remain open. No public publisher, `.dat` sidecar, default,
 dependency, production/data-license or broad native-H qualification is enabled.
+
+## WP2L bounded continuation — staged heavy→H and independent audit (2026-11-20)
+
+Built on `25a2484` under the unchanged `bb292e8` protocol and `0475f76` parent
+ledger. The driver hashes ALL twenty retained parent artifacts before reserving
+output and forwards only typed request/parent/authority, real incoming C, pinned
+amide parameters and explicit backbone types. Retrospective native-reference/RMSD
+fields stay in the I/O adapter and never enter construction. The scientific run
+disables heavy search/rotation and SetDihedral; eighteen saved selected parents
+continue to H planning without resampling. GLY remains N/A and MET still lacks the
+declared eligible parent. No H-only fallback changes those denominators.
+
+`research_decode.py` is a private known-root DTO transport, not pickle, `.dat`,
+public JSON/API migration or source validation. Trusted annotation closure and
+exact field sets select only known dataclass variants; JSON cannot name/load a
+class. It rejects unknown/missing fields, wrong scalar/container/literal types,
+bool-as-number, duplicate keys/set items and nonfinite/overflow numbers. Bounds
+are 64 MiB, two million value/container nodes and depth 64. Driver reads are bounded
+as well as hashed; absent/corrupt parents fail before reservation/science. Decoder
+success alone establishes neither source provenance nor scientific acceptance.
+
+`staged_completion.py` performs one complete-H proposal against the committed
+ROUNDED heavy checkpoint. `staged_contracts.py` retains separate role-labelled
+heavy and H arrays and source/parent/conditioning/H-candidate digest bindings.
+"Raw" means raw H after rounded heavy, not globally unrounded heavy+H. Both
+envelopes keep identical committed heavy points; original source observations are
+untouched. Refused/partial H stages retain available evidence but have no accepted
+combined result, no heavy reselection/movement and no phase/state/mask change.
+There is no PDB materializer, `.dat` sidecar or public/default route.
+
+`staged_audit.py` independently re-audits parent topology/grid/selection/baseline
+metadata and recompiles H declarations/parameters (no coordinate generation), then
+remeasures raw/rounded H geometry and conditional full-target CIP, exact rounding,
+ownership/masks and envelope lineage. Proposal admission declaration was extracted
+unchanged into the pure `construction.proposal_admission` helper for metadata
+readback. All old control outputs remain byte-identical. Explicit pair accounting
+covers every eligible pair with a generated atom in the source/heavy/H union,
+excluding authoritative 1-2/1-3 paths: parent covers heavy-source/heavy-heavy, H
+audit covers H-source/H-heavy/H-H. Incomplete H cannot claim complete-pair coverage.
+
+Twenty entries are retained: **17 combined geometry/CIP passes**, **one rejected
+H stage**, GLY N/A, MET unavailable. The seventeen passing cases contain **80 new
+heavy atoms + 141 H**, with **173280** eligible pair counts summed across cases;
+raw and rounded independently undergo seventeen H geometry and seventeen conditional
+CIP audits each. Known heavy atoms stay fixed in both H envelopes. These are
+case-specific geometry/integration results, NOT native-H accuracy or broad chemistry.
+
+**Retained negative: 1UBQ A/PRO19.** The parent passes its existing local heavy
+profile, but its generated CD lies **0.786839 A** from the N–incoming-C–CA plane
+required by the declared PRO H interface (bound **0.05 A**). H admission returns
+`invalid-input / fixed-constraint-conflict`, and H proposal returns
+`unsupported / request-not-admitted` WITHOUT constructing H coordinates. There
+are no raw/rounded H outputs for that case and it is NOT counted as a combined
+pass. This exposes an incoming-peptide-interface gap in the local heavy proposal,
+not a license to weaken the plane constraint, move observed atoms, reflect a
+sidechain or replace the frozen parent after seeing an H refusal. Earlier PRO
+failures and the separate WP2K ASH21 native-score worsening remain intact.
+
+Independent readback disables all proposal/internal/joint-fit/search/rotation/
+SetDihedral entry points, reconstructs DTOs from saved JSON and checks original/
+prepared source transport for eighteen continuations, all twenty parent hashes, committed checkpoint roles,
+H declarations/envelopes, measurements and the PRO refusal. Three retained readback
+reports are byte-identical. Attempting to reuse the first report path hit the
+expected exclusive-write refusal; the prior report was preserved and a fresh -02
+report was used, followed by an identical -03 final readback with bounded evidence
+reads. All **458 files** across twelve replay arms are byte-identical
+(77 staged + 381 historical). Replays/readbacks and synthetic math tests are not
+independent new scientific trials.
+
+Verification: **44 new staged/decoder cases**, **73 passes** including the prior
+conditioning tests; **254 split slow-boundary passes**; **3827 full-fast passes**,
+three existing optional skips and 33 slow deselected. Scoped strict typing passes
+31 selected files; source-bound nonincremental strict typing passes 32. The ambient
+import diagnostic multiset remains exactly the same 793 legacy errors, not a global
+typing pass. Ruff passes. See the
+[validation record](chemical-reconstruction-heavy-h-validation.json) for evidence,
+source/report hashes, all denominators and retained negative details.
+
+**Next:** separately freeze an actual-neighbour/PRO-ring incoming-peptide geometry
+strategy before new controls. Constrain construction to the real peptide interface
+rather than retroactively weakening WP2L bounds or retrying heavy poses inside the
+H stage. Preserve this v1 parent/refusal and compare explicitly labelled new requests.
+Independent structures/folds/complexes, native-H/name/conformational quality,
+measured/partial H, polymer/link/metal/ring chemistry, public publication/DatRecord/
+defaults/dependency replacement and production/data-license gates remain open.
+WP2F's large combined timeout remains unresolved. No scientific qualification or
+production permission follows merely from this bounded integration milestone.
