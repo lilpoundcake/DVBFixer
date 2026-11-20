@@ -13,6 +13,7 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import Literal, TypeVar, Union, cast, get_args, get_origin, get_type_hints
 
+from .comparison_metrics import CommonHeavyMeasurement
 from .conformer_search import ConformerSearchPlan, ConformerSearchResult
 from .contracts import Observation, PreparedContextRequest, ReconstructionRequest
 from .declared_peptide import DeclaredPeptideAuthority
@@ -28,6 +29,7 @@ from .projected_hydrogen_contracts import ProjectedHeavyParent, ProjectedHydroge
 from .projection_contracts import ProjectionPlan, ProjectionResult
 from .proposals import GeometryPlan, ProposalResult
 from .staged_contracts import StagedResult
+from .template_comparison import SeededHeavyBaseline
 from .type_proven_port import TypeProvenPlanarPortDeclaration
 
 MAX_BYTES = 64 * 1024 * 1024
@@ -36,7 +38,8 @@ MAX_DEPTH = 64
 T = TypeVar("T")
 ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult,
          ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult,
-         ProjectedHeavyParent, ProjectedHydrogenResult, IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog)
+         ProjectedHeavyParent, ProjectedHydrogenResult, IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog,
+         SeededHeavyBaseline, CommonHeavyMeasurement)
 VARIANTS: dict[type, tuple[type, ...]] = {
     PlanarPortDeclaration: (PlanarPortDeclaration, TypeProvenPlanarPortDeclaration),
     ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest, ProjectedConditionedRequest),

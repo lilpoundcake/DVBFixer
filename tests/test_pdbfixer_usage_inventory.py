@@ -40,12 +40,12 @@ def work():
     assert all(r['function'] == 'work' for r in records)
 
 
-def test_current_nine_rebuild_sites_are_explicit(scanner):
+def test_current_ten_rebuild_sites_are_explicit(scanner):
     result = scanner.inventory(ROOT)
-    assert result['totals']['constructor'] == 11
+    assert result['totals']['constructor'] == 12
     sites = [(f['path'], u['line']) for f in result['files'] for u in f['uses']
              if u['kind'] == 'seeded_rebuild']
-    assert len(sites) == 9
+    assert len(sites) == 10
     assert {path for path, _ in sites} == {
         'src/dvbfixer/prepare/pipeline.py', 'src/dvbfixer/minimize/pipeline.py',
         'src/dvbfixer/protonate.py', 'src/dvbfixer/top/pipeline.py',
@@ -53,6 +53,7 @@ def test_current_nine_rebuild_sites_are_explicit(scanner):
         'src/dvbfixer/model/diffusion/boundary_refinement.py',
         'src/dvbfixer/model/diffusion/rfdiffusion_v1.py',
         'src/dvbfixer/model/diffusion/atom_completion_benchmark.py',
+        'src/dvbfixer/chemical_reconstruction/template_comparison.py',
     }
 
 
@@ -75,12 +76,37 @@ def test_diagnostics_only_discovers_without_building(scanner):
 
 
 def test_retained_source_inventory_is_current(scanner):
-    # Historical scientific/source inventories remain immutable. The active
-    # GLYCAM fallback has its own source/line-number amendment.
-    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-glycam-fallback.json').read_text())
+    # New private reconstruction comparison is an explicit additive amendment;
+    # none of the old production/scientific source inventories is overwritten.
+    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-comparison.json').read_text())
     historical = ROOT/retained['historical_inventory']['path']
     assert hashlib.sha256(historical.read_bytes()).hexdigest() == retained['historical_inventory']['sha256']
     assert scanner.inventory(ROOT)['files'] == retained['files']
+
+
+def prior_to_comparison_totals(scanner):
+    """Historical tests compare their historical scope, not the new private arm."""
+    current = scanner.inventory(ROOT)
+    files = [f for f in current['files'] if f['path'] != 'src/dvbfixer/chemical_reconstruction/template_comparison.py']
+    previous = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-glycam-fallback.json').read_bytes())
+    assert files == previous['files']
+    return {kind: sum(u['kind'] == kind for f in files for u in f['uses']) for kind in current['totals']}
+
+
+def test_comparison_amendment_adds_only_private_seeded_baseline(scanner):
+    path = ROOT/'docs/research/pdbfixer-usage-inventory-comparison.json'
+    current = json.loads(path.read_bytes())
+    previous_path = ROOT/current['historical_inventory']['path']
+    previous = json.loads(previous_path.read_bytes())
+    assert current['historical_inventory']['sha256'] == hashlib.sha256(previous_path.read_bytes()).hexdigest()
+    assert current['files'] == scanner.inventory(ROOT)['files']
+    assert current['totals'] == scanner.inventory(ROOT)['totals']
+    assert prior_to_comparison_totals(scanner) == previous['totals']
+    assert current['added_private_sources'] == ['src/dvbfixer/chemical_reconstruction/template_comparison.py']
+    assert current['added_totals'] == {'constructor': 1, 'seeded_rebuild': 1, 'method': 1}
+    assert not current['historical_template_probe_rerun'] and not current['historical_scientific_results_changed']
+    assert not current['public_backend_or_dependency_replacement']
+    assert hashlib.sha256((ROOT/'scripts/amend_pdbfixer_usage_comparison.py').read_bytes()).hexdigest() == current['generator_source_sha256']
 
 
 def test_glycam_amendment_keeps_oh_inventory_and_usage_semantics(scanner):
@@ -88,7 +114,7 @@ def test_glycam_amendment_keeps_oh_inventory_and_usage_semantics(scanner):
     old = json.loads(path.read_bytes())
     new = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-glycam-fallback.json').read_bytes())
     assert new['historical_inventory']['sha256'] == hashlib.sha256(path.read_bytes()).hexdigest()
-    assert new['totals'] == old['totals'] == scanner.inventory(ROOT)['totals']
+    assert new['totals'] == old['totals'] == prior_to_comparison_totals(scanner)
     assert [c['path'] for c in new['changed_source_bindings']] == ['src/dvbfixer/prepare/pipeline.py']
     for a, b in zip(old['files'], new['files'], strict=True):
         assert a['path'] == b['path']
@@ -105,7 +131,7 @@ def test_hydrogen_amendment_preserves_usage_semantics_and_historical_evidence(sc
     historical = json.loads(historical_path.read_text())
     current = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-hydrogen-postflight.json').read_text())
     assert current['historical_inventory']['sha256'] == hashlib.sha256(historical_path.read_bytes()).hexdigest()
-    assert current['totals'] == historical['totals'] == scanner.inventory(ROOT)['totals']
+    assert current['totals'] == historical['totals'] == prior_to_comparison_totals(scanner)
     assert {c['path'] for c in current['changed_source_bindings']} <= {
         'src/dvbfixer/ffutils/geometry.py', 'src/dvbfixer/prepare/pipeline.py', 'src/dvbfixer/diagnose/structural.py',
     }
@@ -125,7 +151,7 @@ def test_hydrogen_amendment_preserves_usage_semantics_and_historical_evidence(sc
 def test_inventory_amendment_changes_only_diagnostic_source_hash(scanner):
     old = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory.json').read_text())
     current = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-stereo-diagnostics.json').read_text())
-    assert current['totals'] == old['totals'] == scanner.inventory(ROOT)['totals']
+    assert current['totals'] == old['totals'] == prior_to_comparison_totals(scanner)
     assert [c['path'] for c in current['changed_source_bindings']] == ['src/dvbfixer/diagnose/pipeline.py']
     assert len(old['files']) == len(current['files'])
     for before, after in zip(old['files'], current['files'], strict=True):

@@ -9,7 +9,7 @@ from dvbfixer.domain.structure_identity import ExactAtomRef
 
 from .admission import admit
 from .authority_geometry import geometry_view
-from .contracts import LinkKind, ReconstructionRequest, Unit
+from .contracts import LinkKind, Observation, ReconstructionRequest, Unit
 from .joint_hydrogen_geometry import joint_group_findings
 from .measurement import Point, angle_degrees, satisfied
 from .metric_geometry import audit_policy_for, explicit_metrics, metric_findings, metric_key
@@ -17,18 +17,37 @@ from .proposals import Candidate, CandidateAudit, GeometryPlan
 
 
 def audit_candidate(request: ReconstructionRequest, plan: GeometryPlan, candidate: Candidate) -> CandidateAudit:
+    bindings = set()
+    if candidate.request_digest != request.digest:
+        bindings.add("request-binding")
+    if candidate.plan_digest != plan.digest:
+        bindings.add("plan-binding")
+    if candidate.strategy != plan.strategy:
+        bindings.add("strategy-binding")
+    return _measure_additions(request, plan, candidate.additions, bindings)
+
+
+def measure_additions(request: ReconstructionRequest, plan: GeometryPlan,
+                        additions: tuple[Observation, ...]) -> CandidateAudit:
+    """Geometry only for explicitly external coordinates, NOT proposal admission.
+
+    Does not fabricate a Candidate or a construction strategy. The caller must
+    independently qualify provenance, fixed observations and exact source bytes.
+    """
+    return _measure_additions(request, plan, additions, set())
+
+
+def _measure_additions(request: ReconstructionRequest, plan: GeometryPlan,
+                         supplied: tuple[Observation, ...], bindings: set[str]) -> CandidateAudit:
     planning = admit(request)
     errors = {f.code for f in planning.findings if f.code != "no-declared-capability-matches"}
+    errors.update(bindings)
     errors.update(metric_findings(request, plan))
     errors.update(joint_group_findings(request, plan))
-    if candidate.request_digest != request.digest or plan.request_digest != request.digest:
+    if plan.request_digest != request.digest:
         errors.add("request-binding")
-    if candidate.plan_digest != plan.digest:
-        errors.add("plan-binding")
-    if candidate.strategy != plan.strategy:
-        errors.add("strategy-binding")
-    additions = {o.identity: o for o in candidate.additions}
-    if len(additions) != len(candidate.additions) or set(additions) != request.ownership.generated:
+    additions = {o.identity: o for o in supplied}
+    if len(additions) != len(supplied) or set(additions) != request.ownership.generated:
         errors.add("generated-mask")
     if request.ownership.temporary or request.ownership.mobile:
         errors.add("unsupported-ownership")

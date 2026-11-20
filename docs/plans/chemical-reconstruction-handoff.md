@@ -10,11 +10,11 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2O adds source-bound state-invariant incoming carbonyl
-type evidence. New explicit v2 requests pass projected-heavy/H geometry and
-conditional CIP for 1UBQ PRO19 and 1FR2 PRO47, without assigning incoming state or
-charge. Both native heavy RMSDs worsen; 1A3N altloc remains refused. Historical
-v1 HIS/PRO refusals remain unchanged. This is not native-H/general qualification.
+**Current continuation:** WP2P compares nine nested PRO masks on three source
+systems distinct from WP2M/O. Seven eligible projections/H pass; two CD-only
+original proposals reject before projection. On the seven complete pairs projection
+has lower heavy RMSD than original and seeded-PDBFixer, but this is not general
+superiority or native-H qualification. WP2O worsenings/v1/altloc refusals remain.
 
 ## 1. Persistent branch and authorization
 
@@ -1740,9 +1740,121 @@ total), not 21 new implementation errors. These are visible, not suppressed.
 GUI typecheck/tests were attempted but this checkout lacks `tsc`/`vitest` (no
 installed GUI development dependencies); metadata checks do not imply GUI passes.
 
-**Next:** separately freeze a broader independent structure/missing-mask cohort
+**Next at WP2O (implemented below):** separately freeze a broader independent structure/missing-mask cohort
 and quality metrics beyond geometry; do not choose a cohort to obtain passes.
 Explicit altloc-selected source admission is a separate declared input path.
 Retain both native-score worsenings, WP2F timeout and historical negatives.
 Production/data-license gates, public materialization/DatRecord, defaults and
 dependency replacement remain closed.
+
+## WP2P — retained-context three-arm PRO mask comparison (2026-11-21)
+
+[Protocol](chemical-reconstruction-comparison-v1.md) and
+[cohort](chemical-reconstruction-comparison-cohort-v1.json) committed as **2dc9a81**
+from `a1c1094` BEFORE admissions/proposals/reference scoring. User approved the
+comparison; version remains 0.10.2. No public/default/dependency/materialization
+change, release/main merge or production/data-license approval.
+
+Enrollment: raw unchanged **1TIM A/PRO2, 1CRN A/PRO5, 2CI2 I/PRO25**, selected by
+first file-order ATOM chain then first interior PRO. Each uses masks **CD**,
+**CG/CD**, **CB/CG/CD**: nine dependent cells on THREE source systems, not nine
+independent proteins. Sources differ from WP2M/O but appeared in older research;
+they are not unseen/blinded data. No residue substitution, crop, altloc selection,
+repair or threshold change. Full observed context, heterogens/waters, chain case,
+insertion codes and source metadata remain retained.
+
+`template_comparison.py` is a distinct private seeded-PDBFixer heavy arm, NOT a
+fabricated graph/torsion/projection Candidate. Its input adapter removes only exact
+masked atom/affected annotation records and retains the removed lines. The engine
+receives only source-bound masked bytes. Existing seeded helper runs once per cell
+(internal seeds 1..5), on Reference for controlled comparison, not production.
+Missing-residue insertion/unrequested terminal additions/context completion are
+disabled. Exact temporary topology coordinates, dependency/resource provenance,
+known movement and global L assertion are retained. No H, reflection, relaxation,
+ligand stripping, native reference or independent-seed claim. This is bare scoped
+PDBFixer, not the full legacy Modeller/chirality-safe preparation pipeline.
+
+`candidate_audit.measure_additions` and `heldout_scoring.measure_heavy_holdout`
+factor shared measurement logic without changing existing candidate bindings,
+findings or digests. `comparison_metrics.py` measures all arms under the SAME v2
+port-constrained request/policy, independently of their constructor's own admission.
+It reports raw/rounded geometry, exact-name fixed-frame heavy RMSD/max displacement,
+unique generated-involving severe-overlap pairs below 0.7 A and minimum eligible
+separation. This is NOT a vdW/MolProbity clashscore. No phase/symmetry fitting or
+native-based ranking. References are extracted only after all three available
+proposal phases and auxiliary H return. Incomplete arms have no partial RMSD.
+
+All **nine** sources/masks admit; original proposals execute nine times and pass
+their OLD own geometry **7/9**. **1TIM-CD and 2CI2-CD** reject before projection
+(raw/rounded retained and scored); no repair or re-start. The seven eligible
+projections and seven auxiliary complete-H proposals pass raw/rounded declared
+geometry and conditional target CIP. PDBFixer executes nine helper calls, produces
+nine complete heavy snapshots, passes global L and the 1e-4 A known-motion guard.
+Neither PDBFixer nor the original arm constructs H; no H/native-H superiority claim.
+
+Common v2 heavy geometry (same in raw and rounded): **original 0/9, projection 7/7,
+PDBFixer 3/9**. Original own-vs-common pass counts differ because the original
+constructor did not receive the new port constraints; both measures remain visible.
+There are zero <0.7 A eligible overlap pairs in all complete phases, not proof of
+full steric quality. Native-reference geometry diagnostics themselves fail for all
+three 1TIM and all three 1CRN masks, and pass 2CI2; that is retained, NOT filtered
+away or used to relax bounds. These are authority/bound compatibility diagnostics,
+not proof that the deposited native structures are chemically invalid.
+
+Rounded exact-name RMSD (A):
+
+| Cell | Original | Projection | Seeded PDBFixer |
+|---|---:|---:|---:|
+| 1TIM CD | 0.507966 | unavailable: own baseline rejected | 0.429533 |
+| 1TIM CG/CD | 0.720249 | 0.352924 | 0.676946 |
+| 1TIM CB/CG/CD | 0.581391 | 0.203310 | 0.829671 |
+| 1CRN CD | 1.063636 | 0.238176 | 0.239240 |
+| 1CRN CG/CD | 1.156250 | 0.190062 | 1.025214 |
+| 1CRN CB/CG/CD | 0.927782 | 0.145704 | 0.818212 |
+| 2CI2 CD | 0.870142 | unavailable: own baseline rejected | 0.203276 |
+| 2CI2 CG/CD | 0.873831 | 0.128193 | 0.790702 |
+| 2CI2 CB/CG/CD | 0.711241 | 0.124589 | 0.678791 |
+
+On the explicitly named seven complete pairs, projection RMSD is lower in 7/7
+than both comparators (raw and rounded). Rounded median paired deltas are
+**-0.745637 A vs original**, **-0.626361 A vs PDBFixer**. The 1CRN-CD margin vs
+PDBFixer is only ~0.0011 A: do NOT generalize it into a meaningful accuracy claim.
+PDBFixer vs original improves in 8/9 and worsens at 1TIM whole-sidechain. These are
+descriptive nested-mask observations, not statistical/general superiority. The two
+unprojected CD-only cases remain in denominator nine. Older 1UBQ/1FR2 projection
+worsenings remain unchanged and contradict any blanket improvement claim.
+
+Constructor-free saved readback reopens pinned sources/authorities/masks and checks
+all proof/source/parent/geometry/CIP/native scores, template temporary snapshots,
+known motion/global L, resource/version provenance and rounding. Only metadata
+Topology is built for the shared global-L detector; PDBFixer, heavy/H constructors,
+rebuild helper, optimizer/search/rotators are disabled. Descriptive paired accounting
+is generated from independently re-audited artifacts. All **525 files** across
+sixteen replay arms are byte-identical (37 new + 488 historical). Replays/synthetic
+tests are not independent scientific trials. See
+[validation record](chemical-reconstruction-comparison-validation.json).
+
+The first full-fast run found five inventory assertions because the new private
+PDBFixer site was not registered. A separate
+[additive inventory amendment](../research/pdbfixer-usage-inventory-comparison.json)
+records exactly +1 constructor/+1 seeded-helper/+1 discovery method. All old
+production source records and historical inventory JSON files remain unchanged;
+historical tests now compare their historical scope, and a new current-inventory
+test checks the full added dependency. No broad skips or hidden baseline drift.
+
+Final verification: **3964 full-fast passes**, three existing optional skips,
+33 slow deselected; **209 focused**, **390 split slow-boundary** and **34 final
+inventory/comparison** passes. Ruff passes. Scoped strict typing passes 45 selected
+files; source-bound nonincremental strict typing passes 46. Ambient mypy preserves
+the exact **814** old diagnostic lines (no new/removed diagnostics), not a global
+typing pass. Maps, version 0.10.2, generated CLI/GUI, fixture/source/report/JUnit
+hashes, local links and whitespace checks pass. No GUI source/dependency changes;
+the previously reported missing GUI dev dependencies are not presented as passes.
+
+**Next:** diagnose the two CD-only original-constructor failures against generic
+ring closure and fixed-observation authority, without changing this cohort's
+results. Then predeclare an all-residue/full-complex mask expansion with matched
+geometry/native metrics; current PRO data does not qualify other residues, real
+neighbour/full-polymer chemistry, experimental H/name quality or public integration.
+Preserve native-reference deviations, previous negative outcomes, WP2F timeout,
+ambient typing failure and production/data-license gates.
