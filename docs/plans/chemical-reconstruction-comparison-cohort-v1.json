@@ -1,0 +1,15 @@
+{
+  "schema": "dvbfixer.chemical-reconstruction-comparison-cohort.v1",
+  "date": "2026-11-21",
+  "baseline_commit": "a1c1094",
+  "source_selection": "three source systems distinct from WP2M/O; already tracked historical research inputs, not unseen data",
+  "target_selection": "first file-order ATOM chain, then first interior PRO via existing select_interior_target; no geometry/outcome filter",
+  "masks": [["CD"], ["CG", "CD"], ["CB", "CG", "CD"]],
+  "declared_cells": 9,
+  "sources": [
+    {"id": "1TIM", "path": "tests/fixtures/protein_context/1TIM.pdb", "sha256": "79b35b419696a1e368aad2121ae2712e46444b5978de1e86bdc286f482222cdc", "chain": "A", "residue_number": "2", "insertion_code": "", "source_role": "enzyme dimer, full retained context"},
+    {"id": "1CRN", "path": "tests/fixtures/protein_context/scoring_followup/1CRN.pdb", "sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811", "chain": "A", "residue_number": "5", "insertion_code": "", "source_role": "disulfide-rich crambin, full retained context"},
+    {"id": "2CI2", "path": "tests/fixtures/protein_context/independent_followup/2CI2.pdb", "sha256": "8a42f06a0a59074eddf9ac6274962057fc965a1256dce268d96b9d903ba4ae4d", "chain": "I", "residue_number": "25", "insertion_code": "", "source_role": "chymotrypsin inhibitor, case-sensitive chain I"}
+  ],
+  "production_or_general_qualification": false
+}
