@@ -1428,6 +1428,36 @@ export function registerWorkspaceApi(
           saveWorkspace(dataRoot, applyArtifactMetadataPatch(workspace, parts[2], patch)), principalId,
         ))
       }
+      if (parts[1] === 'run-inspection' && parts.length === 2 && req.method === 'GET') {
+        const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
+        assertWorkspaceAccess(workspace, principalId)
+        const query = new URL(req.url || '', 'http://localhost').searchParams
+        const relative = query.get('summary') || ''
+        if (path.posix.basename(relative) !== 'run-summary.json' || !workspace.artifacts.some(item => item.file === relative)) {
+          return sendJson(res, 404, { error: 'run summary not found' })
+        }
+        const { inspectionInventory, inspectionStructures, readInspectionStructure } = await import('./run-inspection')
+        const summary = resolveWorkspaceFile(dataRoot, id, relative)
+        const inventory = inspectionInventory(summary)
+        const files = inspectionStructures(inventory)
+        const member = query.get('file')
+        if (!member) return sendJson(res, 200, { files })
+        if (!files.includes(member)) return sendJson(res, 404, { error: 'diagnostic structure not found' })
+        const run = path.posix.dirname(relative)
+        let content: Buffer
+        if (inventory.outputs?.includes(member)) {
+          const file = resolveWorkspaceFile(dataRoot, id, `${run}/${member}`)
+          if (fs.statSync(file).size > 20 * 1024 * 1024) return sendJson(res, 413, { error: 'structure exceeds preview limit' })
+          content = fs.readFileSync(file)
+        } else {
+          const archive = resolveWorkspaceFile(dataRoot, id, `${run}/diagnostics.tar.gz`)
+          content = await readInspectionStructure(archive, inventory, member)
+        }
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+        res.setHeader('Cache-Control', 'no-store')
+        res.setHeader('X-Content-Type-Options', 'nosniff')
+        return res.end(content)
+      }
       if (parts[1] === 'files' && parts.length >= 3 && req.method === 'GET') {
         const workspace = loadWorkspace(dataRoot, id, legacyOwnerPrincipalId)
         assertWorkspaceAccess(workspace, principalId)

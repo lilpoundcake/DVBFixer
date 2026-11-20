@@ -49,9 +49,14 @@ position with `translateY`, negative margins or arbitrary padding.
 ### Panel/workflow toolbars
 
 Use `panelToolbarSx` for panel headers and `workflowToolbarSx` for Homology
-workflow rows. Both use a 48 px minimum height, 12 px horizontal / 8 px vertical
+workflow rows. Both use a 40 px minimum height, 12 px horizontal / 4 px vertical
 padding, 8 px gaps, centered controls and wrapping. Workflow rows have an opaque
 `background.paper` and no extra outline box. Panel headers have a bottom divider.
+Rows containing labelled fields reserve equal 10 px top/bottom padding and 12 px
+between wrapped rows (52 px minimum height), so controls stay vertically centered
+and floating labels stay inside the colored band
+without touching its top edge or the previous row. Unlabelled toolbars retain
+the compact 40 px baseline. Do not compensate with local label transforms.
 
 Place context selectors/fields on the left, a related `actionGroupSx` on the
 right, and the primary action at the end of its group. Keep contextual viewer

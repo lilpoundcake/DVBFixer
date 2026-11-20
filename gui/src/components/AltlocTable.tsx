@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControl, InputLabel, MenuItem, Select, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, Checkbox, FormControl, InputLabel, LinearProgress, MenuItem, Select, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from '@mui/material'
 import { useWorkspaceStore } from '../stores/workspaceStore'
 import { useAltlocStore, EMPTY_ALTLOC_SESSION } from '../stores/altlocStore'
 import { compactIconButtonSx, controlSx, panelToolbarSx, primaryActionSx } from '../ui/layout'
@@ -23,12 +23,15 @@ export function AltlocTable() {
       </FormControl>
       <Button variant="outlined" sx={{ ...primaryActionSx, ml: 'auto' }} disabled={!session.report} onClick={() => openAltlocReview(id)}>Review states</Button>
     </Box>
+    {session.busy && <><Typography variant="caption" sx={{ px: 1.5 }}>Processing alternate locations…</Typography><LinearProgress aria-label="Altloc operation progress" /></>}
+    {session.error && <Alert severity="error">{session.error}</Alert>}
+    {session.result && <Alert severity="success">{session.result}</Alert>}
     <InspectionTable aria-label="Alternate-state selection">
       <TableHead><TableRow>
         {['Keep', 'Model', 'Chain', 'Residue', 'State', 'Occupancy', 'Atoms', 'Notes'].map(label => <TableCell key={label} align={label === 'Occupancy' || label === 'Atoms' ? 'right' : 'left'}>{label}</TableCell>)}
       </TableRow></TableHead>
       <TableBody>
-        {!session.report && <TableRow><TableCell colSpan={8}>Choose a structure and Analyze in DVBfixer → Altlocs.</TableCell></TableRow>}
+        {!session.report && !session.busy && <TableRow><TableCell colSpan={8}>Choose a structure and Analyze in DVBfixer → Altlocs.</TableCell></TableRow>}
         {session.report && !session.report.residues.length && <TableRow><TableCell colSpan={8}>No alternate locations.</TableCell></TableRow>}
         {session.report?.residues.flatMap(row => row.states.map(state => <InspectionRow key={`${row.key}:${state.label}`}
           selected={session.activeKey === row.key && session.focusLabel === state.label}

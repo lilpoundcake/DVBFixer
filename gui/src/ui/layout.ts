@@ -7,13 +7,16 @@ export const UI = {
   actionWidth: 160,
   fieldWidth: 160,
   wideFieldWidth: 320,
-  toolbarMinHeight: 48,
+  toolbarMinHeight: 40,
 } as const
 
 export const toolbarSx = {
   display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1,
-  px: 1.5, py: 1, minHeight: UI.toolbarMinHeight, boxSizing: 'border-box',
+  px: 1.5, py: 0.5, minHeight: UI.toolbarMinHeight, boxSizing: 'border-box',
   flexShrink: 0, bgcolor: 'background.paper',
+  // Floating labels extend above the input border. Reserve room inside the
+  // colored band, including when controls wrap onto another row.
+  '&:has(.MuiInputLabel-root)': { py: 1.25, rowGap: 1.5, minHeight: 52 },
 } as const
 
 export const panelToolbarSx = {

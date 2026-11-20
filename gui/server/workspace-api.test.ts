@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { Readable } from 'node:stream'
+import { compactRun } from './run-storage'
 import {
   DEFAULT_MAX_UPLOAD_BYTES, DEFAULT_WORKSPACE_QUOTA_BYTES, initializeStorageQuota,
   workspaceLogicalBytes,
@@ -45,7 +46,9 @@ async function apiRequest(root: string, method: string, url: string, body: unkno
   }
   await middleware!(request as any, response as any, () => {})
   await ended
-  return { status: response.statusCode, body: responseBody ? JSON.parse(responseBody) : null }
+  let parsed: unknown = null
+  try { parsed = responseBody ? JSON.parse(responseBody) : null } catch { parsed = responseBody }
+  return { status: response.statusCode || 200, body: parsed as any }
 }
 
 async function importRequest(
@@ -80,6 +83,25 @@ async function importRequest(
   await ended
   return { status: response.statusCode, body: responseBody ? JSON.parse(responseBody) : null }
 }
+
+it('authorizes read-only archived structure previews without promoting or extracting files', async () => {
+  const dataRoot = temp(), workspace = createWorkspace(dataRoot, 'diagnostic preview', 'alice')
+  const directory = path.join(workspaceRoot(dataRoot, workspace.id), 'runs', 'failed')
+  fs.mkdirSync(directory, { recursive: true })
+  fs.writeFileSync(path.join(directory, 'rejected.pdb'), 'ATOM retained proposal\n')
+  await compactRun(directory, 'model', 'failed', [])
+  workspace.artifacts.push({ id: 'summary', file: 'runs/failed/run-summary.json', name: 'Run summary', kind: 'artifact' })
+  saveWorkspace(dataRoot, workspace)
+  const url = `/${workspace.id}/run-inspection?summary=runs%2Ffailed%2Frun-summary.json`
+  // Workspace ACLs deliberately conceal inaccessible workspace existence.
+  expect((await apiRequest(dataRoot, 'GET', url, null, 'bob')).status).toBe(404)
+  expect((await apiRequest(dataRoot, 'GET', url, null, 'alice')).body.files).toEqual(['rejected.pdb'])
+  const preview = await apiRequest(dataRoot, 'GET', `${url}&file=rejected.pdb`, null, 'alice')
+  expect(preview).toMatchObject({ status: 200, body: 'ATOM retained proposal\n' })
+  expect((await apiRequest(dataRoot, 'GET', `${url}&file=..%2Fsecret.pdb`, null, 'alice')).status).toBe(404)
+  expect(fs.existsSync(path.join(directory, 'rejected.pdb'))).toBe(false)
+  expect(loadWorkspace(dataRoot, workspace.id).artifacts).toHaveLength(1)
+})
 
 afterEach(() => {
   vi.restoreAllMocks()

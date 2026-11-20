@@ -37,6 +37,15 @@ export function outputErrors(...streams: string[]): string[] {
   return [...errors]
 }
 
+/** One bounded reason for cards; full diagnostics remain available in logs. */
+export function jobErrorSummary(error: string): string {
+  const explicit = outputErrors(error)[0]
+  const reason = explicit || error.split('\n').map(line => diagnosticLine(line).text.trim())
+    .find(line => line && !/^===|^[!\s]+$|DIAGNOSTIC SUMMARY|^WARNING\b/.test(line)) || 'Run failed. See logs for details.'
+  const text = reason.replace(/^ERROR:\s*/, '')
+  return text.length > 240 ? `${text.slice(0, 237)}…` : text
+}
+
 /** Present Python's explicit notices; do not calculate or reinterpret geometry. */
 export function anchorRefinementNotices(...streams: string[]): string[] {
   const notices = new Set<string>()

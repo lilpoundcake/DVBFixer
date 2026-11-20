@@ -5,6 +5,7 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { resetDvbfixerProcessAdmission } from './dvbfixer-runner'
 import { registerHomologyApi, registerHomologyJobApi, type HomologyProject } from './homology-api'
 import { cancelManagedJob, createManagedJob, getManagedJob, listManagedJobs, registerManagedJobApi, type ManagedJobRecord } from './managed-jobs'
 import { ensureWorkspaceMigration, listWorkspaces, loadWorkspace, saveWorkspace, workspaceRoot, createWorkspace } from './workspace-api'
@@ -128,6 +129,7 @@ describe('persistent Homology jobs', () => {
   })
 
   it('cancels a queued Homology job without launching its CLI or cancelling the other workspace', async () => {
+    resetDvbfixerProcessAdmission(1)
     const { root, workspace, directory, project } = fixture()
     const other = createWorkspace(root, 'other')
     const blocker = createManagedJob(root, { workspaceId: other.id, command: 'doctor' })

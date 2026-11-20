@@ -79,6 +79,12 @@ export function isActiveManagedJob(job: ManagedJobRecord | null | undefined): bo
   return job?.status === 'queued' || job?.status === 'running'
 }
 
+/** Match server lanes: one scientific workflow plus independent diagnostics. */
+export function toolRunBlocked(jobs: readonly ManagedJobRecord[], workspaceId: string | undefined, command: string | undefined): boolean {
+  return jobs.some(job => job.workspaceId === workspaceId && isActiveManagedJob(job) &&
+    (command === 'diagnose' ? job.command === 'diagnose' : job.command !== 'diagnose'))
+}
+
 /** Do not let an older GET snapshot overwrite a newer SSE update. */
 export function acceptManagedJobUpdate(current: ManagedJobRecord | null, next: ManagedJobRecord): boolean {
   if (!current || current.id !== next.id || current.workspaceId !== next.workspaceId) return true
@@ -110,7 +116,11 @@ export function outputMatchesManagedJob(output: { jobId: string; workspaceId: st
 export function managedJobStatusLabel(job: ManagedJobRecord): string {
   if (job.status === 'queued') return `Queued · ${job.command}`
   if (job.status === 'running') return `Running · ${job.command}`
-  if (job.status === 'succeeded') return `Completed · ${job.outputFile || job.command}`
+  if (job.status === 'succeeded') {
+    if (job.diffusion?.outcomes.some(outcome => outcome.status === 'rejected') &&
+      !job.diffusion.outcomes.some(outcome => outcome.status === 'accepted')) return `No accepted candidates · ${job.command}`
+    return `Completed · ${job.outputFile || job.command}`
+  }
   if (job.status === 'cancelled') return `Cancelled · ${job.command}`
   return `Failed${job.exitCode === null ? '' : ` (exit ${job.exitCode})`} · ${job.command}`
 }
