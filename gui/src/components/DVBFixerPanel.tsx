@@ -39,7 +39,7 @@ import { diffusionSeedError } from '../lib/diffusion-seeds'
 import { retryAfterMs } from '../lib/job-monitor-polling'
 import { namingOutputMatches, runNamingConversion } from '../lib/naming-conversion'
 import { syncSequenceEditorLayout } from '../lib/sequence-editor-layout'
-import { actionGroupSx, formActionRowSx, panelToolbarSx, primaryActionSx, wideControlSx } from '../ui/layout'
+import { commandActionGroupSx, commandInputSx, formActionRowSx, panelToolbarSx, primaryActionSx } from '../ui/layout'
 
 // Re-declare the spec types here (mirrors server/dvbfixer-spec.ts) so the
 // frontend doesn't have to import server/. The actual spec is fetched at
@@ -844,7 +844,7 @@ export function DVBFixerPanel() {
                   ? inputFile
                   : (inputsByCommand[activeCmd.name]?.[input.dest] ?? (multiple ? [] : ''))
                 return (
-                  <FormControl key={input.dest} size="small" sx={{ ...wideControlSx, flex: '1 1 240px' }}>
+                  <FormControl key={input.dest} size="small" sx={commandInputSx}>
                     <InputLabel sx={{ fontSize: '0.75rem' }}>{input.label}</InputLabel>
                     <Select
                       multiple={multiple}
@@ -868,7 +868,7 @@ export function DVBFixerPanel() {
                 )
               })}
 
-              <Box sx={actionGroupSx}>
+              <Box sx={commandActionGroupSx}>
                 <Tooltip title="Reload command specs (pick up new DVBFixer subcommands without page reload)">
                   <IconButton aria-label="Reload command specifications" size="small" onClick={() => { fetchSpec(); reloadWorkspace().catch(() => {}) }}>
                     <RefreshIcon />

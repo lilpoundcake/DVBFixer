@@ -50,6 +50,19 @@ describe('Workspace import control', () => {
     expect(markup).toContain('3D viewer B (open the B tab first)')
   })
 
+  it('keeps the compact filter and file ordering controls in indivisible toolbar groups', () => {
+    const markup = renderToStaticMarkup(<ProjectLibrary mode="workspace" />)
+    expect(markup).toContain('aria-label="Workspace files"')
+    expect(markup).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Structures only<\/button>/)
+    expect(markup).not.toContain('MuiDivider')
+    expect(markup).not.toContain('>FILES<')
+    expect(markup).toContain('flex:1 1 0')
+    const selectedGroup = markup.slice(markup.indexOf('aria-label="Selected files"'), markup.indexOf('</div>', markup.indexOf('aria-label="Selected files"')))
+    expect(selectedGroup).toContain('Move selected files up')
+    expect(selectedGroup).toContain('Move selected files down')
+    expect(markup).toContain('flex-wrap:nowrap')
+  })
+
   it('renders one collapsed, keyboard-accessible group rather than every run file', () => {
     workspaceState.active!.artifacts = [
       { id: 'input', file: 'input.pdb', name: 'Source input', kind: 'structure' },

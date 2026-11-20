@@ -14,8 +14,13 @@ describe('shared inspection presentation', () => {
         </TableCell></InspectionRow></TableBody>
       </InspectionTable>
     </ThemeProvider>)
-    expect(html).toContain('height:32px')
+    expect(html).toContain('height:28px')
+    expect(html).toContain('padding-left:8px;padding-right:8px;padding-top:4px;padding-bottom:4px')
     expect(html).toContain('nth-of-type(even)')
+    expect(html).toContain('background-color:#ffffff')
+    expect(html).toContain('background-color:#f8fafc')
+    expect(html).toContain('border-right:1px solid')
+    expect(html).toContain('border-right-color:rgba(29,50,97,0.07)')
     expect(html).toContain(':focus-visible')
     expect(html).toContain('Mui-selected')
     expect(html).toContain('tabindex="0"')

@@ -13,7 +13,6 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import Divider from '@mui/material/Divider'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Tooltip from '@mui/material/Tooltip'
@@ -266,9 +265,9 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
     await useWorkspaceStore.getState().save()
   }
 
-  return <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+  return <Box sx={{ height: '100%', minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
     <Box sx={panelToolbarSx}>
-      <Typography variant="caption" noWrap title={active?.name} sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, minWidth: 0, flex: '1 1 100px' }}>{mode === 'library' ? 'Workspace' : active?.name || 'Workspace'}</Typography>
+      <Typography variant="caption" noWrap title={active?.name} sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, minWidth: 0, flex: '1 1 0' }}>{mode === 'library' ? 'Workspace' : active?.name || 'Workspace'}</Typography>
       {mode === 'library' ? (
         <Tooltip title="New workspace"><IconButton aria-label="New workspace" size="small" sx={{ ml: 'auto' }} onClick={() => createWorkspace()}><AddIcon fontSize="small" /></IconButton></Tooltip>
       ) : <>
@@ -327,11 +326,16 @@ export function ProjectLibrary({ mode = 'library' }: { mode?: 'library' | 'works
       </ListItemButton>)}
     </List>}
     {mode === 'workspace' && active && <>
-      <Box sx={panelToolbarSx}><Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>FILES</Typography>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <Button size="small" variant="outlined" aria-pressed={structuresOnly} onClick={() => setStructuresOnly(only => !only)}>{structuresOnly ? 'Show all files' : 'Show structures only'}</Button>
-        {!!selectedArtifacts.size && <Typography variant="caption" color="primary">{selectedArtifacts.size} selected</Typography>}
-        <Box sx={actionGroupSx}>
+      <Box role="toolbar" aria-label="Workspace files" sx={panelToolbarSx}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <Tooltip title={structuresOnly ? 'Show all files' : 'Show structures only'}>
+            <Button size="small" variant="outlined" aria-pressed={structuresOnly}
+              sx={{ bgcolor: structuresOnly ? 'action.selected' : undefined }}
+              onClick={() => setStructuresOnly(only => !only)}>Structures only</Button>
+          </Tooltip>
+        </Box>
+        <Box role="group" aria-label="Selected files" sx={{ ...actionGroupSx, flexWrap: 'nowrap', flexShrink: 0, gap: 0.5 }}>
+          {!!selectedArtifacts.size && <Typography variant="caption" color="primary" sx={{ whiteSpace: 'nowrap' }}>{selectedArtifacts.size} selected</Typography>}
           <Tooltip title="Move selected files up"><span><IconButton aria-label="Move selected files up" size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(-1)}><ArrowUpwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
           <Tooltip title="Move selected files down"><span><IconButton aria-label="Move selected files down" size="small" disabled={!selectedArtifacts.size} onClick={() => reorderSelected(1)}><ArrowDownwardIcon fontSize="inherit" /></IconButton></span></Tooltip>
         </Box>

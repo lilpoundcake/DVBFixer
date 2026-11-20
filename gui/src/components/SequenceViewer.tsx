@@ -14,9 +14,9 @@ import { useSelectionStore } from '../stores/selectionStore'
 import { selectResiduesInViewer, showSurroundingsAndFocus } from '../lib/molstar-helpers'
 import { threeToOne, residueClass, RESIDUE_CLASS_COLORS } from '../lib/residue-codes'
 import { ChainSelector } from './ChainSelector'
+import { SEQUENCE_LAYOUT, sequenceResiduesPerLine } from '../lib/sequence-viewer-layout'
 
-const RESIDUES_PER_LINE = 60
-const BLOCK_SIZE = 10
+const { blockSize: BLOCK_SIZE, cellWidth: CELL_W, blockGap: BLOCK_GAP, gutterWidth: GUTTER_W } = SEQUENCE_LAYOUT
 
 const CLASS_COLORS = RESIDUE_CLASS_COLORS
 
@@ -51,6 +51,21 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
   // and 3D-sync continue to use the actual structure seqId either way.
   const [numberingMode, setNumberingMode] = useState<'structure' | 'order'>('structure')
   const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [residuesPerLine, setResiduesPerLine] = useState<number>(BLOCK_SIZE)
+  const hasChains = chains.length > 0
+
+  useEffect(() => {
+    const content = contentRef.current
+    if (!content) return
+    const update = (width: number) => setResiduesPerLine(sequenceResiduesPerLine(width))
+    update(content.getBoundingClientRect().width)
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) update(entry.contentRect.width)
+    })
+    observer.observe(content)
+    return () => observer.disconnect()
+  }, [hasChains])
 
   // Initialize local chain from global on first load, or when chains change and local is invalid.
   // IMPORTANT: globalChainId comes from the store's UNFILTERED chains[0], which may be a
@@ -175,13 +190,13 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
   // Split residues into lines
   const residueLines: Array<typeof activeChain extends undefined ? never : NonNullable<typeof activeChain>['residues']> = []
   if (activeChain) {
-    for (let i = 0; i < activeChain.residues.length; i += RESIDUES_PER_LINE) {
-      residueLines.push(activeChain.residues.slice(i, i + RESIDUES_PER_LINE))
+    for (let i = 0; i < activeChain.residues.length; i += residuesPerLine) {
+      residueLines.push(activeChain.residues.slice(i, i + residuesPerLine))
     }
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, minHeight: 0 }}>
       {/* Toolbar */}
       <Box sx={panelToolbarSx}>
         <ChainSelector value={activeChainId} onChange={setLocalChainId} />
@@ -253,12 +268,14 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
         sx={{
           flex: 1,
           overflow: 'auto',
-          py: 1, pl: 1, pr: 3,
+          py: 0.75, px: 1,
+          minHeight: 0,
           userSelect: 'none',
           cursor: dragStart !== null ? 'crosshair' : 'default',
           fontFamily: 'ui-monospace, "Cascadia Mono", Consolas, monospace',
         }}
       >
+        <Box ref={contentRef}>
         {residueLines.map((lineResidues, lineIdx) => {
           // In 'structure' mode show the first residue's PDB author residue
           // number (auth_seq_id — what the structure file literally says,
@@ -267,7 +284,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
           // ALL residues, including SEQRES-missing ones, so the gutter
           // aligns with the rendered cells). Falls back to seqId when
           // authSeqId isn't available (SEQRES-only residue).
-          const orderLineStart = lineIdx * RESIDUES_PER_LINE + 1
+          const orderLineStart = lineIdx * residuesPerLine + 1
           const first = lineResidues[0]
           const lineStart = numberingMode === 'order'
             ? orderLineStart
@@ -276,7 +293,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
             <Box key={lineIdx} sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
               {/* Line number — aligned to residue letters (12px number above + 20px letter) */}
               <Box sx={{
-                width: 36, flexShrink: 0, textAlign: 'right', pr: 0.75,
+                width: GUTTER_W, boxSizing: 'border-box', flexShrink: 0, textAlign: 'right', pr: 0.75,
                 fontSize: '10px', color: 'text.secondary', fontFamily: 'inherit',
                 pt: '12px', lineHeight: '18px',
               }}>
@@ -318,10 +335,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
                   // Block spacer every BLOCK_SIZE residues
                   const spacer = rIdx > 0 && rIdx % BLOCK_SIZE === 0
 
-                  const showNumber = (rIdx + 1) % BLOCK_SIZE === 0
-
-                  // Fixed width per residue cell — number label constrained to same width
-                  const CELL_W = 13
+                  const showNumber = (lineIdx * residuesPerLine + rIdx + 1) % BLOCK_SIZE === 0
 
                   return (
                     <span key={r.seqId} style={{
@@ -329,7 +343,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
                       flexDirection: 'column',
                       alignItems: 'center',
                       width: CELL_W,
-                      marginLeft: spacer ? 8 : 0,
+                      marginLeft: spacer ? BLOCK_GAP : 0,
                     }}>
                       <span style={{
                         fontSize: '7px',
@@ -343,12 +357,12 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
                         visibility: showNumber ? 'visible' : 'hidden',
                       }}>
                         {numberingMode === 'order'
-                          ? lineIdx * RESIDUES_PER_LINE + rIdx + 1
+                          ? lineIdx * residuesPerLine + rIdx + 1
                           : (r.authSeqId ?? r.seqId)}
                       </span>
                       <Tooltip
                         title={(() => {
-                          const orderPos = lineIdx * RESIDUES_PER_LINE + rIdx + 1
+                          const orderPos = lineIdx * residuesPerLine + rIdx + 1
                           // Tooltip always shows BOTH numbers — the PDB
                           // author residue number (or fallback) and the
                           // 1-based ordinal position — so the user can
@@ -372,6 +386,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
                             alignItems: 'center',
                             justifyContent: 'center',
                             width: CELL_W,
+                            boxSizing: 'border-box',
                             height: 18,
                             fontSize: '12px',
                             fontWeight: isMissing ? 400 : 600,
@@ -394,6 +409,7 @@ export function SequenceViewer({ initialChainId }: { initialChainId?: string } =
             </Box>
           )
         })}
+        </Box>
       </Box>
     </Box>
   )

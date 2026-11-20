@@ -54,6 +54,11 @@ export const theme = createTheme({
           padding: '0 12px', whiteSpace: 'nowrap', flexShrink: 0, verticalAlign: 'middle',
           '&.Mui-focusVisible': focusRing,
         },
+        outlined: {
+          backgroundColor: '#ffffff',
+          '&:hover': { backgroundColor: '#f7f9fc' },
+          '&.Mui-disabled': { backgroundColor: '#f7f8fa' },
+        },
         startIcon: { marginLeft: 0, marginRight: 8, '& > *:nth-of-type(1)': { fontSize: UI.iconSize } },
         endIcon: { marginRight: 0, marginLeft: 8, '& > *:nth-of-type(1)': { fontSize: UI.iconSize } },
       },
@@ -74,6 +79,11 @@ export const theme = createTheme({
       styleOverrides: { root: {
         height: UI.controlHeight, minHeight: UI.controlHeight, minWidth: UI.controlHeight,
         padding: '0 12px', fontSize: '0.75rem', lineHeight: 1.25, textTransform: 'none',
+        backgroundColor: '#ffffff',
+        '&:hover': { backgroundColor: '#f7f9fc' },
+        '&.Mui-selected': { backgroundColor: '#dce5f4', color: PRIMARY_COLOR },
+        '&.Mui-selected:hover': { backgroundColor: '#cedcf0' },
+        '&.Mui-disabled': { backgroundColor: '#f7f8fa' },
         '&.Mui-focusVisible': focusRing,
       } },
     },
@@ -83,7 +93,11 @@ export const theme = createTheme({
     MuiInputBase: { styleOverrides: { root: { fontSize: '0.75rem' } } },
     MuiOutlinedInput: {
       styleOverrides: {
-        root: { '&:not(.MuiInputBase-multiline)': { height: UI.controlHeight } },
+        root: {
+          backgroundColor: '#ffffff',
+          '&.Mui-disabled': { backgroundColor: '#f7f8fa' },
+          '&:not(.MuiInputBase-multiline)': { height: UI.controlHeight },
+        },
         input: { padding: '6px 12px', boxSizing: 'border-box' },
         inputMultiline: { padding: 0 },
       },

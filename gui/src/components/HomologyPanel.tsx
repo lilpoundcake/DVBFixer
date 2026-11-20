@@ -39,9 +39,9 @@ import { RunStructureInspection } from './RunStructureInspection'
 import { useHomologyJob } from '../hooks/useHomologyJob'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
-  controlSx as toolbarControlSx, wideControlSx as targetSourceControlSx,
+  workflowControlSx as toolbarControlSx, commandInputSx as targetSourceControlSx,
   actionTooltipWrapperSx as toolbarTooltipWrapperSx, primaryActionSx, compactIconButtonSx,
-  actionGroupSx, formActionRowSx,
+  actionGroupSx, formActionRowSx, workflowContentSx, workflowStageSx,
 } from '../ui/layout'
 
 interface TemplateSelection {
@@ -666,7 +666,7 @@ export function HomologyPanel() {
   if (!project) return <Box sx={{ p: 2 }}><CircularProgress size={20} /> {busy || 'Loading homology workspace…'}</Box>
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <Box sx={projectToolbarSx}>
         <FormControl size="small" sx={toolbarControlSx}>
           <InputLabel>Project</InputLabel>
@@ -681,7 +681,7 @@ export function HomologyPanel() {
       <Tabs value={tab} onChange={(_event, value) => setTab(value)} variant="scrollable" scrollButtons="auto" sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tab label="1. Target" /><Tab label="2. Templates" /><Tab label="3. Alignment" /><Tab label="4. Model" />
       </Tabs>
-      <Box sx={{ flex: 1, overflow: 'auto', p: 1.5 }}>
+      <Box sx={workflowContentSx}>
         {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
         {homologyJob.error && <Alert severity="error" sx={{ mb: 1 }}>{homologyJob.error}</Alert>}
         {homologyJob.job && <Box sx={{ mb: 1 }}>
@@ -720,7 +720,7 @@ export function HomologyPanel() {
         {busy && <Alert severity="info" icon={<CircularProgress size={16} />} sx={{ mb: 1 }}>{busy}</Alert>}
 
         {tab === 0 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={workflowStageSx}>
             <Typography variant="body2">Enter one FASTA record per target chain. Sequence residues are edited here; the alignment tab edits gaps only.</Typography>
             <Box sx={homologyToolbarSx}>
               <FormControl size="small" sx={targetSourceControlSx}><InputLabel>Workspace file</InputLabel>
@@ -753,7 +753,7 @@ export function HomologyPanel() {
         )}
 
         {tab === 1 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={workflowStageSx}>
             <Box sx={homologyToolbarSx}>
               <FormControl size="small" sx={toolbarControlSx}>
                 <InputLabel>Target chain</InputLabel>
@@ -793,7 +793,7 @@ export function HomologyPanel() {
         )}
 
         {tab === 2 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={workflowStageSx}>
             <Box sx={homologyToolbarSx}>
               <input ref={alignmentImportRef} hidden type="file" accept=".fasta,.fa,.faa,.aln" onChange={event => importAlignment(event.target.files?.[0])} />
               {targetChains.length > 1 && <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Target chain</InputLabel>
@@ -892,7 +892,7 @@ export function HomologyPanel() {
         )}
 
         {tab === 3 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={workflowStageSx}>
             <Box sx={{ ...homologyToolbarSx, ...formActionRowSx }}>
               <FormControl size="small" sx={toolbarControlSx}><InputLabel>Backend</InputLabel><Select label="Backend" value={project.modelOptions['--backend'] ?? 'modeller'}
                 onChange={event => setModelBackend(String(event.target.value))}>

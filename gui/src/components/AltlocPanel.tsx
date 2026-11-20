@@ -3,7 +3,7 @@ import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, TextFiel
 import { useWorkspaceStore } from '../stores/workspaceStore'
 import { useAltlocStore, EMPTY_ALTLOC_SESSION } from '../stores/altlocStore'
 import type { AltlocPolicy, AltlocRequest } from '../lib/altloc-types'
-import { actionGroupSx, formActionRowSx, primaryActionSx, controlSx, wideControlSx } from '../ui/layout'
+import { commandActionGroupSx, commandInputSx, formActionRowSx, primaryActionSx, controlSx } from '../ui/layout'
 import { altlocSelectionComplete } from '../lib/altloc-selection'
 import { runAltlocOperation } from '../lib/altloc-operations'
 import { useStructureStore } from '../stores/structureStore'
@@ -31,14 +31,14 @@ export function AltlocPanel() {
   return <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
     <Typography variant="caption" color="text.secondary">Select one alternate state per residue without changing coordinates or occupancy. Manual editing opens the separate Altlocs table; visualization uses 3D Structure.</Typography>
     <Box sx={formActionRowSx}>
-      <FormControl size="small" sx={wideControlSx} disabled={busy}>
+      <FormControl size="small" sx={commandInputSx} disabled={busy}>
         <InputLabel>Input structure</InputLabel>
         <Select label="Input structure" value={validInput ? input : ''} onChange={event => configure(id, { input: event.target.value, inputMode: 'manual' })}>
           {artifacts.map(item => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)}
         </Select>
       </FormControl>
-      <Box sx={actionGroupSx}>
-        <Button variant="outlined" sx={primaryActionSx} disabled={busy || !validInput || (policy === 'prefer' && !prefer.trim())} onClick={() => void runAltlocOperation(id, 'analyze')}>Analyze</Button>
+      <Box sx={commandActionGroupSx}>
+        <Button variant="outlined" disabled={busy || !validInput || (policy === 'prefer' && !prefer.trim())} onClick={() => void runAltlocOperation(id, 'analyze')}>Analyze</Button>
         <Button variant="contained" sx={primaryActionSx} disabled={busy || !validInput || (policy === 'manual' && !resolved) || (policy === 'prefer' && !prefer.trim())}
           onClick={() => void runAltlocOperation(id, policy === 'manual' || resolved ? 'apply' : 'run')}>
           {busy ? 'Working…' : policy === 'manual' || resolved ? 'Apply selection' : 'Run Altlocs'}

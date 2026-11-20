@@ -28,11 +28,11 @@ export function AltlocTable() {
     {session.result && <Alert severity="success">{session.result}</Alert>}
     <InspectionTable aria-label="Alternate-state selection">
       <TableHead><TableRow>
-        {['Keep', 'Model', 'Chain', 'Residue', 'State', 'Occupancy', 'Atoms', 'Notes'].map(label => <TableCell key={label} align={label === 'Occupancy' || label === 'Atoms' ? 'right' : 'left'}>{label}</TableCell>)}
+        {['Keep', 'Model', 'Residue', 'State', 'Occupancy', 'Atoms', 'Notes'].map(label => <TableCell key={label} align={label === 'Occupancy' || label === 'Atoms' ? 'right' : 'left'}>{label}</TableCell>)}
       </TableRow></TableHead>
       <TableBody>
-        {!session.report && !session.busy && <TableRow><TableCell colSpan={8}>Choose a structure and Analyze in DVBfixer → Altlocs.</TableCell></TableRow>}
-        {session.report && !session.report.residues.length && <TableRow><TableCell colSpan={8}>No alternate locations.</TableCell></TableRow>}
+        {!session.report && !session.busy && <TableRow><TableCell colSpan={7}>Choose a structure and Analyze in DVBfixer → Altlocs.</TableCell></TableRow>}
+        {session.report && !session.report.residues.length && <TableRow><TableCell colSpan={7}>No alternate locations.</TableCell></TableRow>}
         {session.report?.residues.flatMap(row => row.states.map(state => <InspectionRow key={`${row.key}:${state.label}`}
           selected={session.activeKey === row.key && session.focusLabel === state.label}
           onClick={() => { focus(id, row.key, state.label); window.dispatchEvent(new Event('dvbfixer:focus-altloc-viewer')) }}
@@ -43,11 +43,11 @@ export function AltlocTable() {
               choose(id, row.key, state.label)
               window.dispatchEvent(new Event('dvbfixer:focus-altloc-viewer'))
             }} /></TableCell>
-          <TableCell>{row.model}</TableCell><TableCell>{row.chain.trim() || '_'}</TableCell>
+          <TableCell>{row.model}</TableCell>
           <TableCell><Tooltip title={`Occurrence ${row.occurrence}`}><Box component="span"><ResidueLabel chain={row.chain} name={state.residueName} number={row.residueNumber} insertionCode={row.insertionCode} /></Box></Tooltip></TableCell>
           <TableCell>{state.label}</TableCell><TableCell align="right">{state.occupancy === null ? '—' : state.occupancy.toFixed(2)}</TableCell>
           <TableCell align="right">{state.atomCount}</TableCell>
-          <TableCell sx={{ color: row.warnings.length ? 'warning.main' : 'text.secondary', maxWidth: 240 }}><Tooltip title={row.warnings.join(' ') || 'Shared atoms retained'}><Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.warnings.join(' ') || 'Shared atoms retained'}</Box></Tooltip></TableCell>
+          <TableCell sx={{ color: row.warnings.length ? 'warning.main' : 'text.secondary', width: '100%', maxWidth: 0 }}><Tooltip title={row.warnings.join(' ') || 'Shared atoms retained'}><Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.warnings.join(' ') || 'Shared atoms retained'}</Box></Tooltip></TableCell>
         </InspectionRow>))}
       </TableBody>
     </InspectionTable>
