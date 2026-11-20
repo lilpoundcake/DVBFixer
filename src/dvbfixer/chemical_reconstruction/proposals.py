@@ -23,6 +23,7 @@ class Strategy(StrEnum):
     INTERNAL = "graph-internal-authority-v1"
     TEMPLATE = "class-a-rigid-authority-v1"
     TORSION = "graph-fragment-torsion-grid-v1"
+    PROJECTION = "generated-heavy-metric-projection-v1"
 
 
 class PlacementKind(StrEnum):

@@ -10,10 +10,11 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** bounded WP2L heavy→H composition, strict research
-readback and independent combined auditing are implemented. Seventeen of eighteen
-selected parents pass; PRO19's incoming-peptide-plane refusal is retained. This is
-not native-H/general-complex qualification. See the final section and validation.
+**Current continuation:** WP2M adds a separately declared generic generated-heavy
+metric projector and real planar-port constraints. One of three declared sources
+executes/passes; incoming-HIS typing and altloc refusals remain. The passing case's
+native RMSD worsens. No projected-parent H integration exists yet; WP2L's original
+PRO19 refusal is unchanged. See the final section and validation.
 
 ## 1. Persistent branch and authorization
 
@@ -1463,7 +1464,7 @@ typing pass. Ruff passes. See the
 [validation record](chemical-reconstruction-heavy-h-validation.json) for evidence,
 source/report hashes, all denominators and retained negative details.
 
-**Next:** separately freeze an actual-neighbour/PRO-ring incoming-peptide geometry
+**Next at WP2L (bounded heavy projection implemented below):** separately freeze an actual-neighbour/PRO-ring incoming-peptide geometry
 strategy before new controls. Constrain construction to the real peptide interface
 rather than retroactively weakening WP2L bounds or retrying heavy poses inside the
 H stage. Preserve this v1 parent/refusal and compare explicitly labelled new requests.
@@ -1472,3 +1473,102 @@ measured/partial H, polymer/link/metal/ring chemistry, public publication/DatRec
 defaults/dependency replacement and production/data-license gates remain open.
 WP2F's large combined timeout remains unresolved. No scientific qualification or
 production permission follows merely from this bounded integration milestone.
+
+## WP2M — real port constraints and generated-only metric projection (2026-11-20)
+
+[Protocol](chemical-reconstruction-port-projection-v1.md) frozen as `c1752c0`
+from `65fce4d` BEFORE new projection controls. This is a new private heavy
+proposal with separately bound append-only constraints, not a retry inside WP2L,
+replacement of its frozen parent or fabricated torsion-grid lineage. No H is
+generated here and passing projection does NOT establish complete heavy+H quality.
+
+`planar_port.py` declares an exact typed real tertiary peptide-N interface:
+incoming C, N, CA, generated CD; C/N/XC/CT types; neutral nonaromatic N with two
+singly bonded internal carbon neighbours and no attached H/D; fixed unit-occupancy
+real incoming C/N/CA and explicit covalent C–N link. It reuses the existing pinned
+ff19SB scalar-row selector, selecting only exact C–N, C–N–CT, C–N–XC, CT–N–XC rows.
+Additional constraints are 1.335 +/-0.10 A, 121.9/121.9/118 +/-12 degrees and a
+0.05 A N/incoming-C/CA/CD plane. They APPEND to the original request; CCD internal
+bond/angle authority is NOT replaced by force-field port targets. Explicit typing
+is conditional, not protonation/atom-type inference; ALA chemical witnesses remain
+distinct from actual source neighbour coordinates and full-polymer qualification.
+
+`projection_contracts.py`, `projection_geometry.py`, `metric_projection.py` and
+`projection_audit.py` implement a generic graph/constraint-driven generated-heavy
+proposal, not a PRO positional patch. It accepts arbitrary whole/partial generated
+heavy subsets within bounds (one target, <=16 atoms/48 variables, <=512 residuals),
+preserves ALL source observations/context and refuses temporary/mobile ownership,
+incomplete heavy inventory and unsupported/over-budget constraints. Variables are
+local displacements in a proper fixed-observation frame; no observed atom is an
+optimization variable. One optional SciPy `least_squares` solve uses frozen trf/
+2-point/linear settings, 1e-10 tolerances, max_nfev 500 and +/-2 A component bounds;
+independent raw AND rounded Euclidean per-atom motion cap is 2 A. Missing SciPy
+is a retained refusal, not a dependency/install/default change or algorithm fallback.
+
+The objective uses ALL instantiated target heavy graph bond/angle metrics and
+explicit distance/angle/plane/ordered-stereo/exclusion constraints, scaled by their
+unchanged authority tolerances. There is no native reference, H outcome, empirical
+prior, energy/ranking, positional pull to native, random seed, multistart or hidden
+retry. Fixed-only residuals cannot be repaired. Existing ordered stereo measurement
+was extracted into `measurement.ordered_stereo_volume` without changing its
+normalization/parity semantics. Acceptance requires solver convergence AND existing
+independent raw/rounded geometry/constraint/clash/stereo checks, binding, rounding
+and motion caps; objective decrease alone never establishes a pass. The ordinary
+single-proposal constructor rejects the distinct projection strategy.
+
+The prospective three-source declaration was first file-order interior PRO in
+chain A of full retained **1UBQ, 1FR2 and 1A3N**, always CB/CG/CD. Exactly **one**
+projection executes and passes: **1UBQ A/PRO19**. Its rounded distance from the
+required real incoming plane changes **0.786839 -> 0.0000551 A** (raw 0.0000920 A),
+with maximum generated-atom motion **0.855725 A** raw / **0.855648 A** rounded.
+SciPy 1.18.0 reports nfev 7 and convergence; squared residual decreases
+249.362019 -> 1.062339. Original observations, state/mask and source transport remain
+unchanged. This does NOT replace the historical WP2L parent or establish H geometry.
+
+**Retained negative native outcome:** exact-name rounded heavy RMSD worsens
+**0.499312 -> 0.592613 A**. Native coordinates were extracted only AFTER projection
+returned, and were not solver inputs or required improvement targets. Correct
+port geometry is not proof of native conformation, superiority or an energy minimum.
+**1FR2 A/PRO47** has a passing old heavy baseline but is refused BEFORE projection:
+its incoming HIS has no exact RTP template (`actual-incoming-template-unresolved:HIS`).
+No HID/HIE/HIP is silently selected. **1A3N** is refused by source preparation
+BEFORE target selection (`explicit-altloc-selection-required`); no alternate
+structure/chain/altloc is substituted. Both refusals remain in the denominator of
+three, and neither is a failed executed solve or a projected/H success.
+
+The initial driver stopped on an unhandled missing-HIS KeyError after completing
+1UBQ; 1FR2 projection and 1A3N had not executed. That partial `controls-01` remains
+preserved. The follow-up converts missing exact templates to an explicit refusal
+without chemistry/solver changes; unchanged 1UBQ replays byte-identically, not as a
+new trial/start. Initial readback also found a top-level declaration-key collision:
+state declaration and port declaration are now separate keys. `controls-02` stays
+preserved; `controls-03` is a metadata-only correction retaining EXACT requests,
+plans, coordinates, audits, scores and dispositions, with no solving. The current
+driver reproduces that canonical evidence byte-for-byte. See the
+[validation record](chemical-reconstruction-port-projection-validation.json) for
+the interruption/correction manifests, source/report hashes and all denominators.
+
+Saved readback forbids the optimizer and coordinate constructors. It checks all
+three original source byte sets, two prepared-source transport pairs, four old
+baseline raw/rounded audits, two projection audits, source/port declaration and
+request/plan/movement/rounding/cost bindings, actual-source native references and
+four native score recomputations. All **467 files** across thirteen replay arms
+are byte-identical (9 projection + 458 historical). Replays, math tests and
+readbacks are regression/integrity evidence, not independent new scientific trials.
+
+Verification: **27 new cases**, **100 focused passes** with staged/conditioning,
+**281 split slow-boundary passes**, **3854 full-fast passes**, three existing
+optional skips, 33 slow deselected. Ruff passes; scoped strict typing passes 36
+selected files and source-bound nonincremental strict typing passes 37. Ambient
+typing retains exactly the same 793 legacy diagnostics, not a global pass.
+
+**Next:** explicitly design projected-parent H conditioning/lineage and combined
+constructor-free auditing, then freeze that continuation BEFORE new H controls.
+Do not cast projections to torsion-grid results, change checkpoint observations
+into measured source, or weaken WP2L's plane to enter its adapter. Independently
+resolve incoming type/state authority (without silently selecting histidine states)
+and separately declare any altloc-selected input before new controls. Keep the
+present three-source refusals/native worsening and all historical negatives.
+Broader full/partial masks, retained complexes, real-polymer/native-H/name quality,
+public materialization/DatRecord/default/dependency replacement and production/data-
+license gates remain open; WP2F's large combined timeout is still unresolved.

@@ -48,14 +48,21 @@ def torsion_degrees(points: tuple[Point, Point, Point, Point]) -> float:
     return math.degrees(math.atan2(_dot(_cross(b1, v), w), _dot(v, w)))
 
 
+def ordered_stereo_volume(kind: ConstraintKind, points: tuple[Point, ...]) -> float:
+    """Canonical normalized ordered-frame/ligand determinant, without parity inference."""
+    if kind not in {ConstraintKind.STEREO_FRAME, ConstraintKind.STEREO_LIGANDS}:
+        raise ValueError("ordered stereo kind required")
+    directions = tuple(_unit(_sub(p, points[0])) for p in points[1:])
+    if kind == ConstraintKind.STEREO_LIGANDS:
+        directions = tuple(_unit(_sub(p, directions[3])) for p in directions[:3])
+    return _dot(directions[0], _cross(directions[1], directions[2]))
+
+
 def satisfied(constraint: Constraint, points: tuple[Point, ...]) -> bool:
     """Positions arrive in angstrom; bounds retain their declared units."""
     kind = constraint.kind
     if kind in {ConstraintKind.STEREO_FRAME, ConstraintKind.STEREO_LIGANDS}:
-        directions = tuple(_unit(_sub(p, points[0])) for p in points[1:])
-        if kind == ConstraintKind.STEREO_LIGANDS:
-            directions = tuple(_unit(_sub(p, directions[3])) for p in directions[:3])
-        volume = _dot(directions[0], _cross(directions[1], directions[2]))
+        volume = ordered_stereo_volume(kind, points)
         assert constraint.orientation is not None and constraint.minimum_volume is not None
         return constraint.orientation*volume >= constraint.minimum_volume
     if kind in {ConstraintKind.DISTANCE, ConstraintKind.RING_CLOSURE, ConstraintKind.EXCLUSION}:

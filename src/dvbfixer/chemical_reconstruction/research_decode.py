@@ -14,26 +14,29 @@ from enum import Enum
 from typing import Literal, TypeVar, Union, cast, get_args, get_origin, get_type_hints
 
 from .conformer_search import ConformerSearchPlan, ConformerSearchResult
-from .contracts import PreparedContextRequest, ReconstructionRequest
+from .contracts import Observation, PreparedContextRequest, ReconstructionRequest
 from .declared_peptide import DeclaredPeptideAuthority
 from .heavy_conditioning import HeavyConditionedRequest
 from .joint_hydrogen_geometry import JointMetricGeometryPlan, JointSourceMetricGeometryPlan
 from .metric_geometry import GeneratedMetricGeometryPlan, SourceMetricGeometryPlan
 from .observed_peptide import ObservedPeptideProbe
 from .peptide_state import LocalPeptideAuthority
-from .proposals import GeometryPlan
+from .planar_port import PlanarPortAuthority, PlanarPortDeclaration
+from .projection_contracts import ProjectionPlan, ProjectionResult
+from .proposals import GeometryPlan, ProposalResult
 from .staged_contracts import StagedResult
 
 MAX_BYTES = 64 * 1024 * 1024
 MAX_NODES = 2_000_000
 MAX_DEPTH = 64
 T = TypeVar("T")
-ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult)
+ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult,
+         ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult)
 VARIANTS: dict[type, tuple[type, ...]] = {
     ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest),
     LocalPeptideAuthority: (LocalPeptideAuthority, DeclaredPeptideAuthority),
     GeometryPlan: (GeometryPlan, GeneratedMetricGeometryPlan, SourceMetricGeometryPlan,
-                   JointMetricGeometryPlan, JointSourceMetricGeometryPlan, ConformerSearchPlan),
+                   JointMetricGeometryPlan, JointSourceMetricGeometryPlan, ConformerSearchPlan, ProjectionPlan),
     GeneratedMetricGeometryPlan: (GeneratedMetricGeometryPlan, SourceMetricGeometryPlan,
                                   JointMetricGeometryPlan, JointSourceMetricGeometryPlan),
 }
