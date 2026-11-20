@@ -72,6 +72,9 @@ class PlanarPortDeclaration:
     def digest(self) -> str:
         return digest_record(("explicit-real-tertiary-peptide-port-v1", self))
 
+    def validate_incoming_type(self, request: ReconstructionRequest) -> None:
+        """V1 is caller-declared typing; explicit v2 subclasses add source proof."""
+
 
 def planar_port_constraints(original: ReconstructionRequest, authority: DeclaredPeptideAuthority,
                              declaration: PlanarPortDeclaration, parameters: PlanarPortAuthority) -> tuple[Constraint, ...]:
@@ -83,6 +86,7 @@ def planar_port_constraints(original: ReconstructionRequest, authority: Declared
             or {n.component, ca.component, cd.component} != {authority.identity}
             or incoming.component == authority.identity or original.targets != {authority.identity}):
         raise ValueError("planar-port-exact-directed-type-and-authority-declaration")
+    declaration.validate_incoming_type(original)
     component = next((c for c in original.components if c.identity == authority.identity), None)
     if component is None or component.resolved != authority.state:
         raise ValueError("planar-port-target-state-binding")

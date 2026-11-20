@@ -10,11 +10,11 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2N adds explicit projected-parent H conditioning and
-combined auditing. The ONE eligible WP2M parent (1UBQ PRO19) passes raw/rounded
-heavy+H geometry and conditional CIP without reprojecting or moving heavy atoms.
-Incoming-HIS/altloc refusals, WP2M native heavy worsening and WP2L's original PRO
-refusal remain unchanged. This is case-specific, not native-H/general qualification.
+**Current continuation:** WP2O adds source-bound state-invariant incoming carbonyl
+type evidence. New explicit v2 requests pass projected-heavy/H geometry and
+conditional CIP for 1UBQ PRO19 and 1FR2 PRO47, without assigning incoming state or
+charge. Both native heavy RMSDs worsen; 1A3N altloc remains refused. Historical
+v1 HIS/PRO refusals remain unchanged. This is not native-H/general qualification.
 
 ## 1. Persistent branch and authorization
 
@@ -1655,7 +1655,7 @@ a global typing pass. Contract tests corrected tagged-vs-plain digest comparison
 and a wrong hard-coded H-name expectation before the scientific run; no source,
 state, mask, geometry, bound or authority was changed to obtain the observed pass.
 
-**Next:** separately declare incoming atom-type authority for unresolved source
+**Next at WP2N (implemented below):** separately declare incoming atom-type authority for unresolved source
 labels, using existing variant/chemical authorities and without silently choosing
 histidine protonation. Any state-invariant relevant type proof must be explicit,
 not a guessed template substitution. Declare altloc-selected inputs independently
@@ -1665,3 +1665,84 @@ and native-H/name/conformation quality remain scientific gates. Public API/CLI/
 Homology/GUI/materialization/DatRecord, default/dependency replacement and production/
 data-license approval remain disabled. WP2F's combined slow timeout, old ASH/PRO
 failures and native-score worsenings remain preserved.
+
+## WP2O — state-invariant incoming carbonyl type evidence (2026-11-20)
+
+[Protocol](chemical-reconstruction-incoming-type-v1.md) committed as `ca644ed`
+BEFORE new v2 controls; [validation](chemical-reconstruction-incoming-type-validation.json)
+records retained outputs/checks. This bounded slice continues on the persistent
+branch from `502a8d9`. The user additionally requested a version bump: synchronized
+metadata is **0.10.2**, not a published release, main merge or public-backend approval.
+
+`incoming_type.py` uses the existing RTP parser and AMBER_VARIANT_TO_PARENT owner.
+The complete 27-template nonterminal catalog is pinned by full atom rows (including
+charges), normalized bonds and impropers, not a convenient HIS subset. Canonical
+labels inspect every mapped variant and the parent template when present; explicit
+AMBER labels inspect exactly that literal template. Unknown, terminal, other-
+namespace labels, changed owner/catalog, incomplete families and incompatible
+carbonyl topology/types fail closed. HIS proves a common **C** type over
+**HID/HIE/HIP** without choosing a tautomer/protonation state. HID/HIE C charges
+are **0.5973**, HIP is **0.7341**: no partial/formal charge is transferred and
+`selected_state`/`assigned_charge` remain None. Donor chemistry stays opaque.
+
+The pinned canonical CCD supplies ONLY the local neutral/nonaromatic C/CA/O and
+OXT/HXT leaving footprint with C–CA single/C=O double bonds. It does not assign
+whole-HIS chemistry, H inventory, probabilities or full-polymer state. The actual
+directed observed peptide C–N link, fixed core observations, complete observation
+digest and source/preparation/request hashes are bound into a distinct proof.
+
+`incoming_source.py` independently rebuilds the existing probe/source transport
+and reparses the literal donor label through the existing PDB adapter. It includes
+C-touching source annotations, including same-residue unassessed CONECT, and refuses
+extra carbonyl attachments. The source-byte audit is mandatory before science and
+on saved readback: a self-consistent proof with a forged HIS→HID label can pass the
+pure shape/type check but MUST fail this audit. Tests explicitly retain that
+distinction. Withheld target coordinates never enter type proof or proposal inputs.
+
+`TypeProvenPlanarPortDeclaration` has its own v2 digest and carries the proof.
+The shared scalar port constraints revalidate it against the exact original
+request; their physical numbers remain unchanged (provenance labels differ).
+Projected-parent/H audits rebind it again before using the existing compiler.
+V1 fields/digests/default behavior and all historical drivers remain unchanged;
+there is no silent upgrade or new public state/schema/CLI/Homology/GUI capability.
+
+The new three-entry v2 continuation retains the SAME first interior chain-A PRO
+targets and whole CB/CG/CD masks. **1UBQ PRO19 and 1FR2 PRO47** each execute one
+unchanged baseline, one bounded heavy projection and one complete-H proposal;
+both pass raw/rounded heavy/H geometry and conditional target CIP. There is no
+H-dependent heavy movement/reselection/retry. **1A3N** remains refused before
+baseline/projection/H with `explicit-altloc-selection-required`. No altloc was
+selected to alter the frozen denominator. The old v1 incoming-HIS refusal and
+WP2L torsion-parent refusal remain unchanged, not retroactively passed.
+
+Native references were extracted only AFTER both proposal phases completed.
+**Negative native accuracy:** rounded heavy RMSD worsens **0.499312→0.592613 Å**
+for 1UBQ and **0.487316→0.618315 Å** for 1FR2. The 1UBQ numbers/coordinates match
+the historical projection; this is a regression, not a new independent trial.
+The new HIS context is a prospective new-policy continuation, not evidence of
+general family/mask/complex quality or native-H/name accuracy. Each H envelope
+contains three generated heavy atoms and seven H with unchanged observations;
+pair accounting totals 6579/16869 eligible pairs for 1UBQ/1FR2 respectively.
+
+Independent saved readback reloads pinned catalog/CCD/port/H authorities, verifies
+literal labels and source bytes, original/prepared transport, proof/parent/masks,
+projection/H audits, conditional CIP/pairs and postproposal native scores with
+all coordinate constructors/solvers/search/rotators disabled. **488 replay files**
+are byte-identical across fifteen arms (9 new + 479 historical). No test/replay
+counts as an independent scientific trial.
+
+Verification: **56 new tests**, **185 focused**, **366 split slow-boundary** and
+**3939 full-fast passes**; three existing optional skips and 33 slow deselected.
+Ruff and scoped strict typing pass (43 selected files); source-bound strict typing
+passes 44. Ambient strict mypy is NOT green: it preserves all 793 prior errors
+and newly reaches **21 existing diagnostics in unchanged rtp_parser.py** (814
+total), not 21 new implementation errors. These are visible, not suppressed.
+GUI typecheck/tests were attempted but this checkout lacks `tsc`/`vitest` (no
+installed GUI development dependencies); metadata checks do not imply GUI passes.
+
+**Next:** separately freeze a broader independent structure/missing-mask cohort
+and quality metrics beyond geometry; do not choose a cohort to obtain passes.
+Explicit altloc-selected source admission is a separate declared input path.
+Retain both native-score worsenings, WP2F timeout and historical negatives.
+Production/data-license gates, public materialization/DatRecord, defaults and
+dependency replacement remain closed.

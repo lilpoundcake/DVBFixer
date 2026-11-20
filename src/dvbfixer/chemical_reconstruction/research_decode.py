@@ -17,6 +17,7 @@ from .conformer_search import ConformerSearchPlan, ConformerSearchResult
 from .contracts import Observation, PreparedContextRequest, ReconstructionRequest
 from .declared_peptide import DeclaredPeptideAuthority
 from .heavy_conditioning import HeavyConditionedRequest
+from .incoming_type import IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog
 from .joint_hydrogen_geometry import JointMetricGeometryPlan, JointSourceMetricGeometryPlan
 from .metric_geometry import GeneratedMetricGeometryPlan, SourceMetricGeometryPlan
 from .observed_peptide import ObservedPeptideProbe
@@ -27,6 +28,7 @@ from .projected_hydrogen_contracts import ProjectedHeavyParent, ProjectedHydroge
 from .projection_contracts import ProjectionPlan, ProjectionResult
 from .proposals import GeometryPlan, ProposalResult
 from .staged_contracts import StagedResult
+from .type_proven_port import TypeProvenPlanarPortDeclaration
 
 MAX_BYTES = 64 * 1024 * 1024
 MAX_NODES = 2_000_000
@@ -34,8 +36,9 @@ MAX_DEPTH = 64
 T = TypeVar("T")
 ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult,
          ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult,
-         ProjectedHeavyParent, ProjectedHydrogenResult)
+         ProjectedHeavyParent, ProjectedHydrogenResult, IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog)
 VARIANTS: dict[type, tuple[type, ...]] = {
+    PlanarPortDeclaration: (PlanarPortDeclaration, TypeProvenPlanarPortDeclaration),
     ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest, ProjectedConditionedRequest),
     LocalPeptideAuthority: (LocalPeptideAuthority, DeclaredPeptideAuthority),
     GeometryPlan: (GeometryPlan, GeneratedMetricGeometryPlan, SourceMetricGeometryPlan,
