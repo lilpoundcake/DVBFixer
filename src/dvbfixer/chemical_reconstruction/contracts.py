@@ -436,24 +436,29 @@ class PreparedContextRequest(ReconstructionRequest):
             raise ContractError("prepared-context-evidence-binding-mismatch")
         if policy.observations_digest != digest_record(self.observations):
             raise ContractError("prepared-context-observation-binding-mismatch")
-        fractional = frozenset(o.identity for o in self.observations if o.occupancy != 1)
-        if fractional != policy.fractional_atoms:
-            raise ContractError("fractional-context-exact-scope-required")
-        components = {c.identity: c for c in self.components}
-        forbidden = self.ownership.generated | self.ownership.temporary | self.ownership.mobile
-        forbidden |= frozenset(a for c in self.constraints for a in c.atoms)
-        forbidden |= frozenset(a for c in self.connections for a in (c.link.component_atom, c.link.other_atom))
-        if fractional & forbidden:
-            raise ContractError("fractional-context-cannot-be-owned-constrained-or-linked")
-        for atom in fractional:
-            component = components.get(atom.component)
-            if (component is None or atom.component in self.targets or component.kind != ChemistryKind.UNKNOWN
-                    or component.states or atom.component.alternate_location):
-                raise ContractError("fractional-context-must-be-unselected-opaque")
+        validate_fractional_context(self, policy.fractional_atoms)
 
     @property
     def digest(self) -> str:
         return digest_record(("chemical-prepared-context-request-v1", self))
+
+
+def validate_fractional_context(request: ReconstructionRequest, allowed: frozenset[ExactAtomRef]) -> None:
+    """Pure exact scope check; source/preparation provenance is checked by callers."""
+    fractional = frozenset(o.identity for o in request.observations if o.occupancy != 1)
+    if fractional != allowed:
+        raise ContractError("fractional-context-exact-scope-required")
+    components = {c.identity: c for c in request.components}
+    forbidden = request.ownership.generated | request.ownership.temporary | request.ownership.mobile
+    forbidden |= frozenset(a for c in request.constraints for a in c.atoms)
+    forbidden |= frozenset(a for c in request.connections for a in (c.link.component_atom, c.link.other_atom))
+    if fractional & forbidden:
+        raise ContractError("fractional-context-cannot-be-owned-constrained-or-linked")
+    for atom in fractional:
+        component = components.get(atom.component)
+        if (component is None or atom.component in request.targets or component.kind != ChemistryKind.UNKNOWN
+                or component.states or atom.component.alternate_location):
+            raise ContractError("fractional-context-must-be-unselected-opaque")
 
 
 def digest_record(value: object) -> str:

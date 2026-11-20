@@ -33,3 +33,5 @@ tests/fixtures/chemical_reconstruction/ccd_all20_v1/manifest.json -text
 docs/plans/chemical-reconstruction-all20-v1.md -text
 docs/plans/chemical-reconstruction-conformer-grid-v1.md -text
 docs/plans/chemical-reconstruction-conformer-baselines-v1.json -text
+docs/plans/chemical-reconstruction-heavy-h-v1.md -text
+docs/plans/chemical-reconstruction-heavy-h-parents-v1.json -text

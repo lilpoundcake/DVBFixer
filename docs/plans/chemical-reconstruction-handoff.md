@@ -10,6 +10,10 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
+**Current continuation:** WP2L protocol and parent ledger are frozen; its first
+conditioning DTO/admission slice is implemented (3783 fast tests passed). This is NOT completion of WP2L.
+See the final section for the remaining decoder/staged-builder/audit/cohort work.
+
 ## 1. Persistent branch and authorization
 
 - **Continue on `feature/chemical-reconstruction`.** It was created from
@@ -1315,3 +1319,68 @@ lineage integration, measured/partial H, actual-neighbour/polymer/link/metal/rin
 puckering chemistry, native-H/name quality and public/default/dependency/production/
 data-license gates remain open. Production PyRosetta/data use still requires the
 user's documented original-source/license permissions and explicit approval.
+
+## WP2L first slice — rounded-heavy conditioning contract (2026-11-20)
+
+[Protocol](chemical-reconstruction-heavy-h-v1.md) frozen as `bb292e8` from
+`8d01121`; [parent ledger](chemical-reconstruction-heavy-h-parents-v1.json)
+committed as `0475f76` BEFORE new staged-H scientific controls. The ledger pins
+all twenty saved WP2K artifact hashes and eighteen selected rounded-heavy addition
+signatures. GLY N/A and MET's absent eligible interior target remain unchanged.
+No parent search was rerun for NEW scientific evidence. Old searches were replayed
+only to check regression identity.
+
+`heavy_conditioning.py` adds a distinct `HeavyConditionedRequest`, not a prepared
+source subclass. It retains the original request and complete rounded candidate,
+with a new tagged snapshot digest/origin. Numeric H inputs contain original
+observations plus committed generated-heavy points; the original generated-heavy
+mask remains explicitly available in outer provenance, never source-owned.
+The DTO rejects nested/foreign source requests, source observation changes (even
+numerically equal but digest-distinct scalar transport), wrong/missing/extra heavy
+atoms, wrong elements/units/occupancy, non-PDB-rounded coordinates, changed original
+chemistry/links/pH/constraint prefix, temporary/mobile atoms, and partial/mixed H
+generation masks. Planning mode has EMPTY inner generation and cannot pass ordinary
+completion admission; compiled H mode owns exactly the authoritative H mask.
+
+The existing declared-state/extended/joint H compilers preserve this DTO through
+`dataclasses.replace`, including PRO's intermediate plane constraint and existing
+versioned compiler-origin settings. Those additions are transportable, not independently
+qualified merely by the DTO: final staged auditing MUST recompile the declarative
+plan and bind all authority/parameter settings before accepting any envelope.
+This contract alone proves neither parent selection nor geometry.
+
+The old fractional-scope checks were extracted verbatim into
+`contracts.validate_fractional_context`; PreparedContextRequest fields/digests and
+behavior stay unchanged. Admission recognizes fractional atoms for conditioning
+ONLY through its exact original PreparedContextRequest proof. The shared scope
+check still forbids selecting/owning/constraining/linking those opaque atoms.
+`audit_source_transport` remains unchanged and rejects conditioning with
+`prepared-context-request-required`, rather than certifying generated conditioning
+as source observations. Generic HEAVY/HYDROGENS separation is unchanged.
+
+Tests use synthetic inputs and tracked CCD/force-field authorities, not required
+ignored parent outputs. Four source-math compile controls exercise SER/THR/PRO/HIP;
+they do NOT constitute staged H proposals or scientific continuation of the frozen
+parents. See the [conditioning validation record](chemical-reconstruction-heavy-h-conditioning-validation.json)
+for tests, replay counts and remaining gates.
+
+Verification: **29 new regression cases**, **115 focused passes**, **32 split
+boundary passes**, and **3783 full-fast passes**, three existing optional skips,
+33 slow deselected. The first full-fast run failed six CLI subprocess tests because
+the absolute Python invocation omitted its environment's `bin` from `PATH`; that
+failure is retained, and the complete rerun with corrected `PATH` passed without
+code/test/threshold changes. All **381 old-control files** across eleven arms remain
+byte-identical. Ruff, agent maps and generated CLI/GUI checks pass. Scoped strict
+typing passes 27 files and source-bound nonincremental strict typing passes 28;
+the ambient diagnostic multiset remains exactly the same 793 legacy errors.
+
+**Next, on the SAME branch:** implement the bounded strict known-DTO research
+decoder; staged heavy→H constructor and separately role-labelled raw/rounded
+envelopes; constructor-free lineage/rounding/geometry/CIP/pair-coverage auditor;
+synthetic corruption/failure tests. Then execute the frozen twenty-entry continuation
+from saved parents without resampling, retain every H refusal, independently read
+back evidence and replay old controls. H failure must NOT trigger heavy reselection,
+motion, new phase/state/mask or fallback. The committed rounded heavy checkpoint
+must be identical in raw-H and rounded-H envelopes. The original WP2K ASH21
+negative and WP2F timeout remain open. No public publisher, `.dat` sidecar, default,
+dependency, production/data-license or broad native-H qualification is enabled.

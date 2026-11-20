@@ -22,6 +22,7 @@ from .contracts import (
     PreparedContextRequest,
     ReconstructionRequest,
 )
+from .heavy_conditioning import HeavyConditionedRequest
 from .measurement import satisfied
 
 
@@ -65,6 +66,8 @@ def admit(request: ReconstructionRequest, capabilities: tuple[Capability, ...] =
     if request.operation != Operation.REPACK and not ownership.generated:
         fail("completion-requires-generated-mask")
     allowed_fractional = request.context_policy.fractional_atoms if isinstance(request, PreparedContextRequest) else frozenset()
+    if isinstance(request, HeavyConditionedRequest):
+        allowed_fractional = request.allowed_fractional_atoms
     if (any(o.occupancy != 1 and o.identity not in allowed_fractional for o in request.observations)
             or any(c.identity.alternate_location for c in request.components)):
         fail("partial-occupancy-or-altloc-requires-explicit-selection", status=AdmissionStatus.UNSUPPORTED)

@@ -1,0 +1,106 @@
+{
+  "schema": "dvbfixer.heavy-H-conditioning-contract-validation.v1",
+  "date": "2026-11-20",
+  "branch": "feature/chemical-reconstruction",
+  "baseline_commit": "8d01121",
+  "status": "WP2L-first-transport-contract-slice-only-not-staged-scientific-completion",
+  "protocol": "docs/plans/chemical-reconstruction-heavy-h-v1.md",
+  "protocol_commit": "bb292e8",
+  "protocol_sha256": "ebcc9f8f87703b6c131f82b761a21dccb1438c537b08ef23434d2d68a3eda3af",
+  "parent_ledger": "docs/plans/chemical-reconstruction-heavy-h-parents-v1.json",
+  "parent_ledger_commit": "0475f76",
+  "parent_ledger_sha256": "834756ca0c0d3477872a20979071e25bf1fcef926b961c6d09977a2388aa4af7",
+  "parent_artifacts_pinned": 20,
+  "selected_rounded_heavy_signatures_pinned": 18,
+  "new_frozen_parent_H_proposals_executed": 0,
+  "implementation": {
+    "DTO": "HeavyConditionedRequest is a distinct ReconstructionRequest subclass, never PreparedContextRequest; original source and generated-heavy checkpoint remain explicit fields",
+    "transport": "Exact observation digest, complete heavy-only target, original chemistry/links/pH/constraint prefix, exact generated-heavy mask and graph elements, angstrom/unit occupancy and PDB-rounded checkpoints",
+    "original_source_type": "Exact ReconstructionRequest or PreparedContextRequest only; nested or foreign subclasses refused",
+    "operation_separation": "Empty-generation fixed-heavy planning or exact complete-H generation; no mixed generic operation or temporary/mobile ownership",
+    "metadata": "Existing declared-state and complete-H versioned compiler settings transportable; final staged auditor must independently recompile/bind them, not treat DTO acceptance as scientific proof",
+    "fractional_scope": "Original PreparedContextRequest proof only, unchanged pure scope checks extracted to validate_fractional_context",
+    "source_transport": "Existing auditor unchanged and rejects conditioning with prepared-context-request-required",
+    "parent_geometry_selection_and_final_H_acceptance_proven_by_DTO": false,
+    "ordinary_request_fields_and_digests_changed": false,
+    "public_default_or_production_integration": false
+  },
+  "checks": {
+    "new_regression_cases": 29,
+    "focused": {
+      "passed": 115,
+      "failures": 0,
+      "junit": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-focused-01.xml",
+      "sha256": "1c0a24484052b3e47eb49f832c0d837f39fb5cbb8d43e9d00d094a2908a07685"
+    },
+    "ruff": "passed: src/dvbfixer and new conditioning tests",
+    "scoped_strict_mypy": "passed: 27 source files, follow-imports=silent",
+    "source_bound_nonincremental_strict_mypy": {
+      "passed_files": 28,
+      "log": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-mypy-source-bound-01.log",
+      "sha256": "44323f12010ebbb5daa4cefef4cc4308006fe3b26ad3ced614a993eb79a8b535"
+    },
+    "ambient_typing": {
+      "status": "same-legacy-failure-not-a-global-pass",
+      "errors": 793,
+      "new_diagnostic_lines": 0,
+      "baseline_only_diagnostic_lines": 0,
+      "baseline": "tmp/chemical-reconstruction-conformer-grid-v1/mypy-ambient-01.log",
+      "log": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-mypy-ambient-01.log",
+      "sha256": "bf4211883a82ededea86d96057c0c5f36b1d2c5c5f368e8273e6afe02257c999"
+    },
+    "replays": {
+      "evidence": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-regression-replays-01.json",
+      "sha256": "36c1173f51bc984da1c56f2b653bef869276c098688c13cdf5f2c4be9f5033d3",
+      "byte_identical_files": 381,
+      "arms": 11,
+      "new_scientific_trials": false
+    },
+    "initial_full_fast": {
+      "status": "failed-launch-environment-not-a-pass",
+      "passed": 3777,
+      "failures": 6,
+      "optional_skips": 3,
+      "cause": "Absolute Python path was selected but its bin directory was omitted from PATH; all six failures were FileNotFoundError launching bare dvbfixer subprocesses",
+      "junit": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-fast-01.xml",
+      "sha256": "2ce0c6b79df8a013f027863aeeefe3d5fc0b5a7f16518c976c963800dc5e7235"
+    },
+    "full_fast": {
+      "status": "passed-with-selected-environment-bin-on-PATH",
+      "passed": 3783,
+      "failures": 0,
+      "errors": 0,
+      "optional_skips": 3,
+      "slow_deselected": 33,
+      "junit": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-fast-02.xml",
+      "sha256": "73a52bc3e36bf81d07e739d18eea049d3b9c763e54a5b92b6711fb40a2588ac7"
+    },
+    "split_boundaries": {
+      "passed": 32,
+      "failures": 0,
+      "junit": "tmp/chemical-reconstruction-heavy-h-v1/conditioning-boundaries-01.xml",
+      "sha256": "e96959c5bece658ee7970255e88ca725304090e66c8f90c106e96b0235351c99"
+    },
+    "agent_maps_CLI_GUI_generated_checks_and_local_links": "passed",
+    "frozen_parent_artifact_and_selected_checkpoint_hashes": "all twenty artifacts and eighteen selected signatures independently verified"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/heavy_conditioning.py": "be724e621a0bd823a4d748bef277032f3e79f68b8e85a1db15e2b69b518a49c7",
+    "src/dvbfixer/chemical_reconstruction/contracts.py": "a73e704afe5387b8059af25c6a4fc524be8e97240bddba4d60c2fda360e9b66b",
+    "src/dvbfixer/chemical_reconstruction/admission.py": "6ce016c31cd0fc4383c58bb335e72e6b6f6e51e48845811a390072b65ab63945",
+    "tests/test_chemical_reconstruction_heavy_conditioning.py": "feb28e17c75d85a1f547ebec5efd477bbc9db384b82adaf82ef6b5ba974e691b"
+  },
+  "remaining_WP2L": [
+    "Bounded strict known-DTO research decoder and file/hash-bound saved-parent driver",
+    "Staged constructor with separate role-labelled raw-H and rounded-H envelopes",
+    "Constructor-free final parent/lineage/rounding/geometry/CIP and pair-coverage audit",
+    "Synthetic staged failure/corruption tests independent of ignored parent trees",
+    "Frozen twenty-entry scientific continuation without resampling; retain every H refusal and independently read back artifacts"
+  ],
+  "retained_negatives_and_gates": [
+    "WP2K explicit ASH21 native RMSD worsening",
+    "WP2F unresolved combined slow-inclusive timeout",
+    "Broad retained-complex/native-H/name/actual-neighbour/polymer qualification",
+    "Public publication/DatRecord/default/dependency/production and data-license approval"
+  ]
+}
