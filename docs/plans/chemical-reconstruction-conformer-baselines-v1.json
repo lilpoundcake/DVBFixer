@@ -1,0 +1,314 @@
+{
+  "schema": "dvbfixer.conformer-grid-baseline-signatures.v1",
+  "date": "2026-11-20",
+  "prospective_protocol_commit": "802c677",
+  "baseline_commit": "19025c8",
+  "baseline_summary_sha256": "616aa27982cd46dfb143a4f5a4bd2d181997732267ed86f8eae4c926e3342d37",
+  "signature_definition": "SHA256 canonical JSON of rounded generated-only Observation tuple; no request/path metadata or reference coordinates",
+  "radii_owner": "src/dvbfixer/diagnose/geometry.py",
+  "radii_owner_sha256": "3f74ccd0b58d16f46061136e3271c61e44b81c4c05be5b92ba44b787290236fe",
+  "radii_values_digest": "9720bb0847e8ae2e22fc0474f8b18bbbf5b06c8016355d84f63f28c7fde5fb2d",
+  "entries": [
+    {
+      "source_component": "ALA",
+      "requested_state": "ALA",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "28",
+      "heavy_mask": [
+        "CB"
+      ],
+      "rounded_additions_sha256": "872ad3a25b2de5d2feb0e57c2483461126ea733164b46f9f8e0bdde878199718"
+    },
+    {
+      "source_component": "ARG",
+      "requested_state": "ARG",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "42",
+      "heavy_mask": [
+        "CB",
+        "CD",
+        "CG",
+        "CZ",
+        "NE",
+        "NH1",
+        "NH2"
+      ],
+      "rounded_additions_sha256": "655edcee493802ac1184cb6a420dbe106bc1b1039e2ad320677ef9617283ee2c"
+    },
+    {
+      "source_component": "ASN",
+      "requested_state": "ASN",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "25",
+      "heavy_mask": [
+        "CB",
+        "CG",
+        "ND2",
+        "OD1"
+      ],
+      "rounded_additions_sha256": "eee472433148036ced05d23352f4506334f3f63c7171fb085437aa2920219dec"
+    },
+    {
+      "source_component": "ASP",
+      "requested_state": "ASH",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "21",
+      "heavy_mask": [
+        "CB",
+        "CG",
+        "OD1",
+        "OD2"
+      ],
+      "rounded_additions_sha256": "79679423a4c5b1c1a21268eacccf761308405e6bde2cb8aa4e968031d1d77931"
+    },
+    {
+      "source_component": "CYS",
+      "requested_state": "CYS",
+      "source": "tests/fixtures/regressions/1FR2.pdb",
+      "original_source_sha256": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+      "status": "declared-geometry-passed",
+      "target": "23",
+      "heavy_mask": [
+        "CB",
+        "SG"
+      ],
+      "rounded_additions_sha256": "9f1e87353a9f5b89e5051745c08a75b6aad726c65268d2a03962b3390d3db892"
+    },
+    {
+      "source_component": "GLN",
+      "requested_state": "GLN",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "2",
+      "heavy_mask": [
+        "CB",
+        "CD",
+        "CG",
+        "NE2",
+        "OE1"
+      ],
+      "rounded_additions_sha256": "1356d18b31c8d15754861e0b3c623b3b7f5a8b2d931b0c2697df5a48b5de2f9c"
+    },
+    {
+      "source_component": "GLU",
+      "requested_state": "GLH",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "16",
+      "heavy_mask": [
+        "CB",
+        "CD",
+        "CG",
+        "OE1",
+        "OE2"
+      ],
+      "rounded_additions_sha256": "abf9ea612349f727658def58015effe1cf4097ef3e638d378a97b9b81e845b53"
+    },
+    {
+      "source_component": "GLY",
+      "requested_state": "GLY",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "not-applicable-no-sidechain-heavy-atoms",
+      "target": "10",
+      "heavy_mask": [],
+      "rounded_additions_sha256": null
+    },
+    {
+      "source_component": "HIS",
+      "requested_state": "HIP",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "68",
+      "heavy_mask": [
+        "CB",
+        "CD2",
+        "CE1",
+        "CG",
+        "ND1",
+        "NE2"
+      ],
+      "rounded_additions_sha256": "a4b8f39f7fd57fa6786e2d5d4bf6f652458d71268458c34188e460fee6ef50ba"
+    },
+    {
+      "source_component": "ILE",
+      "requested_state": "ILE",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "3",
+      "heavy_mask": [
+        "CB",
+        "CD1",
+        "CG1",
+        "CG2"
+      ],
+      "rounded_additions_sha256": "974e08f15b0f816e7a3d3bf991f0e6e0985f76b513ee3e8b3bf5e100dbffc04f"
+    },
+    {
+      "source_component": "LEU",
+      "requested_state": "LEU",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "8",
+      "heavy_mask": [
+        "CB",
+        "CD1",
+        "CD2",
+        "CG"
+      ],
+      "rounded_additions_sha256": "532247f99d5fc62adcc6b492f8052e668dffe0882a841d1ca6603f3d2e1e4641"
+    },
+    {
+      "source_component": "LYS",
+      "requested_state": "LYS",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "6",
+      "heavy_mask": [
+        "CB",
+        "CD",
+        "CE",
+        "CG",
+        "NZ"
+      ],
+      "rounded_additions_sha256": "8048a1dbcf5314776864179cad746dd4537aec7210a77fc8931cd30fd29fec9a"
+    },
+    {
+      "source_component": "MET",
+      "requested_state": "MET",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "refused",
+      "target": null,
+      "heavy_mask": null,
+      "rounded_additions_sha256": null
+    },
+    {
+      "source_component": "PHE",
+      "requested_state": "PHE",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "4",
+      "heavy_mask": [
+        "CB",
+        "CD1",
+        "CD2",
+        "CE1",
+        "CE2",
+        "CG",
+        "CZ"
+      ],
+      "rounded_additions_sha256": "68171966513df33ea822dc6abaaf72b79d7d41f4ef063d935061dd0a867c800e"
+    },
+    {
+      "source_component": "PRO",
+      "requested_state": "PRO",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "19",
+      "heavy_mask": [
+        "CB",
+        "CD",
+        "CG"
+      ],
+      "rounded_additions_sha256": "a487e2ccac93e464f9dca5b1648dd4ad724a0f3c78b7f3a8e655bda5de2c2a0e"
+    },
+    {
+      "source_component": "SER",
+      "requested_state": "SER",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "20",
+      "heavy_mask": [
+        "CB",
+        "OG"
+      ],
+      "rounded_additions_sha256": "1d900420e317cd09c275b949f2a8a9cd051ee8f80675749c7fd7f5bad7a930bd"
+    },
+    {
+      "source_component": "THR",
+      "requested_state": "THR",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "7",
+      "heavy_mask": [
+        "CB",
+        "CG2",
+        "OG1"
+      ],
+      "rounded_additions_sha256": "e5c40119a502055137f58aea14ed223ac85505509a1d0bbb4d4de6157fb04f6d"
+    },
+    {
+      "source_component": "TRP",
+      "requested_state": "TRP",
+      "source": "tests/fixtures/regressions/1FR2.pdb",
+      "original_source_sha256": "ba93115f20b5e16eddbef8d70f1de7c25971b3c1c505acbaec5fb3670acf889a",
+      "status": "declared-geometry-passed",
+      "target": "74",
+      "heavy_mask": [
+        "CB",
+        "CD1",
+        "CD2",
+        "CE2",
+        "CE3",
+        "CG",
+        "CH2",
+        "CZ2",
+        "CZ3",
+        "NE1"
+      ],
+      "rounded_additions_sha256": "c1969bda5b0112b6400b7e897a583b3cfecc033f098e8ca49f5000300a40887b"
+    },
+    {
+      "source_component": "TYR",
+      "requested_state": "TYR",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "59",
+      "heavy_mask": [
+        "CB",
+        "CD1",
+        "CD2",
+        "CE1",
+        "CE2",
+        "CG",
+        "CZ",
+        "OH"
+      ],
+      "rounded_additions_sha256": "f909cdf896a7b374763bb1657f28df4a6745cb7f70d1773e102bdf6867a81731"
+    },
+    {
+      "source_component": "VAL",
+      "requested_state": "VAL",
+      "source": "tests/fixtures/protein_context/1UBQ.pdb",
+      "original_source_sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161",
+      "status": "declared-geometry-passed",
+      "target": "5",
+      "heavy_mask": [
+        "CB",
+        "CG1",
+        "CG2"
+      ],
+      "rounded_additions_sha256": "9ecd267fb6f0348b2a278158a39ec171bd86ad268be2346600235a5a3c22c494"
+    }
+  ]
+}
