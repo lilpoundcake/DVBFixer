@@ -2,8 +2,8 @@
 
 Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
-WP2J all20 source heavy/H coverage is case-tested, not native-quality qualification.
-Final fast suite passed (3712), split slow boundaries
+WP2J all20 source coverage and WP2K fragment-grid/steric ranking are case-tested,
+not native-quality qualification. Final fast suite passed (3754), split slow boundaries
 passed. WP2F's large combined slow-inclusive run remains incomplete after outer
 timeouts. General
 reconstruction and scientific acceptance remain
@@ -1219,7 +1219,7 @@ set/checksum equality. See the
 [validation record](chemical-reconstruction-all20-validation.json) for hashes,
 denominators, native-score evidence and retained refusal details.
 
-Next: freeze a genuinely complex-aware conformer proposal/ranking policy and its
+Next at WP2J (bounded nonempirical baseline completed in WP2K below): freeze a genuinely complex-aware conformer proposal/ranking policy and its
 heldout comparison before changing geometry or claiming native recovery. Keep
 full-sidechain and H correctness as equal tracks; their combined lineage/ownership
 and independent final audit remain a separate integration gate. No reduced masks,
@@ -1227,3 +1227,91 @@ relabelled native references, permissive clash/plane thresholds or chosen-succes
 targets to improve the observed table. Broader chemistry, actual-neighbour/polymer
 evidence, measured/partial H, native-H/name/orientation quality, the old unresolved
 WP2F slow timeout and public/default/dependency/production/license gates stay open.
+
+## WP2K — graph-fragment grid with retained-context ranking (2026-11-20)
+
+[Protocol](chemical-reconstruction-conformer-grid-v1.md) frozen as `802c677` from
+`19025c8`; the path-independent
+[baseline signature ledger](chemical-reconstruction-conformer-baselines-v1.json)
+was committed as `cc43cca` BEFORE new search. It records only WP2J source/state/
+mask/status and rounded GENERATED-coordinate hashes, not native coordinates.
+The same twenty observed declarations are used; GLY remains N/A and the eligible
+interior MET is still absent. All baseline signatures match before any rotation.
+No new source, PyRosetta data, empirical prior, native engine or default change.
+
+`torsion_geometry.py` compiles graph-cut axes from the existing sanitized chemical
+witness, not residue-specific chi tables. Eligible single nonaromatic/nonconjugated
+SP2/SP3 bridges point away from exact observed roots; all moving downstream heavy
+atoms must be generated. Cycles, conjugated axes, observed distal anchors, empty
+terminal motions and external generated links have explicit exclusion reasons.
+PRO ring puckering is not sampled. Whole branches and aromatic/fused rings remain
+rigid fragments. The rotator reuses RDKit Get/SetDihedralDeg; source observations
+must remain bit-identical after EVERY nonzero operation, never restored afterward.
+Scratch witness/H coordinates never enter output or become qualified H geometry.
+
+`conformer_search.py` has a separate digest-bound search plan/strategy. The ordinary
+single-proposal constructor explicitly refuses it. Grid offsets are `(0,-120,+120)`
+relative to baseline torsions, complete Cartesian products in root/identity order,
+at most 256 combinations (no truncation). Index 0 preserves baseline additions
+exactly. All attempts retain raw/rounded geometry, all-path torsion trace and steric
+score evidence. The measurement-only trace checks every generated-involving local
+heavy four-path, including UNSAMPLED central bonds, at raw 1e-6/rounded 0.25 degrees.
+These are provenance tolerances, not changed geometry acceptance bounds.
+
+`steric_ranking.py` reuses the existing diagnostic VDW radii. It counts every unique
+eligible pair involving a generated atom against the FULL retained context and
+other generated atoms, excludes authoritative 1-2/1-3 paths, never downweights opaque
+fractional atoms, and refuses missing radii/over-budget contexts rather than cropping.
+After unchanged raw+rounded heavy geometry AND trace gating, selection minimizes
+rounded sum of squared overlaps, then worst overlap, then index. This is NOT a force
+field, calibrated energy/posterior, H-bond/solvation model or new VDW pass threshold.
+No reference/RMSD enters construction or ranking. The driver only extracts native
+holdouts after search/selection has returned; tests enforce that boundary.
+
+All twenty entries executed: eighteen selected searches, one GLY N/A, one missing
+eligible interior MET. Across the eighteen searches all **302** conformations were
+constructed, **265** passed the combined raw/rounded geometry+trace gate, **37**
+failed geometry, and **zero** failed the all-path trace. No new geometry, clash,
+plane or source-preparation threshold was tuned. This is not an all20 native pass rate.
+
+On the SAME known cases, rounded exact-name heavy RMSD median changes from
+**1.431404 to 0.530263 A**: nine improved, eight unchanged and **one worsened**.
+1FR2 TRP74 improves 5.904726 -> 0.263223 A. The important retained negative is
+explicit ASH/1UBQ ASP21: steric-overlap sum improves 1.000021 -> 0.690350 A^2 while
+native exact-name RMSD worsens **0.530115 -> 1.535525 A**. It is NOT rescued with
+the reference, a new objective term, atom-name swap or another grid. ASH is a
+declared experimental state, not inferred native protonation; unsymmetrized RMSD
+and steric overlap are separate measures. WP2J already recorded this source's
+fixed-plane defect, so RMSD alone is not chemical correctness; the case stays in
+the denominator. Old WP2J bad native scores stay intact.
+These retrospective source families are not independent folds or broad/native-H
+qualification; a nonempirical relative grid is not a Dunbrack library.
+
+Constructor-free saved readback (including SetDihedral disabled) verifies twenty
+original/prepared source pairs, all topologies/grids/rounding/baselines/selection,
+36 baseline geometry audits, **604** attempt geometry audits, **604** all-path trace
+audits, **604** steric-score recomputations and **640** baseline/attempt native-score
+measurements. Baseline native scores equal the saved WP2J scores. Every raw/rounded
+candidate, including rejected geometry, retains its postselection reference score.
+All **381 files** across eleven final replay arms match byte-for-byte. Replays,
+readbacks, mathematical controls and repeated native requests are not new trials.
+
+Verification: initial four source-math controls passed before native search; 41
+extended tests passed, then an additional strict-grid metadata case brought the
+final new set to **42**. Focused fast **824 passed**, three slow deselected; split
+H/heavy/grid/seeded/renumber boundaries **223 passed**; full fast **3754 passed**,
+three existing optional Torch/Biotite skips, 33 slow deselected. Ruff passes;
+scoped strict typing passes 26 selected files and source-bound nonincremental
+strict typing passes 27. The ambient-import run retains the same 793 legacy errors.
+WP2F's large combined slow timeout remains unresolved, not causally closed here.
+See [validation](chemical-reconstruction-conformer-validation.json) for pinned
+source/report hashes, per-case comparisons and the negative ASH outcome.
+
+Next: independently qualify additional structures/folds and ranking physics before
+inferring broad native recovery. Empirical backbone-conditioned priors, continuous
+orientation/refinement and H-bond/electrostatic/solvation terms need separately
+declared evidence, not retrospective tuning to remove ASP21. Heavy/H ownership and
+lineage integration, measured/partial H, actual-neighbour/polymer/link/metal/ring-
+puckering chemistry, native-H/name quality and public/default/dependency/production/
+data-license gates remain open. Production PyRosetta/data use still requires the
+user's documented original-source/license permissions and explicit approval.

@@ -22,6 +22,7 @@ from .contracts import (
 class Strategy(StrEnum):
     INTERNAL = "graph-internal-authority-v1"
     TEMPLATE = "class-a-rigid-authority-v1"
+    TORSION = "graph-fragment-torsion-grid-v1"
 
 
 class PlacementKind(StrEnum):

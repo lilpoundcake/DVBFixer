@@ -45,6 +45,8 @@ from .proposals import Candidate, GeometryPlan, PlacementKind, ProposalResult, S
 
 
 def _plan_reason(request: ReconstructionRequest, plan: GeometryPlan) -> str | None:
+    if plan.strategy not in {Strategy.INTERNAL, Strategy.TEMPLATE}:
+        return "strategy-needs-dedicated-constructor"
     if plan.request_digest != request.digest:
         return "plan-request-binding"
     if request.ownership.temporary or request.ownership.mobile:
