@@ -8,6 +8,14 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.2] — 2026-11-20
+
+### Added
+
+- Private chemical-reconstruction research contracts, source-bound incoming
+  carbonyl-type evidence, and projected-heavy/H lineage audits. These do not
+  enable a public reconstruction backend or change preparation defaults.
+
 ## [0.10.1] — 2026-10-28
 
 ### Removed
