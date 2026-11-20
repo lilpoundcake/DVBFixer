@@ -22,6 +22,8 @@ from .metric_geometry import GeneratedMetricGeometryPlan, SourceMetricGeometryPl
 from .observed_peptide import ObservedPeptideProbe
 from .peptide_state import LocalPeptideAuthority
 from .planar_port import PlanarPortAuthority, PlanarPortDeclaration
+from .projected_conditioning import ProjectedConditionedRequest
+from .projected_hydrogen_contracts import ProjectedHeavyParent, ProjectedHydrogenResult
 from .projection_contracts import ProjectionPlan, ProjectionResult
 from .proposals import GeometryPlan, ProposalResult
 from .staged_contracts import StagedResult
@@ -31,9 +33,10 @@ MAX_NODES = 2_000_000
 MAX_DEPTH = 64
 T = TypeVar("T")
 ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult,
-         ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult)
+         ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult,
+         ProjectedHeavyParent, ProjectedHydrogenResult)
 VARIANTS: dict[type, tuple[type, ...]] = {
-    ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest),
+    ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest, ProjectedConditionedRequest),
     LocalPeptideAuthority: (LocalPeptideAuthority, DeclaredPeptideAuthority),
     GeometryPlan: (GeometryPlan, GeneratedMetricGeometryPlan, SourceMetricGeometryPlan,
                    JointMetricGeometryPlan, JointSourceMetricGeometryPlan, ConformerSearchPlan, ProjectionPlan),

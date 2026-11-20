@@ -117,6 +117,16 @@ def measure_staged(original: ReconstructionRequest, parent: ConformerSearchResul
         return StagedAudit(False, ("staged-recompile-refused:" + str(exc),))
     if digest_record(view) != digest_record(expected):
         return StagedAudit(False, ("staged-H-declaration-binding",))
+    assert parent.selected_index is not None
+    checkpoint = parent.attempts[parent.selected_index].rounded
+    assert checkpoint is not None
+    return measure_bound_hydrogens(original, parent_digest(parent), checkpoint, authority, view, proposal, raw, rounded)
+
+
+def measure_bound_hydrogens(original: ReconstructionRequest, parent_binding: str, checkpoint: Candidate,
+                             authority: DeclaredPeptideAuthority, view: CompleteHydrogenView, proposal: ProposalResult,
+                             raw: StagedEnvelope | None, rounded: StagedEnvelope | None) -> StagedAudit:
+    """Shared H/role measurements AFTER a parent-specific declarative rebind."""
     errors = set()
     if proposal.plan_digest != view.plan.digest:
         errors.add("staged-H-result-plan-binding")
@@ -139,9 +149,6 @@ def measure_staged(original: ReconstructionRequest, parent: ConformerSearchResul
             errors.add("staged-H-rounding-transport")
     except ValueError:
         errors.add("staged-H-rounding-transport")
-    assert parent.selected_index is not None
-    checkpoint = parent.attempts[parent.selected_index].rounded
-    assert checkpoint is not None
     for candidate, envelope, phase in ((proposal.raw, raw, "raw-H-after-rounded-heavy"),
                                         (proposal.rounded, rounded, "rounded-H-after-rounded-heavy")):
         if candidate is None:
@@ -151,7 +158,7 @@ def measure_staged(original: ReconstructionRequest, parent: ConformerSearchResul
         if envelope is None:
             errors.add("staged-missing-envelope")
             continue
-        if (envelope.original_request_digest != original.digest or envelope.parent_digest != parent_digest(parent)
+        if (envelope.original_request_digest != original.digest or envelope.parent_digest != parent_binding
                 or envelope.conditioning_digest != view.request.digest
                 or envelope.hydrogen_candidate_digest != digest_record(candidate) or envelope.phase != phase
                 or digest_record(envelope.generated_heavy) != digest_record(checkpoint.additions)

@@ -24,6 +24,7 @@ from .contracts import (
 )
 from .heavy_conditioning import HeavyConditionedRequest
 from .measurement import satisfied
+from .projected_conditioning import ProjectedConditionedRequest
 
 
 def admit(request: ReconstructionRequest, capabilities: tuple[Capability, ...] = ()) -> Admission:
@@ -66,7 +67,7 @@ def admit(request: ReconstructionRequest, capabilities: tuple[Capability, ...] =
     if request.operation != Operation.REPACK and not ownership.generated:
         fail("completion-requires-generated-mask")
     allowed_fractional = request.context_policy.fractional_atoms if isinstance(request, PreparedContextRequest) else frozenset()
-    if isinstance(request, HeavyConditionedRequest):
+    if isinstance(request, (HeavyConditionedRequest, ProjectedConditionedRequest)):
         allowed_fractional = request.allowed_fractional_atoms
     if (any(o.occupancy != 1 and o.identity not in allowed_fractional for o in request.observations)
             or any(c.identity.alternate_location for c in request.components)):

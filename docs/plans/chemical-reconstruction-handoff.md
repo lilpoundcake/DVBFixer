@@ -10,11 +10,11 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2M adds a separately declared generic generated-heavy
-metric projector and real planar-port constraints. One of three declared sources
-executes/passes; incoming-HIS typing and altloc refusals remain. The passing case's
-native RMSD worsens. No projected-parent H integration exists yet; WP2L's original
-PRO19 refusal is unchanged. See the final section and validation.
+**Current continuation:** WP2N adds explicit projected-parent H conditioning and
+combined auditing. The ONE eligible WP2M parent (1UBQ PRO19) passes raw/rounded
+heavy+H geometry and conditional CIP without reprojecting or moving heavy atoms.
+Incoming-HIS/altloc refusals, WP2M native heavy worsening and WP2L's original PRO
+refusal remain unchanged. This is case-specific, not native-H/general qualification.
 
 ## 1. Persistent branch and authorization
 
@@ -1562,7 +1562,7 @@ optional skips, 33 slow deselected. Ruff passes; scoped strict typing passes 36
 selected files and source-bound nonincremental strict typing passes 37. Ambient
 typing retains exactly the same 793 legacy diagnostics, not a global pass.
 
-**Next:** explicitly design projected-parent H conditioning/lineage and combined
+**Next at WP2M (implemented below):** explicitly design projected-parent H conditioning/lineage and combined
 constructor-free auditing, then freeze that continuation BEFORE new H controls.
 Do not cast projections to torsion-grid results, change checkpoint observations
 into measured source, or weaken WP2L's plane to enter its adapter. Independently
@@ -1572,3 +1572,96 @@ present three-source refusals/native worsening and all historical negatives.
 Broader full/partial masks, retained complexes, real-polymer/native-H/name quality,
 public materialization/DatRecord/default/dependency replacement and production/data-
 license gates remain open; WP2F's large combined timeout is still unresolved.
+
+## WP2N — explicit projected-parent H conditioning and combined audit (2026-11-20)
+
+[Protocol](chemical-reconstruction-projected-h-v1.md) frozen as `24c8eb1` from
+`d6b090d`; [parent ledger](chemical-reconstruction-projected-h-parents-v1.json)
+committed as `2c541b5` BEFORE new H controls. All three WP2M `controls-03` artifact
+hashes/dispositions and the ONE passing rounded-heavy signature are pinned. The
+continuation does not project/search/sample again, change a state/mask/target,
+choose an alternative H phase or replace any old parent/refusal.
+
+`ProjectedHeavyParent` explicitly binds original source, port-constrained request,
+full projection result, peptide authority and actual port declaration/parameters.
+It has its own tagged digest and is NOT a ConformerSearchResult. The separate
+`ProjectedConditionedRequest` is a sibling of HeavyConditionedRequest, not a
+PreparedContextRequest. It binds the complete projection and rounded checkpoint
+with a new snapshot/origin tag. Numeric H observations contain original source
+plus generated-heavy conditioning; the latter stay GENERATED in outer provenance.
+Generic HEAVY/HYDROGENS separation, source/state/link/pH/constraint prefix, complete
+heavy and H masks, units/occupancy/rounding and no temporary/mobile ownership are
+preserved. This transport contract is not scientific qualification by itself.
+
+The old conditioning scope validator was extracted as a shared pure function,
+preserving old fields, digests, errors and TORSION-only admission. It was NOT
+broadened to accept a projection. The new type explicitly uses PROJECTION and
+inherits fractional context only from its genuine original PreparedContextRequest
+proof. Source transport remains unchanged and rejects generated conditioning with
+`prepared-context-request-required`. There is no measured-source relabelling.
+
+`projected_hydrogen_audit.py` first rebinds the exact actual-port constraints and
+parameter/declaration authority, original baseline plan, full source/projection/
+anchor/geometry/movement/rounding/solver/objective evidence using constructor-free
+audits. Then the existing declared/extended/joint/source-metric H compiler plans
+one complete-H proposal at the SAME committed rounded heavy points.
+`projected_hydrogens.py` retains a distinct result kind with separate original,
+port-request and typed-parent digests, plus role-labelled heavy/H envelopes.
+Raw means raw H AFTER rounded heavy; both envelopes retain exact identical heavy
+coordinates. Failed/partial stages keep available evidence without accepted output,
+movement, reselection, phase search, relaxation or a fallback.
+
+The generic bound-H measurement body was extracted from WP2L into
+`staged_audit.measure_bound_hydrogens`, not duplicated or replaced with torsion
+admission. Final independent auditing rechecks declaration/H parameters, actual
+union raw/rounded geometry, conditional target CIP, rounding, every role/digest
+and exhaustive pair accounting. All old policies remain unchanged: heavy 0.10 A /
+12 degrees; H 0.02 A /5 degrees; separation 0.7 A; H/heavy planes 0.005/0.05 A;
+minimum ordered stereo 0.05. No force-field energy or native-H score is added.
+
+Of three frozen entries, **one** is eligible and executes **exactly one H proposal**:
+**1UBQ A/PRO19 passes both raw/rounded geometry and conditional CIP**. Its candidate
+contains **3 generated heavy atoms + 7 H**; CA is conditionally labelled S in both
+audits. The rounded-heavy signature is unchanged from WP2M in both final envelopes,
+and all original observations remain fixed. Pair accounting includes **6579** unique
+eligible pairs: 1963 heavy-source, zero heavy-heavy after graph exclusions, 4592
+H-source, six H-heavy and eighteen H-H. Parent auditing covers heavy pairs and H
+auditing covers every H pair. This is one known-negative continuation, not broad
+complex/native-H/name or actual-neighbour/full-polymer qualification.
+
+**1FR2 and 1A3N remain parent-unavailable** with their unchanged incoming-HIS-
+template and explicit-altloc-selection refusals; no H-only fallback is attempted.
+WP2M's native heavy RMSD worsening **0.499312 -> 0.592613 A** remains in the copied
+parent artifact. Native-reference/RMSD fields never enter the H constructor. The
+historical WP2L torsion-parent PRO refusal is NOT reclassified as a pass: this is
+a distinct port-constrained projected request and typed parent lineage.
+
+Independent readback disables heavy/H constructors, optimizer, search, rotators,
+joint fits and SetDihedral. It checks all parent hashes/source bytes, prepared-source
+transport/refusals, typed parent and checkpoint bindings, H plans/envelopes, geometry,
+CIP and pair coverage. A guarded replay records ONE H proposal with all heavy
+solve/search/rotation disabled. All **479 files** across fourteen replay arms are
+byte-identical (12 projected-H + 467 historical), including old WP2L and WP2M
+negatives. Replays/readbacks and synthetic math tests are not new scientific trials.
+See the [validation record](chemical-reconstruction-projected-h-validation.json)
+for hashes, denominators, guard evidence and exact unchanged parent references.
+
+Verification: **29 new cases**, **129 focused passes** with projection/staged/
+conditioning, **310 split slow-boundary passes**, **3883 full-fast passes**, three
+existing optional skips and 33 slow deselected. Ruff passes; scoped strict typing
+passes 40 selected files and source-bound nonincremental strict typing passes 41.
+The ambient import diagnostic multiset remains the exact 793 legacy errors, not
+a global typing pass. Contract tests corrected tagged-vs-plain digest comparisons
+and a wrong hard-coded H-name expectation before the scientific run; no source,
+state, mask, geometry, bound or authority was changed to obtain the observed pass.
+
+**Next:** separately declare incoming atom-type authority for unresolved source
+labels, using existing variant/chemical authorities and without silently choosing
+histidine protonation. Any state-invariant relevant type proof must be explicit,
+not a guessed template substitution. Declare altloc-selected inputs independently
+before new controls; do not alter the present cohort's refusal denominator.
+Broader independent structures, full/partial masks, retained complexes, real-polymer
+and native-H/name/conformation quality remain scientific gates. Public API/CLI/
+Homology/GUI/materialization/DatRecord, default/dependency replacement and production/
+data-license approval remain disabled. WP2F's combined slow timeout, old ASH/PRO
+failures and native-score worsenings remain preserved.
