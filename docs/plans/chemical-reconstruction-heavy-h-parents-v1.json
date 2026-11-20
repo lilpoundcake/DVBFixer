@@ -1,0 +1,169 @@
+{
+  "schema": "dvbfixer.heavy-H-parent-ledger.v1",
+  "protocol_commit": "bb292e8",
+  "baseline_commit": "8d01121",
+  "parent_summary_sha256": "190b80cfe9badbea34ba46bacd04c2656588fc0d8995c78ec5c93938eae816e3",
+  "signature_definition": "SHA256 canonical JSON selected rounded additions; no native coordinates or metrics",
+  "entries": [
+    {
+      "id": "observed-ALA-ALA",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-ALA-ALA/evidence.json",
+      "parent_sha256": "f311be0a747c70f04fd824b6eb1effde564886d95865d7fccb3a16aa2bfccc8b",
+      "selected_index": 0,
+      "rounded_additions_sha256": "872ad3a25b2de5d2feb0e57c2483461126ea733164b46f9f8e0bdde878199718"
+    },
+    {
+      "id": "observed-ARG-ARG",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-ARG-ARG/evidence.json",
+      "parent_sha256": "80717b5b4022ae4958c8c5df2ea9afd5eed487ec8e055bd2728e1acf5e4ef796",
+      "selected_index": 27,
+      "rounded_additions_sha256": "bf8f3f36133416bec57535fb909584ed200bd24866412dca258ab157b8da8f21"
+    },
+    {
+      "id": "observed-ASN-ASN",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-ASN-ASN/evidence.json",
+      "parent_sha256": "d516ebff40da13f4b5d42b49a72615df84db4deec063e86fb9cfded34d6b6df4",
+      "selected_index": 4,
+      "rounded_additions_sha256": "125ad3a33f52abb621cdd49b12bcd4857646357df9648fdfb2e34d3250ce7962"
+    },
+    {
+      "id": "observed-ASP-ASH",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-ASP-ASH/evidence.json",
+      "parent_sha256": "0d8233bd7c32cd56596a94c0b8acba5eefb7c18920a83fb68376a5b6464a8f9f",
+      "selected_index": 2,
+      "rounded_additions_sha256": "cedacd4791b7ebc06ff31b9441d20d5262a2af5839f216f7d7bd2bfdd5343d2f"
+    },
+    {
+      "id": "observed-CYS-CYS",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-CYS-CYS/evidence.json",
+      "parent_sha256": "d0a892ee6263669c0e694ad14ec97a666c2868e9da2b484ee176f56e0d63d49c",
+      "selected_index": 0,
+      "rounded_additions_sha256": "9f1e87353a9f5b89e5051745c08a75b6aad726c65268d2a03962b3390d3db892"
+    },
+    {
+      "id": "observed-GLN-GLN",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-GLN-GLN/evidence.json",
+      "parent_sha256": "21d3f10a9f3630e1caf021e6c26fa27612f59bec9b14864cc80bd3338b65d13d",
+      "selected_index": 1,
+      "rounded_additions_sha256": "1f392e5e977bcf83ba26537766af187f8a4c088787af6df8c8b32fe3d6f528b0"
+    },
+    {
+      "id": "observed-GLU-GLH",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-GLU-GLH/evidence.json",
+      "parent_sha256": "25bc375a06915fee36ebd0b3c0af3661059ef6e27d10d3ce97efc3436a8195f9",
+      "selected_index": 1,
+      "rounded_additions_sha256": "8ed199aa1ba3581c2e615be6fcd90615b34d48db0aaae5b4c360f5897523c414"
+    },
+    {
+      "id": "observed-GLY-GLY",
+      "status": "not-applicable-no-sidechain-heavy-atoms",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-GLY-GLY/evidence.json",
+      "parent_sha256": "a45b23a9716e198fc709e84a7bbdaa8cdf9cdf96065490bd81755ddd0d27e3c0",
+      "selected_index": null,
+      "rounded_additions_sha256": null
+    },
+    {
+      "id": "observed-HIS-HIP",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-HIS-HIP/evidence.json",
+      "parent_sha256": "2d4d737a739a75d623688fa5a950f1d30faa5a1339ae9f10318bd19feb3df8d9",
+      "selected_index": 6,
+      "rounded_additions_sha256": "2340cd1b8465f2fda258697710a5cb51583b925bb06b945355df259e9725e9c5"
+    },
+    {
+      "id": "observed-ILE-ILE",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-ILE-ILE/evidence.json",
+      "parent_sha256": "4d27bf3b95ce6ad3261c93cebcdb3e7244e1203f1054243b72576f9a6725c9f5",
+      "selected_index": 6,
+      "rounded_additions_sha256": "df9a0657cb471d7d95612bdde010a03d2ded829d296443638099723fa76be32b"
+    },
+    {
+      "id": "observed-LEU-LEU",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-LEU-LEU/evidence.json",
+      "parent_sha256": "34043719f8aaf0eea601c13b097bb5fc76392c087e2350a33a73592162ee6f07",
+      "selected_index": 0,
+      "rounded_additions_sha256": "532247f99d5fc62adcc6b492f8052e668dffe0882a841d1ca6603f3d2e1e4641"
+    },
+    {
+      "id": "observed-LYS-LYS",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-LYS-LYS/evidence.json",
+      "parent_sha256": "a09ecae8c907809f85bf87e25cc4a9d238dd278532eb52e4e95b27737612fc3e",
+      "selected_index": 27,
+      "rounded_additions_sha256": "cb2abab9ed9513ae1af197e10c7d95ed8fd0c6ea26fb70df348c0f5eaf0aea6b"
+    },
+    {
+      "id": "observed-MET-MET",
+      "status": "refused",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-MET-MET/evidence.json",
+      "parent_sha256": "99dd74cb7b55a87f2acf9fef44d3099df92c18df7041f29d093097a6e7ea677f",
+      "selected_index": null,
+      "rounded_additions_sha256": null
+    },
+    {
+      "id": "observed-PHE-PHE",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-PHE-PHE/evidence.json",
+      "parent_sha256": "5d33adea0247729e983f7f4440c1b778108f4124f29274093d80644ce0b24f0f",
+      "selected_index": 0,
+      "rounded_additions_sha256": "68171966513df33ea822dc6abaaf72b79d7d41f4ef063d935061dd0a867c800e"
+    },
+    {
+      "id": "observed-PRO-PRO",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-PRO-PRO/evidence.json",
+      "parent_sha256": "98815ba407852ba7e869c6b4e73338a62b6da6bcdbfe83dec9c4dee3d5976ced",
+      "selected_index": 0,
+      "rounded_additions_sha256": "a487e2ccac93e464f9dca5b1648dd4ad724a0f3c78b7f3a8e655bda5de2c2a0e"
+    },
+    {
+      "id": "observed-SER-SER",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-SER-SER/evidence.json",
+      "parent_sha256": "a11e9914042d426670e695d6646278c5750ff93695a03009318bb9a53c6795e4",
+      "selected_index": 0,
+      "rounded_additions_sha256": "1d900420e317cd09c275b949f2a8a9cd051ee8f80675749c7fd7f5bad7a930bd"
+    },
+    {
+      "id": "observed-THR-THR",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-THR-THR/evidence.json",
+      "parent_sha256": "b2134160dce9c68a130c19d7047fc45c039c11819a8c4c9fd6f73c5b3957da24",
+      "selected_index": 0,
+      "rounded_additions_sha256": "e5c40119a502055137f58aea14ed223ac85505509a1d0bbb4d4de6157fb04f6d"
+    },
+    {
+      "id": "observed-TRP-TRP",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-TRP-TRP/evidence.json",
+      "parent_sha256": "3e2faae9b140f3e077a361b294d3a5a519d8bc316e521f759b0cfdf49c86303e",
+      "selected_index": 3,
+      "rounded_additions_sha256": "a09694c3a1d241ac97ba0a9dde805a74bd3147577b068142e35af81bfa620443"
+    },
+    {
+      "id": "observed-TYR-TYR",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-TYR-TYR/evidence.json",
+      "parent_sha256": "004574c7dda790e3519789024c703016f836c8ff602aaa77194c2de18fbc19af",
+      "selected_index": 0,
+      "rounded_additions_sha256": "f909cdf896a7b374763bb1657f28df4a6745cb7f70d1773e102bdf6867a81731"
+    },
+    {
+      "id": "observed-VAL-VAL",
+      "status": "selected",
+      "parent_artifact": "tmp/chemical-reconstruction-conformer-grid-v1/controls-01/observed-VAL-VAL/evidence.json",
+      "parent_sha256": "2545d466960ce0dffe317f97ea418756cf9564f28cef352e040e74bafb9304a9",
+      "selected_index": 1,
+      "rounded_additions_sha256": "be20cf15e252aea5964a3c65d04b10a81a107bb225b8944d8986cd3abb264efe"
+    }
+  ]
+}
