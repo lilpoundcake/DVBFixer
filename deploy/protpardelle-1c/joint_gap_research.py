@@ -14,6 +14,7 @@ import json
 import os
 import sys
 import time
+from contextlib import nullcontext
 from dataclasses import asdict
 from pathlib import Path
 
@@ -56,14 +57,27 @@ def main():
         help="Explicit historical v1/v2 replay only; permits incomplete observed context")
     parser.add_argument("--prepare-only", action="store_true",
         help="Write complete inputs and admission without loading weights or sampling, including over-budget plans")
+    parser.add_argument("--placement", action="store_true", help="Private generated residue translation control")
+    parser.add_argument("--local-inpainting", action="store_true", help="Explicit private motif-component inpainting control")
+    parser.add_argument("--fixed-scaffold-inpainting", action="store_true",
+        help="Private VE known-atom process; requires complete context, not a public profile")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--refinement-python", type=Path, required=True, help="Pinned runtime preflight only")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--acknowledge-private-joint", action="store_true", required=True)
+    parser.add_argument('--full-own-chain', action='store_true')
     args = parser.parse_args()
+    if args.full_own_chain and not args.local_inpainting:
+        parser.error('full-own-chain requires local inpainting')
     if args.complete_observed_context and args.legacy_local_union:
         parser.error("complete context and historical local union are mutually exclusive")
+    if args.placement and not args.fixed_scaffold_inpainting:
+        parser.error('placement requires fixed-scaffold inpainting')
+    if args.local_inpainting and (not args.fixed_scaffold_inpainting or args.complete_observed_context or args.legacy_local_union or args.whole_structure or args.placement):
+        parser.error('local inpainting requires only explicit motif-component and fixed-scaffold mode')
+    if args.fixed_scaffold_inpainting and not (args.complete_observed_context or args.local_inpainting):
+        parser.error("fixed scaffold requires explicit complete observed context")
     args.output.mkdir(parents=True, exist_ok=False)
     directory = args.output.resolve(strict=True)
 
@@ -91,6 +105,7 @@ def main():
     update()
     started = time.monotonic()
     probe = None
+    inpainting = None
     try:
         parent_data, source, baseline = read(args.parent_request), read(args.source), read(args.baseline)
         parent = DiffusionRequest.from_json(parent_data.decode())
@@ -101,7 +116,7 @@ def main():
             view = plan_complete_context(parent, source, tuple(args.gap_indices), seed=args.seed)
             admission = complete_context_admission(view)
         elif not args.legacy_local_union:
-            view = plan_motif_component(parent, source, tuple(args.gap_indices), seed=args.seed)
+            view = plan_motif_component(parent, source, tuple(args.gap_indices), seed=args.seed, full_own_chain=args.full_own_chain)
             admission = motif_component_admission(view)
         elif args.whole_structure:
             view = build_joint_structure_view(parent, source, seed=args.seed)
@@ -110,6 +125,8 @@ def main():
             view = build_joint_gap_view(parent, source, tuple(args.gap_indices), seed=args.seed)
             admission = {"supported": True, "historical_incomplete_context": True}
         trace["kind"] = view.request.protein_context.policy.name
+        if args.fixed_scaffold_inpainting:
+            trace["inpainting_policy"] = "private-cc94-fixed-scaffold-ve-inpainting-v1"
         write("parent-request.json", parent_data)
         write("source.pdb", source)
         write("baseline-output-only.pdb", baseline)
@@ -211,6 +228,24 @@ def main():
                         raise RuntimeError("joint research live memory budget exceeded; no fallback")
 
         probe = GuardedProbe(view.positions, view.chains, device)
+        sampling_scope = nullcontext()
+        if args.fixed_scaffold_inpainting:
+            policy = load("fixed_scaffold_inpainting")
+            residue_map = adapter._target_residue_map(engine)
+            row_by_residue = {residue: row for row, residue in residue_map.items()}
+            def atom_mask(atoms):
+                from dvbfixer.model.diffusion.contract import ResidueIdentity
+                mask = np.zeros((1, len(view.positions), 37), dtype=bool)
+                for atom in atoms:
+                    residue = ResidueIdentity(atom.chain, atom.residue_number, atom.insertion_code)
+                    mask[0, row_by_residue[residue], residue_constants.atom_order[atom.atom_name]] = True
+                return mask
+            inpainting = policy.FixedScaffold(atom_mask(engine.fixed_atoms), atom_mask(engine.generated_atoms),
+                                              directory / "inpainting", expected_steps=500)
+            sampling_scope = policy.installed(model, inpainting)
+            if args.placement:
+                inpainting.placement_chains = [residue_map[i].chain for i in range(len(view.positions))]
+                trace['placement'] = 'residue-translation-v1'
         trace.update(status="sampling", sample_invocations=1, tokens=len(sequence),
             generated_gaps=len(engine.gaps), generated_atoms=len(view.request.generated_atoms),
             checkpoint_sha256=cc94.CHECKPOINT_SHA256, engine_revision=cc94.ENGINE_REVISION,
@@ -219,7 +254,7 @@ def main():
             motif_placement=placement, fixed_positions=fixed_positions,
             physical_positions=view.positions, physical_chains=view.chains)
         update()
-        with adapter._probe_hook(model.struct_model, probe):
+        with adapter._probe_hook(model.struct_model, probe), sampling_scope:
             sampled = model.sample(seq_mask=seq_mask, residue_index=residue_index, chain_index=chain_index,
                 gt_aatype=aatype, num_steps=500, step_scale=1.0, s_churn=0.0, motif_file_path=str(motif),
                 motif_placements_full=[placement], dummy_fill_mode=model.config.data.dummy_fill_mode,
@@ -233,7 +268,12 @@ def main():
             raise RuntimeError("joint sampling sequence/schedule mismatch")
         adapter._assert_tensor_device("joint coordinates", sampled["x"], device)
         native = adapter._coordinates_to_numpy(torch, sampled["x"][0])
-        np.savez_compressed(directory / "native.npz", atom37=native)
+        if inpainting is not None:
+            np.savez_compressed(directory / "native.npz", atom37=native,
+                                atom_mask=sampled["atom_mask"][0].detach().cpu().numpy())
+            write("inpainting-summary.json", inpainting.summary())
+        else:
+            np.savez_compressed(directory / "native.npz", atom37=native)
         identities, xyz, names = adapter._model_atoms(engine, native)
         by_atom = dict(zip(identities, xyz, strict=True))
         fixed = adapter._read_fixed_coordinates(directory / "source.pdb", view.request.fixed_atoms)
@@ -261,6 +301,8 @@ def main():
         trace.update(status="failed", error_type=type(exc).__name__, error=str(exc))
         raise
     finally:
+        if inpainting is not None:
+            trace["inpainting"] = inpainting.summary()
         if probe is not None:
             trace["ode_updates"] = probe.calls
             trace["peak_process_rss_bytes"] = probe.peak_rss

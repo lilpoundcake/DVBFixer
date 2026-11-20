@@ -72,17 +72,18 @@ def run(args):
     axis, names, token_indices = model_atom_axis(tokenized, request,
         chain_name_by_asym_id={c.chain_id: c.chain_name for c in record.chains})
     represented, passthrough = partition_requested_atoms(request, axis)
-    if passthrough:
+    if passthrough and not getattr(args, 'terminal_passthrough', False):
         raise ValueError('this private pilot requires every observation on the model axis')
     dataset = PredictionDataset(manifest, paths[0], paths[1], args.cache / 'mols', *paths[2:])
     features = dataset[0]
     numbers = validate_feature_axis(axis, token_indices, features)
     fixed = {}
+    represented_set = set(represented)
     for line in source_path.read_text().splitlines():
         if not line.startswith(('ATOM  ', 'HETATM')):
             continue
         atom = AtomIdentity(line[21], line[22:26].strip(), line[26].strip(), line[12:16].strip())
-        if atom in request.fixed_atoms:
+        if atom in represented_set:
             if atom in fixed or line[16].strip() or float(line[54:60]) != 1:
                 raise ValueError('ambiguous fixed observation')
             fixed[atom] = np.array([float(line[i:i+8]) for i in (30, 38, 46)])
@@ -90,6 +91,7 @@ def run(args):
         raise ValueError('fixed coordinates do not match validated real axis')
     callback = MPSFixedAtomCallback(axis, len(features['atom_pad_mask']), fixed)
     receipt = {'source_revision': revision, 'source_sha256': request.normalized_pdb.sha256,
+        'terminal_source_only_not_native': [asdict(a) for a in passthrough],
         'real_atoms': len(axis), 'padded_atoms': callback.padded_count, 'represented_fixed': len(fixed),
         'generated': len(request.generated_atoms), 'atomic_axis': [asdict(a) for a in axis],
         'validation': 'token traversal, feature names/elements, real unpadded prefix, atom-to-token',
@@ -167,6 +169,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--terminal-passthrough', action='store_true', help='Preserve observed true-terminal OXT outside the canonical Boltz tensor')
     for name in ('request', 'input', 'cache', 'engine', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     run(parser.parse_args())

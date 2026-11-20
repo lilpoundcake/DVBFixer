@@ -18,19 +18,20 @@ ONE_TO_THREE = {
 }
 
 
-def target_residue_map(request: DiffusionRequest) -> dict[int, ResidueIdentity]:
+def target_residue_map(request: DiffusionRequest, chain: str | None = None) -> dict[int, ResidueIdentity]:
     """Map every zero-based target position to its exact requested identity."""
-    if len(request.target_sequences) != 1 or len(request.sequence_placements) != 1:
+    targets = [t for t in request.target_sequences if chain is None or t.chain == chain]
+    placements = [p for p in request.sequence_placements if chain is None or p.chain == chain]
+    if len(targets) != 1 or len(placements) != 1:
         raise ValueError("Boltz checkpoint smoke requires exactly one target chain")
-    target = request.target_sequences[0]
-    placement = request.sequence_placements[0]
+    target, placement = targets[0], placements[0]
     if placement.chain != target.chain or placement.target_length != len(target.sequence):
         raise ValueError("target sequence and sequence placement are inconsistent")
 
     mapping = dict(zip(placement.observed_target_indices, placement.observed_residues))
     for gap in request.gaps:
         if gap.chain != target.chain:
-            raise ValueError("all gaps must belong to the single target chain")
+            continue
         for target_index, residue in zip(
             range(gap.target_interval.start, gap.target_interval.stop),
             gap.generated_residues,
@@ -52,15 +53,15 @@ def model_atom_axis(
     chain_name_by_asym_id: dict[int, str],
 ) -> tuple[tuple[AtomIdentity, ...], tuple[str, ...], tuple[int, ...]]:
     """Build the exact unpadded model atom axis from Boltz token traversal."""
-    target = request.target_sequences[0]
-    residue_map = target_residue_map(request)
-    if set(chain_name_by_asym_id.values()) != {target.chain}:
+    targets = {t.chain:t for t in request.target_sequences}
+    maps = {c:target_residue_map(request,c) for c in targets}
+    if set(chain_name_by_asym_id.values()) != set(targets) or len(chain_name_by_asym_id)!=len(targets):
         raise ValueError("processed Boltz chains do not match the requested target chain")
 
     identities: list[AtomIdentity] = []
     residue_names: list[str] = []
     token_indices: list[int] = []
-    target_index = 0
+    counts = dict.fromkeys(targets,0)
     expected_atom_start = 0
     seen_tokens: set[int] = set()
     for token_position, token in enumerate(tokenized.tokens):
@@ -70,8 +71,10 @@ def model_atom_axis(
         seen_tokens.add(token_index)
 
         asym_id = int(token["asym_id"])
-        if chain_name_by_asym_id.get(asym_id) != target.chain:
+        chain = chain_name_by_asym_id.get(asym_id)
+        if chain not in targets:
             raise ValueError("Boltz token belongs to an unexpected chain")
+        target, residue_map, target_index = targets[chain], maps[chain], counts[chain]
         if target_index >= len(target.sequence):
             raise ValueError("Boltz token axis contains too many target residues")
         if int(token["res_idx"]) != target_index:
@@ -108,9 +111,9 @@ def model_atom_axis(
             residue_names.append(residue_name)
             token_indices.append(token_index)
         expected_atom_start += atom_count
-        target_index += 1
+        counts[chain] += 1
 
-    if target_index != len(target.sequence):
+    if any(counts[c] != len(t.sequence) for c,t in targets.items()):
         raise ValueError("Boltz token axis omits target residues")
     axis = tuple(identities)
     if len(set(axis)) != len(axis):
@@ -138,8 +141,7 @@ def partition_requested_atoms(
             + _atom_labels(missing_generated)
         )
     missing_fixed = set(request.fixed_atoms) - axis
-    residue_map = target_residue_map(request)
-    terminal_residue = residue_map[len(request.target_sequences[0].sequence) - 1]
+    terminals = {target_residue_map(request,t.chain)[len(t.sequence)-1] for t in request.target_sequences}
     unsupported = {
         identity
         for identity in missing_fixed
@@ -149,7 +151,7 @@ def partition_requested_atoms(
             identity.residue_number,
             identity.insertion_code,
         )
-        != terminal_residue
+        not in terminals
     }
     if unsupported:
         raise ValueError(

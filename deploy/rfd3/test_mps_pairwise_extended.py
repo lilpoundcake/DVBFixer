@@ -26,6 +26,11 @@ def test_reference_tiling_matches_native_with_coincident_positions_and_mask(devi
     with torch.no_grad():
         wanted = module(positions, mask)
         actual = HELPER.reference_rows(module, positions, mask, rows=rows)
+        accumulator = torch.randn_like(wanted)
+        expected = accumulator + wanted
+        combined = HELPER.reference_rows(module, positions, mask, rows=rows, accumulate_into=accumulator)
+        assert combined is accumulator
+        torch.testing.assert_close(combined, expected, rtol=1e-5, atol=1e-6)
     torch.testing.assert_close(actual, wanted, rtol=1e-5, atol=1e-6)
 
 

@@ -84,7 +84,7 @@ def test_checkpoint_input_and_refinement_remain_fail_closed() -> None:
     refinement = REFINEMENT.read_text(encoding="utf-8")
 
     assert 'f"SEQRES {row:3d}' in builder
-    assert '"template_id": f"{target.chain}1"' in builder
+    assert 'f"{t.chain}1" for t in targets' in builder
     assert 'if set(request.fixed_atoms) != source_atoms:' in builder
     assert "refine_generated_region(" in refinement
     assert "generated_atoms=request.generated_atoms" in refinement

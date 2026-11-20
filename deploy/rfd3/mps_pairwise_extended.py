@@ -11,7 +11,7 @@ def _rows(rows):
         raise ValueError("private tiling requires no_grad inference")
 
 
-def reference_rows(module, positions, valid_mask, *, rows=64):
+def reference_rows(module, positions, valid_mask, *, rows=64, accumulate_into=None):
     """Native non-frame inverse-distance embedding, over every query/key pair."""
     _rows(rows)
     if module.training or module.embed_frame:
@@ -23,7 +23,11 @@ def reference_rows(module, positions, valid_mask, *, rows=64):
         raise ValueError("mask must cover the full pair axis")
     if valid_mask.device != positions.device or valid_mask.dtype != torch.bool:
         raise ValueError("mask must be boolean and on the positions device")
-    output = None
+    output = accumulate_into
+    if output is not None and (output.shape != (*positions.shape[:-2], length, length, module.process_inverse_dist.out_features)
+                               or output.device != positions.device or output.dtype != positions.dtype
+                               or not output.is_contiguous() or output.requires_grad):
+        raise ValueError("accumulator must be an owned contiguous inference pair tensor")
     for start in range(0, length, rows):
         stop = min(length, start + rows)
         delta = positions[..., start:stop, None, :] - positions[..., None, :, :]
@@ -36,7 +40,10 @@ def reference_rows(module, positions, valid_mask, *, rows=64):
         if output is None:
             output = torch.empty((*positions.shape[:-2], length, length, result.shape[-1]),
                                  dtype=result.dtype, device=result.device)
-        output[..., start:stop, :, :] = result
+        if accumulate_into is None:
+            output[..., start:stop, :, :] = result
+        else:
+            output[..., start:stop, :, :].add_(result)
         del delta, norm, inverse, result
     return output
 

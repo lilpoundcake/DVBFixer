@@ -1,4 +1,4 @@
-"""Build a single-chain Boltz-2 template input from a DiffusionRequest."""
+"""Build a shared-frame Boltz-2 protein template from a DiffusionRequest."""
 
 from __future__ import annotations
 
@@ -27,20 +27,17 @@ def _seqres_lines(chain: str, sequence: str) -> list[str]:
 def build_input(request_path: Path, output_dir: Path) -> Path:
     request_path = request_path.resolve()
     request = DiffusionRequest.from_json(request_path.read_text(encoding="utf-8"))
-    if len(request.gaps) != 1:
-        raise ValueError("Boltz checkpoint smoke requires exactly one gap")
-    residue_map = target_residue_map(request)
-    target = request.target_sequences[0]
+    targets = request.target_sequences
+    for target in targets:
+        target_residue_map(request,target.chain)
     if request.candidate_count != 1 or len(request.seeds) != 1:
         raise ValueError("Boltz checkpoint smoke requires one candidate and one seed")
-    if any(atom.chain != target.chain for atom in (*request.fixed_atoms, *request.generated_atoms)):
-        raise ValueError("Boltz checkpoint smoke accepts target-chain-only structures")
 
     source_path = (request_path.parent / request.normalized_pdb.path).resolve()
     if _sha256(source_path) != request.normalized_pdb.sha256:
         raise ValueError("normalized PDB digest mismatch")
     source_lines = source_path.read_text(encoding="ascii").splitlines(keepends=True)
-    observed_residues = set(request.sequence_placements[0].observed_residues)
+    observed_residues = {r for p in request.sequence_placements for r in p.observed_residues}
     source_atoms: set[AtomIdentity] = set()
     source_residues = set()
     for line in source_lines:
@@ -51,8 +48,6 @@ def build_input(request_path: Path, output_dir: Path) -> Path:
         identity = AtomIdentity(
             line[21:22], line[22:26].strip(), line[26:27].strip(), line[12:16].strip()
         )
-        if identity.chain != target.chain:
-            raise ValueError("normalized PDB contains a non-target chain")
         if identity in source_atoms:
             raise ValueError("normalized PDB contains duplicate atom identities")
         source_atoms.add(identity)
@@ -65,14 +60,12 @@ def build_input(request_path: Path, output_dir: Path) -> Path:
         raise ValueError("normalized PDB residues do not match the request placement")
     if set(request.fixed_atoms) != source_atoms:
         raise ValueError("normalized PDB atom identities do not match fixed_atoms")
-    if set(residue_map) != set(range(len(target.sequence))):
-        raise ValueError("request target mapping is incomplete")
 
     output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=False)
     template_path = output_dir / "template.pdb"
     body = [line for line in source_lines if not line.startswith("SEQRES")]
-    template_path.write_text("".join([*_seqres_lines(target.chain, target.sequence), *body]), encoding="ascii")
+    template_path.write_text("".join([*(line for t in targets for line in _seqres_lines(t.chain,t.sequence)), *body]), encoding="ascii")
 
     input_path = output_dir / "input.yaml"
     input_path.write_text(
@@ -85,13 +78,13 @@ def build_input(request_path: Path, output_dir: Path) -> Path:
                             "sequence": target.sequence,
                             "msa": "empty",
                         }
-                    }
+                    } for target in targets
                 ],
                 "templates": [
                     {
                         "pdb": str(template_path),
-                        "chain_id": target.chain,
-                        "template_id": f"{target.chain}1",
+                        "chain_id": [t.chain for t in targets] if len(targets)>1 else targets[0].chain,
+                        "template_id": [f"{t.chain}1" for t in targets] if len(targets)>1 else f"{targets[0].chain}1",
                     }
                 ],
             },

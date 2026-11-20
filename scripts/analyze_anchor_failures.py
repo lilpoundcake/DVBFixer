@@ -36,6 +36,13 @@ WITNESSES = {"6Z38-fixed", "1NON-fixed", "1NON-w2-e2-k100000",
              "2BE1-w1-e3-k10000", "1KTZ-fixed"}
 
 
+def historical_covalent_cutoff(first, second):
+    """Frozen v1 exclusion rule (cd95dc1), NOT current diagnostic chemistry."""
+    if "H" in (first.upper(), second.upper()):
+        return 1.30
+    return 2.25 if first.upper() == second.upper() == "S" else 1.90
+
+
 def identity(row):
     return AtomIdentity(**row["identity"])
 
@@ -60,7 +67,7 @@ def topology_only_contacts(axis, bonds, indices, coordinates_nm, generated, mobi
         i, j = indices[first], indices[second]
         distance = float(np.linalg.norm(coordinates_nm[i]-coordinates_nm[j])*10)
         pairs.append((i, j, distance))
-        if distance <= steric._covalent_cutoff_a(axis[i]["element"], axis[j]["element"]):
+        if distance <= historical_covalent_cutoff(axis[i]["element"], axis[j]["element"]):
             augmented[i].add(j)
             augmented[j].add(i)
     inferred_exclusions = steric._expand_exclusions(augmented)

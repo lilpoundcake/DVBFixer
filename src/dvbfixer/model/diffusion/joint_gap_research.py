@@ -174,7 +174,7 @@ def build_joint_structure_view(parent, source: bytes, *, seed: int):
     return _build_joint_view(parent, source, tuple(range(len(parent.gaps))), seed=seed, whole_structure=True)
 
 
-def plan_motif_component(parent, source: bytes, gap_indices: tuple[int, ...], *, seed: int):
+def plan_motif_component(parent, source: bytes, gap_indices: tuple[int, ...], *, seed: int, full_own_chain=False):
     """Jointly sample exactly one source-neighbor component using local motifs.
 
     No complete-complex conditioning and no independent fallback inside a
@@ -187,7 +187,7 @@ def plan_motif_component(parent, source: bytes, gap_indices: tuple[int, ...], *,
     if gap_indices not in components:
         raise DiffusionContractError("motif selection must equal one complete neighboring-gap component")
     return _build_joint_view(parent, source, gap_indices, seed=seed,
-        whole_structure=False, motif_component=True)
+        whole_structure=False, motif_component=True, full_own_chain=full_own_chain)
 
 
 def motif_component_admission(view: JointGapResearchView):
@@ -205,7 +205,7 @@ def motif_component_admission(view: JointGapResearchView):
         "output_only_observed_atoms": len(plan.preserved_only) if plan else 0}
 
 
-def _build_joint_view(parent, source, gap_indices, *, seed, whole_structure, motif_component=False):
+def _build_joint_view(parent, source, gap_indices, *, seed, whole_structure, motif_component=False, full_own_chain=False):
     revision = (MOTIF_COMPONENT_REVISION if motif_component else
                 STRUCTURE_REVISION if whole_structure else REVISION)
     budget = (sum(len(t.sequence) for t in parent.target_sequences) if motif_component else
@@ -234,6 +234,10 @@ def _build_joint_view(parent, source, gap_indices, *, seed, whole_structure, mot
     chain_order = tuple(target.chain for target in parent.target_sequences)
     indices = {(s.chain, i) for p in plans for s in p.spans for i in range(s.start, s.stop)}
     if motif_component:
+        if full_own_chain:
+            if len(gaps)!=1:
+                raise DiffusionContractError('own-chain control requires one component gap')
+            indices.update((t.chain,i) for t in parent.target_sequences if t.chain==gaps[0].chain for i in range(len(t.sequence)))
         # Other unknown gaps are neither fixed motifs nor unowned dummy tokens.
         indices.difference_update((g.chain, i) for j, g in enumerate(parent.gaps) if j not in gap_indices
             for i in range(g.target_interval.start, g.target_interval.stop))
@@ -255,6 +259,9 @@ def _build_joint_view(parent, source, gap_indices, *, seed, whole_structure, mot
         if ResidueIdentity(a.chain, a.residue_number, a.insertion_code) in generated_residues)
     mobile = {a for p in plans for a in p.movable_junction}
     fixed = {c.atom: c for p in plans for c in p.fixed_conditioning}
+    if full_own_chain:
+        points = source_coordinates(parent, source)
+        fixed.update({a: ContextCoordinate(a, tuple(float(x) for x in points[a])) for a in parent.fixed_atoms if a.chain==gaps[0].chain})
     if not set(fixed) <= set(parent.fixed_atoms) or set(fixed) & set(parent.generated_atoms):
         raise DiffusionContractError("joint conditioning must contain original observed atoms only")
     plan = ProteinContextPlan(

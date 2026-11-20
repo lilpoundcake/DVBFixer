@@ -32,7 +32,7 @@ def tensors(x):
         for v in x:yield from tensors(v)
 def hook(module,args,output):
     cls=type(module).__module__+"."+type(module).__name__
-    if cls.startswith(("rfd3.","boltz.","protenix.")) and any(t.device.type=="mps" for t in tensors(output)):
+    if cls.startswith(("rfd3.","boltz.","protenix.","protpardelle.")) and any(t.device.type=="mps" for t in tensors(output)):
         report["model_mps_calls"]+=1
         report["module_classes"][cls]=report["module_classes"].get(cls,0)+1
 handle=torch.nn.modules.module.register_module_forward_hook(hook)
