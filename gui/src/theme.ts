@@ -104,7 +104,7 @@ export const theme = createTheme({
     },
     MuiInputLabel: { styleOverrides: { sizeSmall: {
       fontSize: '0.75rem', transform: 'translate(14px, 6px) scale(1)',
-      '&.MuiInputLabel-shrink': { transform: 'translate(14px, -8px) scale(0.75)' },
+      '&.MuiInputLabel-shrink': { transform: `translate(14px, -${UI.floatingLabelOutset}px) scale(0.75)` },
     } } },
     MuiCheckbox: {
       defaultProps: { size: 'small' },

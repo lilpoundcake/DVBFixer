@@ -37,11 +37,12 @@ import { isActiveManagedJob, managedJobProgress, managedJobStatusLabel } from '.
 import { DiffusionSeedOutcomes } from './DiffusionSeedOutcomes'
 import { RunStructureInspection } from './RunStructureInspection'
 import { useHomologyJob } from '../hooks/useHomologyJob'
+import { ALIGNMENT_LABEL_WIDTH, alignmentCellSx, alignmentRowActionsSx, alignmentSelectionSx } from '../ui/alignment'
 import {
   workflowToolbarSx as homologyToolbarSx, panelToolbarSx as projectToolbarSx,
   workflowControlSx as toolbarControlSx, commandInputSx as targetSourceControlSx,
   actionTooltipWrapperSx as toolbarTooltipWrapperSx, primaryActionSx, compactIconButtonSx,
-  actionGroupSx, formActionRowSx, workflowContentSx, workflowStageSx,
+  actionGroupSx, formActionRowSx, labelledFieldRowsSx, sequenceRecordRowSx, workflowContentSx, workflowStageSx,
 } from '../ui/layout'
 
 interface TemplateSelection {
@@ -97,11 +98,9 @@ function cloneGroups(groups: AlignmentGroup[]): AlignmentGroup[] {
   return JSON.parse(JSON.stringify(groups)) as AlignmentGroup[]
 }
 
-const ALIGNMENT_LABEL_WIDTH = 270
-
 function AlignmentCells({ label, sequence, annotation = false }: { label: ReactNode; sequence: string; annotation?: boolean }) {
   return <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 'max-content', mb: annotation ? 0.15 : 0.5 }}>
-    <Box sx={{ position: 'sticky', left: 0, zIndex: 3, bgcolor: 'background.paper', width: ALIGNMENT_LABEL_WIDTH, flexShrink: 0, px: 1 }}>
+    <Box sx={{ position: 'sticky', left: 0, zIndex: 3, bgcolor: 'background.paper', width: ALIGNMENT_LABEL_WIDTH, flexShrink: 0, px: 1, overflow: 'hidden' }}>
       <Typography variant="caption" color="text.secondary">{label}</Typography>
     </Box>
     {Array.from(sequence).map((character, column) => <Box key={column} sx={{ width: 16, height: annotation ? 13 : 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, textAlign: 'center', fontSize: annotation ? 9 : 12, fontWeight: character === '*' ? 800 : 400, color: character === '*' ? 'primary.main' : 'text.secondary' }}>{character}</Box>)}
@@ -737,11 +736,13 @@ export function HomologyPanel() {
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
                 Target FASTA was populated immediately. Adjust included chains or IDs below, then apply the corrections.
               </Typography>
-              {parsePreview.map((record, index) => <Box key={index} sx={{ display: 'grid', gridTemplateColumns: '36px minmax(160px, 1fr) 100px', gap: 1, alignItems: 'center', mb: 0.5 }}>
+              <Box sx={labelledFieldRowsSx}>
+              {parsePreview.map((record, index) => <Box key={index} sx={sequenceRecordRowSx}>
                 <Checkbox size="small" checked={record.selected} onChange={event => setParsePreview(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, selected: event.target.checked } : item))} />
                 <TextField size="small" label="Target/chain ID" value={record.id} onChange={event => setParsePreview(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, id: event.target.value } : item))} />
                 <Typography variant="caption">{record.length} aa</Typography>
               </Box>)}
+              </Box>
               <Box sx={{ display: 'flex', gap: 1, mt: 1 }}><Button variant="contained" size="small" onClick={applyParsedTarget}>Apply corrections</Button><Button size="small" onClick={() => setParsePreview([])}>Close preview</Button></Box>
             </Box>}
             <TextField multiline minRows={12} label="Target FASTA" value={project.targetFasta}
@@ -841,10 +842,14 @@ export function HomologyPanel() {
                         const sourceName = template?.file.split('/').pop() || template?.label || row.id
                         const rowLabel = row.kind === 'target' ? `target: ${row.id}` : `template: ${sourceName}`
                         return <Box key={row.id} sx={{ mb: 1.5 }}>
-                          {row.kind === 'template' && <AlignmentCells label={<Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                          {row.kind === 'template' && <AlignmentCells label={<Box sx={alignmentRowActionsSx}>
                             <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'all' }; commitGroups(next) }}>Select all</Button>
                             <Button size="small" onClick={() => { const next = cloneGroups(project.alignmentGroups); next[groupIndex].masks[row.id] = []; next[groupIndex].maskModes = { ...(next[groupIndex].maskModes || {}), [row.id]: 'none' }; commitGroups(next) }}>Clear</Button>
-                            <Button size="small" disabled={!selection[row.id]?.columns.length} onClick={() => applySelectionAsModelingSpan(groupIndex, row)}>Use selection as modeling span</Button>
+                            <Tooltip title="Use selection as modeling span">
+                              <Box component="span" sx={{ display: 'inline-flex' }}>
+                                <Button size="small" aria-label="Use selection as modeling span" disabled={!selection[row.id]?.columns.length} onClick={() => applySelectionAsModelingSpan(groupIndex, row)}>Use span</Button>
+                              </Box>
+                            </Tooltip>
                           </Box>} sequence={comparisonToReference(reference, row.sequence)} annotation />}
                           <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 'max-content' }}>
                             <Box sx={{ position: 'sticky', left: 0, zIndex: 2, bgcolor: 'background.paper', width: ALIGNMENT_LABEL_WIDTH, flexShrink: 0, px: 1, display: 'flex', alignItems: 'center', gap: 0.25, overflow: 'hidden' }}>
@@ -877,7 +882,16 @@ export function HomologyPanel() {
                                   if (row.kind !== 'template' || !drag || drag.groupIndex !== groupIndex || drag.rowId !== row.id) return
                                   alignmentDragRef.current = null
                                   if (drag.moved) selectTemplateColumns(row, column, { shiftKey: true, ctrlKey: false, metaKey: false, altKey: false }, drag.anchor, true).catch(() => {})
-                                }} sx={{ width: 16, height: 22, p: 0, border: 0, borderBottom: selection[row.id]?.anchor === column ? '2px solid' : comparison === '×' ? '2px solid #ef5350' : '2px solid transparent', borderColor: selection[row.id]?.anchor === column ? 'primary.main' : undefined, bgcolor: modelSelected ? 'primary.main' : targetMatch ? '#f7fbf3' : comparison === '×' ? '#ffebee' : character === '-' ? 'grey.100' : 'transparent', color: modelSelected ? 'primary.contrastText' : color, boxShadow: transientSelected ? 'inset 0 0 0 2px #263f78' : 'none', fontWeight: targetMatch ? 800 : comparison === '×' ? 600 : 500, fontFamily: 'inherit', fontSize: 12, cursor: character === '-' ? 'default' : 'pointer' }}>{character}</Box>
+                                }} sx={{
+                                  ...alignmentCellSx,
+                                  borderBottom: selection[row.id]?.anchor === column ? '2px solid' : comparison === '×' ? '2px solid #ef5350' : '2px solid transparent',
+                                  borderColor: selection[row.id]?.anchor === column ? 'primary.main' : undefined,
+                                  bgcolor: modelSelected ? 'primary.main' : targetMatch ? '#f7fbf3' : comparison === '×' ? '#ffebee' : character === '-' ? 'grey.100' : 'transparent',
+                                  color: modelSelected ? 'primary.contrastText' : color,
+                                  ...alignmentSelectionSx(modelSelected, transientSelected),
+                                  fontWeight: targetMatch ? 800 : comparison === '×' ? 600 : 500,
+                                  cursor: character === '-' ? 'default' : 'pointer',
+                                }}>{character}</Box>
                               </Tooltip>
                             })}
                           </Box>

@@ -8,6 +8,8 @@ export const UI = {
   fieldWidth: 160,
   wideFieldWidth: 320,
   toolbarMinHeight: 40,
+  contentGap: 4,
+  floatingLabelOutset: 8,
 } as const
 
 export const toolbarSx = {
@@ -16,7 +18,12 @@ export const toolbarSx = {
   flexShrink: 0, bgcolor: 'background.paper',
   // Floating labels extend above the input border. Reserve room inside the
   // colored band, including when controls wrap onto another row.
-  '&:has(.MuiInputLabel-root)': { py: 1, rowGap: 1, minHeight: 48 },
+  '&:has(.MuiInputLabel-root)': {
+    '--ui-label-clearance': `${UI.floatingLabelOutset}px`,
+    py: UI.floatingLabelOutset / 8,
+    rowGap: (UI.contentGap + UI.floatingLabelOutset) / 8,
+    minHeight: UI.controlHeight + 2 * UI.floatingLabelOutset,
+  },
 } as const
 
 export const panelToolbarSx = {
@@ -71,6 +78,25 @@ export const formActionRowSx = {
   display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1,
 } as const
 
+/** Floating labels extend above their fields; repeated rows need 12 px clearance. */
+export const labelledFieldRowsSx = {
+  display: 'flex', flexDirection: 'column', gap: (UI.contentGap + UI.floatingLabelOutset) / 8,
+} as const
+
+/** Reserve label space for direct fields/field rows, not arbitrary nested panels.
+ * Toolbars declare the clearance already provided by their own top padding. */
+export const formStackSx = {
+  display: 'flex', flexDirection: 'column', gap: UI.contentGap / 8,
+  '& > .MuiFormControl-root:has(> .MuiInputLabel-root), & > :has(> .MuiFormControl-root > .MuiInputLabel-root)': {
+    marginTop: `calc(${UI.floatingLabelOutset}px - var(--ui-label-clearance, 0px))`,
+  },
+} as const
+
+export const sequenceRecordRowSx = {
+  display: 'grid', gridTemplateColumns: `${UI.controlHeight}px minmax(0, 1fr) max-content`,
+  gap: 1, alignItems: 'center',
+} as const
+
 export const controlSx = { width: UI.fieldWidth, minWidth: UI.fieldWidth, maxWidth: '100%' } as const
 export const wideControlSx = { width: UI.wideFieldWidth, minWidth: 0, maxWidth: '100%' } as const
 /** Command inputs yield space to actions before the row needs to wrap. */
@@ -95,9 +121,7 @@ export const workflowContentSx = {
   flex: 1, minHeight: 0, overflow: 'auto', px: 1, py: 0.5,
 } as const
 
-export const workflowStageSx = {
-  display: 'flex', flexDirection: 'column', gap: 0.5,
-} as const
+export const workflowStageSx = formStackSx
 
 export const workflowToolbarSx = {
   ...toolbarSx,

@@ -7,9 +7,24 @@ import Box from '@mui/material/Box'
 import AddIcon from '@mui/icons-material/Add'
 import { describe, expect, it } from 'vitest'
 import { theme } from '../theme'
-import { UI, actionGroupSx, commandActionGroupSx, commandInputSx, compactIconButtonSx, formActionRowSx, inspectionTableSx, panelToolbarSx, primaryActionSx, workflowContentSx, workflowControlSx, workflowStageSx, workflowToolbarSx, workspaceRunColors, workspaceRowColors } from './layout'
+import { UI, actionGroupSx, commandActionGroupSx, commandInputSx, compactIconButtonSx, formActionRowSx, formStackSx, inspectionTableSx, labelledFieldRowsSx, panelToolbarSx, primaryActionSx, sequenceRecordRowSx, workflowContentSx, workflowControlSx, workflowStageSx, workflowToolbarSx, workspaceRunColors, workspaceRowColors } from './layout'
 
 describe('shared GUI control geometry', () => {
+  it('separates repeated floating-label fields without wasting width on sequence lengths', () => {
+    expect(labelledFieldRowsSx).toMatchObject({ flexDirection: 'column', gap: 1.5 })
+    expect(sequenceRecordRowSx).toEqual({ display: 'grid', gridTemplateColumns: '32px minmax(0, 1fr) max-content', gap: 1, alignItems: 'center' })
+  })
+  it('reserves the same floating-label clearance for fields and field rows after any content block', () => {
+    expect(workflowStageSx).toBe(formStackSx)
+    expect(formStackSx['& > .MuiFormControl-root:has(> .MuiInputLabel-root), & > :has(> .MuiFormControl-root > .MuiInputLabel-root)']).toEqual({
+      marginTop: 'calc(8px - var(--ui-label-clearance, 0px))',
+    })
+    const toolbar = panelToolbarSx['&:has(.MuiInputLabel-root)']
+    expect(toolbar['--ui-label-clearance']).toBe(`${UI.floatingLabelOutset}px`)
+    expect(toolbar.py * 8).toBe(UI.floatingLabelOutset)
+    expect(toolbar.rowGap * 8).toBe(UI.floatingLabelOutset + UI.contentGap)
+    expect(labelledFieldRowsSx.gap * 8).toBe(UI.floatingLabelOutset + UI.contentGap)
+  })
   it('compacts whitespace without shrinking existing text or controls', () => {
     expect(theme.typography.body2.fontSize).toBe('0.75rem')
     expect(theme.typography.caption.fontSize).toBe('0.7rem')
@@ -82,7 +97,7 @@ describe('shared GUI control geometry', () => {
 
   it('shares compact workflow insets without stacking tab, stage and toolbar whitespace', () => {
     expect(workflowContentSx).toMatchObject({ px: 1, py: 0.5, minHeight: 0, overflow: 'auto' })
-    expect(workflowStageSx).toEqual({ display: 'flex', flexDirection: 'column', gap: 0.5 })
+    expect(workflowStageSx).toMatchObject({ display: 'flex', flexDirection: 'column', gap: 0.5 })
     expect(workflowToolbarSx).toMatchObject({ px: 0, py: 0.5, minHeight: 40 })
     // 4 px content inset + 4 px toolbar inset above; 4 px toolbar + 4 px gap below.
     expect((workflowContentSx.py + workflowToolbarSx.py) * 8).toBe(8)
@@ -105,7 +120,7 @@ describe('shared GUI control geometry', () => {
 
   it('wraps toolbars and action groups rather than shifting controls with transforms', () => {
     expect(panelToolbarSx).toMatchObject({ alignItems: 'center', flexWrap: 'wrap', gap: 0.5, px: 1, minHeight: 40, py: 0.5 })
-    expect(panelToolbarSx['&:has(.MuiInputLabel-root)']).toEqual({ py: 1, rowGap: 1, minHeight: 48 })
+    expect(panelToolbarSx['&:has(.MuiInputLabel-root)']).toEqual({ '--ui-label-clearance': '8px', py: 1, rowGap: 1.5, minHeight: 48 })
     expect(workflowToolbarSx['&:has(.MuiInputLabel-root)']).toBe(panelToolbarSx['&:has(.MuiInputLabel-root)'])
     expect(actionGroupSx).toMatchObject({ ml: 'auto', alignItems: 'center', flexWrap: 'wrap' })
     expect(formActionRowSx).toMatchObject({ alignItems: 'flex-start', gap: 1 })

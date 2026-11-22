@@ -8,6 +8,19 @@ Backfilled from git history — commits before v0.3.0 are grouped by
 feature area rather than by strict release. Older entries are
 best-effort summaries; consult `git log` for exact provenance.
 
+## [0.10.6] — 2026-11-22
+
+### Fixed
+
+- Replace per-letter MSA selection frames with continuous highlighting, distinct
+  from modeling-span masks, while preserving keyboard focus and selection logic.
+- Keep template-row actions inside the sticky MSA label column; the shorter
+  Use span action retains its full tooltip and accessible name.
+- Reserve floating-label clearance consistently for Target FASTA, parsed chain
+  IDs and template field rows, without doubling existing toolbar padding.
+- Improve responsive command controls and Homology layouts, adapt Sequence line
+  wrapping to dock width, and make inspection tables more compact and readable.
+
 ## [0.10.5] — 2026-11-17
 
 ### Fixed

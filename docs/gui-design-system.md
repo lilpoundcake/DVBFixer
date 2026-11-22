@@ -59,7 +59,7 @@ workflow rows. Both use a 40 px minimum height, 4 px vertical padding,
 inset; workflow rows share the surrounding content inset. Workflow rows have an opaque
 white background matching the content canvas, without a tinted band or extra
 outline box. Panel headers retain `background.paper` and a bottom divider.
-Rows containing labelled fields reserve equal 8 px top/bottom padding and 8 px
+Rows containing labelled fields reserve equal 8 px top/bottom padding and 12 px
 between wrapped rows (48 px minimum height), so controls stay vertically centered
 and floating labels stay inside the colored band
 without touching its top edge or the previous row. Unlabelled toolbars retain
@@ -110,6 +110,17 @@ prematurely orphaning Run while retaining readable labels and unchanged text.
   long workspace/file names. Narrow panels wrap whole controls, not button text.
 - Do not impose toolbar-wide child selectors that override a deliberately wider
   field. Prefer an explicit `sx={controlSx}` on the field itself.
+- Repeated floating-label fields use `labelledFieldRowsSx` (12 px between rows),
+  not the 4 px content-block gap. Parsed sequence rows use `sequenceRecordRowSx`:
+  a 32 px checkbox column, flexible ID field and content-sized sequence length.
+  Adjacent labels must not touch the preceding field's outline.
+- Mixed forms use `formStackSx` (also used by `workflowStageSx`). The shared
+  `UI.floatingLabelOutset` reserves 8 px before direct labelled fields and rows
+  of fields, in addition to the 4 px content gap. This covers Target FASTA after
+  an open/closed preview and repeated Templates rows without per-field margins.
+  Toolbars advertise the 8 px clearance already supplied by their top padding
+  through `--ui-label-clearance`, so the form stack does not add it twice.
+  The same token drives the theme's floating-label transform.
 
 ### Inspection tables
 
@@ -144,6 +155,16 @@ Sequence uses readable 12 px monospace letters in 12 px cells, separated by an
 complete ten-residue blocks per line for each dock width (individual cells in
 very narrow docks). Resizing changes wrapping, not scientific residue identity,
 numbering mode or selection. Ordinary toolbar controls keep their standard size.
+
+MSA residue cells retain their 16×22 px scientific grid. Modeling spans use the
+primary fill; transient selection uses a continuous light-blue fill, or a darker
+blue over an existing modeling span. Do not outline or inset-shadow each selected
+letter: it creates a grid of frames across the range. Only keyboard focus uses a
+cell outline (`:focus-visible`); mismatch and active-column underlines remain.
+Template-row actions stay inside the 270 px sticky label column. Use the short
+`Use span` label, retaining `Use selection as modeling span` as its tooltip and
+accessible name. Action groups wrap whole buttons if needed and must never paint
+over the residue/comparison grid or change its column alignment.
 
 ### Reports
 
