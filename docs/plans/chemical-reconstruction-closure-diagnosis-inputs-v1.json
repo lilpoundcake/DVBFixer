@@ -1,0 +1,19 @@
+{
+  "schema": "dvbfixer.chemical-closure-diagnosis-inputs.v1",
+  "baseline_commit": "6810f76",
+  "root": "tmp/chemical-reconstruction-comparison-v1/controls-01",
+  "summary_sha256": "8501897ac1b3ccb841f17e7ef8bca387c69206bfdebd7b94385beca2e4d60a59",
+  "entries": [
+    {"id": "1TIM-CD", "sha256": "732bbfd1cc935a5c3a0fa4f3ed26f0841f06c05e6e9a50c637dd55ceb02991ba"},
+    {"id": "1TIM-CG-CD", "sha256": "557d2404ccd119784759f2c607db0f6bd0da007a67377a83d01a095ad3f637fd"},
+    {"id": "1TIM-CB-CG-CD", "sha256": "d6ced393cc42f3267fec4e01e7edf9554dd71b1cb9070112e3fdb9428855972b"},
+    {"id": "1CRN-CD", "sha256": "21ed58545adba21e5fe2d1a7dee0665e89f84418aa9929766d455cb5852cae33"},
+    {"id": "1CRN-CG-CD", "sha256": "8908c7d6b68471becac85bb59b7aa44a007fa1cdbde894b6a7da6c08f9d8f32f"},
+    {"id": "1CRN-CB-CG-CD", "sha256": "32aca03b1cee821d01b7506313d661e5e75dd2c4164d10fa34316499b9442e76"},
+    {"id": "2CI2-CD", "sha256": "f7db2bd7100fe6aeca5147826385dedb39b73ea33a7d14506309e270085f0198"},
+    {"id": "2CI2-CG-CD", "sha256": "c7a7ec5e97a24f03d9bbc0da458936d6a99aa9784e98a5f68450e5809944b8a3"},
+    {"id": "2CI2-CB-CG-CD", "sha256": "0f5aac5cc56ec717154e057c5de4c302109e1096ab5b031049f7a5e17620caed"}
+  ],
+  "new_coordinate_proposals_allowed": false,
+  "old_scientific_results_changed": false
+}
