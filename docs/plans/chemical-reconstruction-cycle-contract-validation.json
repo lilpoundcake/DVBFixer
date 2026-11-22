@@ -1,0 +1,107 @@
+{
+  "schema": "dvbfixer.chemical-cycle-contract-validation.v1",
+  "date": "2026-11-23",
+  "branch": "feature/chemical-reconstruction",
+  "baseline_commit": "9abfd30",
+  "status": "WP2R0-planning-only-not-numerical-construction-or-scientific-qualification",
+  "protocol": "docs/plans/chemical-reconstruction-cycle-contract-v1.md",
+  "protocol_commit_before_controls": "0087f76",
+  "protocol_sha256": "18f005bc4f4ec17ec52b8edf1650dda507bda907dd1b46afff96ef8aef5d59c4",
+  "scope": {
+    "source_systems": 3,
+    "declared_source_mask_cells": 9,
+    "planned_contract_only": 9,
+    "new_coordinate_proposals": 0,
+    "native_reference_extractions": 0,
+    "initializer_or_solver_defined": false,
+    "geometry_or_source_coverage_qualified": false,
+    "old_CD_only_rejections_repaired_or_reclassified": false,
+    "old_masks_states_thresholds_or_results_changed": false,
+    "public_defaults_dependencies_DatRecord_or_production_enabled": false,
+    "version_unchanged": "0.10.2"
+  },
+  "contract": {
+    "role": "Standalone source-bound problem, not GeometryPlan/candidate/projection parent/generated conditioning",
+    "inputs": ["original source request", "three explicit fixed target frame identities", "declared extra constraints"],
+    "coverage": "Every target heavy bond/valence angle, all constraints, all cycle edges, generated-involving cycle edges and complete generated blocks with observed boundaries; separated missing islands stay jointly represented",
+    "retained_context": "Full original observations, components, links, pH, exact identities and PreparedContextRequest proof retained; element tokens case-insensitive, chain IDs case-sensitive",
+    "technical_limits": {"resolved_targets": 1, "generated_heavy_atoms": [1, 16], "target_heavy_nodes": 64, "target_heavy_edges": 128, "metric_constraint_scalars": 512},
+    "provenance_namespace": "cycle_construction_*; not metric_projection_*",
+    "generic_tests": "All seven PRO subsets, aromatic/fused rings and branches, separated islands, renamed graph/atoms, isolated resolved molecule and opaque/fractional retained context; contract tests only, not chemical geometry qualification",
+    "fixed_policy": "Existing 0.10 A bond/12 degree angle/0.7 A separation/0.02 A anchor profile; no new solver weights, starts, movement caps or objective",
+    "exact_binding": "Canonical digests/JSON, not Python equality that conflates integer/float or bool/number representations",
+    "unsupported": "Unsupported chemistry/ownership/inventory, generated external links without geometry authority, unanchored fragments, invalid/nonfinite frames, acyclic-only masks, periodic torsions, unbounded/zero-width metrics and fixed-authority conflicts refuse explicitly",
+    "old_projector_passing_parent_gate": "unchanged and tested",
+    "codec_delta": "Two standalone roots/import only; normalized source byte-identical to 9abfd30, including old variants, Strategy handling, parser bounds and decode behavior"
+  },
+  "controls": {
+    "all_ring_edges_per_problem": 5,
+    "mask_sizes": [1, 2, 3],
+    "generated_involving_ring_edges": [2, 3, 4],
+    "status": "All nine planned-contract-only, not successful reconstruction; no saved candidate/native/baseline pose supplied",
+    "source_admission": "Same pinned WP2P source/mask cells, original-source preparation, exact state and incoming-type/byte proofs",
+    "disabled_known_coordinate_and_reference_entry_points": 35,
+    "guard_is_complete_call_graph_proof": false,
+    "guarded_independent_readback": "Passed after final hardening; canonical comparison against existing readback without overwrite",
+    "byte_identical_metadata_replay_files": 11,
+    "metadata_replay_is_independent_scientific_trial": false
+  },
+  "evidence": {
+    "root": "tmp/chemical-reconstruction-cycle-contract-v1",
+    "artifact_sha256": {
+      "controls-01/summary.json": "23af8569215ebccdb0b75df743b621c01de114fbdad639398fa5c4b617087285",
+      "controls-01/execution-guard.json": "a064b25d22e3914014ea18e08d7d6d9c387273baaa1a82ad1d5ba42b0b5bc6f2",
+      "independent-readback-01.json": "1e758bac0b097f53db81fc2c3a0cfe71b63e416514c699899512bb6a3a84e5a6",
+      "run_guarded.py": "46ebb32709d92e279c95129b0e9cf0a6258f9f00dcfd1ad818d641f2dcbec0be",
+      "verify_historical.py": "bd87c2a164a91cef2035fc2f543d880a2d6ef2f134e5c6d36fe898dfda94f42b",
+      "historical-integrity-01.json": "06f5802efe77eedfa6ea75771f8ee27a5c8ddd97cede72f994cf1ed1a894e4c2",
+      "controls-01/1CRN-CB-CG-CD/evidence.json": "1adafdeb4b9856758becc5683052576bd3a41b7a16ec599811e19c299301dff8",
+      "controls-01/1CRN-CD/evidence.json": "d5ae25b574e19927f6ed34498bc2b52d6f1662071d8eda63c44bedab6eac9113",
+      "controls-01/1CRN-CG-CD/evidence.json": "052f184bc48e737a4f9bc2bf3e187192bb1b5f58c35914efa69fb50c134a03e9",
+      "controls-01/1TIM-CB-CG-CD/evidence.json": "fde063cf9f5ff171188d6c684433efd1b520ce97fd74bb1010b981f0a0215f39",
+      "controls-01/1TIM-CD/evidence.json": "deb9643df78ff9a0dec6de236727dc4298fb60613cd848b1d64e80301cbf2ef9",
+      "controls-01/1TIM-CG-CD/evidence.json": "8856158f2e96874b29c61f74bee17d5460eb3195e735f293a80e487a7a164719",
+      "controls-01/2CI2-CB-CG-CD/evidence.json": "bae41640f14db800c2ae7430de458fafdf787eb5d040cc8033e1bdee3aab8e36",
+      "controls-01/2CI2-CD/evidence.json": "ba972eda0a98b132609df8cba3b1b37f2639eac11cb2c716b7fd4f7f9d57b1cd",
+      "controls-01/2CI2-CG-CD/evidence.json": "42b5ee680b46da85762ca3ec5595609dd9c829daab7fb0a8c840973687f97c29"
+    },
+    "historical_WP2P_Q": {
+      "unchanged_source_pins_excluding_explicit_codec_extension": 11,
+      "unchanged_artifact_pins": 10,
+      "byte_identical_old_replay_files": 525,
+      "old_replay_arms": 16,
+      "new_scientific_controls_executed": 0,
+      "guarded_WP2Q_readback": "Passed under extended codec without overwriting evidence",
+      "WP2Q_report_sha256": "86d2116551a23ebe3dcacb91d6c3c18a0d37b6d6092518f31072e0c708fa424e",
+      "historical_codec_sha256_not_replaced": "25725d0673938b8d6aed7537c5b1be157a7293d53a92615a255b10728fc1d707"
+    }
+  },
+  "checks": {
+    "new_tests": 55,
+    "focused": {"passed": 217, "failures": 0, "errors": 0, "junit": "focused-02.xml", "sha256": "c8b60e63f7a6d814a0ef742417db715ca22b43a9d56f241944931e2d40723848"},
+    "split_slow_boundaries": {"passed": 481, "failures": 0, "errors": 0, "junit": "boundaries-02.xml", "sha256": "f017880866184a4d6ce6314cc792fffcfeaa7042faab2e5bf6a3e782b5a5b00f"},
+    "full_fast": {"passed": 4045, "failures": 0, "errors": 0, "existing_optional_skips": 3, "slow_deselected": 33, "junit": "fast-02.xml", "sha256": "4c27cdb2e71b220c623d5a20cdc0ff59f40ef3884b943f32dd2e62773b0fa41b"},
+    "superseded_checks": "Earlier *-01 test results predate the final two hardening tests; retained, not final-code evidence",
+    "ruff": "passed: src/dvbfixer, new script and tests",
+    "scoped_strict_typing": "passed: 47 files",
+    "source_bound_strict_typing": {"passed_files": 48, "log": "mypy-source-bound-02.log", "sha256": "a459b8765e4db93f08156e7d98399988a9b87243303f92178f28c9db897f6066"},
+    "ambient_strict_typing": {"status": "unchanged-not-green", "errors": 814, "new_lines": 0, "removed_lines": 0, "log": "mypy-ambient-02.log", "sha256": "7e4ba39ec9b85a59b0f0635703dac392d52279e890e39285219b742b063d7903"},
+    "version_generated_CLI_GUI": "passed; 0.10.2 synchronized",
+    "agent_maps_local_links_fixture_manifest_whitespace": "passed; 69 local links checked, all recorded source/artifact/JUnit/log hashes verified",
+    "hardening": "Canonical numeric bindings, element-token case consistency and nonfinite observed-frame refusal; no changed physical thresholds, masks, states or canonical control outputs"
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/cycle_contract.py": "2588461ae1cef1bb1c29c2d0333abdd3704b4c7a1822ff4286a31e76c02bc518",
+    "src/dvbfixer/chemical_reconstruction/research_decode.py": "99599dd6ac25dea56a5c5eb12cf11191185c914b23bf1112d146da7f024f9e6d",
+    "scripts/chemical_reconstruction_cycle_contract_controls.py": "20e7e7cacddb59a05599cff78cd542d35cc7360030fb7e8d05ed86d375d314ef",
+    "tests/test_chemical_reconstruction_cycle_contract.py": "bed6919a0de19801642367832c368ab577bdc05b141baff0df0dfaadcb1784d1"
+  },
+  "next_gate": "R1 prospective initializer provenance/refusal policy, deterministic starts/branches, solver/objective/budgets/movement caps and independent comparison cohort before ANY new coordinates; never relax the old projector parent gate",
+  "remaining_gates": [
+    "Numerical construction and raw/rounded/global-L/immutable-observation validation not implemented by R0",
+    "H-parent integration/publication and broader native/H/full-complex scientific qualification remain separate",
+    "Two old CD-only rejections, native worsenings, v1/altloc refusals and WP2F timeout remain retained",
+    "Ambient typing and absent GUI development dependencies remain visible",
+    "Production/data-license approval and all public/default/dependency replacement gates remain closed"
+  ]
+}

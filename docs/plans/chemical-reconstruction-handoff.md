@@ -1,6 +1,6 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-22. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
+Date: 2026-11-23. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
 WP2J all20 source coverage and WP2K fragment-grid/steric ranking are case-tested,
 not native-quality qualification. Earlier WP2I fast suite passed (3754); latest
@@ -10,12 +10,12 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2Q diagnoses the two saved CD-only rejections without
-new coordinates. The chain frame exactly enforces CG–CD/its angle/torsion, but
-does not solve the cyclic N–CD length; both saved rejected poses make N–CD too
-short. Native-reference witnesses pass OLD own geometry; they do not qualify every
-COMMON-port constraint. No fix/default/qualification change; WP2P and older negatives
-remain unchanged.
+**Current continuation:** WP2R0 adds a separate generic cycle-aware problem and
+planning-admission contract, not a solver or passing parent. Full cyclic graphs,
+generated subsets/blocks, boundaries and scalar metrics are source-bound; all nine
+old source/mask cells plan with zero new coordinates. The two CD-only rejections
+are NOT repaired/reclassified. Numerical construction R1 needs its own prospective
+initializer/solver/cohort freeze. WP2P/Q and older negatives remain unchanged.
 
 ## 1. Persistent branch and authorization
 
@@ -1925,7 +1925,7 @@ nine source-code bindings, five retained artifact pins and all 525 original/repl
 file pairs were checked without rerunning science. Prior GUI dependency state is
 not relabelled as a GUI test pass.
 
-**Next:** separately freeze a generic cycle-aware generated-subgraph construction
+**Next at WP2Q (contract slice below):** separately freeze a generic cycle-aware generated-subgraph construction
 and admission contract, covering full missing subsets in retained complexes. Do
 not special-case PRO/CD, move observations, supply native/template poses, silently
 pass rejected baselines into the existing projector, or retroactively replace
@@ -1934,3 +1934,93 @@ and independent raw/rounded geometry/chirality/refusal validation. Public/defaul
 dependency/DatRecord and production/data-license gates remain closed, as do broader
 native-H/name/full-polymer/complex qualification. Preserve WP2F timeout and ambient
 typing/GUI dependency states separately.
+
+## WP2R0 — generic cycle-aware problem/admission contract (2026-11-23)
+
+[Protocol](chemical-reconstruction-cycle-contract-v1.md) committed as **0087f76**
+on 2026-11-22 from `9abfd30`, before metadata controls. User approved starting the
+cycle-aware constructor with its contract/protocol. This slice compiles PURE
+source/graph problems; numerical initializer/solver R1 remains a separate gate.
+Version stays 0.10.2. No new candidates, native scores, PDB output, H integration,
+materialization/DatRecord, public/default/dependency or production/data-license change.
+
+`cycle_contract.py` defines standalone immutable `CycleConstructionProblem`,
+`CycleCoverage`, `CycleMetric`, `GeneratedBlock` and `CyclePlanningAdmission` records.
+They are NOT GeometryPlan/ProjectionResult/ConformerSearchResult or generated-
+conditioning request subclasses. Inputs are source request, explicit observed
+frame and caller-declared extra constraints ONLY: no baseline/seed/candidate/
+native/reference/score fields. Every execution/geometry/source-coverage/MD-ready
+property is False. Compiling a valid problem does not qualify a reconstruction.
+
+The compiler reuses exact domain identities, selected ChemicalState/graph,
+admission, authority geometry/measurement and the generic cycle-edge classifier.
+There is no PRO/CD or canonical atom-name rule. It compiles EVERY target heavy
+bond/valence angle and original/extra constraint, fixed/generated roles, ALL heavy
+cycle edges and their generated-involving subset, and complete connected generated
+blocks with observed boundary edges. Separated missing islands remain one joint
+problem, not independent fitted spans. Ring branches remain generated variables.
+
+Initial technical envelope: one resolved heavy target in its full retained context,
+1..16 generated atoms, <=64 target heavy nodes/128 heavy edges/512 metric and
+constraint scalar terms. Full canonical sidechain subsets fit this planning budget;
+this is NOT all-chemistry scientific support. Observed target + generated must equal
+the heavy graph. Refuse temporary/mobile ownership, target measured H/D, unowned
+missing atoms, ambiguous chemistry/unsupported links, generated external links
+without geometry authority, absent generated-involving cycles, unanchored generated
+fragments, invalid fixed frames, unsupported periodic torsion/metric intervals and
+fixed-only graph geometry incompatible with the frozen profile. No scope expansion
+to pass a source; no claim that a deposited source is chemically invalid.
+
+Source observations/state/links/pH/masks/constraint prefix are exact. Effective
+constraint requests get distinct `cycle_construction_*` provenance, never old
+`metric_projection_*` tags. Prepared opaque/fractional context retains its original
+proof and cannot become owned, constrained or generated. Nested conditioning/
+projection/cycle sources refuse. Element-token case follows existing admission;
+chain IDs, insertion codes and occurrence remain exact and case-sensitive.
+
+Derived coverage is recomputed and checked by canonical digest, not Python numeric
+equality (which treats 12 and 12.0 or True and 1 as equal). Cached metric/cycle/
+boundary/frame/source tampering fails. Strict private JSON registers TWO new
+standalone roots only; old Strategy values, GeometryPlan variants, bounds/readers,
+constructors and passing-parent projector gate remain unchanged. The codec's
+source hash changes explicitly for that registry extension; historical hashes are
+preserved as historical evidence rather than silently replaced.
+
+Planning controls independently rebind the SAME nine WP2P tracked source/mask
+inputs with existing source, explicit PRO state and incoming-type/byte authorities.
+The compiler never receives their saved coordinates/native scores/baseline statuses.
+All nine return **planned-contract-only**, not geometry-passed. All five ring edges
+remain represented; CD/CG-CD/CB-CG-CD masks have **2/3/4** generated-involving
+cycle edges and **1/2/3** variables. Both old rejected CD-only poses remain rejected;
+no reconstruction attempts or H calls occurred. Constructor/initializer/optimizer/
+PDBFixer/search/rotator/native-reference entry points are disabled for control
+execution, exact saved readback and metadata replay.
+
+Contract tests include all seven nonempty PRO sidechain subsets, noncontiguous
+generated islands, complete aromatic/fused TRP/HIS/PHE/TYR and ring branches,
+an isolated resolved free-molecule graph, opaque/fractional complex context and
+renamed synthetic graph/atom identities. These are shape/transport/admission tests,
+not geometry/native qualification of those chemistries. They also retain refusals,
+source immutability, fixed-authority conflicts, budgets, unsupported constraints,
+digest/numeric-representation tampering, nonfinite frame arithmetic and the old
+rejected-parent projector refusal. No source asset or dependency was added.
+
+See [validation](chemical-reconstruction-cycle-contract-validation.json) for exact
+code/artifact/check hashes and historical readback verification. Ambient typing,
+GUI dependency state, WP2F timeout, v1/altloc refusals and native-score worsenings
+remain separate open states, not converted to passes by problem compilation.
+Final full-fast: **4,045 passed**, three existing optional Torch/Biotite skips,
+33 slow deselected; focused/boundary **217/481 passed**, including 55 new tests.
+All 11 metadata replay files and 525 historical replay pairs are byte-identical.
+Scoped/source-bound strict typing passes 47/48 files; ambient remains the same
+814 errors. Agent maps, versions/generated specs, fixture/link/hash/whitespace
+checks pass. No numerical construction or scientific repair is claimed.
+
+**Next R1:** freeze a distinct initializer provenance DTO and refusal policy,
+deterministic starts/branch handling, solver/objective/budgets/movement caps,
+context/separation treatment, immutable-observation/raw/rounded/global-L checks,
+trace retention and an independently declared comparison cohort BEFORE any new
+coordinates. A rejected numeric start cannot be called a passing old parent;
+the old projector gate is not relaxed. H-parent integration/publication and broader
+native/full-complex qualification remain separate later gates. Do not turn this
+planning contract into a PRO/CD patch or production/backend replacement.
