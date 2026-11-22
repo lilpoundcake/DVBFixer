@@ -1,20 +1,21 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-20. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
+Date: 2026-11-22. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
 WP2J all20 source coverage and WP2K fragment-grid/steric ranking are case-tested,
-not native-quality qualification. Final fast suite passed (3754), split slow boundaries
-passed. WP2F's large combined slow-inclusive run remains incomplete after outer
+not native-quality qualification. Earlier WP2I fast suite passed (3754); latest
+continuation checks are recorded below. WP2F's large combined slow-inclusive run remains incomplete after outer
 timeouts. General
 reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2P compares nine nested PRO masks on three source
-systems distinct from WP2M/O. Seven eligible projections/H pass; two CD-only
-original proposals reject before projection. On the seven complete pairs projection
-has lower heavy RMSD than original and seeded-PDBFixer, but this is not general
-superiority or native-H qualification. WP2O worsenings/v1/altloc refusals remain.
+**Current continuation:** WP2Q diagnoses the two saved CD-only rejections without
+new coordinates. The chain frame exactly enforces CG–CD/its angle/torsion, but
+does not solve the cyclic N–CD length; both saved rejected poses make N–CD too
+short. Native-reference witnesses pass OLD own geometry; they do not qualify every
+COMMON-port constraint. No fix/default/qualification change; WP2P and older negatives
+remain unchanged.
 
 ## 1. Persistent branch and authorization
 
@@ -1851,10 +1852,85 @@ typing pass. Maps, version 0.10.2, generated CLI/GUI, fixture/source/report/JUni
 hashes, local links and whitespace checks pass. No GUI source/dependency changes;
 the previously reported missing GUI dev dependencies are not presented as passes.
 
-**Next:** diagnose the two CD-only original-constructor failures against generic
+**Next at WP2P (diagnosed below):** diagnose the two CD-only original-constructor failures against generic
 ring closure and fixed-observation authority, without changing this cohort's
 results. Then predeclare an all-residue/full-complex mask expansion with matched
 geometry/native metrics; current PRO data does not qualify other residues, real
 neighbour/full-polymer chemistry, experimental H/name quality or public integration.
 Preserve native-reference deviations, previous negative outcomes, WP2F timeout,
 ambient typing failure and production/data-license gates.
+
+## WP2Q — constructor-free diagnosis of CD-only rejections (2026-11-22)
+
+[Protocol](chemical-reconstruction-closure-diagnosis-v1.md) and
+[saved-artifact ledger](chemical-reconstruction-closure-diagnosis-inputs-v1.json)
+committed as **ab3fa5d** from `6810f76` before new diagnostic measurements. User
+approved diagnosing the two WP2P failures, not changing their outputs or enabling
+a different constructor. Version stays 0.10.2. All nine saved cells are retained,
+including 1CRN-CD and all six larger masks. Zero new coordinate proposals.
+
+`closure_diagnostics.py` is a separate read-only scalar/frame/graph service; it does
+not modify existing compilers, constructors, audits, admission, state/variant/
+chemical authorities or masks. `measure_terms` reports actual bond/angle/explicit
+constraint values and bounds with fixed/generated roles, preserving the existing
+independent audit's findings. Scalar measurements not reached by an early admission
+failure stay separately labelled, never invented as emitted candidate findings.
+`trace_frames` reports the saved constructor's intended length/angle/torsion and
+observed residuals, plus graph-cycle edges not enforced as placement lengths.
+`necessary_support` uses outward-rounded conservative distance/cosine interval
+arithmetic, NOT new points or a jointly feasible-pose proof.
+
+**Measured cause:** CD-only construction uses **CA–CB–CG -> CD** in all three
+systems. Its three intended raw metrics are reproduced to floating precision
+(<2e-15 A length, <6e-14 degrees angle/torsion). The cyclic **N–CD** edge is NOT
+that frame's length edge. The validator still enforces it; this is a mask-dependent
+tree-frame limitation, not a missing chemical bond or an `extend`/rounding error.
+
+Allowed N–CD is **[1.38664858, 1.58664858] A** (authority 1.48664858 +/-0.10).
+**1TIM-CD** raw/rounded measures **1.37774001/1.37829569 A**;
+**2CI2-CD** measures **1.35426837/1.35452169 A**. The ONLY own-request violation
+for each is that N–CD length, already too short before rounding. Fixed-only own
+terms pass. **1CRN-CD** uses the same frame and its otherwise-unenforced N–CD is
+1.53623511 A raw, inside the old interval. In all six larger masks CD instead
+uses C–CA–N and CG uses C–CA–CB, shifting the non-length-enforced ring edge to
+CG–CD. Their old passes are not evidence of a general joint ring-closure solver.
+
+Necessary two-neighbour distance/cosine tests pass for all three CD-only sources,
+but do not establish full joint feasibility. Separately, retained native-reference
+additions pass the complete OLD assessed heavy audit for ALL nine cells without
+moving observations: a post-hoc original-scope witness, never constructor input.
+For COMMON v2 scope, 1TIM's native CD plane distance is 0.19797725 A and 1CRN's
+is 0.23717150 A versus 0.05 A; 2CI2's 0.03286470 A passes. Preserve that authority/
+bound compatibility distinction, not a claim that deposited structures are invalid
+or permission to loosen the plane bound. Both old projection/native worsenings stay.
+
+The [research report](../research/chemical-reconstruction-closure-diagnosis.md)
+provides raw/rounded per-term numbers, own/common separation, comparator/refusal
+details and limitations. The [validation record](chemical-reconstruction-closure-diagnosis-validation.json)
+binds code/protocol/ledger/artifacts/checks. Diagnostic execution and independent
+saved readback disable 29 known constructor/rebuild/solver/search/rotation entry
+points, including extend/two_angle_tip and PDBFixer; only metadata Topology for the
+existing global-L reader is allowed. Old source/proof/parent/H/template/native
+qualification runs first. All actual diagnostic tables reconcile with the old
+audits, with no unexplained or scalar-only findings. Old 9/7/2 accounting and
+525 replay-file evidence remain unchanged; scientific controls are NOT rerun.
+
+Verification: **26 new tests**, **133 focused**, **426 boundary** and **3990
+full-fast passes**; three existing optional skips and 33 slow deselected. Ruff
+passes; scoped strict typing passes 46 files and source-bound nonincremental strict
+typing passes 47. Ambient typing preserves the exact 814 old diagnostics, not a
+global pass. Maps/version/generated CLI/GUI/local links/whitespace and all frozen
+protocol/ledger/code/report/artifact/JUnit hashes verify. WP2P's unchanged validation,
+nine source-code bindings, five retained artifact pins and all 525 original/replay
+file pairs were checked without rerunning science. Prior GUI dependency state is
+not relabelled as a GUI test pass.
+
+**Next:** separately freeze a generic cycle-aware generated-subgraph construction
+and admission contract, covering full missing subsets in retained complexes. Do
+not special-case PRO/CD, move observations, supply native/template poses, silently
+pass rejected baselines into the existing projector, or retroactively replace
+WP2P parents/results. Actual constructor changes require a prospective protocol
+and independent raw/rounded geometry/chirality/refusal validation. Public/default/
+dependency/DatRecord and production/data-license gates remain closed, as do broader
+native-H/name/full-polymer/complex qualification. Preserve WP2F timeout and ambient
+typing/GUI dependency states separately.
