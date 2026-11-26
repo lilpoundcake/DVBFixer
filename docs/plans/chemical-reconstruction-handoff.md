@@ -10,14 +10,13 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** the separate WP2R1 initializer/solver/cohort protocol is
-prospectively frozen as **26dd7ed** from `4565ac8`. It defines a generic harmonic-
-boundary initializer, eight labelled starts and a joint bounded solver, with an
-explicit 30-cell comparison denominator. This session adds NO numerical engine,
-initializer coordinates, solver execution or scientific result. WP2R0 and its old
-projector gate remain unchanged; the two CD-only rejections are not repaired or
-reclassified. Next implement the separate start/solver/audit/trace slice and its
-nonleakage tests before any tracked-source R1 coordinate trial.
+**Current continuation:** WP2R1A implements the frozen boundary-harmonic initializer,
+eight labelled starts and standalone immutable provenance/readback, with synthetic
+fixtures only. Records are `initialized-unvalidated`, NOT geometry-approved or
+solver-ready. Frozen protocol remains **26dd7ed**; R0/projector/H gates and old
+failures remain unchanged. No R1 optimizer or 30-cell tracked-source cohort ran.
+Next implement initial geometry/global-L/source metadata, then the frozen joint
+solver/raw-rounded validator/trace slice before tracked-source numerical trials.
 
 ## 1. Persistent branch and authorization
 
@@ -2074,7 +2073,7 @@ native scoring only after all available arms/branches return. No required pass/w
 rate, symmetry/fitting, threshold tuning, hidden source crop or mask enlargement.
 
 Protocol metadata tests pin the documents, sources, selectors, inherited authority
-assets, masks/settings/denominators and historical lineage. **19 metadata tests and
+assets, masks/settings/denominators and historical lineage. **18 metadata tests and
 100 combined protocol/R0/projector regressions pass**, Ruff passes. No initializer,
 solver or 30-cell scientific controls executed. No full-fast/typing/GUI rerun is
 claimed for this documentation/test-only slice; R0's 4,045 fast passes and unchanged
@@ -2082,7 +2081,7 @@ claimed for this documentation/test-only slice; R0's 4,045 fast passes and uncha
 Final maps/version/generated/fixture/link/hash/whitespace checks are recorded in
 `tmp/chemical-reconstruction-cycle-solver-v1/documentation-quality.md`.
 
-**Next:** implement the frozen initializer and distinct provenance/refusal DTOs,
+**Next at the protocol freeze (initializer slice below):** implement the frozen initializer and distinct provenance/refusal DTOs,
 joint solver, independent raw/rounded/global-L/context validator and bounded trace/
 readback, with synthetic/generic-ring/nonleakage tests. Bind code/environment/test
 hashes BEFORE running the declared cohort. Preserve R0 admission, old strategies,
@@ -2090,3 +2089,81 @@ codec variants/bounds and projector/H gates; new standalone roots only if needed
 Do not claim the protocol itself restored any missing atom or qualified native/H/
 full-complex chemistry. H-parent/publication/public/default/dependency and licensed
 production gates remain separate and closed.
+
+## WP2R1A — executable initializer/provenance slice only (2026-11-26)
+
+User approved implementation after the frozen R1 protocol. This first slice adds
+`cycle_initialization.py`, NOT the complete R1 numerical engine. See
+[validation](chemical-reconstruction-cycle-initializer-validation.json) for code,
+artifact/environment/JUnit hashes and remaining gates. The protocol/ledger remain
+byte-identical to **26dd7ed**; version stays 0.10.2. No public/default/dependency,
+H/DatRecord/materialization/publication or production/license changes.
+
+The initializer accepts ONLY CycleConstructionProblem. It builds the explicit
+right-handed observed frame and complete generated-variable Dirichlet system from
+scalar target bond lengths and observed heavy boundaries; solves once with NumPy
+float64 direct solve; checks the frozen 1e-10 A^-1 equation residual; and emits all
+eight declared sign/quarter-turn orbit starts. Generated islands remain part of one
+system, not independently fitted spans. No ideal-pose overlay, external candidate,
+native/reference/PDBFixer/rotamer start, optimizer, pseudoinverse, jitter, retries,
+deduplication or success short-circuit. Existing context/masks/observations/state/
+links/fractional proof remain exact and fixed.
+
+CycleObservedFrame/CycleHarmonicSystem/CycleStart/CycleInitializerRecord bind source,
+observations, graph, constraints, exact variable/anchor order, matrix/RHS, length
+scale, saved harmonic solution, equation residual, branch labels and additions.
+Only the record becomes a new standalone strict private transport root; no old
+Strategy/GeometryPlan variants or decoder bounds change. Derived caches use
+canonical digest binding rather than Python numeric equality. Local linear-algebra
+values have their proper units/finite checks, not the source-coordinate bound.
+
+Singular/nonfinite/equation failures retain explicit failed records, missing NumPy
+is environmental unavailable, and unrelated dependency/programming errors propagate.
+Per-orbit coordinate-bound/nonfinite failures keep their label and empty additions
+without losing other starts. All eight failed orbits cannot claim coordinates.
+Saved-record auditing reassembles the system and measures the saved equation/orbit
+formula with no NumPy solve or initializer constructor. The equation check retains
+its declared tolerance; separate deterministic replay checks byte identity.
+
+Successful scaffolds are **initialized-unvalidated**. `geometry_approved`,
+`solver_ready`, `source_coverage_verified` and `md_ready` remain False. Initial
+physical geometry/global-L findings are NOT yet measured; this is why no start
+is handed to an optimizer or called a successful reconstruction/H parent. The
+source-bound residue-name metadata adapter, initial audit, CycleSolvePlan/context
+residuals, SciPy solve, independent raw/rounded validator, branch trace/selection
+and 30-cell comparison remain pending. No scientific gate is closed by linear
+algebra residuals or an artificially plausible-looking scaffold.
+
+Synthetic fixture evidence retains **11 cases / 88 labelled starts**: all seven
+PRO subsets and full PHE/TYR/TRP/explicit HIP graphs from reused synthetic inputs,
+not 11 independent proteins. All return only initialized-unvalidated; the largest
+equation residual is 1.11e-16 A^-1. Guarded saved readback passes with solve/start
+constructors disabled, and a separate initializer-only replay has **12 byte-identical
+files** (11 records plus environment/provenance metadata). No tracked-source R1
+cell, R1 optimizer, held-out native extraction or RMSD comparison executed.
+
+**49 new tests**, **178 focused**, **548 split boundaries**, and final full-fast
+**4,112 passed** (three existing optional skips, 33 slow deselected). Ruff and
+scoped/source-bound strict typing pass 48/49 files; ambient retains the same
+814 errors with no new/removed lines. Small accounting erratum: the prior protocol
+summary said 19 metadata tests, but the actual count is **18**; its 100 combined
+passes are unchanged. Current full-fast is 4,045 R0 + 18 protocol + 49 initializer.
+
+Guarded R0/WP2Q readbacks still match existing artifacts without overwrites. Historical
+14 source/25 artifact pins and all 525 scientific replay pairs across 16 arms are
+verified without rerunning old scientific trials. Additional root `.DS_Store` Finder
+sidecars are preserved, individually hashed/disclosed and excluded ONLY from the
+scientific replay count; unknown other extras still fail. The sole existing-source
+delta is the initializer standalone root/import in the private codec. All old
+scientific/production sources, fixtures, FF and dependencies are unchanged.
+
+**Next:** add a source-bound metadata adapter preserving actual residue names and
+exact full-complex identities for the shared detector, independent initial geometry/
+global-L audit, then the frozen solver plan/residuals/budgets/branches and raw/rounded
+context/transport/global-L validator/trace/selection. Reuse/factor the existing
+comparator's metadata-only global-L owner, never fake a passing legacy Candidate or
+invent a second chirality rule. Complete nonleakage/rounding/tampering/failure tests
+and freeze code/environment/check hashes BEFORE the 30-cell numerical cohort.
+Do not alter frozen starts/settings/masks/thresholds to obtain passes. Full R1,
+native/H/retained-complex qualification and public/default/production gates remain
+open; old CD-only failures/native worsenings/altloc refusals/WP2F timeout remain.

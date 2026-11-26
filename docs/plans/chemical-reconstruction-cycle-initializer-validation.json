@@ -1,0 +1,109 @@
+{
+  "schema": "dvbfixer.chemical-cycle-initializer-validation.v1",
+  "date": "2026-11-26",
+  "branch": "feature/chemical-reconstruction",
+  "baseline_commit": "af12305",
+  "frozen_protocol_commit": "26dd7ed",
+  "protocol": "docs/plans/chemical-reconstruction-cycle-solver-v1.md",
+  "protocol_sha256": "88cb776bdf3bb35053d9e463307d8d36ca8b765bab8b18e8d1350bd87ff3bd7b",
+  "cohort_ledger": "docs/plans/chemical-reconstruction-cycle-solver-cohort-v1.json",
+  "cohort_ledger_sha256": "f6c097f6c14d1394b2fc0b9c64984fd7a35eb488b7e207d73137b8407f695075",
+  "status": "WP2R1A-initializer-provenance-and-readback-only-not-complete-R1",
+  "scope": {
+    "algorithm": "boundary-harmonic-orbit-v1 as frozen; no numerical policy amendment",
+    "inputs": "Only CycleConstructionProblem; no external start/seed/candidate/reference/baseline/native score",
+    "implemented": "Observed frame, complete generated Dirichlet system, one NumPy float64 direct solve, equation audit, eight labelled orbit starts, immutable provenance/failure records and strict private readback",
+    "not_implemented": "Initial physical geometry/global-L audit, source-bound full-context residue-name adapter, CycleSolvePlan/residuals/SciPy solver, raw/rounded independent validator, numerical branch trace/selection and 30-cell runner",
+    "status_of_successful_scaffold": "initialized-unvalidated",
+    "geometry_approved": false,
+    "solver_ready": false,
+    "source_coverage_verified": false,
+    "md_ready": false,
+    "tracked_source_R1_cohort_cells_executed": 0,
+    "new_R1_optimizer_calls": 0,
+    "new_R1_native_reference_extractions_or_scores": 0,
+    "old_masks_states_thresholds_results_or_projector_H_gates_changed": false,
+    "public_defaults_dependencies_DatRecord_or_production_enabled": false,
+    "version_unchanged": "0.10.2"
+  },
+  "bindings_and_failures": {
+    "source_binding": "Problem/source/observation/graph/constraint digests, exact variable/anchor order, frame, matrix/RHS, scale, saved harmonic positions and branch sign/quarter-turn/additions",
+    "authority_ideal_pose": "Not fitted or copied by initializer; scalar bond targets and observed boundaries only; ideal-translation nonleakage test retained",
+    "retained_context": "Full source request and opaque/fractional proof retained without ownership/mask changes; context does not become fictitious bonded boundary",
+    "equation_maximum_absolute_residual_inverse_angstrom": 1e-10,
+    "readback": "Reassembles scalar system, measures saved equation with frozen tolerance and verifies exact orbit/identity/element/unit/occupancy/formula bindings; no direct solve or initializer constructor",
+    "numeric_binding": "Canonical digests, not Python equality; strict float occupancy and integer branch labels",
+    "failed_starts": "All eight labels remain; individual coordinate-bound/nonfinite failures retain empty additions and explicit reason, without substitute/retry/deduplication",
+    "system_failures": "Singular/nonfinite/equation failures retained separately; missing NumPy is unavailable; unrelated dependency/programming errors propagate",
+    "local_units": "RHS is inverse angstrom, local harmonic positions are not source-coordinate DTOs; finite local algebra is not silently capped at the source-coordinate bound",
+    "codec": "Only one new standalone CycleInitializerRecord root/import; normalized codec byte-identical to af12305; old Strategy/VARIANTS/parser bounds and old DTO behavior unchanged"
+  },
+  "synthetic_fixtures": {
+    "kind": "initializer unit fixtures, NOT tracked-source numerical trials or geometry-qualified samples",
+    "cases": 11,
+    "case_scope": "All seven PRO CB/CG/CD subsets, full PHE/TYR/TRP and explicitly declared HIP synthetic graphs; same reused synthetic inputs, not independent proteins",
+    "labelled_starts": 88,
+    "largest_observed_equation_residual_inverse_angstrom": 1.1102230246251565e-16,
+    "guarded_constructor_solve_free_readback": "passed; _direct_solve/_make_start/initializer/NumPy solve disabled",
+    "separate_initializer_only_replay": "12 byte-identical files: 11 complete records plus environment/provenance metadata",
+    "replay_is_new_scientific_trial": false,
+    "reference_or_legacy_optimizer_use": "none; old constructors, SciPy least_squares, pseudoinverse and least-squares linear fallback disabled",
+    "environment": "Python/NumPy/platform/BLAS build captured in retained metadata, not an across-platform bit-identity claim"
+  },
+  "checks": {
+    "new_tests": 49,
+    "initializer_and_protocol_units": {"passed": 67, "initializer": 49, "protocol_metadata": 18, "junit": "initializer-unit-01.xml", "sha256": "5f8bb8cf13190d8d679f2594ac50e78884a99482c9e6c81abde2630982c7b5be"},
+    "focused": {"passed": 178, "failures": 0, "errors": 0, "junit": "initializer-focused-01.xml", "sha256": "f30068f99ec0f01cf5fe43d17f881354dd0a0996e220a9006b08482eb953a186"},
+    "split_slow_boundaries": {"passed": 548, "failures": 0, "errors": 0, "junit": "initializer-boundaries-01.xml", "sha256": "f792f9ff72cd414e422134d1d11f1b627f356263038c2c1a11dface5da0603fd"},
+    "full_fast": {"passed": 4112, "failures": 0, "errors": 0, "existing_optional_skips": 3, "slow_deselected": 33, "junit": "initializer-fast-01.xml", "sha256": "0986f3859b266f551eb2923e3a5831ca150e086a1f38ec293969f53ab31b92d1"},
+    "ruff": "passed: src/dvbfixer and new tests",
+    "scoped_strict_typing": {"passed_files": 48, "log": "initializer-mypy-scoped-01.log", "sha256": "a459b8765e4db93f08156e7d98399988a9b87243303f92178f28c9db897f6066"},
+    "source_bound_strict_typing": {"passed_files": 49, "log": "initializer-mypy-source-bound-01.log", "sha256": "b1fdd8413863455c6896d811c9ab42dc9256d679a668643bb18df2318c3bc875"},
+    "ambient_strict_typing": {"status": "unchanged-not-green", "errors": 814, "new_lines": 0, "removed_lines": 0, "log": "initializer-mypy-ambient-01.log", "sha256": "eadaee497877312ad951c48f2240177972081ae8a52dc3170a18c5a2f8965859"},
+    "maps_version_generated_fixture_links_whitespace": "passed; fixture manifest covered by 548 boundary tests; 73 local links and all recorded source/artifact/protocol/ledger/JUnit/log hashes/counts verified",
+    "development_test_fixes": "Corrected test-module import and used truly unlinked/unconstrained opaque fractional context rather than a peptide-linked atom. Local algebra DTOs use finite checks, not source-coordinate limits. Import sorting only; no changed frozen algorithm/threshold/state/mask.",
+    "historical_protocol_test_count_erratum": "The protocol-only handoff/local summary said 19 new tests; actual count is 18, with its 100 combined passes unchanged. This is corrected accounting, not a changed scientific result. Current full-fast = 4045 R0 + 18 protocol + 49 initializer passes."
+  },
+  "evidence": {
+    "root": "tmp/chemical-reconstruction-cycle-solver-v1",
+    "artifact_sha256": {
+      "initializer_fixtures.py": "c96b954e3f034d2a7cbc0120cb412fcf12fa887714417020214b4558067d582d",
+      "verify_initializer_history.py": "7e66fcc8a565d4c13b0d6ecb6994da27d2188aa7ea67b1873390a34ba595a9fd",
+      "initializer-history-01.json": "bb0f2397531f5c06258203bac14919e96da6ccece93d0614e6ae5121e875822d",
+      "initializer-fixtures-01/metadata.json": "7b8024732e6c1388332e9b8d8ca3f5a3281e07231bfd7795bfdd831c3c05a17a",
+      "initializer-fixtures-01/HIS-full.json": "20875f2f0b174ba055351c2c651cc3d6a8a32cc28867dbfe22fbce7291b06dc4",
+      "initializer-fixtures-01/PHE-full.json": "928ccf6d64c38514bca463504ca180ec5ef8c5089319f3c1a3ed077b676fd6ff",
+      "initializer-fixtures-01/PRO-CB-CD.json": "87044d60867f406c1e4aaa87bc8ee3f1cf688d901817030432aba13e01832128",
+      "initializer-fixtures-01/PRO-CB-CG-CD.json": "48579c80c6f760d29cd9d583b654aeffff252bfef22012a3edb10f33338736e1",
+      "initializer-fixtures-01/PRO-CB-CG.json": "81e42181512e1e6992c54def80e9a794e96a20c3d9e619a62dc0fc6a478da4b3",
+      "initializer-fixtures-01/PRO-CB.json": "9a542660e4b26e69fe175c0d22d9e75fbd8324f3428ac6c190ec35f55e29a384",
+      "initializer-fixtures-01/PRO-CD.json": "efbeb273a66f60490b6c6d2f306c77d78b94ee2060e45ef647e2e5c6fa9f0ff8",
+      "initializer-fixtures-01/PRO-CG-CD.json": "d7aaafaf49b950cb8ed0669873da5091902c78ed077bed43bb99164eed8fd213",
+      "initializer-fixtures-01/PRO-CG.json": "d83dcecce6e0cf0aacb3ee03da524df62f92dd9c942c3493c73d7071831b8c45",
+      "initializer-fixtures-01/TRP-full.json": "4f23c2081f8b5c10fd5dc73e1c3e47758137e202ca66ca261e79fb76cd685a51",
+      "initializer-fixtures-01/TYR-full.json": "a51eb023268599fb5e17ac824c84b275254898c6514a0a07c0a9b144a31ff823"
+    },
+    "historical_integrity": {
+      "unchanged_source_pins_excluding_explicit_codec_delta": 14,
+      "unchanged_artifact_pins": 25,
+      "historical_byte_identical_scientific_replay_pairs": 525,
+      "historical_replay_arms": 16,
+      "new_historical_scientific_trials": 0,
+      "guarded_R0_and_WP2Q_readback": "passed under extended codec without overwriting evidence",
+      "Finder_sidecars": "Observed root .DS_Store files are retained and individually hashed in initializer-history-01.json; excluded only from scientific replay count, not deleted. Other unknown extras still fail verification."
+    }
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/cycle_initialization.py": "5ef5b7a60754059d25ee652097f87ebfecebba411861684ec295c637cc4368dc",
+    "src/dvbfixer/chemical_reconstruction/research_decode.py": "72138f5bbdf21574e25061616cfdf69ab53b2d2008ccfb850d04f5e5a6e2255f",
+    "tests/test_chemical_reconstruction_cycle_initialization.py": "5028051878bb353363489236dec6e65ff6cbcf28a128dc166e1a9fc4d0828426"
+  },
+  "next_gate": "Source-bound metadata adapter and independent initial geometry/global-L measurement, then frozen CycleSolvePlan/context residuals/SciPy solver/raw-rounded audits/branch traces and selection. No tracked-source 30-cell execution until that complete slice and nonleakage tests are ready and code/environment/test hashes are frozen.",
+  "remaining_gates": [
+    "Initializer coordinates are not physical geometry passes or restored structures",
+    "Full R1 solver/independent audit/trace and cohort execution remain pending",
+    "Old failures/native worsenings/v1-altloc refusals/WP2F timeout remain unchanged",
+    "Ambient typing and GUI dependency state remain separate, not green",
+    "H-parent/publication/general native/full-complex and all public/default/dependency/production-license gates remain closed"
+  ]
+}
