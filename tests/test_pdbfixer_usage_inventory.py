@@ -76,9 +76,9 @@ def test_diagnostics_only_discovers_without_building(scanner):
 
 
 def test_retained_source_inventory_is_current(scanner):
-    # New private reconstruction comparison is an explicit additive amendment;
-    # none of the old production/scientific source inventories is overwritten.
-    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-comparison.json').read_text())
+    # New pure metadata adapter factoring is a separately retained amendment;
+    # no old production/scientific source inventory is overwritten.
+    retained = json.loads((ROOT/'docs/research/pdbfixer-usage-inventory-metadata-chirality.json').read_text())
     historical = ROOT/retained['historical_inventory']['path']
     assert hashlib.sha256(historical.read_bytes()).hexdigest() == retained['historical_inventory']['sha256']
     assert scanner.inventory(ROOT)['files'] == retained['files']
@@ -99,7 +99,14 @@ def test_comparison_amendment_adds_only_private_seeded_baseline(scanner):
     previous_path = ROOT/current['historical_inventory']['path']
     previous = json.loads(previous_path.read_bytes())
     assert current['historical_inventory']['sha256'] == hashlib.sha256(previous_path.read_bytes()).hexdigest()
-    assert current['files'] == scanner.inventory(ROOT)['files']
+    actual = scanner.inventory(ROOT)
+    assert [f for f in actual['files'] if f['path'] != 'src/dvbfixer/chemical_reconstruction/template_comparison.py'] == [
+        f for f in current['files'] if f['path'] != 'src/dvbfixer/chemical_reconstruction/template_comparison.py']
+    before = next(f for f in current['files'] if f['path'] == 'src/dvbfixer/chemical_reconstruction/template_comparison.py')
+    after = next(f for f in actual['files'] if f['path'] == before['path'])
+    for key in ('imports', 'uses'):
+        assert [{k: v for k, v in row.items() if k != 'line'} for row in before[key]] == [
+            {k: v for k, v in row.items() if k != 'line'} for row in after[key]]
     assert current['totals'] == scanner.inventory(ROOT)['totals']
     assert prior_to_comparison_totals(scanner) == previous['totals']
     assert current['added_private_sources'] == ['src/dvbfixer/chemical_reconstruction/template_comparison.py']
@@ -107,6 +114,26 @@ def test_comparison_amendment_adds_only_private_seeded_baseline(scanner):
     assert not current['historical_template_probe_rerun'] and not current['historical_scientific_results_changed']
     assert not current['public_backend_or_dependency_replacement']
     assert hashlib.sha256((ROOT/'scripts/amend_pdbfixer_usage_comparison.py').read_bytes()).hexdigest() == current['generator_source_sha256']
+
+
+def test_metadata_chirality_amendment_is_exact_current_inventory_with_no_use_delta(scanner):
+    path = ROOT/'docs/research/pdbfixer-usage-inventory-metadata-chirality.json'
+    current = json.loads(path.read_bytes())
+    parent = ROOT/current['historical_inventory']['path']
+    assert hashlib.sha256(parent.read_bytes()).hexdigest() == current['historical_inventory']['sha256']
+    previous = json.loads(parent.read_bytes())
+    assert current['files'] == scanner.inventory(ROOT)['files']
+    assert current['totals'] == previous['totals'] == scanner.inventory(ROOT)['totals']
+    assert [r['path'] for r in current['changed_source_bindings']] == ['src/dvbfixer/chemical_reconstruction/template_comparison.py']
+    for old, new in zip(previous['files'], current['files'], strict=True):
+        assert old['path'] == new['path']
+        for key in ('imports', 'uses'):
+            assert [{k: v for k, v in r.items() if k != 'line'} for r in old[key]] == [
+                {k: v for k, v in r.items() if k != 'line'} for r in new[key]]
+    assert not current['historical_template_probe_rerun'] and not current['historical_scientific_results_changed']
+    assert not current['public_backend_or_dependency_replacement']
+    generator = ROOT/'scripts/amend_pdbfixer_usage_metadata_chirality.py'
+    assert hashlib.sha256(generator.read_bytes()).hexdigest() == current['generator_source_sha256']
 
 
 def test_glycam_amendment_keeps_oh_inventory_and_usage_semantics(scanner):

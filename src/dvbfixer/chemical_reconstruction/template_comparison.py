@@ -119,28 +119,15 @@ def audit_seeded_baseline(request: ReconstructionRequest, masked: bytes, result:
                                float(f"{o.position[2]:.3f}")), o.unit, o.occupancy) for o in result.raw)
     if result.known_maximum_movement_angstrom != drift or result.rounded != rounded:
         raise ValueError("template-saved-drift-or-rounding")
-    from openmm import Vec3
-    from openmm.app import Topology, element
-    from openmm.unit import angstrom
+    from dvbfixer.ffutils.geometry import ChiralityError
 
-    from dvbfixer.ffutils.geometry import ChiralityError, assert_all_l
+    from .metadata_chirality import assert_metadata_all_l
 
     _, atoms = _parse_source(masked)
     names = {_component_ref(a): a.residue_name for a in atoms}
-    topology = Topology()
-    chains, residues = {}, {}
-    for o in result.temporary_atoms:
-        component = o.identity.component
-        if component.chain_id not in chains:
-            chains[component.chain_id] = topology.addChain(component.chain_id)
-        if component not in residues:
-            residues[component] = topology.addResidue(names[component], chains[component.chain_id],
-                id=component.sequence_number, insertionCode=component.insertion_code)
-        topology.addAtom(o.identity.name, element.get_by_symbol(o.element), residues[component])
-    positions = [Vec3(*o.position)*angstrom for o in result.temporary_atoms]
     passed = True
     try:
-        assert_all_l(topology, positions)
+        assert_metadata_all_l(result.temporary_atoms, names)
     except ChiralityError:
         passed = False
     if result.global_l_passed != passed or (result.status == "coordinates-proposed") != (passed and drift <= 1e-4):

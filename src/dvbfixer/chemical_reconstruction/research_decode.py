@@ -16,8 +16,10 @@ from typing import Literal, TypeVar, Union, cast, get_args, get_origin, get_type
 from .comparison_metrics import CommonHeavyMeasurement
 from .conformer_search import ConformerSearchPlan, ConformerSearchResult
 from .contracts import Observation, PreparedContextRequest, ReconstructionRequest
+from .cycle_audit import CycleGeometryAudit, CyclePairAudit
 from .cycle_contract import CycleConstructionProblem, CyclePlanningAdmission
 from .cycle_initialization import CycleInitializerRecord
+from .cycle_source import CycleSourceMetadata
 from .declared_peptide import DeclaredPeptideAuthority
 from .heavy_conditioning import HeavyConditionedRequest
 from .incoming_type import IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog
@@ -41,7 +43,8 @@ T = TypeVar("T")
 ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult, ObservedPeptideProbe, StagedResult,
          ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult,
          ProjectedHeavyParent, ProjectedHydrogenResult, IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog,
-         SeededHeavyBaseline, CommonHeavyMeasurement, CycleConstructionProblem, CyclePlanningAdmission, CycleInitializerRecord)
+         SeededHeavyBaseline, CommonHeavyMeasurement, CycleConstructionProblem, CyclePlanningAdmission, CycleInitializerRecord,
+         CycleSourceMetadata, CycleGeometryAudit, CyclePairAudit)
 VARIANTS: dict[type, tuple[type, ...]] = {
     PlanarPortDeclaration: (PlanarPortDeclaration, TypeProvenPlanarPortDeclaration),
     ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest, ProjectedConditionedRequest),

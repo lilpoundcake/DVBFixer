@@ -1,0 +1,117 @@
+{
+  "schema": "dvbfixer.chemical-cycle-audit-validation.v1",
+  "date": "2026-11-26",
+  "branch": "feature/chemical-reconstruction",
+  "baseline_commit": "a2fd684",
+  "frozen_protocol_commit": "26dd7ed",
+  "protocol": "docs/plans/chemical-reconstruction-cycle-solver-v1.md",
+  "protocol_sha256": "88cb776bdf3bb35053d9e463307d8d36ca8b765bab8b18e8d1350bd87ff3bd7b",
+  "cohort_ledger": "docs/plans/chemical-reconstruction-cycle-solver-cohort-v1.json",
+  "cohort_ledger_sha256": "f6c097f6c14d1394b2fc0b9c64984fd7a35eb488b7e207d73137b8407f695075",
+  "status": "WP2R1B-source-metadata-and-independent-geometry-audit-not-complete-R1",
+  "scope": {
+    "implemented": "Original/prepared-byte-authenticated masked source metadata, shared metadata-only global L, all R0 metrics/all declared constraints/full-context severe separation, independent raw/rounded transport and 8 A cap measurements, strict standalone report transport/readback",
+    "not_implemented": "CycleSolvePlan/context residual vector/SciPy solver/call budgets/numerical traces/convergence/selection and 30-cell R1 comparison runner",
+    "new_R1_optimizer_calls": 0,
+    "new_R1_tracked_cohort_cells": 0,
+    "new_R1_native_reference_extractions_or_scores": 0,
+    "constructor_or_H_parent_approved_by_audit": false,
+    "initializer_solver_ready_changed": false,
+    "public_defaults_dependencies_DatRecord_or_production_enabled": false,
+    "version_unchanged": "0.10.2"
+  },
+  "source_and_validation_contract": {
+    "source_binding": "Reopen original/prepared bytes and verify source SHA256, exact original mask projection/observations/metadata/names/removed-record digest. Self-consistent masked-name hashes alone are not authentication.",
+    "nonleakage": "Metadata contains masked bytes and removed-record digest, not withheld coordinate records. Independent measurement uses only observations plus supplied additions; synthetic withheld-coordinate perturbation leaves physical measurements unchanged.",
+    "protein_parent_labels": "Actual target protein parent must agree with declared parent via existing VARIANT_TO_PARENT; labels retained literally, no charge/state inference or chain-case normalization. Isolated free-molecule target remains supported in synthetic controls.",
+    "global_L": "Shared assert_metadata_all_l builds only metadata Topology/positions and calls existing assert_all_l with its original rules/deadband. No bonds, coordinate construction, reflection or minimization. Group chains/residues/atoms before adding them to preserve model/case/icode/occurrence and late additions.",
+    "unknown_elements_or_environment": "Unknown metadata element is unmeasurable, missing OpenMM/NumPy is unavailable, neither can pass. Unrelated dependency/programming errors propagate.",
+    "geometry": "Every R0 heavy bond/angle including fixed-only and all original/extra constraints measured with shared scalar owners; no fake GeometryPlan or legacy strategy. Finite exclusion upper bounds and declared distance units retained.",
+    "context": "All retained observations, including opaque/fractional context, checked; only declared 1-2/1-3 graph/covalent-link exclusions. Unique severe pairs below unchanged 0.7 A and minimum eligible separation are not vdW/energetic/full-complex qualification.",
+    "transport_and_caps": "Independent raw and PDB-0.001 A rounded audits, exact canonical rounding binding, both Euclidean start-relative movements <=8 A. Rounding crossing the cap rejects without clipping. No solver convergence or branch selection implied.",
+    "roles": "CycleSourceMetadata/CycleGeometryAudit/CyclePairAudit are standalone private roles, not candidates or H parents. Constructor approval/MD/source coverage remain false even for a passing synthetic measurement.",
+    "codec_delta": "Three new standalone roots and imports only; normalized source byte-identical to a2fd684; all old Strategy/VARIANTS/parser limits/decoding behavior preserved"
+  },
+  "synthetic_fixture_evidence": {
+    "kind": "Known synthetic geometry witnesses and artificial starts, NOT numerical R1 reconstruction trials",
+    "cases": 11,
+    "case_scope": "All seven PRO masks, full PHE/TYR/TRP and explicitly declared HIP synthetic graphs with retained context",
+    "initial_starts_measured": 88,
+    "initial_declared_geometry_passes": 3,
+    "initial_passing_branches": [["PRO-CB", 0], ["PRO-CD", 6], ["PRO-CD", 7]],
+    "other_initial_failures_retained": 85,
+    "synthetic_witness_raw_rounded_pair_passes": 11,
+    "passing_witness_is_a_constructor_result": false,
+    "guarded_readback": "Passed with initializer/start/NumPy solve and old constructors/optimizer disabled; actual shared global-L measurements remain enabled",
+    "replay": "23 files byte-identical: 11 source inputs + 11 evidence records + environment/code metadata; not independent scientific samples"
+  },
+  "checks": {
+    "new_cycle_audit_tests": 49,
+    "new_inventory_amendment_test": 1,
+    "focused": {"passed": 262, "failures": 0, "errors": 0, "junit": "audit-focused-01.xml", "sha256": "9c52c6635d7c4f55ffaf88007c4b7d90ac71be7d0d1b71e0e8cce697c894c6c2"},
+    "split_slow_boundaries": {"passed": 598, "failures": 0, "errors": 0, "junit": "audit-boundaries-01.xml", "sha256": "19fe24c9f9de903a98d38ec61cb7d1c52e8a6df1da97dd1456a343338221efe4"},
+    "full_fast": {"passed": 4162, "failures": 0, "errors": 0, "existing_optional_skips": 3, "slow_deselected": 33, "junit": "audit-fast-01.xml", "sha256": "cdec3adf4a5637566a2a9336f7ed41154d9e9cf24f48ca2f03ed72af9bd3818f"},
+    "ruff": "passed: src/dvbfixer, new inventory generator, new/updated tests",
+    "scoped_strict_typing": {"passed_files": 51, "log": "audit-mypy-scoped-01.log", "sha256": "918734ea957dd4753b8d4ca0aba97793773f2fcb1fa479a6e2953922f26612f8"},
+    "source_bound_strict_typing": {"passed_files": 52, "log": "audit-mypy-source-bound-01.log", "sha256": "0f0451a70963ae73be675ad208919e74e8bf1cfecdd4689aabe892085d717fc7"},
+    "ambient_strict_typing": {"status": "unchanged-not-green", "errors": 814, "new_lines": 0, "removed_lines": 0, "log": "audit-mypy-ambient-01.log", "sha256": "d6632776b24e9174dc3a4aa7e6662adbbf7e225a1a150664c389cfd07344578e"},
+    "maps_versions_generated_fixtures_links_hashes_whitespace": "passed; fixture manifest included in 598 boundary tests; 75 local links and all recorded source/artifact/protocol/ledger/JUnit/log/inventory hashes/counts verified",
+    "development_fixes": "Grouped both chains and residues for OpenMM contiguity; tested forged metadata through the mandatory external source audit rather than assuming self-consistent DTO transport authenticates its source. No frozen physical threshold, state, mask or solver policy changed."
+  },
+  "inventory_amendment": {
+    "path": "docs/research/pdbfixer-usage-inventory-metadata-chirality.json",
+    "sha256": "9fe310f307e18174394665726d505edccce855cf8e7eb910375c175e81efb9d5",
+    "changed_owner": "src/dvbfixer/chemical_reconstruction/template_comparison.py",
+    "only_changed_function": "audit_seeded_baseline: shared metadata-only global L",
+    "all_other_comparator_function_ASTs_unchanged_including_raw_constructor": true,
+    "PDBFixer_use_semantics_unchanged": {"constructor": 12, "seeded_rebuild": 10, "method": 28},
+    "historical_inventories_and_results_not_overwritten": true
+  },
+  "evidence": {
+    "root": "tmp/chemical-reconstruction-cycle-solver-v1",
+    "artifact_sha256": {
+      "audit_fixtures.py": "6d63ba97f66dcb2f49ed084acba9ccb61725d2301bb5c31e0d3bf7f0a4886148",
+      "verify_audit_history.py": "7abbb1084730bf2853517550b6181490eb69416a8a82c03d8b463321f783d0e8",
+      "audit-history-01.json": "24150928814adb57d525c804b2596ed90f4554a74e0b33054ad58b04215b31cb",
+      "audit-fixtures-01/metadata.json": "8c280709946b8a7045c3a304a804fa7b80efc80b7209d98eacd6bb320f170a5d",
+      "audit-fixtures-01/HIS-CB-CG-ND1-CD2-CE1-NE2/evidence.json": "ca2a36f05fab754a314d0af18e71ec26c082e54189cf24142e2ae5317087a5a2",
+      "audit-fixtures-01/PHE-CB-CG-CD1-CD2-CE1-CE2-CZ/evidence.json": "89feee78dc4af02a6f23133028d6c0eb867c1fbdd7130185e714e2739e21f1dd",
+      "audit-fixtures-01/PRO-CB/evidence.json": "195d3b73ec8a73a4e93a38ccff4d6db663033e054b1f17bd68029f7764c375fb",
+      "audit-fixtures-01/PRO-CB-CD/evidence.json": "def169e2cf2da4efecd4c78b0e14fd3150d3dac66b22e9cf29a67340ef3d70bd",
+      "audit-fixtures-01/PRO-CB-CG/evidence.json": "42a1998fa2c35f118e03329f4ead65ccc8736aa394a3aae5c604826a50368545",
+      "audit-fixtures-01/PRO-CB-CG-CD/evidence.json": "bb7f47f2ecaafe39f178b2793bf91773b87814bd2bb516d981b96430faf7a3ef",
+      "audit-fixtures-01/PRO-CD/evidence.json": "2917ea5a8f9bf585a9c703d5525506173f7e170d037788ada06a1708977a61fc",
+      "audit-fixtures-01/PRO-CG/evidence.json": "ab7c92fa2bb62e08764b488dc810231bc137cf8946c005bbec4636541b0a2855",
+      "audit-fixtures-01/PRO-CG-CD/evidence.json": "e559c236ead41957784da084fdca088721c5a4a52a71e24e9ddca9d94ba66b91",
+      "audit-fixtures-01/TRP-CB-CG-CD1-CD2-NE1-CE2-CE3-CZ2-CZ3-CH2/evidence.json": "999c7fd178b94f8a4b00be94f7f8f0d2be481248152fe1dd039d2a77847e57eb",
+      "audit-fixtures-01/TYR-CB-CG-CD1-CD2-CE1-CE2-CZ-OH/evidence.json": "ebe3be629a03a4598fd078a04d047f67e91c5eafced2fd54096140ef5ac5e868"
+    },
+    "historical_integrity": {
+      "unchanged_source_pins_excluding_explicit_factoring_codec_and_inventory_test_deltas": 14,
+      "unchanged_artifact_pins": 40,
+      "byte_identical_scientific_replay_pairs": 525,
+      "historical_replay_arms": 16,
+      "guarded_R0_and_WP2Q_comparator_readback": "passed without overwrites after factoring",
+      "new_historical_scientific_trials": 0,
+      "Finder_metadata": "24 observed root .DS_Store sidecars retained/disclosed with hashes; excluded only from scientific replay count; no unknown extra scientific file ignored"
+    }
+  },
+  "source_sha256": {
+    "src/dvbfixer/chemical_reconstruction/cycle_source.py": "28735e5f3234d5aca97c04c5030fe4c0407f217d659d2a1f4bc52d71bf364f2f",
+    "src/dvbfixer/chemical_reconstruction/cycle_audit.py": "0bb824cef3296140d9477ee917b2b6382966aafff0e7b7cf3c5ac9c2caf1506c",
+    "src/dvbfixer/chemical_reconstruction/metadata_chirality.py": "733a34309b6bfb7830b6a11d5a45011dcc0efd9a8a97d846551ca3b209f0b2c1",
+    "src/dvbfixer/chemical_reconstruction/template_comparison.py": "f28feedeba618638f62d6587be97f06a9b068c03cc5e8e79f210f974c2c7c46c",
+    "src/dvbfixer/chemical_reconstruction/research_decode.py": "3072349cdb3bfafc74b052d39e766fcfd6e45b1fd2240ea3c3ccad28893d9ea0",
+    "scripts/amend_pdbfixer_usage_metadata_chirality.py": "46d01750caae4a04e151347af1da67e1ea68262bb8021fa879910f6bb1f0b819",
+    "tests/test_chemical_reconstruction_cycle_audit.py": "f363488339e494d2cf1fc18ac594a1a0c012b5d848776a5509b987f65b85dff0",
+    "tests/test_pdbfixer_usage_inventory.py": "1fa8cf3cfa8b1e2ed794be4d2f0852a0af68a5b694ccbd4e4477d29fe00d10e2"
+  },
+  "next_gate": "Implement frozen CycleSolvePlan/context residuals/SciPy solver with exact call budgets and all eight branch traces, independent convergence/selection/transport readback and tests. Optimizer receives only problem/starts/masked metadata, not complete prepared source or witnesses; independent external audit owns original-byte authentication. Freeze code/environment/check hashes before the 30-cell cohort.",
+  "remaining_gates": [
+    "No R1 numerical proposal, convergence or branch selection implemented by this slice",
+    "Synthetic geometry witnesses and three passing starts do not qualify reconstruction/native/H/full-complex quality",
+    "Old failures/native worsenings/v1-altloc refusals/WP2F timeout retained",
+    "Ambient typing and GUI dependency state remain separate, not green",
+    "H-parent/publication/public/default/dependency/production and data-license gates remain closed"
+  ]
+}

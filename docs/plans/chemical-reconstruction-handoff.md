@@ -10,13 +10,14 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2R1A implements the frozen boundary-harmonic initializer,
-eight labelled starts and standalone immutable provenance/readback, with synthetic
-fixtures only. Records are `initialized-unvalidated`, NOT geometry-approved or
-solver-ready. Frozen protocol remains **26dd7ed**; R0/projector/H gates and old
-failures remain unchanged. No R1 optimizer or 30-cell tracked-source cohort ran.
-Next implement initial geometry/global-L/source metadata, then the frozen joint
-solver/raw-rounded validator/trace slice before tracked-source numerical trials.
+**Current continuation:** WP2R1B adds original-byte-authenticated source metadata and
+independent initial/raw/rounded geometry, full-context severe separation, global-L,
+rounding and movement-cap measurement/readback. The old comparator now shares its
+metadata-only global-L helper; raw constructor semantics/results remain unchanged.
+Initializer records remain `initialized-unvalidated`; measurement is NOT solver
+convergence, selection or H-parent approval. Frozen protocol remains **26dd7ed**.
+No R1 optimizer or 30-cell tracked-source cohort ran. Next implement the frozen
+joint solver plan/residuals/budgets/traces/selection before numerical trials.
 
 ## 1. Persistent branch and authorization
 
@@ -2157,7 +2158,7 @@ scientific replay count; unknown other extras still fail. The sole existing-sour
 delta is the initializer standalone root/import in the private codec. All old
 scientific/production sources, fixtures, FF and dependencies are unchanged.
 
-**Next:** add a source-bound metadata adapter preserving actual residue names and
+**Next at WP2R1A (audit slice below):** add a source-bound metadata adapter preserving actual residue names and
 exact full-complex identities for the shared detector, independent initial geometry/
 global-L audit, then the frozen solver plan/residuals/budgets/branches and raw/rounded
 context/transport/global-L validator/trace/selection. Reuse/factor the existing
@@ -2167,3 +2168,93 @@ and freeze code/environment/check hashes BEFORE the 30-cell numerical cohort.
 Do not alter frozen starts/settings/masks/thresholds to obtain passes. Full R1,
 native/H/retained-complex qualification and public/default/production gates remain
 open; old CD-only failures/native worsenings/altloc refusals/WP2F timeout remain.
+
+## WP2R1B — source metadata and independent physical audit (2026-11-26)
+
+User approved the next implementation slice. `cycle_source.py`, `cycle_audit.py`
+and `metadata_chirality.py` add private source transport and measurement owners;
+see [validation](chemical-reconstruction-cycle-audit-validation.json). The frozen
+protocol/ledger are unchanged. Version stays 0.10.2. No R1 optimizer/cohort/native
+score, public route/default/dependency/H/DatRecord/materialization/publication or
+production/data-license enablement.
+
+Source metadata authenticates the reopened original/prepared bytes, exact mask
+projection, observations, literal residue names and removed-record digest. It
+contains masked bytes, NOT the withheld atom records. A self-consistent DTO hash
+alone is not source authentication: every independent measurement rebinds against
+the external source. Protein parent names must agree via the existing canonical
+variant map; this retains actual labels and explicit state, not charge inference.
+Unknown/isolated chemistry is not turned into a protein-only input restriction.
+Synthetic free-molecule and opaque/fractional context controls remain separate
+from scientific qualification. Changing withheld coordinates in a synthetic input
+does not change any physical measurements for the same supplied additions.
+
+`assert_metadata_all_l` factors the comparator's metadata-only readback through
+the existing `assert_all_l` detector/deadband. It creates no bonds, new coordinates,
+reflect/rebuild/minimize or force field. Grouping chains, residues and atoms keeps
+OpenMM contiguity without collapsing model/chain case/insertion/occurrence or
+generated atoms supplied after observations. Actual source names preserve the
+detector's existing skip semantics; a wrong protein-parent name cannot exploit
+them. Unknown metadata elements are unmeasurable, missing OpenMM/NumPy unavailable;
+neither can pass. Unexpected dependency/programming errors propagate.
+
+The geometry owner measures EVERY R0 bond/angle, fixed-only terms and declared
+constraints using existing scalar owners, not an objective residual or fabricated
+GeometryPlan. All retained observations participate in severe-separation checks;
+only declared 1-2/1-3 graph/covalent-link exclusions apply. Fractional/opaque context
+is retained, never guessed bonded or cropped. Reports keep scalar findings, unique
+sub-0.7 A pairs, minimum eligible separation and global-L status. These are not
+vdW/MolProbity, energetic or full-complex qualification claims.
+
+The pair audit independently checks raw and PDB-rounded geometry/global L, canonical
+rounding transport and both frozen 8 A start-relative Euclidean movement caps.
+A cap crossed only after rounding rejects, without clipping. Initial geometry
+failure does NOT become an old passing-parent gate: artificial starts need to be
+measured/retained, not geometry-passed, for a future R1 attempt. Conversely, passing
+synthetic geometry cannot certify solver convergence/selection or an H parent.
+All measurement roles retain constructor/MD/source-coverage approval False; R1A's
+initializer status/readiness remains unchanged. Source/measurement/report budgets
+are bounded, with no truncated context; explicit plan/trace budget admission remains
+part of the pending numerical slice.
+
+The existing comparator changes ONLY `audit_seeded_baseline` to call the shared
+metadata helper. Every other comparator function AST, including its raw seeded
+PDBFixer constructor, is unchanged. The separately generated
+[inventory amendment](../research/pdbfixer-usage-inventory-metadata-chirality.json)
+preserves all old inventory files and use semantics (12 constructors/10 seeded
+rebuilds/28 methods); tests explicitly check current bindings and historical scope.
+The private codec gains three standalone roots/imports only; old strategies,
+GeometryPlan variants, parser limits and old decoding behavior are unchanged.
+
+**49 new audit tests + one inventory test**, **262 focused**, **598 boundaries**,
+and full-fast **4,162 passed** (three existing optional skips, 33 slow deselected).
+Ruff passes; scoped/source-bound strict typing pass 51/52 files. Ambient remains
+the same 814 errors, with no new/removed diagnostics. No GUI-dependency state or
+WP2F timeout is relabelled green by these checks.
+
+Retained synthetic evidence covers 11 cases and all **88** artificial starts:
+only **3/88** meet declared geometry/global L (PRO-CB branch 0, PRO-CD branches 6/7);
+all 85 initial failures remain visible. Eleven known synthetic witness raw/rounded
+pairs pass their measurement checks; these are NOT generated R1 solver results or
+independent proteins. Guarded saved readback passes with initializer/linear solve/
+old constructors/optimizer disabled; 23 input/evidence/environment replay files
+match byte-for-byte. No tracked-source R1 cell or native scoring executed.
+
+Guarded R0/WP2Q/comparator readback matches old evidence without overwrites after
+factoring. Historical 14 unchanged source/40 artifact pins and all 525 scientific
+replay pairs across 16 arms are verified. The 24 root Finder `.DS_Store` sidecars
+are retained and disclosed, not counted as scientific files. Explicit existing
+source deltas are the pure comparator factoring, codec registration and inventory
+regression amendment, not a silent historical hash replacement.
+
+**Next:** implement frozen CycleSolvePlan, fixed per-branch context pair vector and
+far-pair proof, normalized residuals, SciPy TRF/call budgets, complete eight-branch
+failure/convergence traces, objective/movement/index selection and independent saved
+result readback. Optimizer inputs must contain only problem/starts/masked metadata,
+never the complete prepared source or witness coordinates; external source-byte
+authentication belongs to the independent audit/control layer. Keep solver success,
+geometry, source coverage and MD readiness distinct. Complete synthetic/nonleakage/
+budget/trace/transport tests and freeze code/environment/check hashes BEFORE the
+30-cell cohort. Do not adjust frozen starts/weights/bounds/masks/states to win it.
+H integration/publication and broad native/H/retained-complex/public/default/
+dependency/production-license gates remain closed, with all historical negatives.
