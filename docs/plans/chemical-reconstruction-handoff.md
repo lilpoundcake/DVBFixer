@@ -1,6 +1,6 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-23. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
+Date: 2026-11-26. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
 WP2J all20 source coverage and WP2K fragment-grid/steric ranking are case-tested,
 not native-quality qualification. Earlier WP2I fast suite passed (3754); latest
@@ -10,12 +10,14 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2R0 adds a separate generic cycle-aware problem and
-planning-admission contract, not a solver or passing parent. Full cyclic graphs,
-generated subsets/blocks, boundaries and scalar metrics are source-bound; all nine
-old source/mask cells plan with zero new coordinates. The two CD-only rejections
-are NOT repaired/reclassified. Numerical construction R1 needs its own prospective
-initializer/solver/cohort freeze. WP2P/Q and older negatives remain unchanged.
+**Current continuation:** the separate WP2R1 initializer/solver/cohort protocol is
+prospectively frozen as **26dd7ed** from `4565ac8`. It defines a generic harmonic-
+boundary initializer, eight labelled starts and a joint bounded solver, with an
+explicit 30-cell comparison denominator. This session adds NO numerical engine,
+initializer coordinates, solver execution or scientific result. WP2R0 and its old
+projector gate remain unchanged; the two CD-only rejections are not repaired or
+reclassified. Next implement the separate start/solver/audit/trace slice and its
+nonleakage tests before any tracked-source R1 coordinate trial.
 
 ## 1. Persistent branch and authorization
 
@@ -2016,7 +2018,7 @@ Scoped/source-bound strict typing passes 47/48 files; ambient remains the same
 814 errors. Agent maps, versions/generated specs, fixture/link/hash/whitespace
 checks pass. No numerical construction or scientific repair is claimed.
 
-**Next R1:** freeze a distinct initializer provenance DTO and refusal policy,
+**Next at WP2R0 (prospective freeze below):** freeze a distinct initializer provenance DTO and refusal policy,
 deterministic starts/branch handling, solver/objective/budgets/movement caps,
 context/separation treatment, immutable-observation/raw/rounded/global-L checks,
 trace retention and an independently declared comparison cohort BEFORE any new
@@ -2024,3 +2026,67 @@ coordinates. A rejected numeric start cannot be called a passing old parent;
 the old projector gate is not relaxed. H-parent integration/publication and broader
 native/full-complex qualification remain separate later gates. Do not turn this
 planning contract into a PRO/CD patch or production/backend replacement.
+
+## WP2R1 — prospective numerical protocol only (2026-11-26)
+
+User approved proceeding with the next prospective protocol. The
+[protocol](chemical-reconstruction-cycle-solver-v1.md) and
+[cohort/settings ledger](chemical-reconstruction-cycle-solver-cohort-v1.json) were
+committed as **26dd7ed** from `4565ac8`, BEFORE any R1 initializer coordinate,
+optimizer call or scientific execution. Identity-only target discovery used the
+existing first-chain/first-interior selector, no geometry/native-quality filter.
+Version stays 0.10.2; all scientific runtime sources/fixtures/FF remain unchanged.
+
+The declared initializer is `boundary-harmonic-orbit-v1`: solve a bond-length-
+weighted graph Dirichlet system against fixed observed target-heavy boundaries,
+then add eight explicit sign/quarter-turn orbital perturbations in the observed
+frame. It consumes ONLY CycleConstructionProblem, not comparator/reference/native/
+rotamer/fitted-ideal coordinates. It is an artificial start, not a passing old
+parent or physical conformer library. No automatic start replacement, deduplication,
+success short-circuit or old projector gate change. Refused/failed starts stay visible.
+
+The frozen numerical plan specifies all metric/constraint/context residuals,
+normalization/weights, SciPy TRF settings, 600 nfev and 50,000 optimizer-residual-call
+ceilings per initialized branch, eight branches, exact immutability and 8 A raw/
+rounded per-generated-atom start-relative movement cap. This is NOT the old 2 A
+projection cap or a claim of small physical motion. Full retained context stays
+present; only far pairs with a movement-ball proof may be omitted numerically,
+and independent final separation checks use the complete observation inventory.
+Nonzero plane lower bounds and periodic torsions remain explicit numerical-profile
+refusals rather than silently omitted semantics. Singular/nonfinite geometry fails
+the labelled branch; no repair/fallback/force field/observed motion.
+
+Independent raw/rounded geometry/global-L/transport/movement audits, separate
+initializer provenance/result/trace roles and canonical bindings are specified,
+NOT implemented by this freeze. Solver success alone is insufficient. Selection
+uses geometry-approved branches and objective/movement/index, never native RMSD.
+Constructor-free saved readback and a separately labelled initializer-only replay
+are distinct checks; the latter is not another scientific sample.
+
+The denominator is **30 cells on three known systems**, not 30 independent proteins:
+all seven PRO CB/CG/CD subsets on unchanged 1TIM/1CRN/2CI2 (21), plus full PHE/TYR/TRP
+sidechains in the same first chains (nine). The literal 1CRN TRP absence remains
+declared without a replacement site. Identity presence is NOT source admission.
+The old nine PRO cells are retrospective regressions, not unseen validation.
+The new-constructor, original graph-internal and separate seeded-PDBFixer arms have
+common source-bound measurements, no new H/projector calls, and delayed exact-name
+native scoring only after all available arms/branches return. No required pass/win
+rate, symmetry/fitting, threshold tuning, hidden source crop or mask enlargement.
+
+Protocol metadata tests pin the documents, sources, selectors, inherited authority
+assets, masks/settings/denominators and historical lineage. **19 metadata tests and
+100 combined protocol/R0/projector regressions pass**, Ruff passes. No initializer,
+solver or 30-cell scientific controls executed. No full-fast/typing/GUI rerun is
+claimed for this documentation/test-only slice; R0's 4,045 fast passes and unchanged
+814 ambient errors are retained historical evidence, not new measurements.
+Final maps/version/generated/fixture/link/hash/whitespace checks are recorded in
+`tmp/chemical-reconstruction-cycle-solver-v1/documentation-quality.md`.
+
+**Next:** implement the frozen initializer and distinct provenance/refusal DTOs,
+joint solver, independent raw/rounded/global-L/context validator and bounded trace/
+readback, with synthetic/generic-ring/nonleakage tests. Bind code/environment/test
+hashes BEFORE running the declared cohort. Preserve R0 admission, old strategies,
+codec variants/bounds and projector/H gates; new standalone roots only if needed.
+Do not claim the protocol itself restored any missing atom or qualified native/H/
+full-complex chemistry. H-parent/publication/public/default/dependency and licensed
+production gates remain separate and closed.
