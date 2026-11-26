@@ -1,0 +1,154 @@
+{
+  "schema": "dvbfixer.chemical-cycle-solver-prospective-cohort.v1",
+  "date": "2026-11-26",
+  "baseline_commit": "4565ac8",
+  "protocol": "docs/plans/chemical-reconstruction-cycle-solver-v1.md",
+  "stage": "prospective-protocol-only-no-R1-coordinate-execution",
+  "source_systems": 3,
+  "declared_cells": 30,
+  "primary_PRO_cells": 21,
+  "secondary_aromatic_cells": 9,
+  "metadata_absent_cells": 1,
+  "source_admission_or_geometry_evaluated": false,
+  "source_selection": "Known tracked WP2P systems, not blinded/unseen/external validation; masks/sites/branches/repeats are dependent",
+  "target_selection": "First file-order ATOM chain, then first interior residue of literal profile parent via existing select_interior_target; no fallback or geometry/native filter",
+  "identity_defaults": {"model": 1, "insertion_code": "", "alternate_location": "", "occurrence": 1},
+  "sources": [
+    {
+      "id": "1TIM",
+      "path": "tests/fixtures/protein_context/1TIM.pdb",
+      "sha256": "79b35b419696a1e368aad2121ae2712e46444b5978de1e86bdc286f482222cdc",
+      "chain": "A",
+      "targets": {"PRO": "2", "PHE": "6", "TYR": "47", "TRP": "12"}
+    },
+    {
+      "id": "1CRN",
+      "path": "tests/fixtures/protein_context/scoring_followup/1CRN.pdb",
+      "sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+      "chain": "A",
+      "targets": {"PRO": "5", "PHE": "13", "TYR": "29", "TRP": null},
+      "absent_target_reasons": {"TRP": "declared interior target not found"}
+    },
+    {
+      "id": "2CI2",
+      "path": "tests/fixtures/protein_context/independent_followup/2CI2.pdb",
+      "sha256": "8a42f06a0a59074eddf9ac6274962057fc965a1256dce268d96b9d903ba4ae4d",
+      "chain": "I",
+      "targets": {"PRO": "25", "PHE": "69", "TYR": "61", "TRP": "24"}
+    }
+  ],
+  "profiles": [
+    {
+      "parent": "PRO",
+      "state": "PRO",
+      "stratum": "primary-seven-subsets",
+      "masks": [["CD"], ["CG"], ["CB"], ["CG", "CD"], ["CB", "CD"], ["CB", "CG"], ["CB", "CG", "CD"]],
+      "constraints": "Original source-bound authority plus unchanged v2 incoming-type-proven planar port, as R0 prepare_cell"
+    },
+    {
+      "parent": "PHE",
+      "state": "PHE",
+      "stratum": "secondary-complete-ring-sidechain",
+      "masks": [["CB", "CG", "CD1", "CD2", "CE1", "CE2", "CZ"]],
+      "constraints": "Original source-bound peptide authority only; no invented PRO port"
+    },
+    {
+      "parent": "TYR",
+      "state": "TYR",
+      "stratum": "secondary-complete-ring-branch-sidechain",
+      "masks": [["CB", "CG", "CD1", "CD2", "CE1", "CE2", "CZ", "OH"]],
+      "constraints": "Original source-bound peptide authority only; no invented PRO port"
+    },
+    {
+      "parent": "TRP",
+      "state": "TRP",
+      "stratum": "secondary-complete-fused-sidechain",
+      "masks": [["CB", "CG", "CD1", "CD2", "NE1", "CE2", "CE3", "CZ2", "CZ3", "CH2"]],
+      "constraints": "Original source-bound peptide authority only; no invented PRO port"
+    }
+  ],
+  "observed_frame_atom_order": ["CA", "N", "C"],
+  "initializer": {
+    "revision": "boundary-harmonic-orbit-v1",
+    "inputs": ["admitted CycleConstructionProblem only"],
+    "weights": "1 / authoritative_target_heavy_bond_length_angstrom**2",
+    "linear_system": "Complete generated-variable Dirichlet Laplacian with observed target-heavy boundary RHS in explicit observed local frame",
+    "linear_solve": "numpy.linalg.solve float64; no pseudoinverse or jitter",
+    "maximum_absolute_equation_residual_inverse_angstrom": 1e-10,
+    "length_scale": "median of all generated-involving target-heavy bond lengths",
+    "offset_scale_fraction": 0.5,
+    "offset_formula": "v_j=(cos(theta),sin(theta),(-1)**j/2), theta=2*pi*(j+1)/(n+1), j in exact sorted R0 variable order",
+    "branches": [[1, 0], [1, 1], [1, 2], [1, 3], [-1, 0], [-1, 1], [-1, 2], [-1, 3]],
+    "rotation": "k*pi/2 around local e1; sign multiplies entire rotated offset",
+    "external_start_input": false,
+    "native_PDBFixer_rotamer_or_fitted_ideal_pose_input": false,
+    "require_initial_geometry_pass": false,
+    "deduplicate_or_success_short_circuit": false
+  },
+  "solver": {
+    "implementation": "scipy.optimize.least_squares",
+    "method": "trf",
+    "jac": "2-point",
+    "tr_solver": "exact",
+    "x_scale": 1.0,
+    "diff_step": 1e-6,
+    "loss": "linear",
+    "ftol": 1e-10,
+    "xtol": 1e-10,
+    "gtol": 1e-10,
+    "max_nfev_per_branch": 600,
+    "maximum_optimizer_residual_calls_per_branch_including_finite_difference": 50000,
+    "calls_per_initialized_branch": 1,
+    "coordinate_system": "Observed local frame Cartesian displacements relative to own initializer",
+    "per_coordinate_bound_angstrom": "8/sqrt(3)",
+    "raw_and_rounded_per_atom_movement_cap_angstrom": 8.0,
+    "observation_movement_allowed_angstrom": 0.0,
+    "maximum_numerical_residual_scalars_including_context": 65536,
+    "residual_weights": "All 1.0; protocol defines normalized metrics, interval/plane/stereo/exclusion and severe-separation residuals",
+    "minimum_separation_angstrom": 0.7,
+    "far_observed_pair_omission": "Only distance from own initializer strictly >8+0.7 A; exact final full-context audit independent of omitted pairs",
+    "nonzero_plane_lower_bound_supported": false,
+    "periodic_torsion_supported": false,
+    "regularizer_forcefield_reflection_restarts_or_fallback": false
+  },
+  "selection": {
+    "require_solver_success": true,
+    "require_raw_and_rounded_geometry_global_L_movement_and_transport": true,
+    "key_among_passing_branches": ["raw final squared residual", "raw maximum movement", "branch index"],
+    "native_reference_used": false,
+    "no_passing_branch_means": "Retained rejection, not proof of chemical infeasibility"
+  },
+  "comparison": {
+    "arms": ["new eight-start R1 joint constructor", "existing original graph-internal proposal", "existing separate seeded-PDBFixer Reference helper"],
+    "PDBFixer_helper_calls_per_source_admitted_cell": 1,
+    "PDBFixer_internal_seeds": [1, 2, 3, 4, 5],
+    "old_nine_comparator_repeats_are_new_independent_data": false,
+    "H_or_old_projection_calls": 0,
+    "reference_extraction": "After all available arms/branches for that cell return; score complete raw/rounded additions only, no fitting/permutation",
+    "common_scope": "Same effective original+extra request and existing heavy policy for all arms; all observations fixed",
+    "required_pass_or_win_rate": null,
+    "public_PDB_or_bundle_output": false
+  },
+  "baseline_pins": {
+    "docs/plans/chemical-reconstruction-cycle-contract-v1.md": "18f005bc4f4ec17ec52b8edf1650dda507bda907dd1b46afff96ef8aef5d59c4",
+    "docs/plans/chemical-reconstruction-cycle-contract-validation.json": "e629f0df4e7751b2efbb70f6773124fcef209bc1011a6883484c2936720f0436",
+    "docs/plans/chemical-reconstruction-comparison-cohort-v1.json": "a59f537e181e68ad92e24da37ac75b437e9d8d5ccf98b3a26314cc180a26f24d",
+    "docs/plans/chemical-reconstruction-comparison-validation.json": "75c540ac1e11a11c426d762d4af8fea3791980923614d25ad97f371a36cc3328",
+    "docs/plans/chemical-reconstruction-closure-diagnosis-validation.json": "203debaf1f6dd8ac5a5760de3ad83fe81538eb2fd5f960857aa210cac5e4432f",
+    "src/dvbfixer/chemical_reconstruction/cycle_contract.py": "2588461ae1cef1bb1c29c2d0333abdd3704b4c7a1822ff4286a31e76c02bc518",
+    "src/dvbfixer/chemical_reconstruction/research_decode.py": "99599dd6ac25dea56a5c5eb12cf11191185c914b23bf1112d146da7f024f9e6d",
+    "scripts/chemical_reconstruction_cycle_contract_controls.py": "20e7e7cacddb59a05599cff78cd542d35cc7360030fb7e8d05ed86d375d314ef",
+    "src/dvbfixer/chemical_reconstruction/candidate_audit.py": "863971e9c63f7efec92db7a843f0344860eca732554f6a08d3a17d243edbb9f4",
+    "src/dvbfixer/chemical_reconstruction/template_comparison.py": "b364e8aa5b1d179841b1ceb7dae4c54ee533976453acc4e709cd74e8962666ab"
+  },
+  "authority_pins": {
+    "tests/fixtures/chemical_reconstruction/ccd/manifest.json": "29c4f83b28435a34b666b5c1489c4f3423c53beb276e75d16cd0d8c3c055dece",
+    "tests/fixtures/chemical_reconstruction/ccd_h_groups_v1/manifest.json": "22c74384e25dbe735103b5d442d3c3c2cf6084492a68cf9b3ce887babc85b0a7",
+    "tests/fixtures/chemical_reconstruction/ccd_all20_v1/manifest.json": "acf270e09d298ca12c19c79013a54a85b5b845f602e863f91d6c886191e95f04",
+    "FF/amber19sb.ff/ffbonded.itp": "b6fa511c5bd3f11a19484a418d10e32972e2c19788d464466926c7d8fbde1034"
+  },
+  "implementation_ready": false,
+  "coordinate_execution_completed": false,
+  "production_or_general_qualification": false,
+  "H_parent_or_public_capability_enabled": false
+}

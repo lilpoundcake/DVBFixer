@@ -41,6 +41,8 @@ docs/plans/chemical-reconstruction-incoming-type-v1.md -text
 docs/plans/chemical-reconstruction-comparison-v1.md -text
 docs/plans/chemical-reconstruction-closure-diagnosis-v1.md -text
 docs/plans/chemical-reconstruction-cycle-contract-v1.md -text
+docs/plans/chemical-reconstruction-cycle-solver-v1.md -text
+docs/plans/chemical-reconstruction-cycle-solver-cohort-v1.json -text
 docs/plans/chemical-reconstruction-closure-diagnosis-inputs-v1.json -text
 docs/plans/chemical-reconstruction-comparison-cohort-v1.json -text
 docs/plans/chemical-reconstruction-projected-h-parents-v1.json -text
