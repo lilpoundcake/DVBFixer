@@ -19,6 +19,9 @@ from .contracts import Observation, PreparedContextRequest, ReconstructionReques
 from .cycle_audit import CycleGeometryAudit, CyclePairAudit
 from .cycle_contract import CycleConstructionProblem, CyclePlanningAdmission
 from .cycle_initialization import CycleInitializerRecord
+from .cycle_solve_plan import CycleSolvePlan
+from .cycle_solver import CycleConstructionResult
+from .cycle_solver_audit import CycleConstructionAudit
 from .cycle_source import CycleSourceMetadata
 from .declared_peptide import DeclaredPeptideAuthority
 from .heavy_conditioning import HeavyConditionedRequest
@@ -44,7 +47,7 @@ ROOTS = (ReconstructionRequest, DeclaredPeptideAuthority, ConformerSearchResult,
          ProjectionResult, PlanarPortAuthority, PlanarPortDeclaration, Observation, GeometryPlan, ProposalResult,
          ProjectedHeavyParent, ProjectedHydrogenResult, IncomingCarbonylTypeProof, IncomingSourceBinding, IncomingTypeCatalog,
          SeededHeavyBaseline, CommonHeavyMeasurement, CycleConstructionProblem, CyclePlanningAdmission, CycleInitializerRecord,
-         CycleSourceMetadata, CycleGeometryAudit, CyclePairAudit)
+         CycleSourceMetadata, CycleGeometryAudit, CyclePairAudit, CycleSolvePlan, CycleConstructionResult, CycleConstructionAudit)
 VARIANTS: dict[type, tuple[type, ...]] = {
     PlanarPortDeclaration: (PlanarPortDeclaration, TypeProvenPlanarPortDeclaration),
     ReconstructionRequest: (ReconstructionRequest, PreparedContextRequest, HeavyConditionedRequest, ProjectedConditionedRequest),

@@ -1,6 +1,6 @@
 # Chemical reconstruction — active development handoff
 
-Date: 2026-11-26. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
+Date: 2026-11-27. Status: WP0–WP2E, bounded WP2F complete-selected-H, WP2G
 joint-sp3-H, WP2H planar-N/thiol and WP2I declared PRO/HIP controls checked;
 WP2J all20 source coverage and WP2K fragment-grid/steric ranking are case-tested,
 not native-quality qualification. Earlier WP2I fast suite passed (3754); latest
@@ -10,14 +10,14 @@ reconstruction and scientific acceptance remain
 incomplete. This document is the **starting point for
 future reconstruction work**, not a claim that a universal tool has shipped.
 
-**Current continuation:** WP2R1B adds original-byte-authenticated source metadata and
-independent initial/raw/rounded geometry, full-context severe separation, global-L,
-rounding and movement-cap measurement/readback. The old comparator now shares its
-metadata-only global-L helper; raw constructor semantics/results remain unchanged.
-Initializer records remain `initialized-unvalidated`; measurement is NOT solver
-convergence, selection or H-parent approval. Frozen protocol remains **26dd7ed**.
-No R1 optimizer or 30-cell tracked-source cohort ran. Next implement the frozen
-joint solver plan/residuals/budgets/traces/selection before numerical trials.
+**Current continuation:** WP2R1C implements the frozen joint numerical plan,
+context/far-pair proof, SciPy solver, budgets, branch/partial/abort traces and
+independent source/physical readback/selection. Real SciPy tests use ONLY synthetic
+unit fixtures, not the prospective 30-cell tracked-source comparison. Numeric
+returns are not geometry approval; selection is declared-heavy-geometry-only,
+never an H parent or native/MD/public qualification. Protocol remains **26dd7ed**;
+old projectors/H gates and failures are unchanged. Next build/preflight the frozen
+three-arm comparison runner and delay native extraction until all arms return.
 
 ## 1. Persistent branch and authorization
 
@@ -2247,7 +2247,7 @@ are retained and disclosed, not counted as scientific files. Explicit existing
 source deltas are the pure comparator factoring, codec registration and inventory
 regression amendment, not a silent historical hash replacement.
 
-**Next:** implement frozen CycleSolvePlan, fixed per-branch context pair vector and
+**Next at WP2R1B (numerical slice below):** implement frozen CycleSolvePlan, fixed per-branch context pair vector and
 far-pair proof, normalized residuals, SciPy TRF/call budgets, complete eight-branch
 failure/convergence traces, objective/movement/index selection and independent saved
 result readback. Optimizer inputs must contain only problem/starts/masked metadata,
@@ -2258,3 +2258,96 @@ budget/trace/transport tests and freeze code/environment/check hashes BEFORE the
 30-cell cohort. Do not adjust frozen starts/weights/bounds/masks/states to win it.
 H integration/publication and broad native/H/retained-complex/public/default/
 dependency/production-license gates remain closed, with all historical negatives.
+
+## WP2R1C — private joint numerical engine, synthetic tests only (2026-11-27)
+
+User approved the solver/budget/trace/selection implementation after R1B. Four
+separate owners now exist: `cycle_solve_plan.py`, `cycle_residuals.py`,
+`cycle_solver.py`, `cycle_solver_audit.py`. See
+[validation](chemical-reconstruction-cycle-solver-validation.json) for final code,
+artifact/runtime/JUnit hashes, refusal accounting and gates. Protocol/ledger remain
+byte-identical to **26dd7ed**; version remains 0.10.2. No new dependency, public
+route/default, H/DatRecord/materialization/publication or production/license change.
+
+The external compiler authenticates original bytes and independently measures all
+eight initial starts. The retained numerical plan contains ONLY problem/initializer/
+masked metadata/initial reports/settings/context proofs, not complete prepared
+bytes, withheld records, native scores, external candidates or random seeds. All
+generated variables are solved jointly, including separate missing islands; no
+PRO/CD placement rule or independent span fit. Initial geometry failure is retained,
+NOT a passing-parent gate. Environment/unmeasurable initial audits have explicit
+preflight error codes; they are not chemical infeasibility claims.
+
+Per-branch context vectors keep all eligible generated/generated pairs and all
+generated/observed pairs not strictly proven farther than 8+0.7 A from the own
+start. Canonical index pairs bind to exact identity order; a SHA256 stream of
+canonical row digests binds omitted far-pair count/minimum. Exclusions are the
+same declared graph/link 1-2/1-3 rules; no guessed opaque bonds or source crop.
+Over-65,536 scalar vectors refuse without usable truncated pairs. Existing metadata
+total/JSON byte-node-depth budgets are admitted explicitly, not loosened.
+
+Residuals implement every frozen normalized metric/constraint/context term,
+including fixed-only constants, signed plane distances, ordered stereo and both
+finite exclusion bounds. SciPy TRF uses the exact frozen tolerances/settings,
+600 nfev, one call per initialized branch and 50,000 optimizer residual evaluations.
+The blocked 50,001st callback is counted but NOT evaluated; initial/final external
+measurements have a separate counter. Budget checking precedes nonfinite-vector
+classification even at that combined boundary. No reflection, minimization,
+regularizer, robust reweighting, fallback, seed, retry or first-success stop.
+
+Every branch records its plan/start binding, status/reason, returned vector,
+solver message/status/nfev/njev, raw/rounded additions, initial/final residuals,
+counters and last finite PARTIAL evaluation. Partial snapshots are diagnostics,
+not proposals/native scores. Missing declared numerical dependencies are unavailable.
+Unexpected errors propagate as CycleExecutionAborted with prefix/current evidence;
+an optional on_branch sink can durably retain each completed branch. Unrun attempts
+are not fabricated. Driver-level interruption orchestration remains a later gate.
+
+Independent readback reopens original source bytes, recomputes source/plan/initial
+audits/pair proofs, checks displacement/rounding/objective/counter consistency, then
+uses R1B's full-context raw/rounded/global-L/movement checker. It invokes no
+initializer, direct linear solve, materializer or optimizer. Counters are observed
+runtime metadata, NOT proof of the optimizer's internal trajectory; trusted code/
+artifact hashes bind that evidence, and physical acceptance is independent of it.
+Selection occurs ONLY here, across complete solver-success AND geometry-passing
+branches, with `(raw squared residual, raw max movement, branch index)` ordering.
+No native reranking. Even selection is private declared-heavy-geometry-only:
+H-parent/source-coverage/native/MD/public approval remains false.
+
+Retained final synthetic controls exercise PRO CD, noncontiguous CB/CD and complete
+CB/CG/CD masks: **24/24** real SciPy returns converge and pass independent pair
+geometry; selected zero-based branches are 4/7/1. Optimizer callback counts range
+24–235. These are reused synthetic original-authority observations, NOT real-source
+v2 planar-port cases, independent proteins, native comparisons or repair of the two
+old real-source CD-only failures. Witness coordinates are discarded before numerical
+dispatch; no tracked R1 cell or native extraction/scoring executed. Preflight code/
+environment pins precede retained execution. Constructor/optimizer-free saved
+readback passes; **38** numerical replay files are byte-identical on this environment.
+
+**45 new tests**, **307 focused**, **643 split boundaries** and final full-fast
+**4,207 passed** (three existing optional skips, 33 slow deselected). Ruff passes; scoped/
+source-bound strict typing pass 55/56 files. Ambient retains the same 814 errors
+without new/removed lines. Earlier *-01 evidence predates the final combined budget/
+nonfinite guard and is retained as superseded; 37 positive output files are unchanged
+between *-01 and *-02, with correctly different preflight code pins. No numerical
+setting, physical threshold, source mask or state changed to obtain a pass.
+
+Historical 21 current source pins, six explicitly retained historical source pins
+and 55 artifact pins verify, with all 525 scientific replay pairs across 16 arms
+unchanged. Guarded R0/WP2Q/comparator readback still matches without overwrites.
+Finder sidecars remain preserved/disclosed. The ONLY existing scientific source
+delta is three standalone private codec roots/imports; old Strategy/VARIANTS/
+parser limits, all other science/fixture/FF/dependency owners and inventories remain
+unchanged. Historical negatives/native worsenings/altloc refusals/WP2F timeout and
+GUI dependency state stay visible, not converted to green by this bounded engine.
+
+**Next:** implement the frozen 30-cell source/mask three-arm driver, exact original/
+prepared/masked transport, unchanged PRO incoming-type/v2-port authority and explicit
+PHE/TYR/TRP state adapters. Keep 1CRN's absent TRP and all refusals/unavailable cases
+in the denominator. Attempt new R1, original proposal and separate seeded-PDBFixer
+arms independently. Persist branch/abort evidence and arrange suitable orchestration
+limits. Freeze final runner/code/environment/test hashes BEFORE scientific execution;
+extract native references ONLY after all available arms/branches for a cell return.
+Do not rerank starts, change masks/thresholds or discard failed evidence to win.
+Native/H/full-complex qualification, H integration/publication and public/default/
+dependency/production/data-license gates remain separate and closed.
